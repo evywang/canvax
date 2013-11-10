@@ -1,4 +1,4 @@
-KISSY.add("canvax/display/Sprite" , function(S , DisplayObjectContainer){
+KISSY.add("canvax/display/Sprite" , function(S , DisplayObjectContainer,Base){
   var Sprite = function(){
       arguments.callee.superclass.constructor.call(this, name);
       var self = this;
@@ -6,7 +6,7 @@ KISSY.add("canvax/display/Sprite" , function(S , DisplayObjectContainer){
 
   };
 
-  S.extend(Sprite , DisplayObjectContainer , {
+  Base.creatClass(Sprite , DisplayObjectContainer , {
       init : function(){
       
       }
@@ -16,6 +16,7 @@ KISSY.add("canvax/display/Sprite" , function(S , DisplayObjectContainer){
 
 } , {
   requires:[
-    "canvax/display/DisplayObjectContainer"  
+    "canvax/display/DisplayObjectContainer",
+    "canvax/core/Base"
   ]
 })

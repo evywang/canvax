@@ -7,7 +7,7 @@
  * @property mouseX The x accordinate of mouse postion on Stage.
  * @property mouseY The y accordinate of mouse postion on Stage.
  */ 
-KISSY.add("canvax/event/StageEvent" , function(S,EventBase){
+KISSY.add("canvax/event/StageEvent" , function(S,EventBase,Base){
     var StageEvent = function(type, bubbles, cancelable) {
         EventBase.call(this, type, bubbles, cancelable);
 
@@ -15,7 +15,7 @@ KISSY.add("canvax/event/StageEvent" , function(S,EventBase){
         this.mouseY = 0;
     }
 
-    S.extend(StageEvent , EventBase , {
+    Base.creatClass(StageEvent , EventBase , {
         toString : function() {
         return "[StageEvent type=" + this.type + ", mouseX=" + this.mouseX + ", mouseY=" + this.mouseY + "]";
     }
@@ -35,7 +35,8 @@ KISSY.add("canvax/event/StageEvent" , function(S,EventBase){
 
 } , {
     requires : [
-        "canvax/event/EventBase"
+        "canvax/event/EventBase",
+        "canvax/core/Base"
         ]
 })
 

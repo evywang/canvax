@@ -1,4 +1,4 @@
-KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon){
+KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon , Base){
  
    var Sector = function(opt){
        var self = this;
@@ -19,7 +19,7 @@ KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon){
 
 
 
-   S.extend(Sector , Shape , {
+   Base.creatClass(Sector , Shape , {
        draw : function(ctx, style) {
            
                 var x = 0;   // 圆心x
@@ -127,6 +127,7 @@ KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon){
    requires:[
      "canvax/display/Shape",
      "canvax/utils/Math",
-     "canvax/shape/Polygon"
+     "canvax/shape/Polygon",
+     "canvax/core/Base"
    ]
 });

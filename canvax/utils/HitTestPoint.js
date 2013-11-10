@@ -1,4 +1,4 @@
-KISSY.add("canvax/utils/HitTestPoint" , function(S,Core){
+KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
 
 
     /**
@@ -27,7 +27,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Core){
         var zoneType = shape.type;
 
         if (!_ctx) {
-            _ctx = Core.getContext();
+            _ctx = Base.getContext();
         }
         // 未实现或不可用时(excanvas不支持)则数学运算，主要是line，brokenLine，ring
         var _mathReturn = _mathMethod(zoneType, shape, x, y);
@@ -473,7 +473,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Core){
      */
     function getTextWidth(text, textFont) {
         if (!_ctx) {
-            _ctx = Core.getContext();
+            _ctx = Base.getContext();
         }
 
         _ctx.save();
@@ -498,6 +498,6 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Core){
 
 },{
     requires : [
-        "canvax/core/Core"
+        "canvax/core/Base"
         ]
 });

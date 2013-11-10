@@ -1,4 +1,4 @@
-KISSY.add("canvax/display/DisplayObjectContainer" , function(S , DisplayObject){
+KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObject){
 
     DisplayObjectContainer = function(){
        var self = this;
@@ -9,7 +9,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S , DisplayObject){
 
     
 
-    S.extend(DisplayObjectContainer , DisplayObject , {
+    Base.creatClass(DisplayObjectContainer , DisplayObject , {
         addChild : function(child){
             if(this.getChildIndex(child) != -1) {
                 child.parent = this;
@@ -61,7 +61,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S , DisplayObject){
             return child;
         },
         removeChild : function(child) {
-            return this.removeChildAt(S.indexOf( child , this.children ));
+            return this.removeChildAt(_.indexOf( child , this.children ));
         },
         removeChildAt : function(index) {
 
@@ -117,11 +117,11 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S , DisplayObject){
             return this.children[index];
         },
         getChildIndex : function(child) {
-            return S.indexOf( child , this.children );
+            return _.indexOf( child , this.children );
         },
         setChildIndex : function(child, index){
             if(child.parent != this) return;
-            var oldIndex = S.indexOf(child , this.children);
+            var oldIndex = _.indexOf(child , this.children);
             if(index == oldIndex) return;
             this.children.splice(oldIndex, 1);
             this.children.splice(index, 0, child);
@@ -179,6 +179,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S , DisplayObject){
 
 },{
    requires:[
+     "canvax/core/Base",
      "canvax/display/DisplayObject"
    ]
 })

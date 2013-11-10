@@ -32,7 +32,7 @@
  * toArray: 返回颜色值数组
  * alpha  : 设置颜色的透明度
  **/
-KISSY.add("canvax/utils/color" , function(S,Core){
+KISSY.add("canvax/utils/color" , function(S,Base){
 
 
     var _ctx;
@@ -269,7 +269,7 @@ KISSY.add("canvax/utils/color" , function(S,Core){
      */
     function getRadialGradient(x0, y0, r0, x1, y1, r1, colorList) {
         if (!_ctx) {
-            _ctx = Core.getContext();
+            _ctx = Base.getContext();
         }
         var gradient = _ctx.createRadialGradient(x0, y0, r0, x1, y1, r1);
         for ( var i = 0, l = colorList.length; i < l; i++) {
@@ -289,7 +289,7 @@ KISSY.add("canvax/utils/color" , function(S,Core){
      */
     function getLinearGradient(x0, y0, x1, y1, colorList) {
         if (!_ctx) {
-            _ctx = Core.getContext();
+            _ctx = Base.getContext();
         }
         var gradient = _ctx.createLinearGradient(x0, y0, x1, y1);
         for ( var i = 0, l = colorList.length; i < l; i++) {
@@ -1023,6 +1023,6 @@ KISSY.add("canvax/utils/color" , function(S,Core){
     };
 },{
    requires:[
-     "canvax/core/Core" 
+     "canvax/core/Base" 
    ]
 })

@@ -1,4 +1,4 @@
-KISSY.add("canvax/shape/Ellipse" , function(S,Shape){
+KISSY.add("canvax/shape/Ellipse" , function(S,Shape,Base){
 
    var Ellipse = function(opt){
        var self = this;
@@ -16,7 +16,7 @@ KISSY.add("canvax/shape/Ellipse" , function(S,Shape){
        arguments.callee.superclass.constructor.apply(this, arguments);
    };
 
-   S.extend(Ellipse , Shape , {
+   Base.creatClass(Ellipse , Shape , {
        draw :  function(ctx, style) {
            var r = (style.a > style.b) ? style.a : style.b;
            var ratioX = style.a / r; //横轴缩放比率
@@ -56,6 +56,7 @@ KISSY.add("canvax/shape/Ellipse" , function(S,Shape){
 
 } , {
    requires : [
-      "canvax/display/Shape" 
+      "canvax/display/Shape",
+      "canvax/core/Base"
    ]
 });

@@ -1,4 +1,4 @@
-KISSY.add("canvax/core/propertyFactory" , function(S,Core){
+KISSY.add("canvax/core/propertyFactory" , function(S,Base){
     //定义封装好的兼容大部分浏览器的defineProperties 的 属性工厂
 
     unwatchOne = {
@@ -30,7 +30,7 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Core){
             if ( !unwatchOne[name] || (unwatchOne[name] && name.charAt(0) !== "$") ) {
                 model[name] = val
             };
-            var valueType = Core.getType(val);
+            var valueType = Base.getType(val);
             if (valueType === "function") {
                 if(!unwatchOne[name]){
                   VBPublics.push(name) //函数无需要转换
@@ -76,7 +76,7 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Core){
                         if (arguments.length) {
 
                             //set 的 值的 类型
-                            var neoType = Core.getType(neo);
+                            var neoType = Base.getType(neo);
 
                             if (stopRepeatAssign) {
                                 return //阻止重复赋值
@@ -266,6 +266,6 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Core){
 
 } , {
    requires : [
-     "canvax/core/Core" 
+     "canvax/core/Base" 
        ]
 });

@@ -1,4 +1,4 @@
-KISSY.add("canvax/shape/Line" , function(S,Shape){
+KISSY.add("canvax/shape/Line" , function(S,Shape,Base){
   var Line = function(opt){
       var self = this;
       this.type = "Line";
@@ -15,7 +15,7 @@ KISSY.add("canvax/shape/Line" , function(S,Shape){
   };
 
   
-  S.extend( Line , Shape , {
+  Base.creatClass( Line , Shape , {
       /**
        * 创建线条路径
        * @param {Context2D} ctx Canvas 2D上下文
@@ -93,6 +93,7 @@ KISSY.add("canvax/shape/Line" , function(S,Shape){
 
 } , {
   requires : [
-    "canvax/display/Shape"  
+    "canvax/display/Shape",
+    "canvax/core/Base"
   ]
 });

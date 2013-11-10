@@ -1,4 +1,4 @@
-KISSY.add("canvax/shape/Polygon" , function(S , Shape){
+KISSY.add("canvax/shape/Polygon" , function(S , Shape , Base){
 
    var Polygon=function(opt){
        var self = this;
@@ -13,7 +13,7 @@ KISSY.add("canvax/shape/Polygon" , function(S , Shape){
    };
 
   
-   S.extend( Polygon , Shape , {
+   Base.creatClass( Polygon , Shape , {
        draw : function(ctx, style) {
            var pointList = style.pointList.$model;
            ctx.moveTo(pointList[0][0],pointList[0][1]);
@@ -66,6 +66,7 @@ KISSY.add("canvax/shape/Polygon" , function(S , Shape){
 
 },{
    requires:[
-     "canvax/display/Shape" 
+     "canvax/display/Shape",
+     "canvax/core/Base"
    ]
 });

@@ -1,4 +1,4 @@
-KISSY.add("canvax/shape/Droplet" , function(S,Shape){
+KISSY.add("canvax/shape/Droplet" , function(S,Shape,Base){
 
   var Droplet = function(opt){
       var self = this;
@@ -14,7 +14,7 @@ KISSY.add("canvax/shape/Droplet" , function(S,Shape){
       arguments.callee.superclass.constructor.apply(this, arguments);
   };
 
-  S.extend( Droplet , Shape , {
+  Base.creatClass( Droplet , Shape , {
       draw : function(ctx, style) {
 
           ctx.moveTo( 0 , style.a);
@@ -58,6 +58,7 @@ KISSY.add("canvax/shape/Droplet" , function(S,Shape){
 
 },{
   requires:[
-    "canvax/display/Shape"  
+    "canvax/display/Shape",
+    "canvax/core/Base"
   ]
 });

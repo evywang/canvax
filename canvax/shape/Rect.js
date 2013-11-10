@@ -1,4 +1,4 @@
-KISSY.add("canvax/shape/Rect" , function( S , Shape ){
+KISSY.add("canvax/shape/Rect" , function( S , Shape , Base){
   var Rect = function(opt){
       var self = this;
       self.type = "Rect";
@@ -14,7 +14,7 @@ KISSY.add("canvax/shape/Rect" , function( S , Shape ){
       arguments.callee.superclass.constructor.apply(this, arguments);
   };
 
-  S.extend( Rect , Shape , {
+  Base.creatClass( Rect , Shape , {
       /**
        * 绘制圆角矩形
        * @param {Context2D} ctx Canvas 2D上下文
@@ -124,6 +124,7 @@ KISSY.add("canvax/shape/Rect" , function( S , Shape ){
 
 } , {
   requires : [
-    "canvax/display/Shape"  
+    "canvax/display/Shape",
+    "canvax/core/Base"
   ]
 });

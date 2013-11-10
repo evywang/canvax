@@ -1,4 +1,4 @@
-KISSY.add("canvax/event/EventDispatcher" , function(S , EventManager){
+KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
 
   var EventDispatcher = function(){
 
@@ -6,7 +6,7 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , EventManager){
 
   };
 
-  S.extend(EventDispatcher , EventManager , {
+  Base.creatClass(EventDispatcher , EventManager , {
          
       on : function(type, listener){
         this._addEventListener( type, listener);
@@ -54,6 +54,7 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , EventManager){
 
 },{
   requires:[
+    "canvax/core/Base",
     "canvax/event/EventManager"
   ]
 });

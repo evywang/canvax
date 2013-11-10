@@ -1,4 +1,4 @@
-KISSY.add("canvax/shape/Heart" , function(S , Shape){
+KISSY.add("canvax/shape/Heart" , function(S , Shape , Base){
 
    var Heart = function(opt){
        var self = this;
@@ -16,7 +16,7 @@ KISSY.add("canvax/shape/Heart" , function(S , Shape){
 
 
 
-   S.extend(Heart , Shape , {
+   Base.creatClass(Heart , Shape , {
        draw : function(ctx, style) {
            ctx.moveTo(0,0 );
            ctx.bezierCurveTo(
@@ -59,6 +59,7 @@ KISSY.add("canvax/shape/Heart" , function(S , Shape){
 
 } , {
    requires : [
-     "canvax/display/Shape" 
+     "canvax/display/Shape",
+     "canvax/core/Base"
    ]
 })

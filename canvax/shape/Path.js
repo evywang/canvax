@@ -1,4 +1,4 @@
-KISSY.add("canvax/shape/Path" , function( S , Shape ){
+KISSY.add("canvax/shape/Path" , function( S , Shape , Base){
 
    var Path=function(opt){
        var self = this;
@@ -21,7 +21,7 @@ KISSY.add("canvax/shape/Path" , function( S , Shape ){
        arguments.callee.superclass.constructor.apply(this , arguments);
    };
  
-   S.extend( Path , Shape , {
+   Base.creatClass( Path , Shape , {
         _parsePathData : function(data) {
             if (!data) {
                 return [];
@@ -499,6 +499,7 @@ KISSY.add("canvax/shape/Path" , function( S , Shape ){
 
 } , {
    requires : [
-     "canvax/display/Shape"    
+     "canvax/display/Shape",
+     "canvax/core/Base"
    ]
 });

@@ -2,7 +2,7 @@
  * shape类：正n边形（n>=3）
  */
 
-KISSY.add("canvax/shape/Isogon" , function(S , Shape , math ){
+KISSY.add("canvax/shape/Isogon" , function(S , Shape , math , Base){
 
   var Isogon = function(opt){
       var self = this;
@@ -25,7 +25,7 @@ KISSY.add("canvax/shape/Isogon" , function(S , Shape , math ){
   var cos = math.cos;
   var PI = Math.PI;
 
-  S.extend(Isogon , Shape , {
+  Base.creatClass(Isogon , Shape , {
       /**
        * 创建n角星（n>=3）路径
        * @param {Context2D} ctx Canvas 2D上下文
@@ -91,6 +91,7 @@ KISSY.add("canvax/shape/Isogon" , function(S , Shape , math ){
 }, {
   requires : [
     "canvax/display/Shape",
-    "canvax/utils/Math"  
+    "canvax/utils/Math",
+    "canvax/core/Base"
   ] 
 });

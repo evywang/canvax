@@ -1,4 +1,4 @@
-KISSY.add("canvax/shape/Beziercurve" , function(S,Shape){
+KISSY.add("canvax/shape/Beziercurve" , function(S,Shape,Base){
   var Beziercurve = function(opt){
       var self=this;
       self.type = "Beziercurve";
@@ -23,7 +23,7 @@ KISSY.add("canvax/shape/Beziercurve" , function(S,Shape){
       arguments.callee.superclass.constructor.apply(this , arguments);
   };
 
-  S.extend(Beziercurve , Shape , {
+  Base.creatClass(Beziercurve , Shape , {
     draw : function(ctx, style) {
         ctx.moveTo(style.xStart, style.yStart);
         if (typeof style.cpX2 != 'undefined' && typeof style.cpY2 != 'undefined') {
@@ -72,6 +72,7 @@ KISSY.add("canvax/shape/Beziercurve" , function(S,Shape){
 
 } , {
   requires : [
-    "canvax/display/Shape"  
+    "canvax/display/Shape",
+    "canvax/core/Base"
   ]
 });

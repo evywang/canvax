@@ -1,11 +1,10 @@
-KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Core,StageEvent ){
+KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,StageEvent ){
   
    var Stage = function( opt ){
 
        var self = this;
     
        self.type = "Stage";
-       self.canvas = null;
        self.context2D = null;
        //stage正在渲染中
        self.stageRending=false;
@@ -20,7 +19,7 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Core,S
 
 
  
-   S.extend( Stage , DisplayObjectContainer , {
+   Base.creatClass( Stage , DisplayObjectContainer , {
        init : function(){
           var self = this;
 
@@ -30,19 +29,18 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Core,S
           };
 
           //创见stage只需要两个参数即是width height，和 id ， 其他的都动态生成
-          self.canvas = Core._createCanvas(self.id ,self.context.width,self.context.height);
+          self.context2D = Base._createCanvas(self.id ,self.context.width,self.context.height).getContext("2d");
           
-          S.all(document.body).prepend( self.canvas );
+          S.all(document.body).prepend( self.context2D.canvas );
                     
           if (window.G_vmlCanvasManager) {
-              G_vmlCanvasManager.initElement(self.canvas);
+              G_vmlCanvasManager.initElement(self.context2D.canvas);
           }
-          self.context2D = self.canvas.getContext("2d");
-
+     
           //为retina屏幕做的优化
 
-          self.context.scaleX = Core._devicePixelRatio;
-          self.context.scaleY = Core._devicePixelRatio;
+          self.context.scaleX = Base._devicePixelRatio;
+          self.context.scaleY = Base._devicePixelRatio;
 
 
           self._isReady = true;
@@ -78,7 +76,7 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Core,S
 
            opt.stage = self;
 
-           //Core.log('change '+ ev.attrName + ': '+ev.prevVal+' --> '+ev.newVal);
+           //Base.log('change '+ ev.attrName + ': '+ev.prevVal+' --> '+ev.newVal);
 
            //TODO临时先这么处理
            self.parent && self.parent.heartBeat(opt);
@@ -87,7 +85,7 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Core,S
            if(arguments.length >= 4) {
                this.context2D.clearRect(x, y, width, height);
            } else {
-               this.context2D.clearRect(0, 0, this.canvas.width, this.canvas.height);
+               this.context2D.clearRect(0, 0, this.context2D.canvas.width, this.context2D.canvas.height);
            }
        }
        
@@ -98,7 +96,7 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Core,S
 },{
   requires:[
     "canvax/display/DisplayObjectContainer",
-    "canvax/core/Core",
+    "canvax/core/Base",
     "canvax/event/StageEvent"
   ]
 });

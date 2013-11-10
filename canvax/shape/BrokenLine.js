@@ -48,7 +48,7 @@
        }
    }
  */
-KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon){
+KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
    var BrokenLine = function(opt){
        var self = this;
        self.type = "BrokenLine";
@@ -63,7 +63,7 @@ KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon){
        arguments.callee.superclass.constructor.apply(this, arguments);
    }
 
-   S.extend(BrokenLine , Shape , {
+   Base.creatClass(BrokenLine , Shape , {
        draw : function(ctx, style) {
            var pointList = style.pointList.$model;
            if (pointList.length < 2) {
@@ -131,6 +131,7 @@ KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon){
 } , {
    requires:[
      "canvax/display/Shape",
-     "canvax/shape/Polygon"
+     "canvax/shape/Polygon",
+     "canvax/core/Base"
    ]
 });

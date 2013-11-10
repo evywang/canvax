@@ -2,7 +2,7 @@
  *Matrix 矩阵库    @释剑
  *用于整个系统的几何变换计算
  * */
-KISSY.add("canvax/geom/Matrix" , function(S){
+KISSY.add("canvax/geom/Matrix" , function(S,Base){
   
     var Matrix = function(a, b, c, d, tx, ty){
         this.a = a != undefined ? a : 1;
@@ -13,7 +13,7 @@ KISSY.add("canvax/geom/Matrix" , function(S){
         this.ty = ty != undefined ? ty : 0;
     };
 
-    S.extend( Matrix , function(){} , {
+    Base.creatClass( Matrix , function(){} , {
         concat : function(mtx){
             var a = this.a;
             var c = this.c;
@@ -134,6 +134,6 @@ KISSY.add("canvax/geom/Matrix" , function(S){
 
 },{
    requires:[
-    
+     "canvax/core/Base"
    ]
 });

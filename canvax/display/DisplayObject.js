@@ -1,7 +1,6 @@
-KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix,Point,Core , HitTestPoint , propertyFactory){
+KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix,Point,Base , HitTestPoint , propertyFactory){
 
     var DisplayObject = function(opt){
-
         arguments.callee.superclass.constructor.apply(this, arguments);
         var self = this;
 
@@ -140,7 +139,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         self.context = propertyFactory( _contextATTRS );
 
 
-        var UID = Core.createId(self.type);
+        var UID = Base.createId(self.type);
 
         //给每个元素添加eventid，EventManager 事件管理器中要用
         self._eventId = UID;
@@ -159,7 +158,8 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
 
     
-    S.extend( DisplayObject , EventDispatcher , {
+    Base.creatClass( DisplayObject , EventDispatcher , {
+    //DisplayObject.prototype = {
         init : function(){
             //TODO: 这个方法由各派生类自己实现
         },
@@ -436,7 +436,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
       "canvax/event/EventDispatcher",
       "canvax/geom/Matrix",
       "canvax/geom/Point",
-      "canvax/core/Core",
+      "canvax/core/Base",
       "canvax/utils/HitTestPoint",
       "canvax/core/propertyFactory"
     ]

@@ -8,7 +8,7 @@ KISSY.add("canvax/display/Graphics" , function(S,Base){
 
     };
 
-    S.extend(Graphics,Base,{
+    Base.creatClass(Graphics,function(){},{
         init:function(g,context){
             g._proxy(context, "beginPath");
             g._proxy(context, "closePath");
@@ -152,6 +152,6 @@ KISSY.add("canvax/display/Graphics" , function(S,Base){
 
 },{
   requires:[
-    "base"
+    "canvax/core/Base"
   ]
 });

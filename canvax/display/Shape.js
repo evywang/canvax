@@ -1,4 +1,4 @@
-KISSY.add("canvax/display/Shape" , function( S , DisplayObject , Graphics , core){
+KISSY.add("canvax/display/Shape" , function( S , DisplayObject , Graphics , Base){
 
    var Shape = function(opt){
        
@@ -26,7 +26,7 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , Graphics , core
    };
 
 
-   S.extend(Shape , DisplayObject , {
+   Base.creatClass(Shape , DisplayObject , {
       init : function(){
       },
       /*
@@ -108,6 +108,6 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , Graphics , core
   requires:[
     "canvax/display/DisplayObject",
     "canvax/display/Graphics",
-    "canvax/core/Core",
+    "canvax/core/Base"
   ]
 })

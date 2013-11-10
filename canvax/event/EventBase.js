@@ -27,7 +27,7 @@ KISSY.add("canvax/event/EventBase" , function(S,core){
      * Duplicates an instance of the Event object.
      */
     EventBase.prototype.clone = function() {
-        return Core.copy(this);
+        return Base.copy(this);
     }
 
     /**
@@ -53,6 +53,6 @@ KISSY.add("canvax/event/EventBase" , function(S,core){
 
 } , {
     requires : [
-        "canvax/core/Core"
+        "canvax/core/Base"
         ]
 });
