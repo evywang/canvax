@@ -354,8 +354,8 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
         var area=shape.context;
         var center={x:0,y:0};
         //x半径
-        var XRadius = area.a;
-        var YRadius = area.b;
+        var XRadius = area.hr;
+        var YRadius = area.vr;
 
         var p = {
             x : x,
