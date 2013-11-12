@@ -177,7 +177,7 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
                      if(!_dragDuplicate){
                          _dragDuplicate = self.mouseTarget.clone();
                          _dragDuplicate._transform = _dragDuplicate.getConcatenatedMatrix();
-
+                         self._hoverStage.addChild( _dragDuplicate );
                      }
                      _dragDuplicate.context = propertyFactory(self.mouseTarget.context.$model);
                      _dragDuplicate.context.$owner = _dragDuplicate;
@@ -185,7 +185,6 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
                      _dragDuplicate.context.visible = true;
 
                      
-                     self._hoverStage.addChild( _dragDuplicate );
                      _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal(self.mouseX , self.mouseY)
                      
                   } else {
