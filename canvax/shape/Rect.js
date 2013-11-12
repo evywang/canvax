@@ -86,11 +86,21 @@ KISSY.add("canvax/shape/Rect" , function( S , Shape , Base){
           if(!style.$model.radius.length) {
               var x = 0;
               var y = 0;
-              ctx.moveTo(x, y);
+              //ctx.moveTo(x, y);
+
+              /*
               ctx.lineTo(x + this.context.width, y);
               ctx.lineTo(x + this.context.width, y + this.context.height);
               ctx.lineTo(x, y + this.context.height);
               ctx.lineTo(x, y);
+              */
+              if(!!ctx.fillStyle){
+                 ctx.fillRect(x,y,this.context.width,this.context.height)
+              }
+              
+              if(!!ctx.lineWidth){
+                 ctx.strokeRect(x,y,this.context.width,this.context.height);
+              }
               //ctx.rect(x, y, this.get("width"), this.get("height"));
           } else {
               this._buildRadiusPath(ctx, style);

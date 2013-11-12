@@ -25,7 +25,7 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
        
        //为整个项目提供像素检测的容器
        self._pixelCanvas = null
-       self._pixlCtx = null;
+       self._pixelCtx = null;
 
        self._isReady = false;
 
@@ -108,11 +108,12 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
         * @return {Object} 上下文
        */
        createPixelContext : function() {
-           if(!document.createElement('canvas').getContext){
-             return;
-           }
            var self = this;
            self._pixelCanvas = Base._createCanvas("_pixelCanvas",self.context.width,self.context.height);
+           document.body.appendChild(self._pixelCanvas);
+           if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
+               FlashCanvas.initElement(self._pixelCanvas);
+           }
            self._pixelCtx = self._pixelCanvas.getContext('2d');
 
        },
@@ -414,7 +415,7 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
     "canvax/core/Base",
     "canvax/event/StageEvent",
     "canvax/core/propertyFactory",
-    "canvax/animation/animation",
-    (!document.createElement('canvas').getContext) ? "canvax/library/excanvas":""
+    "canvax/animation/animation"
+    //(!document.createElement('canvas').getContext) ? "canvax/library/excanvas":""
     ]
 });

@@ -29,13 +29,19 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,S
           };
 
           //创见stage只需要两个参数即是width height，和 id ， 其他的都动态生成
-          self.context2D = Base._createCanvas(self.id ,self.context.width,self.context.height).getContext("2d");
+
+          var canvas = Base._createCanvas(self.id ,self.context.width,self.context.height)
           
-          S.all(document.body).prepend( self.context2D.canvas );
-                    
-          if (window.G_vmlCanvasManager) {
-              G_vmlCanvasManager.initElement(self.context2D.canvas);
+          //S.all(document.body).prepend( canvas );
+          if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
+             FlashCanvas.initElement(canvas);
           }
+          self.context2D = canvas.getContext("2d");
+          canvas = null;
+                    
+          //if (window.G_vmlCanvasManager) {
+          //    G_vmlCanvasManager.initElement(self.context2D.canvas);
+          //}
      
           //为retina屏幕做的优化
 

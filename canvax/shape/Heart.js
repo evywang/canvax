@@ -7,8 +7,8 @@ KISSY.add("canvax/shape/Heart" , function(S , Shape , Base){
        self._style = {
            //x             : 0,//{number},  // 必须，心形内部尖端横坐标
            //y             : 0,//{number},  // 必须，心形内部尖端纵坐标
-           a : opt.context.a || 0,//{number},  // 必须，心形横宽（中轴线到水平边缘最宽处距离）
-           b : opt.context.b || 0 //{number},  // 必须，心形纵高（内尖到外尖距离）
+           hr : opt.context.hr || 0,//{number},  // 必须，心形横宽（中轴线到水平边缘最宽处距离）
+           vr : opt.context.vr || 0 //{number},  // 必须，心形纵高（内尖到外尖距离）
        }
        arguments.callee.superclass.constructor.apply(this , arguments);
 
@@ -20,18 +20,18 @@ KISSY.add("canvax/shape/Heart" , function(S , Shape , Base){
        draw : function(ctx, style) {
            ctx.moveTo(0,0 );
            ctx.bezierCurveTo(
-               style.a / 2,
-               - style.b * 2 / 3,
-               style.a * 2,
-               style.b / 3,
+               style.hr / 2,
+               - style.vr * 2 / 3,
+               style.hr * 2,
+               style.vr / 3,
                0,
-               style.b
+               style.vr
                );
            ctx.bezierCurveTo(
-               - style.a *  2,
-               style.b / 3,
-               - style.a / 2,
-               - style.b * 2 / 3,
+               - style.hr *  2,
+               style.vr / 3,
+               - style.hr / 2,
+               - style.vr * 2 / 3,
                0,
                0
                );
@@ -45,10 +45,10 @@ KISSY.add("canvax/shape/Heart" , function(S , Shape , Base){
                lineWidth = 0;
            }
            return {
-                 x : Math.round(0 - style.a - lineWidth / 2),
-                 y : Math.round(0 - style.b / 4 - lineWidth / 2),
-                 width : style.a * 2 + lineWidth,
-                 height : style.b * 5 / 4 + lineWidth
+                 x : Math.round(0 - style.hr - lineWidth / 2),
+                 y : Math.round(0 - style.vr / 4 - lineWidth / 2),
+                 width : style.hr * 2 + lineWidth,
+                 height : style.vr * 5 / 4 + lineWidth
            };
 
        }

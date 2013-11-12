@@ -541,9 +541,9 @@ KISSY.add("demo/histogram/histogram" , function( S , Base , Utils , Datasection 
                   });
                   rect.hover(function(){
                      this.context.strokeStyle = "red";
-                     this.context.strokeWidth = 1;
+                     this.context.lineWidth = 1;
                   },function(){
-                     this.context.strokeWidth = 0;
+                     this.context.lineWidth = 0;
                      this.context.strokeStyle = null;
 
                   })

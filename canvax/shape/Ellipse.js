@@ -8,19 +8,18 @@ KISSY.add("canvax/shape/Ellipse" , function(S,Shape,Base){
        self._style = {
            //x             : 0 , //{number},  // 丢弃
            //y             : 0 , //{number},  // 丢弃，原因同circle
-           a : opt.context.a || 0 , //{number},  // 必须，椭圆横轴半径
-           b : opt.context.b || 0   //{number},  // 必须，椭圆纵轴半径
+           hr : opt.context.hr || 0 , //{number},  // 必须，椭圆横轴半径
+           vr : opt.context.vr || 0   //{number},  // 必须，椭圆纵轴半径
        }
-
 
        arguments.callee.superclass.constructor.apply(this, arguments);
    };
 
    Base.creatClass(Ellipse , Shape , {
        draw :  function(ctx, style) {
-           var r = (style.a > style.b) ? style.a : style.b;
-           var ratioX = style.a / r; //横轴缩放比率
-           var ratioY = style.b / r;
+           var r = (style.hr > style.vr) ? style.hr : style.vr;
+           var ratioX = style.hr / r; //横轴缩放比率
+           var ratioY = style.vr / r;
            
            ctx.scale(ratioX, ratioY);
            ctx.arc(
@@ -43,10 +42,10 @@ KISSY.add("canvax/shape/Ellipse" , function(S,Shape,Base){
                lineWidth = 0;
            }
            return {
-                 x : Math.round(0 - style.a - lineWidth / 2),
-                 y : Math.round(0 - style.b - lineWidth / 2),
-                 width : style.a * 2 + lineWidth,
-                 height : style.b * 2 + lineWidth
+                 x : Math.round(0 - style.hr - lineWidth / 2),
+                 y : Math.round(0 - style.vr - lineWidth / 2),
+                 width : style.hr * 2 + lineWidth,
+                 height : style.vr * 2 + lineWidth
            };
 
        }

@@ -100,11 +100,11 @@
                    field : "val1",
                    TextStyle:{
                        color : "black"
-                   },
+                   }
                },
                yAxis : {
                    // fields : ["val2","val4"],
-                   dataMode:0,
+                   dataMode:0
                }
 
            }
