@@ -1,52 +1,6 @@
 /**
  * BrokenLine类：折线
  * 继承自shape：
-   {
-       // 基础属性
-       id     : {string},       // 必须，图形唯一标识，可通过zrender实例方法newShapeId生成
-
-       // 样式属性，默认状态样式样式属性
-       style  : {
-           pointList     : {Array},   // 必须，各个顶角坐标
-           strokeColor   : {color},   // 默认为'#000'，线条颜色（轮廓），支持rgba
-           lineType      : {string},  // 默认为solid，线条类型，solid | dashed | dotted
-           lineWidth     : {number},  // 默认为1，线条宽度
-           lineCap       : {string},  // 默认为butt，线帽样式。butt | round | square
-           lineJoin      : {string},  // 默认为miter，线段连接样式。miter | round | bevel
-           miterLimit    : {number},  // 默认为10，最大斜接长度，仅当lineJoin为miter时生效
-
-           opacity       : {number},  // 默认为1，透明度设置，如果color为rgba，则最终透明度效果叠加
-           shadowBlur    : {number},  // 默认为0，阴影模糊度，大于0有效
-           shadowColor   : {color},   // 默认为'#000'，阴影色彩，支持rgba
-           shadowOffsetX : {number},  // 默认为0，阴影横向偏移，正值往右，负值往左
-           shadowOffsetY : {number},  // 默认为0，阴影纵向偏移，正值往下，负值往上
-
-       },
-
-       // 样式属性，高亮样式属性，当不存在highlightStyle时使用基于默认样式扩展显示
-       highlightStyle : {
-           // 同style
-       }
-
-   }
-         例子：
-   {
-       shape  : 'brokenLine',
-       id     : '123456',
-       zlevel : 1,
-       style  : {
-           pointList : [[10, 10], [300, 20], [298, 400], [50, 450]],
-           strokeColor : '#eee',
-           lineWidth : 20,
-           text : 'Baidu'
-       },
-       myName : 'kener',  //可自带任何有效自定义属性
-
-       clickable : true,
-       onClick : function(eventPacket) {
-           alert(eventPacket.target.myName);
-       }
-   }
  */
 KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
    var BrokenLine = function(opt){

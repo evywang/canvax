@@ -1,4 +1,4 @@
-KISSY.add("canvax/display/Shape" , function( S , DisplayObject , Graphics , Base){
+KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
 
    var Shape = function(opt){
        
@@ -54,9 +54,13 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , Graphics , Base
           return;
       },
       drawEnd : function(ctx){
+          if(this._hasFillAndStroke){
+              //如果在子shape类里面已经实现stroke fill 等操作， 就不需要统一的d
+              return;
+          }
+
 
           //style 要从diaplayObject的 context上面去取
-
           var style = this.context;
         
           //fill stroke 之前， 就应该要closepath 否则线条转角口会有缺口。
@@ -81,7 +85,6 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , Graphics , Base
          var self = this;
          var style = self.context;
          var context = self.getStage().context2D;
-         self.graphics || (self.graphics = new Graphics({_context : context}));
 
          if (style){
            self.setContextStyle( context ,style );
@@ -100,6 +103,25 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , Graphics , Base
              }        
          }
       }
+      ,
+      /*
+       * 画虚线
+       */
+      dashedLineTo:function(ctx, x1, y1, x2, y2, dashLength) {
+            dashLength = typeof dashLength == 'undefined'
+                         ? 5 : dashLength;
+            var deltaX = x2 - x1;
+            var deltaY = y2 - y1;
+            var numDashes = Math.floor(
+                Math.sqrt(deltaX * deltaX + deltaY * deltaY) / dashLength
+            );
+            for (var i = 0; i < numDashes; ++i) {
+                ctx[i % 2 === 0 ? 'moveTo' : 'lineTo'](
+                    x1 + (deltaX / numDashes) * i,
+                    y1 + (deltaY / numDashes) * i
+                );
+            }
+      }
    });
 
    return Shape;
@@ -107,7 +129,7 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , Graphics , Base
 },{
   requires:[
     "canvax/display/DisplayObject",
-    "canvax/display/Graphics",
+    "canvax/geom/Vector",
     "canvax/core/Base"
   ]
 })

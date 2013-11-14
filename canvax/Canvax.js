@@ -139,14 +139,18 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
            if(event.type == "mouseup" || event.type == "mouseout"){
               if(self._draging == true){
                  //说明刚刚在拖动
+                
                  self.dragEnd && self.dragEnd(event);  
-                 if(!self.mouseTarget._hoverClass){
-                     //没有hover态 ， 但是 拖动了， 那么要先把本尊给显示出来先
-                     self.mouseTarget.context.visible = true;
-                 }
+                
+                 //拖动停止， 那么要先把本尊给显示出来先
+                 //这里还可以做优化，因为拖动停止了但是还是在hover状态，没必要把本尊显示的。
+                 //self.mouseTarget.context.visible = true;
+
                  var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
                  self.mouseTarget.context = _dragDuplicate.context;
                  self.mouseTarget.context.$owner = self.mouseTarget;
+                 //这个时候的target还是隐藏状态呢
+                 self.mouseTarget.context.visible = false;
                  self.mouseTarget._updateTransform();
                  if(event.type == "mouseout"){
                      _dragDuplicate.destroy();
@@ -239,14 +243,25 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
            e.mouseX = this.mouseX;
            e.mouseY = this.mouseY;
 
+           
 
            if(  oldObj &&  oldObj != obj  || e.type=="mouseout" ) {
                if(!oldObj){
                   return;
                }
+               
                this.mouseTarget = null;
                e.type = "mouseout";
                e.target = e.currentTarget = oldObj;
+
+               //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
+               //会有修改visible的意愿
+               
+               if(!oldObj.context.visible){
+                  oldObj.context.visible = true;
+               }
+
+
                oldObj.dispatchEvent(e);
                if(oldObj._hoverClass){
                   //说明刚刚over的时候有添加样式

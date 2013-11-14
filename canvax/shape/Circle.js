@@ -27,7 +27,6 @@ KISSY.add("canvax/shape/Circle" ,
                 }
                 //ctx.arc(this.get("x"), this.get("y"), style.r, 0, Math.PI * 2, true);
                 ctx.arc(0 , 0, style.r, 0, Math.PI * 2, true);
-                return this;
             },
 
             /**

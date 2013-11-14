@@ -101,6 +101,7 @@
                    fillStyle : 'rgba(220, 20, 60, 0.8)',          // rgba supported
                    strokeStyle : color.getColor(colorInd++),  // getColor from default palette
                    lineWidth : 5
+                   //lineType  : "dashed"
                }
            });
            /*
@@ -267,21 +268,22 @@
                  x:400,
                  y:50,
 
+                  lineType  : "dashed",
                  pointList : [[310, 120], [360, 120], [348, 230], [250, 340], [146, 200]],
                  fillStyle:color.getColor(colorInd++),
                  strokeStyle:color.getColor(colorInd++),
-                 lineWidth : 3
+                 lineWidth : 2
 
              }
 
          });
 
          polygon.on("mouseover",function(){
-             this.context.lineWidth=8
+             this.context.lineWidth=2
                     });
 
          polygon.on("mouseout",function(){
-             this.context.lineWidth = 3
+             this.context.lineWidth = 8
          });
 
          
@@ -337,15 +339,16 @@
                   r : 70,
                   n : 9,
                   lineWidth : 6,
+
                   fillStyle:color.getColor(colorInd++),
                   strokeStyle:color.getColor(colorInd++)
               }
           });
           isogon.on("mouseover" , function(){
-              this.context.lineWidth = 10;
+              this.context.lineWidth = 3;
           });
           isogon.on("mouseout"  , function(){
-              this.context.lineWidth = 6
+              this.context.lineWidth = 3
           })
 
 
@@ -423,6 +426,7 @@
            //stage.addChild(rect1);
 
 
+        /*
            stage.addChild(rect);
            stage.addChild(circle2);
            stage.addChild(bezier);
@@ -435,13 +439,15 @@
            stage.addChild(map1);
 
            stage.addChild(path1);
+           */
            stage.addChild(isogon);
+stage.addChild(polygon);
 
-           stage.addChild(polygon);
+/*
            stage.addChild(heart);
            stage.addChild(droplet);
            stage.addChild(line);
-
+*/
 
            canvax.addChild(stage);
 
