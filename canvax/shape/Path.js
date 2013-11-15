@@ -27,6 +27,7 @@ KISSY.add("canvax/shape/Path" , function( S , Shape , Base){
                 return [];
             }
 
+           
             // command string
             var cs = data;
 
@@ -37,6 +38,8 @@ KISSY.add("canvax/shape/Path" , function( S , Shape , Base){
             ];
             cs = cs.replace(/  /g, ' ');
             cs = cs.replace(/ /g, ',');
+            //cs = cs.replace(/(.)-/g, "$1,-");
+            cs = cs.replace(/(\d)-/g,'$1,-');
             cs = cs.replace(/,,/g, ',');
             var n;
             // create pipes so that we can split the data
@@ -58,10 +61,11 @@ KISSY.add("canvax/shape/Path" , function( S , Shape , Base){
                 //有的时候，比如“22，-22” 数据可能会经常的被写成22-22，那么需要手动修改
                 //str = str.replace(new RegExp('-', 'g'), ',-');
 
-                str = str.replace(/(.)-/g, "$1,-")
+                //str = str.replace(/(.)-/g, "$1,-")
 
 
                 var p = str.split(',');
+                
                 if (p.length > 0 && p[0] === '') {
                     p.shift();
                 }
