@@ -33,7 +33,9 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         //元素的父元素
         self.parent = null;
 
-        self.eventEnabled = true; //是否响应事件交互
+        self._eventEnabled = false; //是否响应事件交互
+
+        self.dragEnabled = false;   //是否启用元素的拖拽
        
 
 
@@ -200,8 +202,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 //stage舞台的childen队列中，不在引擎渲染范围内
                 return false;
               }
-
-
             } 
            
             //一直回溯到顶层object， 即是stage， stage的parent为null
@@ -260,6 +260,86 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             this._transformStage = cm;
             return cm;
         },
+        /*
+         *设置元素的是否响应事件检测
+         *@bool  Boolean 类型
+         */
+        setEventEnable : function( bool ){
+            if(_.isBoolean(bool)){
+                this._eventEnabled = bool
+                return true;
+            };
+            return false;
+        },
+
+
+        /*
+         *查询自己在parent的队列中的位置
+         */
+        getIndex   : function(){
+           if(!this.parent) {
+             return;
+           };
+           return _.indexOf(this.parent.children , this)
+
+        },
+
+
+        /*
+         *元素在z轴方向向下移动
+         *@index 移动的层级
+         */
+        toBack : function(index){
+           if(!this.parent) {
+             return;
+           }
+           var fromIndex = this.getIndex();
+           var toIndex = 0;
+           
+           if(_.isNumber(index)){
+             if(index == 0){
+                //原地不动
+                return;
+             }
+             toIndex = fromIndex-index;
+           }
+           var me = this.parent.children.splice( fromIndex , 1 )[0];
+           if( toIndex < 0 ){
+               toIndex = 0;
+           } 
+           this.parent.addChildAt( me , toIndex );
+
+        },
+
+
+        /*
+         *元素在z轴方向向上移动
+         *@index 移动的层数量 默认到顶端
+         */
+        toFront : function(index){
+
+           if(!this.parent) {
+             return;
+           }
+           var fromIndex = this.getIndex();
+           var pcl = this.parent.children.length;
+           var toIndex = pcl;
+           
+           if(_.isNumber(index)){
+             if(index == 0){
+                //原地不动
+                return;
+             }
+             toIndex = fromIndex+index+1;
+           }
+           var me = this.parent.children.splice( fromIndex , 1 )[0];
+           if(toIndex > pcl){
+               toIndex = pcl;
+           }
+           this.parent.addChildAt( me , toIndex-1 );
+        },
+
+
         _transformHander : function(context, toGlobal){
 
             context.transform.apply(context , this._updateTransform().toArray());
@@ -409,7 +489,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                this = null;
             } 
         },
-        onMouseEvent : null,
         toString : function(){
             var result;
             

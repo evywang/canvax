@@ -234,6 +234,8 @@
              this.context.lineWidth = 2
          });
 
+         
+
           var sector =new Sector({
               id : "sector",
               context : {
@@ -424,8 +426,8 @@
 
            //stage.addChild(sector);
            //stage.addChild(rect1);
-
-
+           
+           
            stage.addChild(rect);
            stage.addChild(circle2);
            stage.addChild(bezier);
@@ -441,11 +443,22 @@
            stage.addChild(isogon);
            stage.addChild(polygon);
 
+
            stage.addChild(heart);
+           
            stage.addChild(droplet);
-           stage.addChild(line);
+
+           
+           
 
            canvax.addChild(stage);
+
+           stage.addChild(line);
+           setTimeout(function(){
+               
+               line.toBack(1);
+           },1000)
+
 
 
 

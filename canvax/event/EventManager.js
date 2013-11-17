@@ -9,7 +9,7 @@ KISSY.add("canvax/event/EventManager" , function(S){
         this._eventMap = {};
     };
 
-    EventManager.prototype = {  
+    EventManager.prototype = { 
         /*
          * 注册事件侦听器对象，以使侦听器能够接收事件通知。
          */
@@ -22,7 +22,7 @@ KISSY.add("canvax/event/EventManager" , function(S){
            
             if(type == "mouseover"){
                this._hoverable = true;
-            } 
+            }
             if(type == "click"){
                this._clickable = true;
             }
@@ -31,13 +31,17 @@ KISSY.add("canvax/event/EventManager" , function(S){
             if(!map){
               map = this._eventMap[type] = [];
               map.push(listener);
+              this._eventEnabled = true;
               return true;
             }
 
             if(_.indexOf(map ,listener) == -1) {
-                map.push(listener);
-                return true;
+              map.push(listener);
+              this._eventEnabled = true;
+              return true;
             }
+
+            //addEventError
             return false;
         },
         /**
@@ -51,21 +55,29 @@ KISSY.add("canvax/event/EventManager" , function(S){
                 return false;
             }
 
-            if(type == "mouseover" && map.length==1){
-                this._hoverable = false;
-            }
-            if(type == "click" && map.length==1){
-                this._clickable = false;
-            }
-
             for(var i = 0; i < map.length; i++) {
                 var li = map[i];
                 if(li === listener) {
                     map.splice(i, 1);
-                    if(map.length == 0) delete this._eventMap[type];
+                    if(map.length == 0) { 
+                        delete this._eventMap[type];
+                        if(type == "mouseover"){
+                            this._hoverable = false;
+                        }
+                        if(type == "click" ){
+                            this._clickable = false;
+                        }
+
+                        //如果这个如果这个时候child没有任何事件侦听
+                        if(_.isEmpty(this._eventMap)){
+                            //那么该元素不再接受事件的检测
+                            this._eventEnabled = false;
+                        }
+                    }
                     return true;
                 }
             }
+            
             return false;
         },
         /**
@@ -81,6 +93,12 @@ KISSY.add("canvax/event/EventManager" , function(S){
                 if(type=="click"){
                   this._clickable = false;
                 }
+                //如果这个如果这个时候child没有任何事件侦听
+                if(_.isEmpty(this._eventMap)){
+                    //那么该元素不再接受事件的检测
+                    this._eventEnabled = false;
+                }
+
                 return true;
             }
             return false;
@@ -92,10 +110,11 @@ KISSY.add("canvax/event/EventManager" , function(S){
             this._eventMap = {};
             this._hoverable = false;
             this._chickable = false;
+            this._eventEnabled = false;
         },
         /**
-           * 派发事件，调用事件侦听器。
-           */
+        * 派发事件，调用事件侦听器。
+        */
         _dispatchEvent : function(event) {
             var map = this._eventMap[event.type];
             if(!map){

@@ -24,7 +24,6 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
        self._hoverStage = null;
        
        //为整个项目提供像素检测的容器
-       self._pixelCanvas = null
        self._pixelCtx = null;
 
        self._isReady = false;
@@ -52,7 +51,6 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
           //TODO:创建stage的时候一定要传入width height  两个参数
           self._hoverStage = new Stage( {
             id : "activCanvas"+(new Date()).getTime(),
-            eventEnabled:false,
             context : {
               width : self.context.width,
               height: self.context.height
@@ -109,12 +107,12 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
        */
        createPixelContext : function() {
            var self = this;
-           self._pixelCanvas = Base._createCanvas("_pixelCanvas",self.context.width,self.context.height);
-           document.body.appendChild(self._pixelCanvas);
+           var _pixelCanvas = Base._createCanvas("_pixelCanvas",self.context.width,self.context.height);
+           document.body.appendChild( _pixelCanvas );
            if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
-               FlashCanvas.initElement(self._pixelCanvas);
+               FlashCanvas.initElement( _pixelCanvas );
            }
-           self._pixelCtx = self._pixelCanvas.getContext('2d');
+           self._pixelCtx = _pixelCanvas.getContext('2d');
 
        },
        __mouseHandler : function(event) {
@@ -127,13 +125,14 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
            self.mouseY = mouseY;
 
            if(event.type == "mousedown"){
+              
               if(!self.mouseTarget){
                 var obj = self.getObjectsUnderPoint(self.mouseX, self.mouseY, 1)[0];
                 if(obj){
                   self.mouseTarget = obj;
                 }
               }
-              self.mouseTarget && (self._touching = true);
+              self.mouseTarget && self.dragEnabled && (self._touching = true);
            }
 
            if(event.type == "mouseup" || event.type == "mouseout"){
@@ -243,7 +242,7 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
            e.mouseX = this.mouseX;
            e.mouseY = this.mouseY;
 
-           
+            
 
            if(  oldObj &&  oldObj != obj  || e.type=="mouseout" ) {
                if(!oldObj){
@@ -403,6 +402,21 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
                        }
                    }
                }
+           }
+
+           if(!opt.convertType){
+               //无条件要求刷新
+               var stage = opt.stage;
+               if(!self.convertStages[stage.id]) {
+                   self.convertStages[stage.id]={
+                       stage : stage ,
+                       convertShapes : {
+
+                       }
+
+                   }
+               }
+
            }
 
 

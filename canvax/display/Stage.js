@@ -80,6 +80,7 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,S
            }
 
 
+           opt || (opt = {}); //如果opt为空，说明就是无条件刷新
            opt.stage = self;
 
            //Base.log('change '+ ev.attrName + ': '+ev.prevVal+' --> '+ev.newVal);

@@ -1,10 +1,15 @@
 KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObject){
 
-    DisplayObjectContainer = function(){
+    DisplayObjectContainer = function(opt){
        var self = this;
        self.children = [];
        self.mouseChildren = [];
        arguments.callee.superclass.constructor.apply(this, arguments);
+
+       //所有的容器默认支持event 检测，因为 可能有里面的shape是eventEnable是true的
+       //如果用户有强制的需求让容器下的所有元素都 不可检测，可以调用
+       //DisplayObjectContainer的 setEventEnable() 方法
+       self._eventEnabled = true;
     };
 
     
@@ -132,13 +137,16 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
         getNumChildren : function() {
             return this.children.length;
         },
+
         //获取x,y点上的所有object  num 需要返回的obj数量
         getObjectsUnderPoint : function(x, y , num) {
+
+             
             var result = [];
             for(var i = this.children.length - 1; i >= 0; i--) {
                 var child = this.children[i];
 
-                if(child == null || !child.eventEnabled) {
+                if(child == null || !child._eventEnabled) {
                     continue;
                 }
 
