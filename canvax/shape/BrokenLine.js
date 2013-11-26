@@ -8,7 +8,7 @@
  * 对应context的属性有
  * @pointList 各个顶角坐标
  **/
-
+ 
 KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
    var BrokenLine = function(opt){
        var self = this;
