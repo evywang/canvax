@@ -1,3 +1,14 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * stage 类， 再as3中，stage则代表整个舞台。是唯一的根节点
+ * 但是再canvax中，因为分层设计的需要。stage 舞台 同样代表一个canvas元素，但是不是再整个引擎设计
+ * 里面， 不是唯一的根节点。而是会交由canvax类来统一管理其层级
+ */
+
+
 KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,StageEvent ){
   
    var Stage = function( opt ){

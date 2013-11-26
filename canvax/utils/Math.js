@@ -1,3 +1,13 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 数学 类
+ *
+ **/
+
+
 KISSY.add("canvax/utils/Math" , function(S){
         var _cache = {
             sin : {},     //sin缓存

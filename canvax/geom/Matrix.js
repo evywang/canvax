@@ -1,7 +1,12 @@
-/*
- *Matrix 矩阵库    @释剑
- *用于整个系统的几何变换计算
- * */
+
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * Matrix 矩阵库 用于整个系统的几何变换计算
+ * code from http://evanw.github.io/lightgl.js/docs/matrix.html
+ */
 KISSY.add("canvax/geom/Matrix" , function(S,Base){
   
     var Matrix = function(a, b, c, d, tx, ty){

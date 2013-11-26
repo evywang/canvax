@@ -1,3 +1,21 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 贝塞尔曲线 类
+ *
+ * 对应context的属性有
+ * @xStart 起点横坐标
+ * @yStart 起点纵坐标
+ * @cpX1   第一个关联点横坐标
+ * @cpY1   第一个关联点纵坐标
+ * @cpX2   第二个关联点横坐标  缺省即为二次贝塞尔曲线
+ * @cpY2   第二个关联点纵坐标
+ * @xEnd   终点横坐标
+ * @yEnd   终点纵坐标
+ */
+
 KISSY.add("canvax/shape/Beziercurve" , function(S,Shape,Base){
   var Beziercurve = function(opt){
       var self=this;

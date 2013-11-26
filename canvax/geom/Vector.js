@@ -1,6 +1,12 @@
-/*
- *向量操作类    @释剑
+
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 向量操作类
  * */
+
 KISSY.add("canvax/geom/Vector" , function(S,Base){
         var vector = {
             add : function(out, v1, v2) {

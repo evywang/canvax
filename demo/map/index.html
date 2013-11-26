@@ -52,7 +52,7 @@
               el : box
            })
 
-           var stage = new Stage({
+           window.stage = new Stage({
                id : "chart",
                context:{
                  width : width,
@@ -76,6 +76,7 @@
                });
                map.on("mouseover" , function(){
                    this.context.strokeStyle = "white";
+                   this.context.fillStyle = "white";
                })
 
                map.on("mouseout" , function(){
@@ -91,6 +92,10 @@
 
 
         canvax.addChild(stage);
+
+        setTimeout(function(){
+            stage.children[0].fire("mouseover");
+        },1000);
 
        })
    }) 

@@ -1,12 +1,12 @@
-
 /**
- * Constructor.
- * @name StageEvent
- * @class A StageEvent object is dispatched whenever enter frame event or mouse events occur on Stage.
- * @augments EventBase
- * @property mouseX The x accordinate of mouse postion on Stage.
- * @property mouseY The y accordinate of mouse postion on Stage.
- */ 
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * canvas 上委托的事件管理
+ */
+
+
 KISSY.add("canvax/event/StageEvent" , function(S,EventBase,Base){
     var StageEvent = function(type, bubbles, cancelable) {
         EventBase.call(this, type, bubbles, cancelable);

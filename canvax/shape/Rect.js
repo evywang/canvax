@@ -1,3 +1,18 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 矩现 类  （不规则）
+ *
+ *
+ * 对应context的属性有
+ * @width 宽度
+ * @height 高度
+ * @radius 如果是圆角的，则为【上右下左】顺序的圆角半径数组
+ **/
+
+
 KISSY.add("canvax/shape/Rect" , function( S , Shape , Base){
   var Rect = function(opt){
       var self = this;

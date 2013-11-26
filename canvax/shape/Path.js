@@ -1,3 +1,16 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * path 类
+ *
+ *
+ * 对应context的属性有
+ * @path path串
+ **/
+
+
 KISSY.add("canvax/shape/Path" , function( S , Shape , Base){
 
    var Path=function(opt){

@@ -1,3 +1,15 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 水滴形 类
+ *
+ * 对应context的属性有
+ * @hr 水滴横宽（中心到水平边缘最宽处距离）
+ * @vr 水滴纵高（中心到尖端距离）
+ **/
+
 KISSY.add("canvax/shape/Droplet" , function(S,Shape,Base){
 
   var Droplet = function(opt){

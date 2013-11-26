@@ -1,3 +1,12 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 事件管理类
+ */
+
+
 KISSY.add("canvax/event/EventManager" , function(S){
     /**
      * 构造函数.

@@ -1,3 +1,11 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 动画类
+ */
+
 KISSY.add("canvax/animation/animation" , function(S){
     var lastTime = 0;
     var vendors = ['ms', 'moz', 'webkit', 'o'];

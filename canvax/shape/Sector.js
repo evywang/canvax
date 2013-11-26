@@ -1,3 +1,20 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 扇形 类
+ *
+ * 坐标原点再圆心
+ *
+ * 对应context的属性有
+ * @r0 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
+ * @r  必须，外圆半径
+ * @startAngle 起始角度(0, 360)
+ * @endAngle   结束角度(0, 360)
+ **/
+
+
 KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon , Base){
  
    var Sector = function(opt){
@@ -6,7 +23,7 @@ KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon , Base){
 
        opt.context || (opt.context={})
        self._style = {
-           pointList : [],//边界点的集合
+           pointList : [],//边界点的集合,私有，从下面的属性计算的来
            //x             : {number},  // 必须，圆心横坐标
            //y             : {number},  // 必须，圆心纵坐标
            r0: opt.context.r0 || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0

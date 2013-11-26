@@ -1,3 +1,12 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 模拟as3 DisplayList 的 现实对象基类
+ */
+
+
 KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix,Point,Base , HitTestPoint , propertyFactory){
 
     var DisplayObject = function(opt){

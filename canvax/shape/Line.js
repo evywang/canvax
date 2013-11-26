@@ -1,3 +1,19 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 线条 类
+ *
+ *
+ * 对应context的属性有
+ * @lineType  可选 虚线 实现 的 类型
+ * @xStart    必须，起点横坐标
+ * @yStart    必须，起点纵坐标
+ * @xEnd      必须，终点横坐标
+ * @yEnd      必须，终点纵坐标
+ **/
+
 KISSY.add("canvax/shape/Line" , function(S,Shape,Base){
   var Line = function(opt){
       var self = this;

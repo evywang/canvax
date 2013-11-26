@@ -1,3 +1,17 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 圆形 类
+ *
+ * 坐标原点再圆心
+ *
+ * 对应context的属性有
+ * @r 圆半径
+ **/
+
+
 KISSY.add("canvax/shape/Circle" ,
     function(S , Shape , Base) {
         var Circle = function(opt) {

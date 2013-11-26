@@ -1,3 +1,13 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 模拟as3 DisplayList 中的shape 类
+ */
+
+
+
 KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
 
    var Shape = function(opt){

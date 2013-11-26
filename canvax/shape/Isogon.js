@@ -1,6 +1,18 @@
 /**
- * shape类：正n边形（n>=3）
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 正n边形（n>=3）
+ *
+ * 对应context的属性有 
+ *
+ * @r 正n边形外接圆半径
+ * @r 指明正几边形
+ *
+ * @pointList 私有，从上面的r和n计算得到的边界值的集合
  */
+
 
 KISSY.add("canvax/shape/Isogon" , function(S , Shape , math , Base){
 

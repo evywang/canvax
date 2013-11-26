@@ -1,3 +1,10 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ */
+
+
 KISSY.add("canvax/core/Base" , function(S){
 
 

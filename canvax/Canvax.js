@@ -1,3 +1,17 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 主引擎 类
+ *
+ * 负责所有canvas的层级管理，和心跳机制的实现,捕获到心跳包后 
+ * 分发到对应的stage(canvas)来绘制对应的改动
+ * 然后 默认有实现了shape的 mouseover  mouseout  drag 事件
+ *
+ **/
+
+
 KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,StageEvent, propertyFactory ){
    var Canvax=function(opt){
        var self = this;

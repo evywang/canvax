@@ -1,3 +1,12 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 事件派发类
+ */
+
+
 KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
 
   var EventDispatcher = function(){
@@ -27,7 +36,14 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
         this._removeAllEventListeners();
       },
       fire : function(event){
+        if(_.isString(event)){
+          //如果是str，比如mouseover
+          event = {type : event};
+        } else {
+    
+        }
         this._dispatchEvent(event);
+
       },
       dispatchEvent:function(event){
         this._dispatchEvent(event);

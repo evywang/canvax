@@ -1,3 +1,13 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 属性工厂，ie下面用VBS提供支持
+ * 来给整个引擎提供心跳包的触发机制
+ */
+
+
 KISSY.add("canvax/core/propertyFactory" , function(S,Base){
     //定义封装好的兼容大部分浏览器的defineProperties 的 属性工厂
 

@@ -1,3 +1,14 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 碰撞检测 类
+ *
+ * 目前只支持点 和 shape 的检测， 暂时不支持shape的碰撞检测
+ * */
+
+
 KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
 
 

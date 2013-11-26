@@ -1,7 +1,14 @@
 /**
- * BrokenLine类：折线
- * 继承自shape：
- */
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 折线 类
+ *
+ * 对应context的属性有
+ * @pointList 各个顶角坐标
+ **/
+
 KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
    var BrokenLine = function(opt){
        var self = this;

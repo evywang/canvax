@@ -1,3 +1,12 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 模拟as3的DisplayList 中的容器类
+ */
+
+
 KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObject){
 
     DisplayObjectContainer = function(opt){

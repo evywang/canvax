@@ -1,3 +1,17 @@
+
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 心形 类
+ *
+ * 对应context的属性有 
+ *
+ * @hr 心形横宽（中轴线到水平边缘最宽处距离）
+ * @vr 心形纵高（内尖到外尖距离）
+ */
+
 KISSY.add("canvax/shape/Heart" , function(S , Shape , Base){
 
    var Heart = function(opt){

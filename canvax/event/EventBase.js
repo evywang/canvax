@@ -1,3 +1,12 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 事件类基类
+ */
+
+
 KISSY.add("canvax/event/EventBase" , function(S,core){
     var EventBase = function(type, bubbles, cancelable) {
         this.type = type;

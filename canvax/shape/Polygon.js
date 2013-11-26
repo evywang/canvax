@@ -1,3 +1,17 @@
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 多边形 类  （不规则）
+ *
+ *
+ * 对应context的属性有
+ * @lineType 边框类型 可以是 dashed or solid
+ * @pointList 多边形各个顶角坐标
+ **/
+
+
 KISSY.add("canvax/shape/Polygon" , function(S , Shape , Base){
 
    var Polygon=function(opt){

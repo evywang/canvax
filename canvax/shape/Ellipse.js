@@ -1,3 +1,18 @@
+
+/**
+ * Canvax
+ *
+ * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
+ *
+ * 椭圆形 类
+ *
+ * 对应context的属性有 
+ *
+ * @hr 椭圆横轴半径
+ * @vr 椭圆纵轴半径
+ */
+
+
 KISSY.add("canvax/shape/Ellipse" , function(S,Shape,Base){
 
    var Ellipse = function(opt){
