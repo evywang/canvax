@@ -64,7 +64,7 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
                }
 
                //然后clone一份obj，添加到_hoverStage 中
-               var activShape = this.clone();
+               var activShape = this.clone(true);
                activShape._transform = activShape.getConcatenatedMatrix();
                canvax._hoverStage.addChild(activShape);
            }

@@ -198,7 +198,7 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
                      //然后克隆一个副本到activeStage
                      var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
                      if(!_dragDuplicate){
-                         _dragDuplicate = self.mouseTarget.clone();
+                         _dragDuplicate = self.mouseTarget.clone(true);
                          _dragDuplicate._transform = _dragDuplicate.getConcatenatedMatrix();
                          self._hoverStage.addChild( _dragDuplicate );
                      }
@@ -274,24 +274,11 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
 
                //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
                //会有修改visible的意愿
-               
                if(!oldObj.context.visible){
                   oldObj.context.visible = true;
                }
 
-
                oldObj.dispatchEvent(e);
-
-               /*
-                * 这几行放到dispatchEvent 里面去处理，这样的话，用脚本触发的fire("mouseout")
-                * 也能把副本放到_hoverStage 中去，mouseover的处理同理
-                * begin 
-               if(oldObj._hoverClass){
-                  //说明刚刚over的时候有添加样式
-                  oldObj._hoverClass = false;
-                  this._hoverStage.removeChildById(oldObj.id);
-               }
-               end*/
 
                this.setCursor("default");
            }	
@@ -301,30 +288,6 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
                e.target = e.currentTarget = obj;
 
                obj.dispatchEvent(e);
-
-
-               /*
-               //记录dispatchEvent之前的心跳
-               var preHeartBeat = obj._heartBeatNum;
-               obj.dispatchEvent(e);
-               if(preHeartBeat != obj._heartBeatNum){
-                  obj._hoverClass = true;
-                  //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
-                  //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
-                  //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
-                  if(_.values(this.convertStages[obj.getStage().id].convertShapes).length > 1){
-                     //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
-                     
-                  } else {
-                     delete this.convertStages[obj.getStage().id];
-                  }
-
-                  //然后clone一份obj，添加到_hoverStage 中
-                  var activShape = obj.clone();
-                  activShape._transform = activShape.getConcatenatedMatrix();
-                  this._hoverStage.addChild(activShape);
-               }
-               */
 
                this.setCursor(obj.context.cursor);
            }
@@ -474,6 +437,5 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
     "canvax/event/StageEvent",
     "canvax/core/propertyFactory",
     "canvax/animation/animation"
-    //(!document.createElement('canvas').getContext) ? "canvax/library/excanvas":""
     ]
 });

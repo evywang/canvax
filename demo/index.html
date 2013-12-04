@@ -121,6 +121,11 @@
                this.context.y= 0;
                this.context.x=0;
            });
+
+           circle3 = circle2.clone();
+           circle3.context.x = 200;
+           circle3.context.y = 200;
+
            
 
 
@@ -430,6 +435,7 @@
            
            stage.addChild(rect);
            stage.addChild(circle2);
+stage.addChild(circle3);
            stage.addChild(bezier);
            stage.addChild(brokenLine);
 
