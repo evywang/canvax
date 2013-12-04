@@ -129,6 +129,9 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
            self._pixelCtx = _pixelCanvas.getContext('2d');
 
        },
+       /*
+        * 鼠标事件处理函数
+        * */
        __mouseHandler : function(event) {
            var self = this;
            var mouseX = event.pageX - self.rootOffset.left;
@@ -159,6 +162,7 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
                  //这里还可以做优化，因为拖动停止了但是还是在hover状态，没必要把本尊显示的。
                  //self.mouseTarget.context.visible = true;
 
+                 //_dragDuplicate 复制在_hoverStage 中的副本
                  var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
                  self.mouseTarget.context = _dragDuplicate.context;
                  self.mouseTarget.context.$owner = self.mouseTarget;
@@ -168,6 +172,8 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
                  if(event.type == "mouseout"){
                      _dragDuplicate.destroy();
                  }
+
+
               }
               self._draging  = false;
               self._touching = false;
@@ -256,7 +262,6 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
            e.mouseX = this.mouseX;
            e.mouseY = this.mouseY;
 
-            
 
            if(  oldObj &&  oldObj != obj  || e.type=="mouseout" ) {
                if(!oldObj){
@@ -276,11 +281,18 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
 
 
                oldObj.dispatchEvent(e);
+
+               /*
+                * 这几行放到dispatchEvent 里面去处理，这样的话，用脚本触发的fire("mouseout")
+                * 也能把副本放到_hoverStage 中去，mouseover的处理同理
+                * begin 
                if(oldObj._hoverClass){
                   //说明刚刚over的时候有添加样式
                   oldObj._hoverClass = false;
                   this._hoverStage.removeChildById(oldObj.id);
                }
+               end*/
+
                this.setCursor("default");
            }	
            if( obj && oldObj != obj && obj._hoverable ){
@@ -288,6 +300,10 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
                e.type = "mouseover";
                e.target = e.currentTarget = obj;
 
+               obj.dispatchEvent(e);
+
+
+               /*
                //记录dispatchEvent之前的心跳
                var preHeartBeat = obj._heartBeatNum;
                obj.dispatchEvent(e);
@@ -307,9 +323,9 @@ KISSY.add("canvax/Canvax" , function( S ,DisplayObjectContainer ,Stage, Base,Sta
                   var activShape = obj.clone();
                   activShape._transform = activShape.getConcatenatedMatrix();
                   this._hoverStage.addChild(activShape);
-
-
                }
+               */
+
                this.setCursor(obj.context.cursor);
            }
        },
