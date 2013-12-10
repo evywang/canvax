@@ -59,8 +59,8 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
         //提供给Coer.propertyFactory() 来 给 self.context 设置 propertys
         _contextATTRS = {
-            width         : opt.context.width         || null,
-            height        : opt.context.height        || null,
+            width         : opt.context.width         || 0,
+            height        : opt.context.height        || 0,
             x             : opt.context.x             || 0,
             y             : opt.context.y             || 0,
             alpha         : opt.context.alpha         || 1,
@@ -95,8 +95,8 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             strokeStyle   :opt.context.strokeStyle    || null,
             globalAlpha   :opt.context.globalAlpha    || null,
             font          :opt.context.font           || null,
-            textAlign     :opt.context.textAlign      || null,
-            textBaseline  :opt.context.textBaseline   || null,
+            textAlign     :opt.context.textAlign      || "left",
+            textBaseline  :opt.context.textBaseline   || "top",
             arcScaleX_    :opt.context.arcScaleX_     || null,
             arcScaleY_    :opt.context.arcScaleY_     || null,
             lineScale_    :opt.context.lineScale_     || null   

@@ -32,7 +32,7 @@
 
        var colorInd=0;
        window.stage=null;
-       KISSY.use("canvax/Canvax ,canvax/display/Stage , canvax/display/Shape , canvax/utils/color , canvax/shape/Circle ,canvax/shape/Beziercurve ,canvax/shape/BrokenLine, canvax/shape/Droplet , canvax/shape/Ellipse ,canvax/shape/Heart,canvax/shape/Sector, canvax/shape/Polygon,canvax/shape/Path,canvax/shape/Isogon, canvax/shape/Rect ,canvax/shape/Line ,node" , function( S ,Canvax, Stage , Shape,color,Circle,Beziercurve,BrokenLine,Droplet,Ellipse,Heart,Sector,Polygon,Path,Isogon,Rect,Line ){
+       KISSY.use("canvax/Canvax ,canvax/display/Stage , canvax/display/Shape , canvax/utils/color , canvax/shape/Circle ,canvax/shape/Beziercurve ,canvax/shape/BrokenLine, canvax/shape/Droplet , canvax/shape/Ellipse ,canvax/shape/Heart,canvax/shape/Sector, canvax/shape/Polygon,canvax/shape/Path,canvax/shape/Isogon, canvax/shape/Rect ,canvax/shape/Line , canvax/display/Text ,node" , function( S ,Canvax, Stage , Shape,color,Circle,Beziercurve,BrokenLine,Droplet,Ellipse,Heart,Sector,Polygon,Path,Isogon,Rect,Line,Text ){
 
            S.all("#ready").html("ready")
            
@@ -424,14 +424,20 @@
               this.context.lineWidth = 2;
           });
 
-         
+
+          var text=new Text("test canvas" , {
+              context : {
+                  x :300,
+                  y :300,
+                  fillStyle:color.getColor(colorInd++)
+              }
+          })
 
         
          
 
            //stage.addChild(sector);
            //stage.addChild(rect1);
-           
            
            stage.addChild(rect);
            stage.addChild(circle2);
@@ -453,6 +459,7 @@ stage.addChild(circle3);
            stage.addChild(heart);
            
            stage.addChild(droplet);
+           stage.addChild( text );
 
            
            
