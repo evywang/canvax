@@ -39,7 +39,7 @@
        var colorInd=0;
        window.stage=null;
 
-       KISSY.use("demo/map/mapdata,canvax/Canvax ,canvax/display/Stage , canvax/shape/Path , canvax/utils/color,node" , function( S ,mapData ,Canvax, Stage ,Path,color ){
+       KISSY.use("demo/map/mapdata,canvax/ , canvax/utils/color,node" , function( S ,mapData ,Canvax, color ){
            
 
            var box = S.one("#canvasTest");
@@ -52,7 +52,7 @@
               el : box
            })
 
-           window.stage = new Stage({
+           window.stage = new Canvax.Display.Stage({
                id : "chart",
                context:{
                  width : width,
@@ -63,7 +63,7 @@
            var mapDataList = mapData.get();
 
            S.each(mapDataList , function( mapData , i ){
-               var map = new Path({
+               var map = new Canvax.Shapes.Path({
                    //id:"map1",
                    context : {
                        x:0,
@@ -76,7 +76,7 @@
                });
                map.on("mouseover" , function(){
                    this.context.strokeStyle = "white";
-                   this.context.fillStyle = "white";
+                   //this.context.fillStyle = "white";
                })
 
                map.on("mouseout" , function(){
@@ -94,7 +94,7 @@
         canvax.addChild(stage);
 
         setTimeout(function(){
-            stage.children[0].fire("mouseover");
+            //stage.children[0].fire("mouseover");
         },1000);
 
        })

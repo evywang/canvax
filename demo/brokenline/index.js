@@ -48,7 +48,7 @@
        var colorInd=0;
        window.stage=null;
 
-       KISSY.use("canvax/display/Stage ,demo/brokenline/brokenline , node" , function( S , Stage,brokenline  ){
+       KISSY.use("demo/brokenline/brokenline , node" , function( S , brokenline  ){
            
            var box = S.one("#canvasTest");
            

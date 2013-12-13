@@ -1,4 +1,4 @@
-KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasection ,Canvax,Stage, Line , BrokenLine,Text){
+KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasection ,Canvax){
     /*
      *@node chart在dom里的目标容器节点。
     */
@@ -153,7 +153,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
               el : self.get("element")
            })
 
-           var stage = new Stage({
+           var stage = new Canvax.Display.Stage({
                id : "chart",
                context:{
                  width : self.get("width"),
@@ -429,7 +429,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           for ( var i=0,l=yAxis.data.length-1 ; i<l ; i++ ){
              var linex = graphs.layout.left-6;
              var liney = Math.round( i*self._yBlock )+graphs.layout.top+graphs.layout.padding.top+self._yOverDiff; 
-             self.get("stage").addChild(new Line({
+             self.get("stage").addChild(new Canvax.Shapes.Line({
                  context : {
                      xStart      : linex,
                      yStart      : liney,
@@ -444,7 +444,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           };
 
           //画左边线
-          self.get("stage").addChild(new Line({
+          self.get("stage").addChild(new Canvax.Shapes.Line({
               id : "line-left",
               context : {
                   xStart      : graphs.layout.left,
@@ -459,7 +459,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
 
 
           //画下边线
-          self.get("stage").addChild(new Line({
+          self.get("stage").addChild(new Canvax.Shapes.Line({
               id : "line-bottom",
               context : {
                   xStart      : xAxis.layout.left,
@@ -509,7 +509,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
                   })
               }
 
-              self.BrokenLine = new BrokenLine({
+              self.BrokenLine = new Canvax.Shapes.BrokenLine({
                   context : {
                       pointList : pointList,
                       strokeStyle : 'red',
@@ -532,7 +532,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
              var y = yAxis.layout.height+yAxis.layout.top+yAxis.layout.padding.top-i*self._yBlock;
               
              
-             stage.addChild(new Text(
+             stage.addChild(new Canvax.Display.Text(
                 item
                 ,
                 {
@@ -558,7 +558,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
 
           var pCount = xAxis.xPointList.length;
           S.each(xAxis.xPointList , function( x , i ){
-              stage.addChild(new Line({
+              stage.addChild(new Canvax.Shapes.Line({
                   context : {
                       xStart      : x,
                       yStart      : xAxis.layout.top-5,
@@ -584,7 +584,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
                   }
               } 
 
-              stage.addChild(new Text(
+              stage.addChild(new Canvax.Display.Text(
                 xAxis.dataOrg[i].toString()
                 ,
                 {
@@ -600,10 +600,6 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
         'base' ,
         'demo/brokenline/utils' ,
         'demo/brokenline/datasection',
-        'canvax/Canvax',
-        'canvax/display/Stage',
-        'canvax/shape/Line',
-        'canvax/shape/BrokenLine',
-        'canvax/display/Text'
+        'canvax/'
     ]
 })

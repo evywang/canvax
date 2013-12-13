@@ -1,4 +1,4 @@
-KISSY.add("demo/histogram/histogram" , function( S , Base , Utils , Datasection ,Canvax,Stage, Line , Rect){
+KISSY.add("demo/histogram/histogram" , function( S , Base , Utils , Datasection ,Canvax){
     /*
      *@node chart在dom里的目标容器节点。
     */
@@ -158,7 +158,7 @@ KISSY.add("demo/histogram/histogram" , function( S , Base , Utils , Datasection 
               el : self.get("element")
            })
 
-           var stage = new Stage({
+           var stage = new Canvax.Display.Stage({
                id : "chart",
                context:{
                  width : self.get("width"),
@@ -445,7 +445,7 @@ KISSY.add("demo/histogram/histogram" , function( S , Base , Utils , Datasection 
           //画左边线
           //var lineVStr = "M"+graphs.layout.left+" "+(graphs.layout.top)+"v"+(graphs.layout.height+graphs.layout.padding.top)+"Z";
           //paper.path( lineVStr ).attr({stroke:graphs.lineColor});
-          self.get("stage").addChild(new Line({
+          self.get("stage").addChild(new Canvax.Shapes.Line({
               id : "line-left",
               context : {
                   xStart      : graphs.layout.left,
@@ -463,7 +463,7 @@ KISSY.add("demo/histogram/histogram" , function( S , Base , Utils , Datasection 
           //var lineHStr = "M"+xAxis.layout.left +" "+xAxis.layout.top+"h"+xAxis.layout.width+"Z";
           //paper.path( lineHStr ).attr({stroke:graphs.lineColor});
 
-          self.get("stage").addChild(new Line({
+          self.get("stage").addChild(new Canvax.Shapes.Line({
               id : "line-bottom",
               context : {
                   xStart      : xAxis.layout.left,
@@ -488,7 +488,7 @@ KISSY.add("demo/histogram/histogram" , function( S , Base , Utils , Datasection 
              var liney = Math.round( i*self._yBlock )+graphs.layout.top+graphs.layout.padding.top+self._yOverDiff; 
              //var lineBG = "M"+linex+" "+liney+"h"+graphs.layout.width;
              //paper.path(lineBG).attr({stroke:graphs.lineColor , "stroke-dasharray":"- "});
-             self.get("stage").addChild(new Line({
+             self.get("stage").addChild(new Canvax.Shapes.Line({
                  id : "line-bottom",
                  context : {
                      xStart      : linex,
@@ -530,7 +530,7 @@ KISSY.add("demo/histogram/histogram" , function( S , Base , Utils , Datasection 
                   itemHeight = Math.round(itemHeight);
                   
                   //var cloumn = paper.rect( x+0.5 , y-itemHeight-0.5 , barWidth , itemHeight+0.5  );
-                  var rect = new Rect({
+                  var rect = new Canvax.Shapes.Rect({
                       context : {
                         x     : x,
                         y     : y-itemHeight,
@@ -587,9 +587,6 @@ KISSY.add("demo/histogram/histogram" , function( S , Base , Utils , Datasection 
         'base' ,
         'demo/histogram/utils' ,
         'demo/histogram/datasection',
-        'canvax/Canvax',
-        'canvax/display/Stage',
-        'canvax/shape/Line',
-        'canvax/shape/Rect'
+        'canvax/'
     ]
 })

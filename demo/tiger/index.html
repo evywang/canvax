@@ -39,7 +39,7 @@
        var colorInd=0;
        window.stage=null;
 
-       KISSY.use("demo/tiger/tigerData,canvax/Canvax ,canvax/display/Stage , canvax/shape/Path , canvax/utils/color,node" , function( S ,tigerData ,Canvax, Stage ,Path,color ){
+       KISSY.use("demo/tiger/tigerData,canvax/, canvax/utils/color,node" , function( S ,tigerData ,Canvax,color ){
            var box = S.one("#canvasTest");
            var width = box.width();
            var height = box.height();
@@ -50,7 +50,7 @@
               el : box
            })
 
-           var stage = new Stage({
+           var stage = new Canvax.Display.Stage({
                id : "tiger",
                context:{
                  width : width,
@@ -94,7 +94,7 @@
            
                            
                //console.log(Data.path)
-               var map = new Path({
+               var map = new Canvax.Shapes.Path({
                    //id:"map1",
                    context : {
                        x:200,

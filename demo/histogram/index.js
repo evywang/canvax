@@ -89,7 +89,7 @@
        var colorInd=0;
        window.stage=null;
 
-       KISSY.use("canvax/display/Stage ,demo/histogram/histogram , node" , function( S , Stage,Histogram  ){
+       KISSY.use("demo/histogram/histogram , node" , function( S , Histogram  ){
            
            var box = S.one("#canvasTest");
            
