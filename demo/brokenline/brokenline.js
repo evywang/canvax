@@ -598,7 +598,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
 } , {
     requires: [
         'base' ,
-        'demo/brokenline/utils' ,
+        'demo/brokenline/utils',
         'demo/brokenline/datasection',
         'canvax/'
     ]
