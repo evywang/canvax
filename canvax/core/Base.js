@@ -26,6 +26,7 @@ KISSY.add("canvax/core/Base" , function(S){
 
 
     var Base = {
+        mainFrameRate   : 40,//默认主帧率
         __emptyFunc : function(){},
         //retina 屏幕优化
         _devicePixelRatio : window.devicePixelRatio || 1,

@@ -9,7 +9,7 @@
 
 KISSY.add("canvax/display/Sprite" , function(S , DisplayObjectContainer,Base){
   var Sprite = function(){
-      arguments.callee.superclass.constructor.call(this, name);
+      arguments.callee.superclass.constructor.call(this, arguments);
       var self = this;
       self.type = "sprite";
 

@@ -59,6 +59,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             this.children.splice(index, 0, child);
             child.parent = this;
             
+            //上报children心跳
             if(this.heartBeat){
                this.heartBeat({
                  convertType : "children",
@@ -68,9 +69,8 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             }
             
             if(this.afterAddChild){
-               this.afterAddChild(child);
+               this.afterAddChild(child,index);
             }
-
 
             return child;
         },
@@ -99,7 +99,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
 
             
             if(this.afterDelChild){
-               this.afterDelChild(child);
+               this.afterDelChild(child , index);
             }
 
 
@@ -118,6 +118,22 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                 this.removeChildAt(0);
             }
         },
+        //集合类的自我销毁
+        destroy : function(){
+            if(this.parent){
+                this.parent.removeChild(this);
+                this.parent = null;
+            }
+
+            //依次销毁所有子元素
+            //TODO：这个到底有没有必要。还有待商榷
+            for(var i = 0, len = this.children.length; i < len; i++) {
+                var child = this.children[i];
+                child.destroy();
+            }
+            this = null;
+        },
+
         getChildById : function(id){
             for(var i = 0, len = this.children.length; i < len; i++){
                 if(this.children[i].id == id) {
@@ -188,6 +204,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             }
         }
 
+        
 
 
     });

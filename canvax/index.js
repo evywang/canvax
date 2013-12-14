@@ -13,7 +13,7 @@
 
 
 KISSY.add("canvax/index" ,
-   function( S ,DisplayObjectContainer ,Stage, Base,StageEvent, propertyFactory,Sprite,Text,Shape,Shapes ){
+   function(S,DisplayObjectContainer,Stage,Base,StageEvent,propertyFactory,Sprite,Text,Shape,Moveclip,Shapes ){
    var Canvax=function(opt){
        var self = this;
        self.type = "canvax";
@@ -34,9 +34,13 @@ KISSY.add("canvax/index" ,
        self._heartBeat = false;//心跳，默认为false，即false的时候引擎处于静默状态 true则启动渲染
        
        //设置帧率
-       self._frameRate = 40;
-       self._speedTime = parseInt(1000/self._frameRate);
+       self._speedTime = parseInt(1000/Base.mainFrameRate);
        self._preRenderTime = 0;
+
+       //任务列表, 如果_taskList 不为空，那么主引擎就一直跑
+       //为 含有__enterFrame 方法 DisplayObject 的对象列表
+       //比如Moveclip的__enterFrame方法。
+       self._taskList = [];
        
        self._Event = null;
 
@@ -306,29 +310,26 @@ KISSY.add("canvax/index" ,
            this.el.css("cursor" , cursor)
        },
        setFrameRate : function(frameRate) {
-          if(this._frameRate == frameRate) {
+          if(Base.mainFrameRate == frameRate) {
               return;
           }
-          this._frameRate = frameRate;
+          Base.mainFrameRate = frameRate;
 
           //根据最新的帧率，来计算最新的间隔刷新时间
-          this._speedTime = parseInt(1000/self._frameRate);
+          this._speedTime = parseInt(1000/Base.mainFrameRate);
        },
        __enterFrame : function(){
            var self = this;
-           if( !self._heartBeat) {
-               return;
-           }
 
-           var now = new Date().getTime();
+           if(self._heartBeat){
+               var now = new Date().getTime();
 
-           if((now-self._preRenderTime) < self._speedTime ){
-               //事件speed不够，下一帧再来
-               requestAnimationFrame( _.bind(self.__enterFrame,self) );
-               return;
-           }
+               if((now-self._preRenderTime) < self._speedTime ){
+                   //事件speed不够，下一帧再来
+                   requestAnimationFrame( _.bind(self.__enterFrame,self) );
+                   return;
+               }
 
-           if(self._heartBeat){  
                _.each(_.values(self.convertStages) , function(convertStage){
                   convertStage.stage._render(convertStage.stage.context2D);
                });
@@ -340,10 +341,23 @@ KISSY.add("canvax/index" ,
                self._preRenderTime = new Date().getTime();
            }
 
-
-           //其实没必要再多跑一帧来确认了
-           //requestAnimationFrame( _.bind(self.__enterFrame,self) )
-
+           
+           //先跑任务队列,因为有可能再具体的hander中会把自己清除掉
+           //所以跑任务和下面的length检测分开来
+           if(self._taskList.length > 0){
+              for(var i=0,l=self._taskList.length;i<l;i++){
+                 var obj = self._taskList[i];
+                 if(obj.__enterFrame){
+                    obj.__enterFrame();
+                 } else {
+                    self.__taskList.splice(i-- , 1);
+                 }
+              }  
+           }
+           //如果依然还有任务。 就继续enterFrame.
+           if(self._taskList.length > 0){
+              requestAnimationFrame( _.bind(self.__enterFrame,self) );
+           }
        },
        afterAddChild : function(stage){
            if(this.children.length==1){
@@ -449,10 +463,11 @@ KISSY.add("canvax/index" ,
 
    //给Canvax 添加静态对象，指向stage ,shape,text,sprite等类
    Canvax.Display ={
-      Stage  : Stage,
-      Sprite : Sprite,
-      Text   : Text,
-      Shape  : Shape
+      Stage   : Stage,
+      Sprite  : Sprite,
+      Text    : Text,
+      Shape   : Shape,
+      Moveclip: Moveclip
    }
    //所有自定义shape的集合，可以直接再这个上面获取不必强制引入use('canvax/shape/Circle')这样
    Canvax.Shapes = Shapes;
@@ -470,6 +485,7 @@ KISSY.add("canvax/index" ,
     //"canvax/display/Stage",
     "canvax/display/Text",
     "canvax/display/Shape",
+    "canvax/display/Moveclip",
 
     "canvax/shape/Shapes", //所有自定义shape的集合
 
