@@ -118,6 +118,20 @@
                    fillStyle:color.getColor(colorInd++)
                }
            });
+
+           var img = new Image();
+           img.onload = function(){
+               var bitmap = new Canvax.Display.Bitmap({
+                   img     : img,
+                   context : {
+                       x   : 0,
+                       y   : 0
+                   }
+               });
+               mclip.addChild(bitmap);
+           }
+           img.src = 'http://img5.douban.com/spic/s27159518.jpg';
+
            mclip.addChild(rect);
 
            mclip.addChild(circle);
@@ -144,7 +158,7 @@
       <input type="button" id="stop" value="stop" />
       <input type="button" id="play" value="play" />
    </div>
-
+   
    <div id="canvasTest" style='background:#f3f5f4;width:800px;height:800px;'></div>
 </body>
 </html>

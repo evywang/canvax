@@ -46,12 +46,9 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
       draw:function(){
       
       },
-      getRect:function(){
-      
+      getRect:function(style){
+          return style
       },
-          
- 
-
       setContextStyle : function(ctx, style) {
           // 简单判断不做严格类型检测
           for (p in style){
