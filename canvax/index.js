@@ -318,15 +318,28 @@ KISSY.add("canvax/index" ,
           //根据最新的帧率，来计算最新的间隔刷新时间
           this._speedTime = parseInt(1000/Base.mainFrameRate);
        },
+
+       //如果引擎处于静默状态的话，就会启动
+       __startEnter : function(){
+          var self = this;
+          if(!self.requestAid){
+              self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
+          }
+       },
        __enterFrame : function(){
            var self = this;
+
+           //不管怎么样，__enterFrame执行了就要把
+           //requestAid null 掉
+           self.requestAid = null
 
            if(self._heartBeat){
                var now = new Date().getTime();
 
                if((now-self._preRenderTime) < self._speedTime ){
                    //事件speed不够，下一帧再来
-                   requestAnimationFrame( _.bind(self.__enterFrame,self) );
+                   self.__startEnter();
+                   //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
                    return;
                }
 
@@ -356,7 +369,8 @@ KISSY.add("canvax/index" ,
            }
            //如果依然还有任务。 就继续enterFrame.
            if(self._taskList.length > 0){
-              requestAnimationFrame( _.bind(self.__enterFrame,self) );
+              self.__startEnter();
+              //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
            }
        },
        afterAddChild : function(stage){
@@ -449,7 +463,8 @@ KISSY.add("canvax/index" ,
            if (!self._heartBeat){
               //如果发现引擎在静默状态，那么就唤醒引擎
               self._heartBeat = true;
-              requestAnimationFrame( _.bind(self.__enterFrame,self) );
+              self.__startEnter();
+              //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
            } else {
               //否则智慧继续确认心跳
               self._heartBeat = true;

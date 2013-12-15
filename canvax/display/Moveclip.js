@@ -111,9 +111,11 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          var canvax = this.getStage().parent;
          if(!canvax._heartBeat && canvax._taskList.length==0){
              //手动启动引擎
-             requestAnimationFrame( _.bind(canvax.__enterFrame,canvax) );
+             //canvax.__enterFrame();
+             canvax.__startEnter();
+             //requestAnimationFrame( _.bind(canvax.__enterFrame,canvax) );
          }
-
+ 
          this._push2TaskList();
       },
       play:function(){
@@ -124,7 +126,9 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          var canvax = this.getStage().parent;
          if(!canvax._heartBeat && canvax._taskList.length==0){
              //手动启动引擎
-             requestAnimationFrame( _.bind(canvax.__enterFrame,canvax) );
+             //canvax.__enterFrame();
+             canvax.__startEnter();
+             //requestAnimationFrame( _.bind(canvax.__enterFrame,canvax) );
          }
          this._push2TaskList();
          
