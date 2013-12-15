@@ -43,7 +43,7 @@ KISSY.add("canvax/display/Bitmap" , function(S , Shape , Base){
               if(!style.dWidth || !style.dHeight ){
                  ctx.drawImage(image, 0, 0, style.width, style.height);
               } else {
-                 ctx.drawImage(image, 0, 0, style.width, style.height , style.dx , style.dy , style.dWidth , style.dHeight);
+                 ctx.drawImage(image,style.dx , style.dy , style.dWidth , style.dHeight,0, 0, style.width, style.height );
               }
           }
       }

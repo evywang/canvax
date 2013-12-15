@@ -16,7 +16,7 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
 
       self.type = "Moveclip";
       self.currentFrame  = 0;
-      self._autoPlay     = true;//是否自动播放
+      self._autoPlay     = opt.autoPlay || false;//是否自动播放
 
 
       self._frameRate    = Base.mainFrameRate;
@@ -27,7 +27,7 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
           //r : opt.context.r || 0   //{number},  // 必须，圆半径
       }
 
-      arguments.callee.superclass.constructor.call(this, arguments);
+      arguments.callee.superclass.constructor.apply(this, arguments);
   };
 
   Base.creatClass(Moveclip , DisplayObjectContainer , {
@@ -39,6 +39,7 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
           return this._autoPlay;
       },
       setFrameRate : function(frameRate) {
+          
           var self = this;
           if(self._frameRate  == frameRate) {
               return;
@@ -113,7 +114,6 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          }
  
          this._push2TaskList();
-         this._preRenderTime = new Date().getTime();
 
          //因为有goto设置好了currentFrame
          //this._next();
@@ -150,14 +150,9 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
       _enterInCanvax:false, 
       __enterFrame:function(){
          var self = this;
-         var now  = new Date().getTime();
-         
-         if((now-self._preRenderTime) >= self._speedTime ){
+         if((Base.now-self._preRenderTime) >= self._speedTime ){
              //大于_speedTime，才算完成了一帧
              
-             //下面render里面已经有记录了
-             //self._preRenderTime = now;
-
              //上报心跳 无条件心跳吧。
              //后续可以加上对应的 moveclip 跳帧 心跳
              self.getStage().heartBeat();
@@ -198,28 +193,36 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          return this.currentFrame;
       },
       render:function(ctx){
-        
-         //因为如果children为空的话，moveclip 会把自己设置为 visible:false，不会执行到这个render
-         //所以这里可以不用做children.length==0 的判断。 大胆的搞吧。
-         this.getChildAt(this.currentFrame)._render(ctx);
-         
-         //先把当前绘制的时间点记录
-         this._preRenderTime = new Date().getTime();
-         
-         if(this._autoPlay){
-            //如果要播放
-            
-            this._next();
-            
-            this._push2TaskList();
-         } else {
-            //暂停播放
-            if(this._enterInCanvax){
-              //如果这个时候 已经 添加到了canvax的任务列表
-              this._enterInCanvax=false;
-              this.getStage().parent._taskList.splice( this.getChildIndex() , 1 ); 
-            }
-         }
+
+          //因为如果children为空的话，moveclip 会把自己设置为 visible:false，不会执行到这个render
+          //所以这里可以不用做children.length==0 的判断。 大胆的搞吧。
+          this.getChildAt(this.currentFrame)._render(ctx);
+
+          if(this.children.length == 1){
+              this._autoPlay = false;
+          }
+if(this.id=="bird"){
+                console.log((Base.now-this._preRenderTime)+"|"+this._speedTime)
+                  }
+
+          if(this._autoPlay){
+              //如果要播放
+              if((Base.now-this._preRenderTime) >= this._speedTime ){
+                  //先把当前绘制的时间点记录
+                  this._preRenderTime = Base.now;
+                  this._next();
+              }
+              this._push2TaskList();
+          } else {
+              //暂停播放
+              if(this._enterInCanvax){
+                  //如果这个时候 已经 添加到了canvax的任务列表
+                  this._enterInCanvax=false;
+                  this.getStage().parent._taskList.splice( this.getChildIndex() , 1 ); 
+              }
+          }
+
+          
       } 
   });
 

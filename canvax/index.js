@@ -331,12 +331,12 @@ KISSY.add("canvax/index" ,
 
            //不管怎么样，__enterFrame执行了就要把
            //requestAid null 掉
-           self.requestAid = null
+           self.requestAid = null;
+           Base.now = new Date().getTime();
 
            if(self._heartBeat){
-               var now = new Date().getTime();
 
-               if((now-self._preRenderTime) < self._speedTime ){
+               if((Base.now-self._preRenderTime) < self._speedTime ){
                    //事件speed不够，下一帧再来
                    self.__startEnter();
                    //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );

@@ -70,6 +70,8 @@
            });
 
            window.mclip = new Canvax.Display.Moveclip({
+               autoPlay:true,
+               id:"test",
                context : {
                   x:100,
                   y:100,
@@ -99,19 +101,7 @@
                    //lineType  : "dashed"
                }
            });
-           
-           var circle1 = new Canvax.Shapes.Circle({
-               //type : 'Circle',
-               context : {
-                   x:150,
-                   y:150,
-                   r : 50,
-                   fillStyle : 'rgba(220, 20, 60, 0.8)',          // rgba supported
-                   strokeStyle : color.getColor(colorInd++),  // getColor from default palette
-                   lineWidth : 5
-                   //lineType  : "dashed"
-               }
-           });
+     
 
            var rect = new Canvax.Shapes.Rect({
                id : "rect",
@@ -128,22 +118,93 @@
 
            var img = new Image();
            img.onload = function(){
+               
                var bitmap = new Canvax.Display.Bitmap({
                    img     : img,
                    context : {
                        x   : 0,
-                       y   : 0
+                       y   : 0,
+                       width:100,
+                       height:100
                    }
                });
                mclip.addChild(bitmap);
+
+               setTimeout(function(){
+                window.bird = new Canvax.Display.Moveclip({
+                   id:"bird",
+                   autoPlay:true,
+                   context : {
+                       x:300,
+                       y:100,
+                       width:175,
+                       height:160,
+                       scaleX:0.5,
+                       scaleY:0.5
+                   }
+               });
+
+               var bird_1 = new Canvax.Display.Bitmap({
+                   img     : img,
+                   context : {
+                       width:175,
+                       height:160,
+                       dx   : 0,
+                       dy   : 0,
+                       dWidth:175,
+                       dHeight:160
+                   }
+               })
+               var bird_2 = new Canvax.Display.Bitmap({
+                   img     : img,
+                   context : {
+                       width:175,
+                       height:160,
+                       dx   : 175,
+                       dy   : 0,
+                       dWidth:175,
+                       dHeight:160
+                   }
+               });;
+               var bird_3 = new Canvax.Display.Bitmap({
+                   img     : img,
+                   context : {
+                       width:175,
+                       height:160,
+                       dx   : 350,
+                       dy   : 0,
+                       dWidth:175,
+                       dHeight:160
+                   }
+               });
+
+               bird.addChild(bird_1);
+               bird.addChild(bird_2);
+               bird.addChild(bird_3);
+
+               window.bird2 = bird.clone();
+               bird2.context.x = 500;
+               bird.addChild(bird_1.clone());
+               bird.addChild(bird_2.clone());
+               bird.addChild(bird_3.clone());
+
+
+               bird.setFrameRate(2)
+               bird2.setFrameRate(20)
+               
+               stage.addChild(bird);
+               stage.addChild(bird2);
+
+               },2000)
+              
+
            }
-           img.src = 'http://img5.douban.com/spic/s27159518.jpg';
+           img.src = 'birds.png';
 
            mclip.addChild(rect);
 
            mclip.addChild(circle);
 
-           stage.addChild(circle1);
 
            S.one("#stop").on("click" , function(){
                mclip.stop();
@@ -185,7 +246,9 @@
            })
 
 
-
+           setTimeout(function(){
+            //debugger;
+           } , 4000)
 
        })
    }) 

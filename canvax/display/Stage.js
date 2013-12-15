@@ -23,7 +23,6 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,S
 
        self._isReady = false;
 
-
        arguments.callee.superclass.constructor.apply(this, arguments);
 
    };
