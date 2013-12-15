@@ -219,7 +219,8 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
               if(this._enterInCanvax){
                   //如果这个时候 已经 添加到了canvax的任务列表
                   this._enterInCanvax=false;
-                  this.getStage().parent._taskList.splice( this.getIndex() , 1 ); 
+                  var tList = this.getStage().parent._taskList;
+                  tList.splice( _.indexOf(tList , this) , 1 ); 
               }
           }
 
