@@ -36,6 +36,13 @@
            ]
        });
 
+       window.log=function(msg){
+           KISSY.one("#log").text(msg);
+           setTimeout(function(){
+             KISSY.one("#log").text("");
+           },2000)
+       }
+
        var colorInd=0;
        window.stage=null;
 
@@ -146,6 +153,37 @@
                mclip.play();
            });
 
+           S.one("#setNframe").on("click" ,function(){
+               var v = S.one("#newframe").val() ;
+               if(Number.isNaN(v) || v<=0){
+                  return;
+               }
+               mclip.setFrameRate( parseInt( v ) )
+           })
+
+           S.one("#next").on("click" ,function(){
+               if(mclip.getStatus()){
+                   log("只有再stop状态下next方法才生效")
+               }
+               mclip.next();
+           })
+
+           S.one("#pre").on("click" ,function(){
+               if(mclip.getStatus()){
+                   log("只有再stop状态下pre方法才生效")
+               }
+
+               mclip.pre();
+           })
+
+           S.one("#beginPlay").on("click" ,function(){
+               mclip.gotoAndPlay(0);
+           })
+
+           S.one("#stop2begin").on("click" ,function(){
+               mclip.gotoAndStop(0);
+           })
+
 
 
 
@@ -153,10 +191,19 @@
    }) 
    </script>
 
-
+   <div id="log" style="color:red;height:25px;"></div>
    <div>
-      <input type="button" id="stop" value="stop" />
-      <input type="button" id="play" value="play" />
+       <input type="button" id="stop" value="stop" />
+       <input type="button" id="beginPlay" value="从头开始播放" />
+       <input type="button" id="play" value="play" />
+       <input type="button" id="stop2begin" value="到第一帧停止" />
+
+
+      <input type="text" id="newframe" />
+      <input type="button" id="setNframe" value="设置新的帧率">
+
+      <input type="button" id="next" value="下一帧" /> 
+      <input type="button" id="pre" value="上一帧" />
    </div>
    
    <div id="canvasTest" style='background:#f3f5f4;width:800px;height:800px;'></div>

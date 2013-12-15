@@ -28,14 +28,15 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
       }
 
       arguments.callee.superclass.constructor.call(this, arguments);
-             
-
-
   };
 
   Base.creatClass(Moveclip , DisplayObjectContainer , {
       init : function(){
          
+      },
+      getStatus    : function(){
+          //查询moveclip的_autoPlay状态
+          return this._autoPlay;
       },
       setFrameRate : function(frameRate) {
           var self = this;
@@ -51,8 +52,6 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          if(this.children.length==1){
             return;
          }
-
-         child.context.visible = false;
 
          if( index != undefined && index <= this.currentFrame ){
             //插入当前frame的前面 
@@ -72,12 +71,6 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          if((this.currentFrame >= this.children.length) && this.children.length>0){
             this.currentFrame = this.children.length-1;
          };
-
-         //如果干掉的就是当前帧
-         //把最新的child 显示
-         if(index == preFrame && this.children.length>0){
-            this.getChildAt(this.currentFrame).context.visible = true;
-         }
       },
       _goto:function(i){
          var len = this.children.length;
@@ -92,6 +85,9 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
       gotoAndStop:function(i){
          this._goto(i);
          if(!this._autoPlay){
+           //再stop的状态下面跳帧，就要告诉stage去发心跳
+           this._preRenderTime = 0;
+           this.getStage().heartBeat();
            return;
          }
          this._autoPlay = false;
@@ -110,13 +106,19 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          this._autoPlay = true;
          var canvax = this.getStage().parent;
          if(!canvax._heartBeat && canvax._taskList.length==0){
-             //手动启动引擎
+             //手动启动引擎 
              //canvax.__enterFrame();
              canvax.__startEnter();
              //requestAnimationFrame( _.bind(canvax.__enterFrame,canvax) );
          }
  
          this._push2TaskList();
+         this._preRenderTime = new Date().getTime();
+
+         //因为有goto设置好了currentFrame
+         //this._next();
+         this._preRenderTime = 0;
+
       },
       play:function(){
          if(this._autoPlay){
@@ -132,7 +134,9 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          }
          this._push2TaskList();
          
-         //这个时候主引擎的__enterFrame如果已经关掉了
+         this._preRenderTime = new Date().getTime();
+         this._next();
+
       },
       _push2TaskList:function(){
          //把enterFrame push 到 引擎的任务列表
@@ -160,6 +164,39 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          }
 
       },
+      next  :function(){
+         var self = this;
+         if(!self._autoPlay){
+             //只有再非播放状态下才有效
+             self.gotoAndStop(self._next());
+         }
+      },
+      pre   :function(){
+         var self = this;
+         if(!self._autoPlay){
+             //只有再非播放状态下才有效
+             self.gotoAndStop(self._pre());
+         }
+      },
+      _next : function(){
+         var self = this;
+         if(this.currentFrame >= this.children.length-1){
+             this.currentFrame = 0;
+         } else {
+             this.currentFrame++;
+         }
+         return this.currentFrame;
+      },
+
+      _pre : function(){
+         var self = this;
+         if(this.currentFrame == 0){
+             this.currentFrame = this.children.length-1;
+         } else {
+             this.currentFrame--;
+         }
+         return this.currentFrame;
+      },
       render:function(ctx){
         
          //因为如果children为空的话，moveclip 会把自己设置为 visible:false，不会执行到这个render
@@ -171,16 +208,9 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          
          if(this._autoPlay){
             //如果要播放
-            this.getChildAt(this.currentFrame).context.visible=false;
-
-            if(this.currentFrame >= this.children.length-1){
-               this.currentFrame = 0;
-            } else {
-               this.currentFrame++;
-            }
-
-            this.getChildAt(this.currentFrame).context.visible=true;
-
+            
+            this._next();
+            
             this._push2TaskList();
          } else {
             //暂停播放
