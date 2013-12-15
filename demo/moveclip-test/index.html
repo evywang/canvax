@@ -54,7 +54,7 @@
            var height = box.height();
 
            
-           var canvax = new Canvax({
+           window.canvax = new Canvax({
               id : "canvax",
               el : box
            });
@@ -182,14 +182,60 @@
                bird.addChild(bird_2);
                bird.addChild(bird_3);
 
-               window.bird2 = bird.clone();
-               bird2.context.x = 500;
-               bird.addChild(bird_1.clone());
-               bird.addChild(bird_2.clone());
-               bird.addChild(bird_3.clone());
+ window.bird2 = new Canvax.Display.Moveclip({
+                   id:"bird",
+                   autoPlay:true,
+                   context : {
+                       x:500,
+                       y:100,
+                       width:175,
+                       height:160,
+                       scaleX:0.5,
+                       scaleY:0.5
+                   }
+               });
 
+               var bird_21 = new Canvax.Display.Bitmap({
+                   img     : img,
+                   context : {
+                       width:175,
+                       height:160,
+                       dx   : 0,
+                       dy   : 0,
+                       dWidth:175,
+                       dHeight:160
+                   }
+               })
+               var bird_22 = new Canvax.Display.Bitmap({
+                   img     : img,
+                   context : {
+                       width:175,
+                       height:160,
+                       dx   : 175,
+                       dy   : 0,
+                       dWidth:175,
+                       dHeight:160
+                   }
+               });;
+               var bird_23 = new Canvax.Display.Bitmap({
+                   img     : img,
+                   context : {
+                       width:175,
+                       height:160,
+                       dx   : 350,
+                       dy   : 0,
+                       dWidth:175,
+                       dHeight:160
+                   }
+               });
 
-               bird.setFrameRate(2)
+               bird2.addChild(bird_21);
+               bird2.addChild(bird_22);
+               bird2.addChild(bird_23);
+
+              
+
+               bird.setFrameRate(5)
                bird2.setFrameRate(20)
                
                stage.addChild(bird);

@@ -424,6 +424,10 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             return _transform;
         },
 
+        getRect:function(style){
+            return style
+        },
+
         //显示对象的选取检测处理函数
         hitTestPoint : function( mouseX , mouseY){
             var result; //检测的结果

@@ -100,6 +100,7 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
          this._autoPlay = false;
       },
       gotoAndPlay:function(i){
+          debugger;
          this._goto(i);
          if(this._autoPlay){
            return;
@@ -201,9 +202,9 @@ KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
           if(this.children.length == 1){
               this._autoPlay = false;
           }
-if(this.id=="bird"){
-                console.log((Base.now-this._preRenderTime)+"|"+this._speedTime)
-                  }
+
+          //console.log(this.id+"|"+(Base.now-this._preRenderTime)+"|"+this._speedTime)
+                  
 
           if(this._autoPlay){
               //如果要播放
@@ -218,7 +219,7 @@ if(this.id=="bird"){
               if(this._enterInCanvax){
                   //如果这个时候 已经 添加到了canvax的任务列表
                   this._enterInCanvax=false;
-                  this.getStage().parent._taskList.splice( this.getChildIndex() , 1 ); 
+                  this.getStage().parent._taskList.splice( this.getIndex() , 1 ); 
               }
           }
 
