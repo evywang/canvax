@@ -83,6 +83,11 @@ KISSY.add("canvax/index" ,
 
           self.rootOffset = self.el.offset();
           self._Event = new StageEvent();
+
+
+
+
+          //事件绑定
           self.el.on("click" , function(e){
                var mouseX = e.pageX - self.rootOffset.left;
                var mouseY = e.pageY - self.rootOffset.top;
@@ -93,8 +98,6 @@ KISSY.add("canvax/index" ,
                if (self.mouseY != mouseY){
                    self.mouseY = mouseY;
                };
-               
-
                var list = self.getObjectsUnderPoint(mouseX , mouseY);
           });
 
@@ -118,9 +121,10 @@ KISSY.add("canvax/index" ,
                self.__mouseHandler(e);
           });
 
+
+
           //创建一个如果要用像素检测的时候的容器
           self.createPixelContext();
-
           
           self._isReady = true;
        },
@@ -168,9 +172,7 @@ KISSY.add("canvax/index" ,
            if(event.type == "mouseup" || event.type == "mouseout"){
               if(self._draging == true){
                  //说明刚刚在拖动
-                
                  self.dragEnd && self.dragEnd(event);  
-                
                  //拖动停止， 那么要先把本尊给显示出来先
                  //这里还可以做优化，因为拖动停止了但是还是在hover状态，没必要把本尊显示的。
                  //self.mouseTarget.context.visible = true;
@@ -185,8 +187,6 @@ KISSY.add("canvax/index" ,
                  if(event.type == "mouseout"){
                      _dragDuplicate.destroy();
                  }
-
-
               }
               self._draging  = false;
               self._touching = false;
@@ -206,33 +206,14 @@ KISSY.add("canvax/index" ,
                      
                      //先把本尊给隐藏了
                      self.mouseTarget.context.visible = false;
-
                                           
                      //然后克隆一个副本到activeStage
-                     var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
-                     if(!_dragDuplicate){
-                         _dragDuplicate = self.mouseTarget.clone(true);
-                         _dragDuplicate._transform = _dragDuplicate.getConcatenatedMatrix();
-                         self._hoverStage.addChild( _dragDuplicate );
-                     }
-                     _dragDuplicate.context = propertyFactory(self.mouseTarget.context.$model);
-                     _dragDuplicate.context.$owner = _dragDuplicate;
-                     _dragDuplicate.context.$watch = self.mouseTarget.context.$watch;
-                     _dragDuplicate.context.visible = true;
-
-                     
-                     _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal(self.mouseX , self.mouseY)
-                     
+                     self._clone2hoverStage();
                   } else {
                      //drag ing
-                     var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
-                     _dragDuplicate.context.x = self.mouseX - _dragDuplicate._dragPoint.x; 
-                     _dragDuplicate.context.y = self.mouseY - _dragDuplicate._dragPoint.y;  
-                     self.mouseTarget.drag && self.mouseTarget.drag(event);
-
+                     self._dragIng();
                   }
                   self._draging = true;
-
                   return self;
                }
 
@@ -252,7 +233,6 @@ KISSY.add("canvax/index" ,
 
                    //dispatch event
                    this.mouseTarget.dispatchEvent(e);
-
                }
            }
 
@@ -275,37 +255,51 @@ KISSY.add("canvax/index" ,
            e.mouseX = this.mouseX;
            e.mouseY = this.mouseY;
 
-
-           if(  oldObj &&  oldObj != obj  || e.type=="mouseout" ) {
+           if(oldObj && oldObj != obj || e.type=="mouseout") {
                if(!oldObj){
                   return;
                }
-               
                this.mouseTarget = null;
                e.type = "mouseout";
                e.target = e.currentTarget = oldObj;
-
                //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
                //会有修改visible的意愿
                if(!oldObj.context.visible){
                   oldObj.context.visible = true;
                }
-
                oldObj.dispatchEvent(e);
-
                this.setCursor("default");
-           }	
-           if( obj && oldObj != obj && obj._hoverable ){
+           };
+           if(obj && oldObj != obj && obj._hoverable){
                this.mouseTarget = obj;
                e.type = "mouseover";
                e.target = e.currentTarget = obj;
-
                obj.dispatchEvent(e);
-
                this.setCursor(obj.context.cursor);
-           }
+           };
        },
+       _clone2hoverStage : function(){
+           var self = this;
+           var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
+           if(!_dragDuplicate){
+               _dragDuplicate = self.mouseTarget.clone(true);
+               _dragDuplicate._transform = _dragDuplicate.getConcatenatedMatrix();
+               self._hoverStage.addChild( _dragDuplicate );
+           }
+           _dragDuplicate.context = propertyFactory(self.mouseTarget.context.$model);
+           _dragDuplicate.context.$owner = _dragDuplicate;
+           _dragDuplicate.context.$watch = self.mouseTarget.context.$watch;
+           _dragDuplicate.context.visible = true;
 
+           _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal(self.mouseX , self.mouseY)
+       },
+       _dragIng  : function(){
+           var self = this;
+           var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
+           _dragDuplicate.context.x = self.mouseX - _dragDuplicate._dragPoint.x; 
+           _dragDuplicate.context.y = self.mouseY - _dragDuplicate._dragPoint.y;  
+           self.mouseTarget.drag && self.mouseTarget.drag(event);
+       },
        setCursor : function(cursor) {
            this.el.css("cursor" , cursor)
        },
@@ -353,7 +347,6 @@ KISSY.add("canvax/index" ,
                //渲染完了，打上最新时间挫
                self._preRenderTime = new Date().getTime();
            }
-
            
            //先跑任务队列,因为有可能再具体的hander中会把自己清除掉
            //所以跑任务和下面的length检测分开来
@@ -389,7 +382,6 @@ KISSY.add("canvax/index" ,
 
            //心跳包有两种，一种是某元素的可视属性改变了。一种是children有变动
            //分别对应convertType  为 context  and children
-
            if (opt.convertType == "context"){
                var stage   = opt.stage;
                var shape   = opt.shape;
@@ -404,11 +396,8 @@ KISSY.add("canvax/index" ,
 
                if(!self.convertStages[stage.id]){
                    self.convertStages[stage.id]={
-
                        stage : stage,
-                       convertShapes : {
-
-                       }
+                       convertShapes : {}
                    }
                };
 
@@ -435,10 +424,7 @@ KISSY.add("canvax/index" ,
                    if(!self.convertStages[stage.id]) {
                        self.convertStages[stage.id]={
                            stage : stage ,
-                           convertShapes : {
-
-                           }
-
+                           convertShapes : {}
                        }
                    }
                }
@@ -450,15 +436,10 @@ KISSY.add("canvax/index" ,
                if(!self.convertStages[stage.id]) {
                    self.convertStages[stage.id]={
                        stage : stage ,
-                       convertShapes : {
-
-                       }
-
+                       convertShapes : {}
                    }
                }
-
            }
-
 
            if (!self._heartBeat){
               //如果发现引擎在静默状态，那么就唤醒引擎

@@ -11,8 +11,8 @@
 </style>
 
 <script type="text/javascript" src="http://g.tbcdn.cn/kissy/k/1.3.1/seed-min.js"></script>
-<script type="text/javascript" src="../canvax/library/underscore.js"></script>
-<script type="text/javascript" src="../canvax/library/flashCanvas/flashcanvas.js"></script>
+<script type="text/javascript" src="../library/underscore.js"></script>
+<script type="text/javascript" src="../library/flashCanvas/flashcanvas.js"></script>
 </head>
 
 <body>
@@ -26,13 +26,16 @@
              {
                name : "canvax",
                path : "../../canvax"
+             } , {
+               name : "library",
+               path : "../../canvax"
              }
            ]
        });
 
        var colorInd=0;
        window.stage=null;
-       KISSY.use("canvax/ ,canvax/utils/color , node" , function( S ,Canvax, color ){
+       KISSY.use("canvax/ ,library/color , node" , function( S ,Canvax, color ){
 
            S.all("#ready").html("ready")
            
