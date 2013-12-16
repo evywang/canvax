@@ -13,7 +13,7 @@
 
 
 KISSY.add("canvax/index" ,
-   function(S,DisplayObjectContainer,Stage,Base,StageEvent,propertyFactory,Sprite,Text,Shape,Moveclip,Bitmap,Shapes ){
+   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Moveclip , Bitmap , Shapes ){
    var Canvax=function(opt){
        var self = this;
        self.type = "canvax";
@@ -71,7 +71,19 @@ KISSY.add("canvax/index" ,
           self.context.height = self.el.height();
 
           //然后创建一个用于绘制激活shape的 stage到activation
+          self._creatHoverStage();
+
+          //初始化事件委托到root元素上面
+          self._initEvent();
+
+          //创建一个如果要用像素检测的时候的容器
+          self.createPixelContext();
+          
+          self._isReady = true;
+       },
+       _creatHoverStage : function(){
           //TODO:创建stage的时候一定要传入width height  两个参数
+          var self = this;
           self._hoverStage = new Stage( {
             id : "activCanvas"+(new Date()).getTime(),
             context : {
@@ -80,14 +92,12 @@ KISSY.add("canvax/index" ,
             }
           } );
           self.addChild( self._hoverStage );
-
+       },
+       _initEvent : function(){
+          //初始绑定事件，为后续的displayList的事件分发提供入口
+          var self = this;
           self.rootOffset = self.el.offset();
           self._Event = new StageEvent();
-
-
-
-
-          //事件绑定
           self.el.on("click" , function(e){
                var mouseX = e.pageX - self.rootOffset.left;
                var mouseY = e.pageY - self.rootOffset.top;
@@ -121,12 +131,6 @@ KISSY.add("canvax/index" ,
                self.__mouseHandler(e);
           });
 
-
-
-          //创建一个如果要用像素检测的时候的容器
-          self.createPixelContext();
-          
-          self._isReady = true;
        },
        /**
         * 获取像素拾取专用的上下文
@@ -172,21 +176,7 @@ KISSY.add("canvax/index" ,
            if(event.type == "mouseup" || event.type == "mouseout"){
               if(self._draging == true){
                  //说明刚刚在拖动
-                 self.dragEnd && self.dragEnd(event);  
-                 //拖动停止， 那么要先把本尊给显示出来先
-                 //这里还可以做优化，因为拖动停止了但是还是在hover状态，没必要把本尊显示的。
-                 //self.mouseTarget.context.visible = true;
-
-                 //_dragDuplicate 复制在_hoverStage 中的副本
-                 var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
-                 self.mouseTarget.context = _dragDuplicate.context;
-                 self.mouseTarget.context.$owner = self.mouseTarget;
-                 //这个时候的target还是隐藏状态呢
-                 self.mouseTarget.context.visible = false;
-                 self.mouseTarget._updateTransform();
-                 if(event.type == "mouseout"){
-                     _dragDuplicate.destroy();
-                 }
+                 self._dratEnd();
               }
               self._draging  = false;
               self._touching = false;
@@ -299,6 +289,24 @@ KISSY.add("canvax/index" ,
            _dragDuplicate.context.x = self.mouseX - _dragDuplicate._dragPoint.x; 
            _dragDuplicate.context.y = self.mouseY - _dragDuplicate._dragPoint.y;  
            self.mouseTarget.drag && self.mouseTarget.drag(event);
+       },
+       _dragEnd  : function(){
+           var self = this;
+           self.dragEnd && self.dragEnd(event);  
+           //拖动停止， 那么要先把本尊给显示出来先
+           //这里还可以做优化，因为拖动停止了但是还是在hover状态，没必要把本尊显示的。
+           //self.mouseTarget.context.visible = true;
+
+           //_dragDuplicate 复制在_hoverStage 中的副本
+           var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
+           self.mouseTarget.context = _dragDuplicate.context;
+           self.mouseTarget.context.$owner = self.mouseTarget;
+           //这个时候的target还是隐藏状态呢
+           self.mouseTarget.context.visible = false;
+           self.mouseTarget._updateTransform();
+           if(event.type == "mouseout"){
+               _dragDuplicate.destroy();
+           }
        },
        setCursor : function(cursor) {
            this.el.css("cursor" , cursor)
