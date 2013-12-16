@@ -75,11 +75,6 @@
            //base : "./",
            packages:[
              {
-               name : "canvax",
-               path : "../../../canvax"
-             }
-             ,
-             {
                name : "demo",
                path : "../.."
              }

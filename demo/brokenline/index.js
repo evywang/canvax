@@ -19,9 +19,9 @@
     var data1= [
         ["val1","val2","val3","val4"],
         [ 0.05 , 201  , 101 , 500 ] ,
-        [ 0.1  , 1145 , 145 , 600 ] ,
+        [ 0.1  , 1145 , 145 , 100 ] ,
         [ 0.15 , 488  , 88  , 700 ] ,
-        [ 0.2  , 390  , 546 , 800 ] 
+        [ 0.2  , 390  , 546 , 300 ] 
     ]
 
    
@@ -33,11 +33,6 @@
            debug:true,
            //base : "./",
            packages:[
-             {
-               name : "canvax",
-               path : "../../../canvax"
-             }
-             ,
              {
                name : "demo",
                path : "../.."
@@ -54,7 +49,7 @@
            
 
            var options = {
-               title : "first charts",
+               //title : "first charts",
                xAxis : {
                    field : "val1",
                    TextStyle:{
@@ -62,7 +57,7 @@
                    }
                },
                yAxis : {
-                   fields : ["val2","val3"],
+                   fields : ["val2","val3","val4"],
                    dataMode:0
                }
 

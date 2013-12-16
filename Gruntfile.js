@@ -8,11 +8,9 @@ module.exports = function(grunt) {
          },
          dist: {
              src: [
-                 "js/config.js",
-                 "js/smeite.js",
-                 "js/index.js"
+                 "canvax/**/*.js"
              ],
-             dest: "assets/js/default.js"
+             dest: "build/index.js"
          }
      },
      uglify: {
@@ -20,7 +18,7 @@ module.exports = function(grunt) {
          },
          dist: {
              files: {
-                 'assets/js/default.min.js': 'assets/js/default.js'
+                 'build/index-min.js': 'build/index.js'
              }
          }
      }
