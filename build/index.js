@@ -1614,10 +1614,9 @@ KISSY.add("canvax/animation/animation" , function(S){
 })
 ;KISSY.add("canvax/display/Sprite" , function(S , DisplayObjectContainer,Base){
   var Sprite = function(){
-      arguments.callee.superclass.constructor.apply(this, arguments);
       var self = this;
       self.type = "sprite";
-
+      arguments.callee.superclass.constructor.apply(this, arguments);
   };
 
   Base.creatClass(Sprite , DisplayObjectContainer , {
@@ -2736,7 +2735,13 @@ KISSY.add("canvax/animation/animation" , function(S){
        */
        createPixelContext : function() {
            var self = this;
-           var _pixelCanvas=Base._createCanvas("_pixelCanvas",self.context.width,self.context.height);
+           var _pixelCanvas = null;
+           if(S.all("#_pixelCanvas").length==0){
+              _pixelCanvas=Base._createCanvas("_pixelCanvas",self.context.width,self.context.height); 
+           } else {
+              _pixelCanvas=S.all("#_pixelCanvas")[0];
+           }
+           
            if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
                FlashCanvas.initElement( _pixelCanvas );
            }
@@ -2774,7 +2779,7 @@ KISSY.add("canvax/animation/animation" , function(S){
            if(event.type == "mouseup" || event.type == "mouseout"){
               if(self._draging == true){
                  //说明刚刚在拖动
-                 self._dratEnd();
+                 self._dragEnd();
               }
               self._draging  = false;
               self._touching = false;
@@ -2804,7 +2809,6 @@ KISSY.add("canvax/animation/animation" , function(S){
                   self._draging = true;
                   return self;
                }
-
                //常规mousemove检测
                //move事件中，需要不停的搜索target，这个开销挺大，
                //后续可以优化，加上和帧率相当的延迟处理
@@ -2823,7 +2827,6 @@ KISSY.add("canvax/animation/animation" , function(S){
                    this.mouseTarget.dispatchEvent(e);
                }
            }
-
            //disable text selection on the canvas, works like a charm.	
            event.preventDefault();
            event.stopPropagation();
@@ -2866,6 +2869,7 @@ KISSY.add("canvax/animation/animation" , function(S){
                this.setCursor(obj.context.cursor);
            };
        },
+       //克隆一个元素到hover stage中去
        _clone2hoverStage : function(){
            var self = this;
            var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
@@ -2881,6 +2885,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
            _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal(self.mouseX , self.mouseY)
        },
+       //drag 中 的处理函数
        _dragIng  : function(){
            var self = this;
            var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
@@ -2888,6 +2893,7 @@ KISSY.add("canvax/animation/animation" , function(S){
            _dragDuplicate.context.y = self.mouseY - _dragDuplicate._dragPoint.y;  
            self.mouseTarget.drag && self.mouseTarget.drag(event);
        },
+       //drag结束的处理函数
        _dragEnd  : function(){
            var self = this;
            self.dragEnd && self.dragEnd(event);  
@@ -4663,7 +4669,7 @@ KISSY.add("canvax/animation/animation" , function(S){
         if (!_ctx) {
             _ctx = Base.getContext();
         }
-        // 未实现或不可用时(excanvas不支持)则数学运算，主要是line，brokenLine，ring
+        // 未实现或不可用时则数学运算，主要是line，brokenLine
         var _mathReturn = _mathMethod(zoneType, shape, x, y);
 
         if (typeof _mathReturn != 'undefined') {

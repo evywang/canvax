@@ -40,7 +40,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
         if (!_ctx) {
             _ctx = Base.getContext();
         }
-        // 未实现或不可用时(excanvas不支持)则数学运算，主要是line，brokenLine，ring
+        // 未实现或不可用时则数学运算，主要是line，brokenLine
         var _mathReturn = _mathMethod(zoneType, shape, x, y);
 
         if (typeof _mathReturn != 'undefined') {
