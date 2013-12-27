@@ -12,6 +12,9 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
         title : {
           value : "chart"
         },
+        type  : {
+          value : null
+        },
         oneStrSize : {
             value :null
         },
@@ -190,9 +193,12 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
 
           for ( var p in options ){
               var opt=self.get(p);
+            
               if (p == "data" || opt === undefined){
                  //options如果有data属性 或者 该配置 默认设计中没有，丢弃
                  continue;
+              } else if( typeof options[p] == "string" ){
+                 obj[p] = options[p];
               } else {
                  S.mix( opt , options[p] , undefined , undefined , true );
                  obj[p]=opt;
@@ -201,8 +207,6 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
 
 		  Brokenline.superclass.constructor.apply(self,[obj]);
           //参数配置完毕
-          
-         
           
           
           //从chart属性的data 里面获取yAxis xAxis的源data
@@ -384,7 +388,6 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           var dl = data.length-1;//因为第一行是field，所以要 -1
 
 
-
           //数据需要截断的情况
           dataRange.start = 1;
           if ( (1+spaceWidthMin)*dl > xAxis.layout.width ){
@@ -400,9 +403,6 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           spaceWidth = gwidth - barWidth;         
           self.set("spaceWidth" , spaceWidth);
           self.set("dataRange" , dataRange);
-         
-
-
 
         },
         _graphsDraw : function(){
@@ -468,7 +468,6 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
                   yEnd        : xAxis.layout.top,
                   lineWidth   : 1,
                   strokeStyle : graphs.lineColor
-
               }
           }));
 
@@ -484,7 +483,6 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           //一条数据分组占据的width
           var groupWidth = barWidth+spaceWidth;
 
-          //遍历，把所有的数据用cloumn画出来
 
           S.each( yAxis.fields , function(field , fi){
               var pointList = [];
@@ -509,9 +507,26 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
                   })
               }
 
+              //价格线，要补点
+      
+              var brokenPlist=[];
+              var pl       =pointList.length;
+              S.each(pointList , function( p , i ){
+                  brokenPlist.push(p);
+                  if(self.get("type") == "price"){
+                      var nextItem = (i >= pl-1) ? null : pointList[i+1];
+                      if(nextItem){
+                          if(nextItem[1] != p[1]) {
+                              brokenPlist.push( [nextItem[0] , p[1]]);
+                          }
+                      }
+                  }
+              }) 
+
+
               self.BrokenLine = new Canvax.Shapes.BrokenLine({
                   context : {
-                      pointList : pointList,
+                      pointList : brokenPlist,
                       strokeStyle : 'red',
                       lineWidth : 1
                   }
