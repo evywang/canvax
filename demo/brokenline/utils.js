@@ -4,7 +4,7 @@ KISSY.add('demo/brokenline/utils',function(S){
 
        ////自动检测一个中文字符的高宽和一个英文字符的高宽
        probOneStrSize : function(){ 
-           S.all("body").append("<span style='visibility:hidden;position:absolute;left:0;top:0;' id='off-the-cuff-str'>8</span>");
+           S.all("body").append("<span style='line-height:1;visibility:hidden;position:absolute;left:0;top:0;' id='off-the-cuff-str'>8</span>");
            var oneStrNode = S.all("#off-the-cuff-str");
            var oneStrSize={
                en : {
