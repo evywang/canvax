@@ -478,7 +478,7 @@ KISSY.add("canvax/index" ,
       Sprite  : Sprite,
       Text    : Text,
       Shape   : Shape,
-      Moveiclip: Movieclip,
+      Movieclip: Movieclip,
       Bitmap  : Bitmap
    }
    //所有自定义shape的集合，可以直接再这个上面获取不必强制引入use('canvax/shape/Circle')这样
