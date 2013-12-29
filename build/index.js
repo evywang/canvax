@@ -1500,6 +1500,7 @@ KISSY.add("canvax/animation/animation" , function(S){
        //self.draggable = opt.draggable || false;
 
        self.type = self.type || "shape" ;
+       opt.draw && (self.draw=opt.draw);
        arguments.callee.superclass.constructor.apply(this , arguments);
    
        

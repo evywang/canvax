@@ -27,6 +27,7 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
        //self.draggable = opt.draggable || false;
 
        self.type = self.type || "shape" ;
+       opt.draw && (self.draw=opt.draw);
        arguments.callee.superclass.constructor.apply(this , arguments);
    
        
