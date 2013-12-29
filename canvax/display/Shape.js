@@ -24,11 +24,12 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
        self._dragDuplicate = null;
 
        //元素是否 开启 drag 拖动，这个有用户设置传入
-       self.draggable = opt.draggable || false;
+       //self.draggable = opt.draggable || false;
 
+       self.type = self.type || "shape" ;
        arguments.callee.superclass.constructor.apply(this , arguments);
    
-       self.type = self.type || "shape" ;
+       
        self._rect = null;
 
 

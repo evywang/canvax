@@ -570,7 +570,7 @@ KISSY.add("canvax/animation/animation" , function(S){
                 y:0
             },
             visible       : opt.context.visible       || true,
-            useHandCursor : opt.context.useHandCursor || false,
+            //useHandCursor : opt.context.useHandCursor || false,
             cursor        : opt.context.cursor        || "default"
         };
 
@@ -593,7 +593,8 @@ KISSY.add("canvax/animation/animation" , function(S){
             textBaseline  :opt.context.textBaseline   || "top",
             arcScaleX_    :opt.context.arcScaleX_     || null,
             arcScaleY_    :opt.context.arcScaleY_     || null,
-            lineScale_    :opt.context.lineScale_     || null   
+            lineScale_    :opt.context.lineScale_     || null,
+            globalCompositeOperation:opt.context.globalCompositeOperation || "source-over"
         }
 
 
@@ -1496,11 +1497,12 @@ KISSY.add("canvax/animation/animation" , function(S){
        self._dragDuplicate = null;
 
        //元素是否 开启 drag 拖动，这个有用户设置传入
-       self.draggable = opt.draggable || false;
+       //self.draggable = opt.draggable || false;
 
+       self.type = self.type || "shape" ;
        arguments.callee.superclass.constructor.apply(this , arguments);
    
-       self.type = self.type || "shape" ;
+       
        self._rect = null;
 
 

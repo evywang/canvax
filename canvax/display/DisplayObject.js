@@ -75,7 +75,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 y:0
             },
             visible       : opt.context.visible       || true,
-            useHandCursor : opt.context.useHandCursor || false,
+            //useHandCursor : opt.context.useHandCursor || false,
             cursor        : opt.context.cursor        || "default"
         };
 
@@ -98,7 +98,8 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             textBaseline  :opt.context.textBaseline   || "top",
             arcScaleX_    :opt.context.arcScaleX_     || null,
             arcScaleY_    :opt.context.arcScaleY_     || null,
-            lineScale_    :opt.context.lineScale_     || null   
+            lineScale_    :opt.context.lineScale_     || null,
+            globalCompositeOperation:opt.context.globalCompositeOperation || "source-over"
         }
 
 
