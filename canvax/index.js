@@ -13,7 +13,7 @@
 
 
 KISSY.add("canvax/index" ,
-   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Moveclip , Bitmap , Shapes ){
+   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Shapes ){
    var Canvax=function(opt){
        var self = this;
        self.type = "canvax";
@@ -39,7 +39,7 @@ KISSY.add("canvax/index" ,
 
        //任务列表, 如果_taskList 不为空，那么主引擎就一直跑
        //为 含有__enterFrame 方法 DisplayObject 的对象列表
-       //比如Moveclip的__enterFrame方法。
+       //比如Movieclip的__enterFrame方法。
        self._taskList = [];
        
        self._Event = null;
@@ -478,7 +478,7 @@ KISSY.add("canvax/index" ,
       Sprite  : Sprite,
       Text    : Text,
       Shape   : Shape,
-      Moveclip: Moveclip,
+      Moveiclip: Movieclip,
       Bitmap  : Bitmap
    }
    //所有自定义shape的集合，可以直接再这个上面获取不必强制引入use('canvax/shape/Circle')这样
@@ -497,7 +497,7 @@ KISSY.add("canvax/index" ,
     //"canvax/display/Stage",
     "canvax/display/Text",
     "canvax/display/Shape",
-    "canvax/display/Moveclip",
+    "canvax/display/Movieclip",
     "canvax/display/Bitmap",
 
     "canvax/shape/Shapes", //所有自定义shape的集合

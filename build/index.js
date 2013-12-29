@@ -1252,14 +1252,14 @@ KISSY.add("canvax/animation/animation" , function(S){
      "canvax/display/DisplayObject"
    ]
 })
-;KISSY.add("canvax/display/Moveclip" , function(S , DisplayObjectContainer,Base){
-  var Moveclip = function(opt){
+;KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base){
+  var Movieclip = function(opt){
 
       var self = this;
 
       opt.context || (opt.context = {});
 
-      self.type = "Moveclip";
+      self.type = "Movieclip";
       self.currentFrame  = 0;
       self._autoPlay     = opt.autoPlay || false;//是否自动播放
 
@@ -1275,13 +1275,16 @@ KISSY.add("canvax/animation/animation" , function(S){
       arguments.callee.superclass.constructor.apply(this, arguments);
   };
 
-  Base.creatClass(Moveclip , DisplayObjectContainer , {
+  Base.creatClass(Movieclip , DisplayObjectContainer , {
       init : function(){
          
       },
       getStatus    : function(){
-          //查询moveclip的_autoPlay状态
+          //查询Movieclip的_autoPlay状态
           return this._autoPlay;
+      },
+      getFrameRate : function(){
+          return this._frameRate;
       },
       setFrameRate : function(frameRate) {
           
@@ -1400,7 +1403,7 @@ KISSY.add("canvax/animation/animation" , function(S){
              //大于_speedTime，才算完成了一帧
              
              //上报心跳 无条件心跳吧。
-             //后续可以加上对应的 moveclip 跳帧 心跳
+             //后续可以加上对应的 Movieclip 跳帧 心跳
              self.getStage().heartBeat();
          }
 
@@ -1440,7 +1443,7 @@ KISSY.add("canvax/animation/animation" , function(S){
       },
       render:function(ctx){
 
-          //因为如果children为空的话，moveclip 会把自己设置为 visible:false，不会执行到这个render
+          //因为如果children为空的话，Movieclip 会把自己设置为 visible:false，不会执行到这个render
           //所以这里可以不用做children.length==0 的判断。 大胆的搞吧。
           this.getChildAt(this.currentFrame)._render(ctx);
 
@@ -1473,7 +1476,7 @@ KISSY.add("canvax/animation/animation" , function(S){
       } 
   });
 
-  return Moveclip;
+  return Movieclip;
 
 } , {
   requires:[
@@ -2613,7 +2616,7 @@ KISSY.add("canvax/animation/animation" , function(S){
    ]
 });
 ;KISSY.add("canvax/index" ,
-   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Moveclip , Bitmap , Shapes ){
+   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Shapes ){
    var Canvax=function(opt){
        var self = this;
        self.type = "canvax";
@@ -2639,7 +2642,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
        //任务列表, 如果_taskList 不为空，那么主引擎就一直跑
        //为 含有__enterFrame 方法 DisplayObject 的对象列表
-       //比如Moveclip的__enterFrame方法。
+       //比如Movieclip的__enterFrame方法。
        self._taskList = [];
        
        self._Event = null;
@@ -3078,7 +3081,7 @@ KISSY.add("canvax/animation/animation" , function(S){
       Sprite  : Sprite,
       Text    : Text,
       Shape   : Shape,
-      Moveclip: Moveclip,
+      Moveiclip: Movieclip,
       Bitmap  : Bitmap
    }
    //所有自定义shape的集合，可以直接再这个上面获取不必强制引入use('canvax/shape/Circle')这样
@@ -3097,7 +3100,7 @@ KISSY.add("canvax/animation/animation" , function(S){
     //"canvax/display/Stage",
     "canvax/display/Text",
     "canvax/display/Shape",
-    "canvax/display/Moveclip",
+    "canvax/display/Movieclip",
     "canvax/display/Bitmap",
 
     "canvax/shape/Shapes", //所有自定义shape的集合
