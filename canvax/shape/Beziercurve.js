@@ -19,7 +19,7 @@
 KISSY.add("canvax/shape/Beziercurve" , function(S,Shape,Base){
   var Beziercurve = function(opt){
       var self=this;
-      self.type = "Beziercurve";
+      self.type = "beziercurve";
       self.drawTypeOnly = "stroke";//线条只能描边，填充的画出了问题别怪我没提醒
 
 

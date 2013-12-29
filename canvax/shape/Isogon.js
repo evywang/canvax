@@ -18,7 +18,7 @@ KISSY.add("canvax/shape/Isogon" , function(S , Shape , math , Base){
 
   var Isogon = function(opt){
       var self = this;
-      this.type = "Isogon";
+      this.type = "isogon";
 
       opt.context || (opt.context={});
       self._style = {

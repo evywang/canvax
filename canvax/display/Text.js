@@ -11,7 +11,7 @@ KISSY.add("canvax/display/Text" ,
     function(S , DisplayObject , Base) {
         var Text = function(text , opt) {
             var self = this;
-            self.type = "Text";
+            self.type = "text";
             self._reNewline = /\r?\n/;
 
             opt.context || (opt.context = {})

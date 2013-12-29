@@ -16,7 +16,7 @@ KISSY.add("canvax/shape/Circle" ,
     function(S , Shape , Base) {
         var Circle = function(opt) {
             var self = this;
-            self.type = "Circle";
+            self.type = "circle";
 
             opt.context || (opt.context = {})
             self._style = {

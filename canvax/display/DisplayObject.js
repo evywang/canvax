@@ -210,15 +210,15 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 return this.stage;
             }
             var p = this;
-            if (p.type != "Stage"){
+            if (p.type != "stage"){
               while(p.parent) {
                 p = p.parent;
-                if (p.type == "Stage"){
+                if (p.type == "stage"){
                   break;
                 }
               };
   
-              if (p.type !== "Stage") {
+              if (p.type !== "stage") {
                 //如果得到的顶点display 的type不是Stage,也就是说不是stage元素
                 //那么只能说明这个p所代表的顶端display 还没有添加到displayList中，也就是没有没添加到
                 //stage舞台的childen队列中，不在引擎渲染范围内
@@ -277,7 +277,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             cm = new Matrix();
             for (var o = this; o != null; o = o.parent) {
                 cm.concat( o._transform );
-                if( !o.parent || o.type=="Stage" ) break;
+                if( !o.parent || o.type=="stage" ) break;
             }
             this._transformStage = cm;
             return cm;
@@ -519,7 +519,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             var result;
             
             if (!this.parent) {
-              return this.id+"(Stage)";
+              return this.id+"(stage)";
             }
             for(var o = this ; o != null; o = o.parent) {		
                 //prefer id over name if specified

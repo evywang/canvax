@@ -14,7 +14,7 @@ KISSY.add("canvax/shape/Droplet" , function(S,Shape,Base){
 
   var Droplet = function(opt){
       var self = this;
-      self.type = "Droplet";
+      self.type = "droplet";
 
       opt.context || (opt.context={});
       self._style = {

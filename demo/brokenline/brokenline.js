@@ -332,7 +332,6 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           yAxis.layout.top = self.get("padding").top;
 
           xAxis.layout.height = Math.round( self.get("oneStrSize").en.height*1.5 );
-debugger;
           yAxis.layout.height = self.get("height")-yAxis.layout.padding.top-yAxis.layout.padding.bottom - xAxis.layout.height-xAxis.layout.padding.top-xAxis.layout.padding.bottom;
 
           self.set("yAxis" , yAxis);

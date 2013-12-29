@@ -455,7 +455,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 ;KISSY.add("canvax/display/Bitmap" , function(S , Shape , Base){
   var Bitmap = function(opt){
       var self = this;
-      self.type = "Bitmap";
+      self.type = "bitmap";
 
       //TODO:这里不负责做img 的加载，所以这里的img是必须已经准备好了的img元素
       //如果img没准备好，会出现意想不到的错误，我不给你负责
@@ -705,15 +705,15 @@ KISSY.add("canvax/animation/animation" , function(S){
                 return this.stage;
             }
             var p = this;
-            if (p.type != "Stage"){
+            if (p.type != "stage"){
               while(p.parent) {
                 p = p.parent;
-                if (p.type == "Stage"){
+                if (p.type == "stage"){
                   break;
                 }
               };
   
-              if (p.type !== "Stage") {
+              if (p.type !== "stage") {
                 //如果得到的顶点display 的type不是Stage,也就是说不是stage元素
                 //那么只能说明这个p所代表的顶端display 还没有添加到displayList中，也就是没有没添加到
                 //stage舞台的childen队列中，不在引擎渲染范围内
@@ -772,7 +772,7 @@ KISSY.add("canvax/animation/animation" , function(S){
             cm = new Matrix();
             for (var o = this; o != null; o = o.parent) {
                 cm.concat( o._transform );
-                if( !o.parent || o.type=="Stage" ) break;
+                if( !o.parent || o.type=="stage" ) break;
             }
             this._transformStage = cm;
             return cm;
@@ -1014,7 +1014,7 @@ KISSY.add("canvax/animation/animation" , function(S){
             var result;
             
             if (!this.parent) {
-              return this.id+"(Stage)";
+              return this.id+"(stage)";
             }
             for(var o = this ; o != null; o = o.parent) {		
                 //prefer id over name if specified
@@ -1259,7 +1259,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
       opt.context || (opt.context = {});
 
-      self.type = "Movieclip";
+      self.type = "movieclip";
       self.currentFrame  = 0;
       self._autoPlay     = opt.autoPlay || false;//是否自动播放
 
@@ -1645,7 +1645,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
        var self = this;
     
-       self.type = "Stage";
+       self.type = "stage";
        self.context2D = null;
        //stage正在渲染中
        self.stageRending=false;
@@ -1751,7 +1751,7 @@ KISSY.add("canvax/animation/animation" , function(S){
     function(S , DisplayObject , Base) {
         var Text = function(text , opt) {
             var self = this;
-            self.type = "Text";
+            self.type = "text";
             self._reNewline = /\r?\n/;
 
             opt.context || (opt.context = {})
@@ -3036,7 +3036,7 @@ KISSY.add("canvax/animation/animation" , function(S){
                //元素结构变化，比如addchild removeChild等
                var target = opt.target;
                var stage = opt.src.getStage();
-               if( stage || (target.type=="Stage") ){
+               if( stage || (target.type=="stage") ){
                    //如果操作的目标元素是Stage
                    stage = stage || target;
                    if(!self.convertStages[stage.id]) {
@@ -3111,7 +3111,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 ;KISSY.add("canvax/shape/Beziercurve" , function(S,Shape,Base){
   var Beziercurve = function(opt){
       var self=this;
-      self.type = "Beziercurve";
+      self.type = "beziercurve";
       self.drawTypeOnly = "stroke";//线条只能描边，填充的画出了问题别怪我没提醒
 
 
@@ -3189,7 +3189,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 ;KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
    var BrokenLine = function(opt){
        var self = this;
-       self.type = "BrokenLine";
+       self.type = "brokenLine";
        self.drawTypeOnly = "stroke";
 
        opt.context || (opt.context={})
@@ -3277,7 +3277,7 @@ KISSY.add("canvax/animation/animation" , function(S){
     function(S , Shape , Base) {
         var Circle = function(opt) {
             var self = this;
-            self.type = "Circle";
+            self.type = "circle";
 
             opt.context || (opt.context = {})
             self._style = {
@@ -3338,7 +3338,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
   var Droplet = function(opt){
       var self = this;
-      self.type = "Droplet";
+      self.type = "droplet";
 
       opt.context || (opt.context={});
       self._style = {
@@ -3402,7 +3402,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
    var Ellipse = function(opt){
        var self = this;
-       self.type = "Ellipse";
+       self.type = "ellipse";
 
        opt.context || (opt.context={})
        self._style = {
@@ -3463,7 +3463,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
    var Heart = function(opt){
        var self = this;
-       this.type = "Heart";
+       this.type = "heart";
        opt.context || (opt.context = {});
        self._style = {
            //x             : 0,//{number},  // 必须，心形内部尖端横坐标
@@ -3528,7 +3528,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
   var Isogon = function(opt){
       var self = this;
-      this.type = "Isogon";
+      this.type = "isogon";
 
       opt.context || (opt.context={});
       self._style = {
@@ -3620,7 +3620,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 ;KISSY.add("canvax/shape/Line" , function(S,Shape,Base){
   var Line = function(opt){
       var self = this;
-      this.type = "Line";
+      this.type = "line";
       this.drawTypeOnly = "stroke";
       opt.context || (opt.context={})
       self._style = {
@@ -3687,7 +3687,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
    var Path=function(opt){
        var self = this;
-       self.type = "Path";
+       self.type = "path";
 
        opt.context || (opt.context={});
        self._style = {
@@ -4196,7 +4196,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
    var Polygon=function(opt){
        var self = this;
-       self.type = "Polygon";
+       self.type = "polygon";
        self._hasFillAndStroke = true;
        opt.context || (opt.context = {});
        self._style = {
@@ -4337,7 +4337,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 ;KISSY.add("canvax/shape/Rect" , function( S , Shape , Base){
   var Rect = function(opt){
       var self = this;
-      self.type = "Rect";
+      self.type = "rect";
 
       opt.context || (opt.context = {});
       self._style = {
@@ -4479,7 +4479,7 @@ KISSY.add("canvax/animation/animation" , function(S){
  
    var Sector = function(opt){
        var self = this;
-       self.type = "Sector";
+       self.type = "sector";
 
        opt.context || (opt.context={})
        self._style = {
@@ -4716,39 +4716,39 @@ KISSY.add("canvax/animation/animation" , function(S){
         // 在矩形内则部分图形需要进一步判断
         switch (zoneType) {
             //线-----------------------1
-            case 'Line':
+            case 'line':
                 return _isInsideLine(shape.context, x, y);
                 //折线----------------------2
-            case 'BrokenLine':
+            case 'brokenLine':
                 return _isInsideBrokenLine(shape, x, y);
                 //文本----------------------3
-            case 'Text':
+            case 'text':
                 return true;
                 //圆环----------------------4
-            case 'Ring':
+            case 'ring':
                 return _isInsideRing(shape , x, y);
                 //矩形----------------------5
-            case 'Rect':
+            case 'rect':
                 return true;
                 //圆形----------------------6
-            case 'Circle':
+            case 'circle':
                 return _isInsideCircle(shape , x, y);
                 //椭圆
-            case 'Ellipse':
+            case 'ellipse':
                 return _isPointInElipse(shape , x , y);
                 //扇形----------------------7
-            case 'Sector':
+            case 'sector':
                 return _isInsideSector(shape , x, y);
                 //path---------------------8
-            case 'Path':
+            case 'path':
                 return _isInsidePath(shape , x, y);
                 //多边形-------------------9
-            case 'Polygon':
-            case 'Star':
-            case 'Isogon':
+            case 'polygon':
+            case 'star':
+            case 'isogon':
                 return _isInsidePolygon(shape , x, y);
                 //图片----------------------10
-            case 'Image':
+            case 'image':
                 return true;
         }
     }

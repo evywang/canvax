@@ -17,7 +17,7 @@
 KISSY.add("canvax/shape/Line" , function(S,Shape,Base){
   var Line = function(opt){
       var self = this;
-      this.type = "Line";
+      this.type = "line";
       this.drawTypeOnly = "stroke";
       opt.context || (opt.context={})
       self._style = {

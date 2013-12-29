@@ -10,7 +10,7 @@
 KISSY.add("canvax/display/Bitmap" , function(S , Shape , Base){
   var Bitmap = function(opt){
       var self = this;
-      self.type = "Bitmap";
+      self.type = "bitmap";
 
       //TODO:这里不负责做img 的加载，所以这里的img是必须已经准备好了的img元素
       //如果img没准备好，会出现意想不到的错误，我不给你负责

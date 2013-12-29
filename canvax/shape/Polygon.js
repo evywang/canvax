@@ -16,7 +16,7 @@ KISSY.add("canvax/shape/Polygon" , function(S , Shape , Base){
 
    var Polygon=function(opt){
        var self = this;
-       self.type = "Polygon";
+       self.type = "polygon";
        self._hasFillAndStroke = true;
        opt.context || (opt.context = {});
        self._style = {

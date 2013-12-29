@@ -14,7 +14,7 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
 
       opt.context || (opt.context = {});
 
-      self.type = "Movieclip";
+      self.type = "movieclip";
       self.currentFrame  = 0;
       self._autoPlay     = opt.autoPlay || false;//是否自动播放
 

@@ -12,7 +12,7 @@
 KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
    var BrokenLine = function(opt){
        var self = this;
-       self.type = "BrokenLine";
+       self.type = "brokenLine";
        self.drawTypeOnly = "stroke";
 
        opt.context || (opt.context={})

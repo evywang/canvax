@@ -433,7 +433,7 @@ KISSY.add("canvax/index" ,
                //元素结构变化，比如addchild removeChild等
                var target = opt.target;
                var stage = opt.src.getStage();
-               if( stage || (target.type=="Stage") ){
+               if( stage || (target.type=="stage") ){
                    //如果操作的目标元素是Stage
                    stage = stage || target;
                    if(!self.convertStages[stage.id]) {

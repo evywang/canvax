@@ -19,7 +19,7 @@ KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon , Base){
  
    var Sector = function(opt){
        var self = this;
-       self.type = "Sector";
+       self.type = "sector";
 
        opt.context || (opt.context={})
        self._style = {

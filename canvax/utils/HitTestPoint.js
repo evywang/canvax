@@ -81,39 +81,39 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
         // 在矩形内则部分图形需要进一步判断
         switch (zoneType) {
             //线-----------------------1
-            case 'Line':
+            case 'line':
                 return _isInsideLine(shape.context, x, y);
                 //折线----------------------2
-            case 'BrokenLine':
+            case 'brokenLine':
                 return _isInsideBrokenLine(shape, x, y);
                 //文本----------------------3
-            case 'Text':
+            case 'text':
                 return true;
                 //圆环----------------------4
-            case 'Ring':
+            case 'ring':
                 return _isInsideRing(shape , x, y);
                 //矩形----------------------5
-            case 'Rect':
+            case 'rect':
                 return true;
                 //圆形----------------------6
-            case 'Circle':
+            case 'circle':
                 return _isInsideCircle(shape , x, y);
                 //椭圆
-            case 'Ellipse':
+            case 'ellipse':
                 return _isPointInElipse(shape , x , y);
                 //扇形----------------------7
-            case 'Sector':
+            case 'sector':
                 return _isInsideSector(shape , x, y);
                 //path---------------------8
-            case 'Path':
+            case 'path':
                 return _isInsidePath(shape , x, y);
                 //多边形-------------------9
-            case 'Polygon':
-            case 'Star':
-            case 'Isogon':
+            case 'polygon':
+            case 'star':
+            case 'isogon':
                 return _isInsidePolygon(shape , x, y);
                 //图片----------------------10
-            case 'Image':
+            case 'image':
                 return true;
         }
     }

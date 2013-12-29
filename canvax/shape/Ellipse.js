@@ -17,7 +17,7 @@ KISSY.add("canvax/shape/Ellipse" , function(S,Shape,Base){
 
    var Ellipse = function(opt){
        var self = this;
-       self.type = "Ellipse";
+       self.type = "ellipse";
 
        opt.context || (opt.context={})
        self._style = {
