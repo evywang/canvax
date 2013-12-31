@@ -61,7 +61,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           value : 5
         },
         spaceWidthMin:{
-          value : 5
+          value : 1
         },
         xAxis:{
           value : {
@@ -396,9 +396,8 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           }
 
           //@gwidth 单个分组的bar+space的宽度 ，，，，，  重新计算barWidth spaceWidth
-          var gwidth = (xAxis.layout.width-self.get("oneStrSize").en.width*3) / (dataRange.to-dataRange.start)+barWidth;
-
- 
+          var gwidth = (xAxis.layout.width-self.get("oneStrSize").en.width*2) / (dataRange.to-dataRange.start);
+debugger;
           spaceWidth = gwidth - barWidth;         
           self.set("spaceWidth" , spaceWidth);
           self.set("dataRange" , dataRange);
@@ -426,13 +425,13 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           self._yOverDiff = graphs.layout.height-self._yBlock*(yAxis.data.length-1);
               
           for ( var i=0,l=yAxis.data.length-1 ; i<l ; i++ ){
-             var linex = graphs.layout.left-6;
+             var linex = graphs.layout.left-self.get("oneStrSize").en.width;
              var liney = Math.round( i*self._yBlock )+graphs.layout.top+graphs.layout.padding.top+self._yOverDiff; 
              self.get("stage").addChild(new Canvax.Shapes.Line({
                  context : {
                      xStart      : linex,
                      yStart      : liney,
-                     xEnd        : linex+graphs.layout.width,
+                     xEnd        : linex+graphs.layout.width+self.get("oneStrSize").en.width,
                      yEnd        : liney,
                      lineType    : "dashed",
                      lineWidth   : 1,
@@ -497,13 +496,29 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
                   pointList.push( [x , y-itemHeight] );
               };
 
+              //如果有用户自定义的x轴数据
+              
+              if( xAxis.customHand ){
+                 var c_list=xAxis.customHand(pointList);
+                 var speed = parseInt(pointList.length/(c_list.length-1))
+                 if(c_list.constructor == Array && c_list.length>0){
+                    //外面传入的数据只有text
+                    S.each(c_list , function(p , i){
+                      var newP = {
+                          x   : i*speed*groupWidth+self.get("oneStrSize").en.width+graphs.layout.left-i,
+                          text: p
+                      }
+                      xAxis.xPointList.push( newP );
+                    })
+                 }
+              }
               
               //计算xAxis的xPointList
               if(xAxis.xPointList.length==0){
-                  S.each(pointList,function(p){
+                  S.each(pointList,function(p , i){
                      //TODO:这里目前只做简单的push，如果节点过多的话，还要
-                     xAxis.xPointList.push(p[0]);
-                  })
+                     xAxis.xPointList.push({x:p[0],text:xAxis.dataOrg[i]});
+                  });
               }
 
               //价格线，要补点
@@ -571,12 +586,12 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           var stage = self.get("stage");
 
           var pCount = xAxis.xPointList.length;
-          S.each(xAxis.xPointList , function( x , i ){
+          S.each(xAxis.xPointList , function( xp , i ){
               stage.addChild(new Canvax.Shapes.Line({
                   context : {
-                      xStart      : x,
+                      xStart      : xp.x,
                       yStart      : xAxis.layout.top-5,
-                      xEnd        : x,
+                      xEnd        : xp.x,
                       yEnd        : xAxis.layout.top,
                       lineWidth   : 1,
                       strokeStyle : graphs.lineColor
@@ -584,7 +599,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
               }));
 
               var textOpt = {
-                  x   : x,
+                  x   : xp.x,
                   y   : xAxis.layout.top,
                   fillStyle:"blank",
                   //textBackgroundColor:"red"
@@ -599,7 +614,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
               } 
 
               stage.addChild(new Canvax.Display.Text(
-                xAxis.dataOrg[i].toString()
+                xp.text.toString()
                 ,
                 {
                   context : textOpt
