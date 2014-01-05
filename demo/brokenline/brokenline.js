@@ -20,7 +20,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
             index      :   0
         };
         this.barWidth      =  1;
-        this.spaceWidth    =  5;
+        this.spaceWidth    =  5; //默认为5，实际上会在_calculateDataRange中计算出来
         this.spaceWidthMin =  1;
         this.xAxis         =  {
             field      : null,
@@ -64,12 +64,10 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           self.height  = parseInt(node.height());
           
           self.canvax = new Canvax({
-              id : "canvax",
               el : self.element
           })
 
           self.stage = new Canvax.Display.Stage({
-              id : "chart",
               context : {
                 width : self.width,
                 height: self.height
@@ -246,25 +244,30 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
                height: yContext.height
              }
           });
-
         },
         _calculateDataRange : function(){
           //计算当前可视范围内能显示的data的范围，和spaceWidth barWidth
-          var self   = this;
-          var xWidth = self.xAxis.sprite.context.width 
-          var dl     = self.data.length-1;//因为第一行是field，所以要 -1
+          var self     = this;
+          var gSpriteC = self.graphs.sprite.context;
+          var dl       = self.data.length-1;//因为第一行是field，所以要 -1
 
           //数据需要截断的情况
           self.dataRange.start = 1;
-          if ( (1+self.spaceWidthMin) * dl > xWidth ){
-             self.dataRange.to = parseInt( xWidth / (1 + self.spaceWidthMin));
+          if ( (self.barWidth + self.spaceWidthMin) * dl > gSpriteC.width ){
+             self.dataRange.to = parseInt( gSpriteC.width / (self.barWidth + self.spaceWidthMin));
           } else {
-             self.dataRange.to = dl
+             self.dataRange.to = dl;
           }
 
           //@gwidth 单个分组的bar+space的宽度 ，，，，，  重新计算barWidth spaceWidth
-          var gwidth = (xWidth - self.oneStrSize.en.width) / (self.dataRange.to - self.dataRange.start);
+          var gwidth = (gSpriteC.width - self.barWidth) / (self.dataRange.to - self.dataRange.start);
           self.spaceWidth = gwidth - self.barWidth;
+
+          //真正绘制之前 还要计算y轴的相关数据
+          self._yBlock    = parseInt( gSpriteC.height / (self.yAxis.data.length - 1));
+          //v方向均分后还多余的部分px
+          self._yOverDiff =  gSpriteC.height - self._yBlock *( self.yAxis.data.length - 1 );
+
         },
         _graphsDraw : function(){
           //开始真正绘图
@@ -274,14 +277,10 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           var yAxis         = self.yAxis;
           var xAxis         = self.xAxis;
           var graphs        = self.graphs;
-          var gSpriteCtx    = graphs.sprite.context;
+          var gSpriteC    = graphs.sprite.context;
           
-          //画背景虚线
-          self._yBlock = parseInt( gSpriteCtx.height / (yAxis.data.length - 1));
 
-          //v方向均分后还多余的部分px
-          self._yOverDiff =  gSpriteCtx.height - self._yBlock *( yAxis.data.length - 1 );
-              
+          //画背景虚线
           for ( var i=0,l=yAxis.data.length-1 ; i<l ; i++ ){
              var linex = - self.oneStrSize.en.width + 2;
              var liney = Math.round( i * self._yBlock ) + self._yOverDiff; 
@@ -289,7 +288,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
                  context : {
                      xStart      : linex,
                      yStart      : liney,
-                     xEnd        : linex + gSpriteCtx.width + self.oneStrSize.en.width - 2,
+                     xEnd        : linex + gSpriteC.width + self.oneStrSize.en.width - 2,
                      yEnd        : liney,
                      lineType    : "dashed",
                      lineWidth   : 1,
@@ -303,9 +302,9 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
               id : "line-left",
               context : {
                   xStart      : 0,
-                  yStart      : -gSpriteCtx.y,
+                  yStart      : -gSpriteC.y,
                   xEnd        : 0,
-                  yEnd        : gSpriteCtx.height,
+                  yEnd        : gSpriteC.height,
                   lineWidth   : 1,
                   strokeStyle : graphs.lineColor
               }
@@ -316,9 +315,9 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
               id : "line-bottom",
               context : {
                   xStart      : 0,
-                  yStart      : gSpriteCtx.height,
-                  xEnd        : gSpriteCtx.width,
-                  yEnd        : gSpriteCtx.height,
+                  yStart      : gSpriteC.height,
+                  xEnd        : self.width - gSpriteC.x,
+                  yEnd        : gSpriteC.height,
                   lineWidth   : 1,
                   strokeStyle : graphs.lineColor
               }
@@ -342,7 +341,8 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
               for (var d = dataRange.start ; d<=dataRange.to ; d++){
                   var groupI = d - dataRange.start; 
                   var x = Math.round( groupI * ( groupWidth ) );
-                  var itemHeight = gSpriteCtx.height - Math.round((gSpriteCtx.height - self._yOverDiff) * ( data[d][ self.fieldList[field].index ] / (maxY-minY) ));
+
+                  var itemHeight = gSpriteC.height - Math.round((gSpriteC.height - self._yOverDiff) * ( data[d][ self.fieldList[field].index ] / (maxY-minY) ));
                   pointList.push( [x , itemHeight] );
               };
 
@@ -421,11 +421,16 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           var xSpriteC = xAxis.sprite.context;
           var pCount = xAxis.xPointList.length;
           S.each(xAxis.xPointList , function( xp , i ){
+              var x = xp.x ;
+              //和折线一样，最后一个刻度做hack处理
+              if(i == (pCount-1)) {
+                  x = xSpriteC.width
+              }
               xAxis.sprite.addChild(new Canvax.Shapes.Line({
                   context : {
-                      xStart      : xp.x,
+                      xStart      : x,
                       yStart      : 0,
-                      xEnd        : xp.x,
+                      xEnd        : x,
                       yEnd        : 5,
                       lineWidth   : 1,
                       strokeStyle : self.graphs.lineColor
@@ -433,7 +438,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
               }));
 
               var textOpt = {
-                  x   : xp.x,
+                  x   : x,
                   y   : 5,
                   fillStyle:"blank",
                   //textBackgroundColor:"red"
