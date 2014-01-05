@@ -85,7 +85,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             fillStyle     :opt.context.fillStyle      || null,
             lineCap       :opt.context.lineCap        || null,
             lineJoin      :opt.context.lineJoin       || null,
-            lineWidth     :opt.context.lineWidth      || null,
+            lineWidth     :opt.context.lineWidth      || 1,
             miterLimit    :opt.context.miterLimit     || null,
             shadowBlur    :opt.context.shadowBlur     || null,
             shadowColor   :opt.context.shadowColor    || null,
