@@ -538,7 +538,7 @@ KISSY.add("canvax/animation/animation" , function(S){
 
         self._eventEnabled = false; //是否响应事件交互
 
-        self.dragEnabled = true;//false;   //是否启用元素的拖拽
+        self.dragEnabled   = false;   //是否启用元素的拖拽
        
 
 
