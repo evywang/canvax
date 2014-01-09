@@ -36,7 +36,7 @@
 //* with shadows implemented
 //* Modification to explorer canvas to support images with style display:none;
 
-KISSY.add("canvax/library/excanvas" , function(S){
+KISSY.add("library/excanvas" , function(S){
   
 
 

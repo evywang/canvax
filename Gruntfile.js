@@ -21,14 +21,26 @@ module.exports = function(grunt) {
                  'build/index-min.js': 'build/index.js'
              }
          }
-     }
+     },
+     copy: {
+         main: {
+             files: [
+             {
+                 expand: true, src: ['library/underscore.js' , 'library/excanvas.js' , 'library/color.js'], dest: 'build/'
+             },
+             {
+                 expand: true, cwd: 'library/flashCanvas', src: ['**'], dest: 'build/library/flashCanvas'}
+             ]
+         }
+      }
   });
  
   //载入concat和uglify插件，分别对于合并和压缩
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-copy');
  
   //注册任务
-  grunt.registerTask('default', ['concat', 'uglify']);
+  grunt.registerTask('default', ['concat', 'uglify' , 'copy']);
 }
 

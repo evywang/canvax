@@ -391,12 +391,12 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
           //如果有用户自定义的x轴数据
           if( xAxis.customPL ){
               var c_list=xAxis.customPL( pointList );
-              var speed = parseInt( pointList.length / (c_list.length-1) );
+              var speed = parseInt( (pointList.length - 1) / (c_list.length-1) );
               if( c_list.constructor == Array && c_list.length > 0 ){
                   //外面传入的数据只有text
                   S.each(c_list , function(p , i){
                       var newP = {
-                          x   : i*speed*groupWidth - i,
+                          x   : pointList[ i * speed ][0],//i*speed*groupWidth - i,
                           text: p
                       }
                       xAxis.xPointList.push( newP );
@@ -424,7 +424,7 @@ KISSY.add("demo/brokenline/brokenline" , function( S , Base , Utils , Datasectio
               var x = xp.x ;
               //和折线一样，最后一个刻度做hack处理
               if(i == (pCount-1)) {
-                  x = xSpriteC.width
+                  //x = xSpriteC.width
               }
               xAxis.sprite.addChild(new Canvax.Shapes.Line({
                   context : {
