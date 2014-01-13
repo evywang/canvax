@@ -19,7 +19,7 @@ KISSY.add("canvax/shape/Circle" ,
             self.type = "circle";
 
             opt.context || (opt.context = {})
-            self._style = {
+            self._context = {
                 //x : 0 , // {number},  // 丢弃
                 //y : 0 , //{number},  // 丢弃，圆心xy坐标 都 为原点
                 r : opt.context.r || 0   //{number},  // 必须，圆半径

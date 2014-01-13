@@ -18,7 +18,7 @@ KISSY.add("canvax/display/Bitmap" , function(S , Shape , Base){
 
 
       opt.context || (opt.context = {});
-      self._style = {
+      self._context = {
           dx     : opt.context.dx     || 0, //图片切片的x位置
           dy     : opt.context.dy     || 0, //图片切片的y位置
           dWidth : opt.context.dWidth || 0, //切片的width

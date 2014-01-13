@@ -19,7 +19,7 @@ KISSY.add("canvax/shape/Polygon" , function(S , Shape , Base){
        self.type = "polygon";
        self._hasFillAndStroke = true;
        opt.context || (opt.context = {});
-       self._style = {
+       self._context = {
            lineType      : opt.context.lineType  || null,
            pointList     : opt.context.pointList || []  //{Array},   // 必须，多边形各个顶角坐标
        }

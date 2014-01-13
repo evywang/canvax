@@ -26,7 +26,7 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
       self._speedTime    = parseInt(1000/self._frameRate);
       self._preRenderTime= 0;
 
-      self._style = {
+      self._context = {
           //r : opt.context.r || 0   //{number},  // 必须，圆半径
       }
       arguments.callee.superclass.constructor.apply(this, arguments);
@@ -247,8 +247,6 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
                   tList.splice( _.indexOf(tList , this) , 1 ); 
               }
           }
-
-          
       } 
   });
 

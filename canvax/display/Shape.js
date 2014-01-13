@@ -29,14 +29,8 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
        self.type = self.type || "shape" ;
        opt.draw && (self.draw=opt.draw);
        arguments.callee.superclass.constructor.apply(this , arguments);
-   
-       
        self._rect = null;
-
-
-
    };
-
 
    Base.creatClass(Shape , DisplayObject , {
       init : function(){

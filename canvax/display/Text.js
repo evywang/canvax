@@ -15,7 +15,7 @@ KISSY.add("canvax/display/Text" ,
             self._reNewline = /\r?\n/;
 
             opt.context || (opt.context = {})
-            self._style = {
+            self._context = {
                 fontSize       : opt.context.fontSize       || 13 , //字体大小默认13
                 fontWeight     : opt.context.fontWeight     || "normal",
                 fontFamily     : opt.context.fontFamily     || "微软雅黑",

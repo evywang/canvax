@@ -20,7 +20,7 @@ KISSY.add("canvax/shape/Ellipse" , function(S,Shape,Base){
        self.type = "ellipse";
 
        opt.context || (opt.context={})
-       self._style = {
+       self._context = {
            //x             : 0 , //{number},  // 丢弃
            //y             : 0 , //{number},  // 丢弃，原因同circle
            hr : opt.context.hr || 0 , //{number},  // 必须，椭圆横轴半径

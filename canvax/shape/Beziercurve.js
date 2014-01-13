@@ -26,7 +26,7 @@ KISSY.add("canvax/shape/Beziercurve" , function(S,Shape,Base){
       //在diaplayobject组织context的之前就要把 这个 shape 需要的 style 字段 提供出来
       //displayobject 会merge 到 context去
       opt.context || (opt.context = {});
-      self._style = {
+      self._context = {
            xStart : opt.context.xStart  || 0 , //        : {number} 必须，起点横坐标
            yStart : opt.context.yStart  || 0 , //       : {number},   必须，起点纵坐标
            cpX1   : opt.context.cpX1    || 0 , //       : {number},  // 必须，第一个关联点横坐标

@@ -21,7 +21,7 @@ KISSY.add("canvax/shape/Isogon" , function(S , Shape , math , Base){
       this.type = "isogon";
 
       opt.context || (opt.context={});
-      self._style = {
+      self._context = {
            pointList : [],//从下面的r和n计算得到的边界值的集合
            //x             : 0,//{number},  // 必须，正n边形外接圆心横坐标
            //y             : 0,//{number},  // 必须，正n边形外接圆心纵坐标

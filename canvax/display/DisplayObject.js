@@ -14,7 +14,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         var self = this;
 
         //设置默认属性
-        
         self.id = opt.id || null;
 
         //相对父级元素的矩阵
@@ -25,15 +24,10 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         //怎么修改呢。self._transformStage=null就好了
         self._transformStage = null;
 
-
-
         self._eventId = null;
-
 
         //心跳次数
         self._heartBeatNum = 0;
-
-        
 
         //元素对应的stage元素
         self.stage  = null;
@@ -44,111 +38,9 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         self._eventEnabled = false; //是否响应事件交互
 
         self.dragEnabled   = false;   //是否启用元素的拖拽
-       
 
-
-        //所有显示对象，都有一个类似canvas.context类似的 context属性
-        //用来存取改显示对象所有和显示有关的属性，坐标，样式等。
-        //该对象为Coer.propertyFactory()工厂函数生成
-        self.context = null;
-
-
-        //如果用户没有传入context设置，就默认为空的对象
-        opt.context || (opt.context = {})
-
-        //提供给Coer.propertyFactory() 来 给 self.context 设置 propertys
-        _contextATTRS = {
-            width         : opt.context.width         || 0,
-            height        : opt.context.height        || 0,
-            x             : opt.context.x             || 0,
-            y             : opt.context.y             || 0,
-            alpha         : opt.context.alpha         || 1,
-            scaleX        : opt.context.scaleX        || 1,
-            scaleY        : opt.context.scaleY        || 1,
-            scaleOrigin   : opt.context.scaleOrigin   || {
-                x : 0,
-                y : 0
-            },
-            rotation      : opt.context.rotation      || 0,
-            rotateOrigin  : opt.context.rotateOrigin  ||  {
-                x:0,
-                y:0
-            },
-            visible       : opt.context.visible       || true,
-            //useHandCursor : opt.context.useHandCursor || false,
-            cursor        : opt.context.cursor        || "default"
-        };
-
-        
-        _context2D_style = {
-            //canvas context 2d 的 系统样式。目前就知道这么多
-            fillStyle     :opt.context.fillStyle      || null,
-            lineCap       :opt.context.lineCap        || null,
-            lineJoin      :opt.context.lineJoin       || null,
-            lineWidth     :opt.context.lineWidth      || null,
-            miterLimit    :opt.context.miterLimit     || null,
-            shadowBlur    :opt.context.shadowBlur     || null,
-            shadowColor   :opt.context.shadowColor    || null,
-            shadowOffsetX :opt.context.shadowOffsetX  || null,
-            shadowOffsetY :opt.context.shadowOffsetY  || null,
-            strokeStyle   :opt.context.strokeStyle    || null,
-            globalAlpha   :opt.context.globalAlpha    || null,
-            font          :opt.context.font           || null,
-            textAlign     :opt.context.textAlign      || "left",
-            textBaseline  :opt.context.textBaseline   || "top",
-            arcScaleX_    :opt.context.arcScaleX_     || null,
-            arcScaleY_    :opt.context.arcScaleY_     || null,
-            lineScale_    :opt.context.lineScale_     || null,
-            globalCompositeOperation:opt.context.globalCompositeOperation || "source-over"
-        }
-
-
-
-        _contextATTRS = _.extend(_contextATTRS , _context2D_style);
-
-        //然后看继承者是否有提供_style 对象 需要 我 merge到_context2D_style中去的
-        if (self._style) {
-            _contextATTRS = _.extend(self._style , _contextATTRS);
-        }
-
-
-        //有些引擎内部设置context属性的时候是不用上报心跳的，比如做hitTestPoint热点检测的时候
-        self._notWatch = false;
-
-        _contextATTRS.$owner = self;
-        _contextATTRS.$watch = function(name , value , preValue){
-
-            if(this.$owner._notWatch){
-               return;
-            }
-
-
-            //TODO 暂时所有的属性都上报，有时间了在来慢慢梳理
-            var stage = this.$owner.getStage(); 
-        
-            if(stage.stageRending){
-               //如果这个时候stage正在渲染中，嗯。那么所有的 attrs的 set 都忽略
-               //TODO：先就这么处理，如果后续发现这些忽略掉的set，会影响到渲染，那么就在
-               //考虑加入 在这里加入设置下一step的心跳的机制
-               return
-            }
-
-
-            //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
-            //的属性，所以，通知到stage.displayAttrHasChange
-            this.$owner.heartBeat( {
-              convertType:"context",
-              shape   : this.$owner,
-              name    : name,
-              value   : value,
-              preValue: preValue
-            });
-        }
-
-
-        //执行init之前，应该就根据参数，把context组织好线
-        self.context = propertyFactory( _contextATTRS );
-
+        //创建好context
+        self._createContext( opt );
 
         var UID = Base.createId(self.type);
 
@@ -160,19 +52,111 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             self.id = UID ;
         }
 
-        
-
         self.init.apply(self , arguments);
 
     };
-
-
-
     
     Base.creatClass( DisplayObject , EventDispatcher , {
     //DisplayObject.prototype = {
         init : function(){
             //TODO: 这个方法由各派生类自己实现
+        },
+        _createContext : function( opt ){
+            var self = this;
+            //所有显示对象，都有一个类似canvas.context类似的 context属性
+            //用来存取改显示对象所有和显示有关的属性，坐标，样式等。
+            //该对象为Coer.propertyFactory()工厂函数生成
+            self.context = null;
+
+            //如果用户没有传入context设置，就默认为空的对象
+            opt.context || (opt.context = {});
+
+            //提供给Coer.propertyFactory() 来 给 self.context 设置 propertys
+            var _contextATTRS = {
+                width         : opt.context.width         || 0,
+                height        : opt.context.height        || 0,
+                x             : opt.context.x             || 0,
+                y             : opt.context.y             || 0,
+                alpha         : opt.context.alpha         || 1,
+                scaleX        : opt.context.scaleX        || 1,
+                scaleY        : opt.context.scaleY        || 1,
+                scaleOrigin   : opt.context.scaleOrigin   || {
+                  x : 0,
+                  y : 0
+                },
+                rotation      : opt.context.rotation      || 0,
+                rotateOrigin  : opt.context.rotateOrigin  ||  {
+                  x:0,
+                  y:0
+                },
+                visible       : opt.context.visible       || true,
+                cursor        : opt.context.cursor        || "default"
+            };
+
+
+            var _context2D_context = {
+                //canvas context 2d 的 系统样式。目前就知道这么多
+                fillStyle     : opt.context.fillStyle      || null,
+                lineCap       : opt.context.lineCap        || null,
+                lineJoin      : opt.context.lineJoin       || null,
+                lineWidth     : opt.context.lineWidth      || null,
+                miterLimit    : opt.context.miterLimit     || null,
+                shadowBlur    : opt.context.shadowBlur     || null,
+                shadowColor   : opt.context.shadowColor    || null,
+                shadowOffsetX : opt.context.shadowOffsetX  || null,
+                shadowOffsetY : opt.context.shadowOffsetY  || null,
+                strokeStyle   : opt.context.strokeStyle    || null,
+                globalAlpha   : opt.context.globalAlpha    || null,
+                font          : opt.context.font           || null,
+                textAlign     : opt.context.textAlign      || "left",
+                textBaseline  : opt.context.textBaseline   || "top",
+                arcScaleX_    : opt.context.arcScaleX_     || null,
+                arcScaleY_    : opt.context.arcScaleY_     || null,
+                lineScale_    : opt.context.lineScale_     || null,
+                globalCompositeOperation : opt.context.globalCompositeOperation || "source-over"
+            };
+
+            _contextATTRS = _.extend( _contextATTRS , _context2D_context );
+
+            //然后看继承者是否有提供_context 对象 需要 我 merge到_context2D_context中去的
+            if (self._context) {
+                _contextATTRS = _.extend(self._context , _contextATTRS);
+            }
+
+            //有些引擎内部设置context属性的时候是不用上报心跳的，比如做hitTestPoint热点检测的时候
+            self._notWatch = false;
+
+            _contextATTRS.$owner = self;
+            _contextATTRS.$watch = function(name , value , preValue){
+
+                if(this.$owner._notWatch){
+                    return;
+                };
+
+                //TODO 暂时所有的属性都上报，有时间了在来慢慢梳理
+                var stage = this.$owner.getStage(); 
+
+                if(stage.stageRending){
+                    //如果这个时候stage正在渲染中，嗯。那么所有的 attrs的 set 都忽略
+                    //TODO：先就这么处理，如果后续发现这些忽略掉的set，会影响到渲染，那么就在
+                    //考虑加入 在这里加入设置下一step的心跳的机制
+                    return
+                };
+
+                //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
+                //的属性，所以，通知到stage.displayAttrHasChange
+                this.$owner.heartBeat( {
+                    convertType:"context",
+                    shape   : this.$owner,
+                    name    : name,
+                    value   : value,
+                    preValue: preValue
+                });
+            };
+
+            //执行init之前，应该就根据参数，把context组织好线
+            self.context = propertyFactory( _contextATTRS );
+
         },
         /* @myself 是否生成自己的镜像 
          * 克隆又两种，一种是镜像，另外一种是绝对意义上面的新个体
@@ -293,8 +277,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             };
             return false;
         },
-
-
         /*
          *查询自己在parent的队列中的位置
          */
@@ -305,8 +287,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
            return _.indexOf(this.parent.children , this)
 
         },
-
-
         /*
          *元素在z轴方向向下移动
          *@index 移动的层级
@@ -332,8 +312,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
            this.parent.addChildAt( me , toIndex );
 
         },
-
-
         /*
          *元素在z轴方向向上移动
          *@index 移动的层数量 默认到顶端
@@ -360,8 +338,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
            }
            this.parent.addChildAt( me , toIndex-1 );
         },
-
-
         _transformHander : function(context, toGlobal){
 
             context.transform.apply(context , this._updateTransform().toArray());
@@ -408,15 +384,11 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 }
 
             };
-
-  
             
             if(this.context.x!=0 || this.context.y!=0){
                //如果有位移
                _transform.translate( this.context.x , this.context.y );
             }
-
-
 
             this._transform = _transform;
 
@@ -424,11 +396,9 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             //this._transformStage = null;
             return _transform;
         },
-
         getRect:function(style){
             return style
         },
-
         //显示对象的选取检测处理函数
         hitTestPoint : function( mouseX , mouseY){
             var result; //检测的结果
@@ -464,14 +434,11 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 if( !this.context.height && !!this._rect.height ){
                     this.context.height = this._rect.height;
                 }
-
             };
 
             if(!this._rect.width || !this._rect.height) {
                 return false;
             }
-
-
 
             //正式开始第一步的矩形范围判断
            
@@ -495,7 +462,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         _render : function(context, noTransform, globalTransform){	
             if(!this.context.visible || this.context.alpha <= 0){
                 return;
-
             }
             context.save();
             if(!noTransform) {
@@ -534,7 +500,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
     } );
 
     return DisplayObject;
-
 
 } , {
     requires : [

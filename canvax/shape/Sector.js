@@ -22,7 +22,7 @@ KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon , Base){
        self.type = "sector";
 
        opt.context || (opt.context={})
-       self._style = {
+       self._context = {
            pointList : [],//边界点的集合,私有，从下面的属性计算的来
            //x             : {number},  // 必须，圆心横坐标
            //y             : {number},  // 必须，圆心纵坐标

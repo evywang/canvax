@@ -17,7 +17,7 @@ KISSY.add("canvax/shape/Droplet" , function(S,Shape,Base){
       self.type = "droplet";
 
       opt.context || (opt.context={});
-      self._style = {
+      self._context = {
           hr : opt.context.hr || 0 , //{number},  // 必须，水滴横宽（中心到水平边缘最宽处距离）
           vr : opt.context.vr || 0   //{number},  // 必须，水滴纵高（中心到尖端距离）
       }

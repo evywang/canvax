@@ -458,4 +458,3 @@ KISSY.add("canvax/animation/animation" , function(S){
 
     return Animation;
 })
-

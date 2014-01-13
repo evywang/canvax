@@ -18,7 +18,7 @@ KISSY.add("canvax/shape/Path" , function( S , Shape , Base){
        self.type = "path";
 
        opt.context || (opt.context={});
-       self._style = {
+       self._context = {
            $pointList : [], //从下面的path中计算得到的边界点的集合
            path : opt.context.path || ""  //字符串 必须，路径。例如:M 0 0 L 0 10 L 10 10 Z (一个三角形)
                                     //M = moveto

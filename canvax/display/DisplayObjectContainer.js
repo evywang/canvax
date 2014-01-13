@@ -140,9 +140,11 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
          *@boolen 是否深度查询，默认就在第一层子元素中查询
          **/
         getChildById : function(id , boolen){
-            for(var i = 0, len = this.children.length; i < len; i++){
-                if(this.children[i].id == id) {
-                    return this.children[i];
+            if(!boolen) {
+                for(var i = 0, len = this.children.length; i < len; i++){
+                    if(this.children[i].id == id) {
+                        return this.children[i];
+                    }
                 }
             }
             return null;

@@ -16,7 +16,7 @@ KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
        self.drawTypeOnly = "stroke";
 
        opt.context || (opt.context={})
-       self._style = {
+       self._context = {
            pointList  : opt.context.pointList || [] //{Array}  // 必须，各个顶角坐标
        }
        
