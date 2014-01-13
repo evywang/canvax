@@ -2171,10 +2171,10 @@ KISSY.add("canvax/animation/animation" , function(S){
 
       },
       hasEvent:function(type){
-        this._hasEventListener(type);
+        return this._hasEventListener(type);
       },
       hasEventListener:function(type){
-        this._hasEventListener(type);
+        return this._hasEventListener(type);
       },
       hover : function( overFun , outFun ){
         this.on("mouseover" , overFun);
@@ -2661,6 +2661,9 @@ KISSY.add("canvax/animation/animation" , function(S){
        self._touching = false;
        //正在拖动，前提是_touching=true
        self._draging =false;
+
+       //当前的鼠标状态
+       self._cursor  = "default";
        
        arguments.callee.superclass.constructor.apply(this, arguments);
        
@@ -2702,6 +2705,8 @@ KISSY.add("canvax/animation/animation" , function(S){
           self.rootOffset = self.el.offset();
           self._Event = new StageEvent();
           self.el.on("click" , function(e){
+               self.__mouseHandler(e);
+               /*
                var mouseX = e.pageX - self.rootOffset.left;
                var mouseY = e.pageY - self.rootOffset.top;
 
@@ -2712,6 +2717,7 @@ KISSY.add("canvax/animation/animation" , function(S){
                    self.mouseY = mouseY;
                };
                var list = self.getObjectsUnderPoint(mouseX , mouseY);
+               */
           });
 
           //delegate mouse events on the el
@@ -2852,6 +2858,8 @@ KISSY.add("canvax/animation/animation" , function(S){
            e.mouseX = this.mouseX;
            e.mouseY = this.mouseY;
 
+           this._cursorHander( obj , oldObj );
+
            if(oldObj && oldObj != obj || e.type=="mouseout") {
                if(!oldObj){
                   return;
@@ -2865,15 +2873,16 @@ KISSY.add("canvax/animation/animation" , function(S){
                   oldObj.context.visible = true;
                }
                oldObj.dispatchEvent(e);
-               this.setCursor("default");
+               //this.setCursor("default");
            };
            if(obj && oldObj != obj && obj._hoverable){
                this.mouseTarget = obj;
                e.type = "mouseover";
                e.target = e.currentTarget = obj;
                obj.dispatchEvent(e);
-               this.setCursor(obj.context.cursor);
+               //this.setCursor(obj.context.cursor);
            };
+
        },
        //克隆一个元素到hover stage中去
        _clone2hoverStage : function(){
@@ -2918,8 +2927,21 @@ KISSY.add("canvax/animation/animation" , function(S){
                _dragDuplicate.destroy();
            }
        },
+       _cursorHander    : function( obj , oldObj ){
+           if(!obj && !oldObj ){
+               this.setCursor("default");
+           }
+           if(obj && oldObj != obj){
+               this.setCursor(obj.context.cursor);
+           }
+       },
        setCursor : function(cursor) {
-           this.el.css("cursor" , cursor)
+           if(this._cursor == cursor){
+             //如果两次要设置的鼠标状态是一样的
+             return;
+           }
+           this.el.css("cursor" , cursor);
+           this._cursor = cursor;
        },
        setFrameRate : function(frameRate) {
           if(Base.mainFrameRate == frameRate) {
@@ -5147,6 +5169,92 @@ KISSY.add("canvax/animation/animation" , function(S){
         "canvax/core/Base"
         ]
 });
+;KISSY.add("canvax/utils/ImagesLoader" , function( S , Base , EventDispatcher ){
+   var ImagesLoader = function( urls ){
+       arguments.callee.superclass.constructor.apply(this, arguments);
+       this.urls  = urls || [];   //要加载的images
+       this.images= []; //正在加载的img
+       this.loads = 0;  //已经加载了多少回来
+       this.init();
+   };
+
+   Base.creatClass( ImagesLoader , EventDispatcher , {
+       init      : function(){
+           this.images.length = this.urls.length;
+       },
+       _loadHand : function( i , callback ) {
+           var img  = new Image();
+
+           //把这个img 查到 它的url在urls中对应的index中去
+           this.images.splice( i , 1 , img );
+
+           //做浏览器嗅探添加不同的侦听
+           var appname = navigator.appName.toLowerCase();
+           if (appname.indexOf("netscape") == -1) {
+               //ie
+               img.onreadystatechange = function () {
+                   if (img.readyState == "complete") {
+                       callback(i , img);
+                   }
+               };
+           } else {
+               //标准浏览器
+               img.onload = function () {
+                   if (img.complete == true) {
+                       callback(i , img);
+                   }
+               }
+           }
+           return img;
+
+       },
+       _load    : function( i , src , callback ){
+           //必须先在src赋值前注册事件
+           this._loadHand( i , callback ).src = src;
+       },
+       start   : function(){
+           //开始加载
+           var self = this;
+
+           if(this.urls.length > 0){
+              for( var i = 0,l = this.urls.length ; i < l ; i++ ){
+                 var url = this.urls[ i ];
+
+                 self._load( i , url , function( i , img ){
+                      //回传对应的索引 和 img对象
+                      self.loads ++ ;
+                      var eventObj = {
+                          index : i,
+                          img   : img
+                      }
+
+                      if( self.hasEvent("secSuccess") ){
+                         eventObj.type = "secSuccess";
+                         self.fire( eventObj );
+                      } 
+
+                      if(self.loads == l){
+                         //已经load完了
+                         if( self.hasEvent("success") ){
+                             eventObj.type = "success";
+                             self.fire( eventObj );
+                         }
+                      }
+                 } );
+              }
+           }
+       }
+       
+   });
+
+   return ImagesLoader;
+
+} , {
+   requires : [
+      "canvax/core/Base",
+      "canvax/event/EventDispatcher"
+   ]
+}); 
 ;KISSY.add("canvax/utils/Math" , function(S){
         var _cache = {
             sin : {},     //sin缓存

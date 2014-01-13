@@ -58,6 +58,9 @@ KISSY.add("canvax/index" ,
        self._touching = false;
        //正在拖动，前提是_touching=true
        self._draging =false;
+
+       //当前的鼠标状态
+       self._cursor  = "default";
        
        arguments.callee.superclass.constructor.apply(this, arguments);
        
@@ -99,6 +102,8 @@ KISSY.add("canvax/index" ,
           self.rootOffset = self.el.offset();
           self._Event = new StageEvent();
           self.el.on("click" , function(e){
+               self.__mouseHandler(e);
+               /*
                var mouseX = e.pageX - self.rootOffset.left;
                var mouseY = e.pageY - self.rootOffset.top;
 
@@ -109,6 +114,7 @@ KISSY.add("canvax/index" ,
                    self.mouseY = mouseY;
                };
                var list = self.getObjectsUnderPoint(mouseX , mouseY);
+               */
           });
 
           //delegate mouse events on the el
@@ -249,6 +255,8 @@ KISSY.add("canvax/index" ,
            e.mouseX = this.mouseX;
            e.mouseY = this.mouseY;
 
+           this._cursorHander( obj , oldObj );
+
            if(oldObj && oldObj != obj || e.type=="mouseout") {
                if(!oldObj){
                   return;
@@ -262,15 +270,16 @@ KISSY.add("canvax/index" ,
                   oldObj.context.visible = true;
                }
                oldObj.dispatchEvent(e);
-               this.setCursor("default");
+               //this.setCursor("default");
            };
            if(obj && oldObj != obj && obj._hoverable){
                this.mouseTarget = obj;
                e.type = "mouseover";
                e.target = e.currentTarget = obj;
                obj.dispatchEvent(e);
-               this.setCursor(obj.context.cursor);
+               //this.setCursor(obj.context.cursor);
            };
+
        },
        //克隆一个元素到hover stage中去
        _clone2hoverStage : function(){
@@ -315,8 +324,21 @@ KISSY.add("canvax/index" ,
                _dragDuplicate.destroy();
            }
        },
+       _cursorHander    : function( obj , oldObj ){
+           if(!obj && !oldObj ){
+               this.setCursor("default");
+           }
+           if(obj && oldObj != obj){
+               this.setCursor(obj.context.cursor);
+           }
+       },
        setCursor : function(cursor) {
-           this.el.css("cursor" , cursor)
+           if(this._cursor == cursor){
+             //如果两次要设置的鼠标状态是一样的
+             return;
+           }
+           this.el.css("cursor" , cursor);
+           this._cursor = cursor;
        },
        setFrameRate : function(frameRate) {
           if(Base.mainFrameRate == frameRate) {

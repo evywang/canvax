@@ -84,10 +84,10 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
 
       },
       hasEvent:function(type){
-        this._hasEventListener(type);
+        return this._hasEventListener(type);
       },
       hasEventListener:function(type){
-        this._hasEventListener(type);
+        return this._hasEventListener(type);
       },
       hover : function( overFun , outFun ){
         this.on("mouseover" , overFun);
