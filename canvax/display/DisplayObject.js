@@ -85,7 +85,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             fillStyle     :opt.context.fillStyle      || null,
             lineCap       :opt.context.lineCap        || null,
             lineJoin      :opt.context.lineJoin       || null,
-            lineWidth     :opt.context.lineWidth      || 1,
+            lineWidth     :opt.context.lineWidth      || null,
             miterLimit    :opt.context.miterLimit     || null,
             shadowBlur    :opt.context.shadowBlur     || null,
             shadowColor   :opt.context.shadowColor    || null,
@@ -186,9 +186,9 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             //newObj.context= propertyFactory(this.context.$model);
             if(!myself){
               //新对象的id不能相同
-              newObj.id = Base.createId(newObj.type);
-              newObj._eventId = newObj.id;
-              newObj.context = propertyFactory(this.context.$model);
+              newObj.id             = Base.createId(newObj.type);
+              newObj._eventId       = newObj.id;
+              newObj.context        = propertyFactory(this.context.$model);
               newObj.context.$owner = newObj;
               newObj.context.$watch = this.context.$watch;
             }

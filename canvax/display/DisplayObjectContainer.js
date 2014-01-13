@@ -30,6 +30,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                 return child;
             }
 
+            //如果他在别的子元素中，那么就从别人那里删除了
             if(child.parent) {
                 child.parent.removeChild(child);
             }
@@ -75,7 +76,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             return child;
         },
         removeChild : function(child) {
-            return this.removeChildAt(_.indexOf( child , this.children ));
+            return this.removeChildAt(_.indexOf( this.children , child ));
         },
         removeChildAt : function(index) {
 
@@ -103,7 +104,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             }
 
 
-            return true;
+            return child;
         },
         removeChildById : function( id ) {	
             for(var i = 0, len = this.children.length; i < len; i++) {
@@ -111,7 +112,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                     return this.removeChildAt(i);
                 }
             }
-            return null;
+            return false;
         },
         removeAllChildren : function() {
             while(this.children.length > 0) {
@@ -134,7 +135,11 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             this = null;
         },
 
-        getChildById : function(id){
+        /*
+         *@id 元素的id
+         *@boolen 是否深度查询，默认就在第一层子元素中查询
+         **/
+        getChildById : function(id , boolen){
             for(var i = 0, len = this.children.length; i < len; i++){
                 if(this.children[i].id == id) {
                     return this.children[i];
@@ -147,11 +152,11 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             return this.children[index];
         },
         getChildIndex : function(child) {
-            return _.indexOf( child , this.children );
+            return _.indexOf( this.children , child );
         },
         setChildIndex : function(child, index){
             if(child.parent != this) return;
-            var oldIndex = _.indexOf(child , this.children);
+            var oldIndex = _.indexOf( this.children , child );
             if(index == oldIndex) return;
             this.children.splice(oldIndex, 1);
             this.children.splice(index, 0, child);
@@ -165,8 +170,6 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
 
         //获取x,y点上的所有object  num 需要返回的obj数量
         getObjectsUnderPoint : function(x, y , num) {
-
-             
             var result = [];
             for(var i = this.children.length - 1; i >= 0; i--) {
                 var child = this.children[i];

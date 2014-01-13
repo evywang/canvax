@@ -23,12 +23,433 @@ KISSY.add("canvax/animation/animation" , function(S){
         };
     }
 
-    var animation = {}
 
-    return animation;
+    if ( Date.now === undefined ) {
+        Date.now = function () {
+            return new Date().valueOf();
+        };
+    }
 
-} , {
-    requires:[]
+    var Animation = Animation || ( function () {
+        var _tweens = [];
+        return {
+            REVISION: '12',
+            getAll: function () {
+               return _tweens;
+            },
+            removeAll: function () {
+               _tweens = [];
+            },
+            add: function ( tween ) {
+               _tweens.push( tween );
+            },
+            remove: function ( tween ) {
+                var i = _.indexOf( tween , _tweens );
+                if ( i !== -1 ) {
+                    _tweens.splice( i, 1 );
+                }
+            },
+            update: function ( time ) {
+                if ( _tweens.length === 0 ) return false;
+                var i = 0;
+                time = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
+
+                while ( i < _tweens.length ) {
+                    if ( _tweens[ i ].update( time ) ) {
+                        i++;
+                    } else {
+                        _tweens.splice( i, 1 );
+                    }
+                }
+                return true;
+            }
+        };
+    } )();
+
+    Animation.Tween = function ( object ) {
+
+        var _object = object;
+        var _valuesStart = {};
+        var _valuesEnd = {};
+        var _valuesStartRepeat = {};
+        var _duration = 1000;
+        var _repeat = 0;
+        var _yoyo = false;
+        var _isPlaying = false;
+        var _reversed = false;
+        var _delayTime = 0;
+        var _startTime = null;
+        var _easingFunction = Animation.Easing.Linear.None;
+        var _interpolationFunction = Animation.Interpolation.Linear;
+        var _chainedTweens = [];
+        var _onStartCallback = null;
+        var _onStartCallbackFired = false;
+        var _onUpdateCallback = null;
+        var _onCompleteCallback = null;
+
+        // Set all starting values present on the target object
+        for ( var field in object ) {
+            _valuesStart[ field ] = parseFloat(object[field], 10);
+        }
+
+        this.to = function ( properties, duration ) {
+            if ( duration !== undefined ) {
+                _duration = duration;
+            }
+            _valuesEnd = properties;
+            return this;
+        };
+
+        this.start = function ( time ) {
+            Animation.add( this );
+            _isPlaying = true;
+            _onStartCallbackFired = false;
+            _startTime = time !== undefined ? time : ( typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined ? window.performance.now() : Date.now() );
+            _startTime += _delayTime;
+            for ( var property in _valuesEnd ) {
+                if ( _valuesEnd[ property ] instanceof Array ) {
+                    if ( _valuesEnd[ property ].length === 0 ) {
+                        continue;
+                    }
+                    _valuesEnd[ property ] = [ _object[ property ] ].concat( _valuesEnd[ property ] );
+                }
+                _valuesStart[ property ] = _object[ property ];
+
+                if( ( _valuesStart[ property ] instanceof Array ) === false ) {
+                    _valuesStart[ property ] *= 1.0; // Ensures we're using numbers, not strings
+                }
+                _valuesStartRepeat[ property ] = _valuesStart[ property ] || 0;
+            }
+            return this;
+        };
+        this.stop = function () {
+            if ( !_isPlaying ) {
+                return this;
+            }
+            Animation.remove( this );
+            _isPlaying = false;
+            this.stopChainedTweens();
+            return this;
+        };
+
+        this.stopChainedTweens = function () {
+            for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++ ) {
+                _chainedTweens[ i ].stop();
+            }
+        };
+        this.delay = function ( amount ) {
+            _delayTime = amount;
+            return this;
+        };
+        this.repeat = function ( times ) {
+            _repeat = times;
+            return this;
+        };
+        this.yoyo = function( yoyo ) {
+            _yoyo = yoyo;
+            return this;
+        };
+        this.easing = function ( easing ) {
+            _easingFunction = easing;
+            return this;
+        };
+        this.interpolation = function ( interpolation ) {
+            _interpolationFunction = interpolation;
+            return this;
+        };
+        this.chain = function () {
+            _chainedTweens = arguments;
+            return this;
+        };
+        this.onStart = function ( callback ) {
+            _onStartCallback = callback;
+            return this;
+        };
+        this.onUpdate = function ( callback ) {
+            _onUpdateCallback = callback;
+            return this;
+        };
+        this.onComplete = function ( callback ) {
+            _onCompleteCallback = callback;
+            return this;
+        };
+        this.update = function ( time ) {
+            var property;
+            if ( time < _startTime ) {
+                return true;
+            }
+
+            if ( _onStartCallbackFired === false ) {
+                if ( _onStartCallback !== null ) {
+                    _onStartCallback.call( _object );
+                }
+                _onStartCallbackFired = true;
+            }
+
+            var elapsed = ( time - _startTime ) / _duration;
+            elapsed = elapsed > 1 ? 1 : elapsed;
+
+            var value = _easingFunction( elapsed );
+
+            for ( property in _valuesEnd ) {
+                var start = _valuesStart[ property ] || 0;
+                var end = _valuesEnd[ property ];
+                if ( end instanceof Array ) {
+                    _object[ property ] = _interpolationFunction( end, value );
+                } else {
+                    if ( typeof(end) === "string" ) {
+                        end = start + parseFloat(end, 10);
+                    }
+
+                    if ( typeof(end) === "number" ) {
+                        _object[ property ] = start + ( end - start ) * value;
+                    }
+                }
+            }
+            if ( _onUpdateCallback !== null ) {
+                _onUpdateCallback.call( _object, value );
+            }
+
+            if ( elapsed == 1 ) {
+                if ( _repeat > 0 ) {
+                    if( isFinite( _repeat ) ) {
+                        _repeat--;
+                    }
+
+                    for( property in _valuesStartRepeat ) {
+                        if ( typeof( _valuesEnd[ property ] ) === "string" ) {
+                            _valuesStartRepeat[ property ] = _valuesStartRepeat[ property ] + parseFloat(_valuesEnd[ property ], 10);
+                        }
+
+                        if (_yoyo) {
+                            var tmp = _valuesStartRepeat[ property ];
+                            _valuesStartRepeat[ property ] = _valuesEnd[ property ];
+                            _valuesEnd[ property ] = tmp;
+                            _reversed = !_reversed;
+                        }
+                        _valuesStart[ property ] = _valuesStartRepeat[ property ];
+
+                    }
+                    _startTime = time + _delayTime;
+                    return true;
+                } else {
+                    if ( _onCompleteCallback !== null ) {
+                        _onCompleteCallback.call( _object );
+
+                    }
+                    for ( var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++ ) {
+                        _chainedTweens[ i ].start( time );
+                    }
+                    return false;
+                }
+            }
+            return true;
+        };
+    };
+    Animation.Easing = {
+        Linear: {
+            None: function ( k ) {
+                return k;
+            }
+        },
+        Quadratic: {
+            In: function ( k ) {
+                return k * k;
+            },
+            Out: function ( k ) {
+                return k * ( 2 - k );
+            },
+            InOut: function ( k ) {
+                if ( ( k *= 2 ) < 1 ) return 0.5 * k * k;
+                return - 0.5 * ( --k * ( k - 2 ) - 1 );
+            }
+        },
+        Cubic: {
+            In: function ( k ) {
+                return k * k * k;
+            },
+            Out: function ( k ) {
+                return --k * k * k + 1;
+            },
+            InOut: function ( k ) {
+                if ( ( k *= 2 ) < 1 ) return 0.5 * k * k * k;
+                return 0.5 * ( ( k -= 2 ) * k * k + 2 );
+            }
+        },
+        Quartic: {
+            In: function ( k ) {
+                return k * k * k * k;
+            },
+            Out: function ( k ) {
+                return 1 - ( --k * k * k * k );
+            },
+            InOut: function ( k ) {
+                if ( ( k *= 2 ) < 1) return 0.5 * k * k * k * k;
+                return - 0.5 * ( ( k -= 2 ) * k * k * k - 2 );
+            }
+        },
+        Quintic: {
+            In: function ( k ) {
+                return k * k * k * k * k;
+            },
+            Out: function ( k ) {
+                return --k * k * k * k * k + 1;
+            },
+            InOut: function ( k ) {
+                if ( ( k *= 2 ) < 1 ) return 0.5 * k * k * k * k * k;
+                return 0.5 * ( ( k -= 2 ) * k * k * k * k + 2 );
+            }
+        },
+        Sinusoidal: {
+            In: function ( k ) {
+                return 1 - Math.cos( k * Math.PI / 2 );
+            },
+            Out: function ( k ) {
+                return Math.sin( k * Math.PI / 2 );
+            },
+            InOut: function ( k ) {
+                return 0.5 * ( 1 - Math.cos( Math.PI * k ) );
+            }
+        },
+        Exponential: {
+            In: function ( k ) {
+                return k === 0 ? 0 : Math.pow( 1024, k - 1 );
+            },
+            Out: function ( k ) {
+                return k === 1 ? 1 : 1 - Math.pow( 2, - 10 * k );
+            },
+            InOut: function ( k ) {
+                if ( k === 0 ) return 0;
+                if ( k === 1 ) return 1;
+                if ( ( k *= 2 ) < 1 ) return 0.5 * Math.pow( 1024, k - 1 );
+                return 0.5 * ( - Math.pow( 2, - 10 * ( k - 1 ) ) + 2 );
+            }
+        },
+        Circular: {
+            In: function ( k ) {
+                return 1 - Math.sqrt( 1 - k * k );
+            },
+            Out: function ( k ) {
+                return Math.sqrt( 1 - ( --k * k ) );
+            },
+            InOut: function ( k ) {
+                if ( ( k *= 2 ) < 1) return - 0.5 * ( Math.sqrt( 1 - k * k) - 1);
+                return 0.5 * ( Math.sqrt( 1 - ( k -= 2) * k) + 1);
+            }
+        },
+        Elastic: {
+            In: function ( k ) {
+                var s, a = 0.1, p = 0.4;
+                if ( k === 0 ) return 0;
+                if ( k === 1 ) return 1;
+                if ( !a || a < 1 ) { a = 1; s = p / 4; }
+                else s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
+                return - ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
+            },
+            Out: function ( k ) {
+                var s, a = 0.1, p = 0.4;
+                if ( k === 0 ) return 0;
+                if ( k === 1 ) return 1;
+                if ( !a || a < 1 ) { a = 1; s = p / 4; }
+                else s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
+                return ( a * Math.pow( 2, - 10 * k) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) + 1 );
+            },
+            InOut: function ( k ) {
+                var s, a = 0.1, p = 0.4;
+                if ( k === 0 ) return 0;
+                if ( k === 1 ) return 1;
+                if ( !a || a < 1 ) { a = 1; s = p / 4; }
+                else s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
+                if ( ( k *= 2 ) < 1 ) return - 0.5 * ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
+                return a * Math.pow( 2, -10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) * 0.5 + 1;
+            }
+        },
+        Back: {
+            In: function ( k ) {
+                var s = 1.70158;
+                return k * k * ( ( s + 1 ) * k - s );
+            },
+            Out: function ( k ) {
+                var s = 1.70158;
+                return --k * k * ( ( s + 1 ) * k + s ) + 1;
+            },
+            InOut: function ( k ) {
+                var s = 1.70158 * 1.525;
+                if ( ( k *= 2 ) < 1 ) return 0.5 * ( k * k * ( ( s + 1 ) * k - s ) );
+                return 0.5 * ( ( k -= 2 ) * k * ( ( s + 1 ) * k + s ) + 2 );
+            }
+        },
+        Bounce: {
+            In: function ( k ) {
+                return 1 - Animation.Easing.Bounce.Out( 1 - k );
+            },
+            Out: function ( k ) {
+                if ( k < ( 1 / 2.75 ) ) {
+                    return 7.5625 * k * k;
+                } else if ( k < ( 2 / 2.75 ) ) {
+                    return 7.5625 * ( k -= ( 1.5 / 2.75 ) ) * k + 0.75;
+                } else if ( k < ( 2.5 / 2.75 ) ) {
+                    return 7.5625 * ( k -= ( 2.25 / 2.75 ) ) * k + 0.9375;
+                } else {
+                    return 7.5625 * ( k -= ( 2.625 / 2.75 ) ) * k + 0.984375;
+                }
+            },
+            InOut: function ( k ) {
+                if ( k < 0.5 ) return Animation.Easing.Bounce.In( k * 2 ) * 0.5;
+                return Animation.Easing.Bounce.Out( k * 2 - 1 ) * 0.5 + 0.5;
+            }
+        }
+    };
+    Animation.Interpolation = {
+        Linear: function ( v, k ) {
+            var m = v.length - 1, f = m * k, i = Math.floor( f ), fn = Animation.Interpolation.Utils.Linear;
+            if ( k < 0 ) return fn( v[ 0 ], v[ 1 ], f );
+            if ( k > 1 ) return fn( v[ m ], v[ m - 1 ], m - f );
+            return fn( v[ i ], v[ i + 1 > m ? m : i + 1 ], f - i );
+        },
+        Bezier: function ( v, k ) {
+            var b = 0, n = v.length - 1, pw = Math.pow, bn = Animation.Interpolation.Utils.Bernstein, i;
+            for ( i = 0; i <= n; i++ ) {
+                b += pw( 1 - k, n - i ) * pw( k, i ) * v[ i ] * bn( n, i );
+            }
+            return b;
+        },
+        CatmullRom: function ( v, k ) {
+            var m = v.length - 1, f = m * k, i = Math.floor( f ), fn = Animation.Interpolation.Utils.CatmullRom;
+            if ( v[ 0 ] === v[ m ] ) {
+                if ( k < 0 ) i = Math.floor( f = m * ( 1 + k ) );
+                return fn( v[ ( i - 1 + m ) % m ], v[ i ], v[ ( i + 1 ) % m ], v[ ( i + 2 ) % m ], f - i );
+            } else {
+                if ( k < 0 ) return v[ 0 ] - ( fn( v[ 0 ], v[ 0 ], v[ 1 ], v[ 1 ], -f ) - v[ 0 ] );
+                if ( k > 1 ) return v[ m ] - ( fn( v[ m ], v[ m ], v[ m - 1 ], v[ m - 1 ], f - m ) - v[ m ] );
+                return fn( v[ i ? i - 1 : 0 ], v[ i ], v[ m < i + 1 ? m : i + 1 ], v[ m < i + 2 ? m : i + 2 ], f - i );
+            }
+        },
+        Utils: {
+            Linear: function ( p0, p1, t ) {
+                return ( p1 - p0 ) * t + p0;
+            },
+            Bernstein: function ( n , i ) {
+                var fc = Animation.Interpolation.Utils.Factorial;
+                return fc( n ) / fc( i ) / fc( n - i );
+            },
+            Factorial: ( function () {
+                var a = [ 1 ];
+                return function ( n ) {
+                    var s = 1, i;
+                    if ( a[ n ] ) return a[ n ];
+                    for ( i = n; i > 1; i-- ) s *= i;
+                    return a[ n ] = s;
+                };
+            } )(),
+            CatmullRom: function ( p0, p1, p2, p3, t ) {
+                var v0 = ( p2 - p0 ) * 0.5, v1 = ( p3 - p1 ) * 0.5, t2 = t * t, t3 = t * t2;
+                return ( 2 * p1 - 2 * p2 + v0 + v1 ) * t3 + ( - 3 * p1 + 3 * p2 - 2 * v0 - v1 ) * t2 + v0 * t + p1;
+            }
+        }
+    };
+
+    return Animation;
 })
 
 ;KISSY.add("canvax/core/Base" , function(S){
@@ -580,7 +1001,7 @@ KISSY.add("canvax/animation/animation" , function(S){
             fillStyle     :opt.context.fillStyle      || null,
             lineCap       :opt.context.lineCap        || null,
             lineJoin      :opt.context.lineJoin       || null,
-            lineWidth     :opt.context.lineWidth      || 1,
+            lineWidth     :opt.context.lineWidth      || null,
             miterLimit    :opt.context.miterLimit     || null,
             shadowBlur    :opt.context.shadowBlur     || null,
             shadowColor   :opt.context.shadowColor    || null,
@@ -681,9 +1102,9 @@ KISSY.add("canvax/animation/animation" , function(S){
             //newObj.context= propertyFactory(this.context.$model);
             if(!myself){
               //新对象的id不能相同
-              newObj.id = Base.createId(newObj.type);
-              newObj._eventId = newObj.id;
-              newObj.context = propertyFactory(this.context.$model);
+              newObj.id             = Base.createId(newObj.type);
+              newObj._eventId       = newObj.id;
+              newObj.context        = propertyFactory(this.context.$model);
               newObj.context.$owner = newObj;
               newObj.context.$watch = this.context.$watch;
             }
@@ -1064,6 +1485,7 @@ KISSY.add("canvax/animation/animation" , function(S){
                 return child;
             }
 
+            //如果他在别的子元素中，那么就从别人那里删除了
             if(child.parent) {
                 child.parent.removeChild(child);
             }
@@ -1109,7 +1531,7 @@ KISSY.add("canvax/animation/animation" , function(S){
             return child;
         },
         removeChild : function(child) {
-            return this.removeChildAt(_.indexOf( child , this.children ));
+            return this.removeChildAt(_.indexOf( this.children , child ));
         },
         removeChildAt : function(index) {
 
@@ -1137,7 +1559,7 @@ KISSY.add("canvax/animation/animation" , function(S){
             }
 
 
-            return true;
+            return child;
         },
         removeChildById : function( id ) {	
             for(var i = 0, len = this.children.length; i < len; i++) {
@@ -1145,7 +1567,7 @@ KISSY.add("canvax/animation/animation" , function(S){
                     return this.removeChildAt(i);
                 }
             }
-            return null;
+            return false;
         },
         removeAllChildren : function() {
             while(this.children.length > 0) {
@@ -1168,7 +1590,11 @@ KISSY.add("canvax/animation/animation" , function(S){
             this = null;
         },
 
-        getChildById : function(id){
+        /*
+         *@id 元素的id
+         *@boolen 是否深度查询，默认就在第一层子元素中查询
+         **/
+        getChildById : function(id , boolen){
             for(var i = 0, len = this.children.length; i < len; i++){
                 if(this.children[i].id == id) {
                     return this.children[i];
@@ -1181,11 +1607,11 @@ KISSY.add("canvax/animation/animation" , function(S){
             return this.children[index];
         },
         getChildIndex : function(child) {
-            return _.indexOf( child , this.children );
+            return _.indexOf( this.children , child );
         },
         setChildIndex : function(child, index){
             if(child.parent != this) return;
-            var oldIndex = _.indexOf(child , this.children);
+            var oldIndex = _.indexOf( this.children , child );
             if(index == oldIndex) return;
             this.children.splice(oldIndex, 1);
             this.children.splice(index, 0, child);
@@ -1199,8 +1625,6 @@ KISSY.add("canvax/animation/animation" , function(S){
 
         //获取x,y点上的所有object  num 需要返回的obj数量
         getObjectsUnderPoint : function(x, y , num) {
-
-             
             var result = [];
             for(var i = this.children.length - 1; i >= 0; i--) {
                 var child = this.children[i];
@@ -1253,7 +1677,7 @@ KISSY.add("canvax/animation/animation" , function(S){
    ]
 })
 ;KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base){
-  var Movieclip = function(opt){
+  var Movieclip = function( opt ){
 
       var self = this;
 
@@ -1261,7 +1685,10 @@ KISSY.add("canvax/animation/animation" , function(S){
 
       self.type = "movieclip";
       self.currentFrame  = 0;
-      self._autoPlay     = opt.autoPlay || false;//是否自动播放
+      self.autoPlay     = opt.autoPlay   || false;//是否自动播放
+      self.repeat       = opt.repeat     || 0;//是否循环播放,repeat为数字，则表示循环多少次，为true or !运算结果为true 的话表示永久循环
+
+      self.overPlay     = opt.overPlay   || false; //是否覆盖播放，为false只播放currentFrame 当前帧,true则会播放当前帧 和 当前帧之前的所有叠加
 
 
       self._frameRate    = Base.mainFrameRate;
@@ -1271,7 +1698,6 @@ KISSY.add("canvax/animation/animation" , function(S){
       self._style = {
           //r : opt.context.r || 0   //{number},  // 必须，圆半径
       }
-
       arguments.callee.superclass.constructor.apply(this, arguments);
   };
 
@@ -1280,8 +1706,8 @@ KISSY.add("canvax/animation/animation" , function(S){
          
       },
       getStatus    : function(){
-          //查询Movieclip的_autoPlay状态
-          return this._autoPlay;
+          //查询Movieclip的autoPlay状态
+          return this.autoPlay;
       },
       getFrameRate : function(){
           return this._frameRate;
@@ -1333,27 +1759,26 @@ KISSY.add("canvax/animation/animation" , function(S){
       },
       gotoAndStop:function(i){
          this._goto(i);
-         if(!this._autoPlay){
+         if(!this.autoPlay){
            //再stop的状态下面跳帧，就要告诉stage去发心跳
            this._preRenderTime = 0;
            this.getStage().heartBeat();
            return;
          }
-         this._autoPlay = false;
+         this.autoPlay = false;
       },
       stop:function(){
-         if(!this._autoPlay){
+         if(!this.autoPlay){
            return;
          }
-         this._autoPlay = false;
+         this.autoPlay = false;
       },
       gotoAndPlay:function(i){
-          debugger;
          this._goto(i);
-         if(this._autoPlay){
+         if(this.autoPlay){
            return;
          }
-         this._autoPlay = true;
+         this.autoPlay = true;
          var canvax = this.getStage().parent;
          if(!canvax._heartBeat && canvax._taskList.length==0){
              //手动启动引擎 
@@ -1370,10 +1795,10 @@ KISSY.add("canvax/animation/animation" , function(S){
 
       },
       play:function(){
-         if(this._autoPlay){
+         if(this.autoPlay){
            return;
          }
-         this._autoPlay = true;
+         this.autoPlay = true;
          var canvax = this.getStage().parent;
          if(!canvax._heartBeat && canvax._taskList.length==0){
              //手动启动引擎
@@ -1394,7 +1819,7 @@ KISSY.add("canvax/animation/animation" , function(S){
            this._enterInCanvax=true;
          }
       },
-      //_autoPlay为true 而且已经把__enterFrame push 到了引擎的任务队列，
+      //autoPlay为true 而且已经把__enterFrame push 到了引擎的任务队列，
       //则为true
       _enterInCanvax:false, 
       __enterFrame:function(){
@@ -1410,14 +1835,14 @@ KISSY.add("canvax/animation/animation" , function(S){
       },
       next  :function(){
          var self = this;
-         if(!self._autoPlay){
+         if(!self.autoPlay){
              //只有再非播放状态下才有效
              self.gotoAndStop(self._next());
          }
       },
       pre   :function(){
          var self = this;
-         if(!self._autoPlay){
+         if(!self.autoPlay){
              //只有再非播放状态下才有效
              self.gotoAndStop(self._pre());
          }
@@ -1445,16 +1870,36 @@ KISSY.add("canvax/animation/animation" , function(S){
 
           //因为如果children为空的话，Movieclip 会把自己设置为 visible:false，不会执行到这个render
           //所以这里可以不用做children.length==0 的判断。 大胆的搞吧。
-          this.getChildAt(this.currentFrame)._render(ctx);
+
+          if( !this.overPlay ){
+              this.getChildAt(this.currentFrame)._render(ctx);
+          } else {
+              for(var i=0 ; i <= this.currentFrame ; i++){
+                  this.getChildAt(i)._render(ctx);
+              }
+          }
 
           if(this.children.length == 1){
-              this._autoPlay = false;
+              this.autoPlay = false;
           }
 
           //console.log(this.id+"|"+(Base.now-this._preRenderTime)+"|"+this._speedTime)
-                  
+        
+          
+          //如果不循环
+          if( this.currentFrame == this.getNumChildren()-1 ){
+              //那么，到了最后一帧就停止
+              if(!this.repeat) {
+                  this.stop();
+              }
 
-          if(this._autoPlay){
+              //使用掉一次循环
+              if( _.isNumber( this.repeat ) ) {
+                 this.repeat -- ;
+              }
+          }
+
+          if(this.autoPlay){
               //如果要播放
               if((Base.now-this._preRenderTime) >= this._speedTime ){
                   //先把当前绘制的时间点记录
@@ -5223,21 +5668,22 @@ KISSY.add("canvax/animation/animation" , function(S){
                  self._load( i , url , function( i , img ){
                       //回传对应的索引 和 img对象
                       self.loads ++ ;
-                      var eventObj = {
-                          index : i,
-                          img   : img
-                      }
 
                       if( self.hasEvent("secSuccess") ){
-                         eventObj.type = "secSuccess";
-                         self.fire( eventObj );
+                          self.fire( {
+                              index : i,
+                              img   : img,
+                              type  : "secSuccess"
+                          } );
                       } 
 
                       if(self.loads == l){
                          //已经load完了
                          if( self.hasEvent("success") ){
-                             eventObj.type = "success";
-                             self.fire( eventObj );
+                             self.fire( {
+                                images : self.images,
+                                type   : "success"
+                             } );
                          }
                       }
                  } );

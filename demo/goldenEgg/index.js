@@ -12,10 +12,12 @@
        var el   = S.all("#eggGame");
 
        var urls = [
-         "./egg_faguang.png", //发光的蛋
-         "./egg_liekai.png",  //裂开的蛋
          "./hammer.png",   //锤子
-         "./hammer_click.png" //打击中的锤子
+         "./hammer_click.png", //打击中的锤子
+         "./light.png",
+         "./slit_l.png",
+         "./slit_m.png",
+         "./slit_r.png"
        ];
 
        var game = new eggGame( el , urls );

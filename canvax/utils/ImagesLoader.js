@@ -52,21 +52,22 @@ KISSY.add("canvax/utils/ImagesLoader" , function( S , Base , EventDispatcher ){
                  self._load( i , url , function( i , img ){
                       //回传对应的索引 和 img对象
                       self.loads ++ ;
-                      var eventObj = {
-                          index : i,
-                          img   : img
-                      }
 
                       if( self.hasEvent("secSuccess") ){
-                         eventObj.type = "secSuccess";
-                         self.fire( eventObj );
+                          self.fire( {
+                              index : i,
+                              img   : img,
+                              type  : "secSuccess"
+                          } );
                       } 
 
                       if(self.loads == l){
                          //已经load完了
                          if( self.hasEvent("success") ){
-                             eventObj.type = "success";
-                             self.fire( eventObj );
+                             self.fire( {
+                                images : self.images,
+                                type   : "success"
+                             } );
                          }
                       }
                  } );
