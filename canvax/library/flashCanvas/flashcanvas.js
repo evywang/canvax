@@ -4,7 +4,7 @@
  * Copyright (c) 2009      Tim Cameron Ryan
  * Copyright (c) 2009-2011 Shinya Muramatsu
  */
-//KISSY.add("library/flashCanvas/flashcanvas" , function(){
+KISSY.add("canvax/library/flashCanvas/flashcanvas" , function(){
 
 window.ActiveXObject&&!window.CanvasRenderingContext2D&&function(j,m){function O(a){this.code=a;this.message=ea[a]}function y(a,b,c){if(!c){c=[];for(var d=0,e=a*b*4;d<e;++d)c[d]=0}this.width=a;this.height=b;this.data=c}function fa(a){this.width=a}function P(a){this.id=a.I++}function z(a){this.O=a;this.id=a.I++}function D(a,b){this.canvas=a;this.w=b;this.f=a.uniqueID;this.J();this.I=0;this.j=this.H="";this.c=0}function E(){if(m.readyState==="complete"){m.detachEvent(Q,E);for(var a=m.getElementsByTagName(u),
 b=0,c=a.length;b<c;++b)F.initElement(a[b])}}function R(){var a=event.srcElement,b=a.parentNode;a.blur();b.focus()}function G(){event.button&2&&event.srcElement.parentNode.setCapture()}function H(){event.button&2&&event.srcElement.parentNode.releaseCapture()}function S(){var a=event.propertyName;if(a==="width"||a==="height"){var b=event.srcElement,c=b[a],d=parseInt(c,10);if(isNaN(d)||d<0)d=a==="width"?300:150;if(c===d){b.style[a]=d+"px";b.getContext("2d").P(b.width,b.height)}else b[a]=d}}function T(){j.detachEvent(U,
@@ -32,4 +32,4 @@ R);if(l.M){d.attachEvent(I,G);a.attachEvent(J,H)}l.D&&h.a.push("4","usePolicyFil
 f.h.push(f.a.length+2);f.a.push("4",d,c)}}}},trigger:function(a,b){n[a].fireEvent("on"+b)},unlock:function(a,b){v[a]&&--v[a];if(b){var c=n[a],d=c.firstChild,e,f;aa(c);e=c.width;f=c.height;c.style.width=e+"px";c.style.height=f+"px";if(e>0)d.width=e;if(f>0)d.height=f;d.resize(e,f);c.attachEvent(W,S);A[a]=1}}};m.createElement(u);m.createStyleSheet().cssText=u+"{display:inline-block;overflow:hidden;width:300px;height:150px}";m.readyState==="complete"?E():m.attachEvent(Q,E);j.attachEvent(U,T);if(x.indexOf(location.protocol+
 "//"+location.host+"/")===0){q=new ActiveXObject("Microsoft.XMLHTTP");q.open("GET",x,false);q.send(k)}j[X]=D;j[Y]=z;j[Z]=P;j[K]=F;j[$]={init:function(){},init_:function(){},initElement:F.initElement}}(window,document);
 
-//});
+});

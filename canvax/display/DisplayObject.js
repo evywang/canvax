@@ -18,6 +18,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
         //相对父级元素的矩阵
         self._transform = null;
+
         //相对stage的全局矩阵
         //如果父子结构有变动，比如移动到另外个容器里面去了
         //就要对应的修改新为的矩阵
@@ -456,6 +457,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                result = false;
             }
             this._notWatch = false;
+
             return result;
 
         },

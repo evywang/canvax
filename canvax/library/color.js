@@ -32,7 +32,7 @@
  * toArray: 返回颜色值数组
  * alpha  : 设置颜色的透明度
  **/
-KISSY.add("library/color" , function(S,Base){
+KISSY.add("canvax/library/color" , function(S,Base){
 
 
     var _ctx;

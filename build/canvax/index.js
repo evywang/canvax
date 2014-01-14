@@ -3534,7 +3534,6 @@ KISSY.add("canvax/animation/animation" , function(S){
 
     //如果用户没有加载flashcavnas在ie下面，并且也没有加载excanvas，就默认加载自己准备的flashcanvas进来
     ( !document.createElement('canvas').getContext && !window.FlashCanvas && !window.G_vmlCanvasManager ) ? "canvax/library/flashCanvas/flashcanvas" : ""
-    
 
     ]
 });

@@ -153,5 +153,6 @@ KISSY.add("canvax/core/Base" , function(S){
 
 },{
     requires : [
-        ]
+      !window._ ? "canvax/library/underscore" : "", 
+    ]
 })

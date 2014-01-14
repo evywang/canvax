@@ -21,9 +21,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
        self._eventEnabled = true;
     };
 
-    
-
-    Base.creatClass(DisplayObjectContainer , DisplayObject , {
+    Base.creatClass( DisplayObjectContainer , DisplayObject , {
         addChild : function(child){
             if(this.getChildIndex(child) != -1) {
                 child.parent = this;
@@ -39,13 +37,15 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             if(this.heartBeat){
                this.heartBeat({
                  convertType : "children",
-                 target       : child,
-                 src      : this
+                 target      : child,
+                 src         : this
                });
             }
+
             if(this.afterAddChild){
                this.afterAddChild(child);
             }
+
             return child;
         },
         addChildAt : function(child, index) {
@@ -88,7 +88,6 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                 child.parent = null;
             }
             this.children.splice(index, 1);
-
             
             if(this.heartBeat){
                this.heartBeat({
@@ -97,12 +96,10 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                  src      : this
                });
             };
-
             
             if(this.afterDelChild){
                this.afterDelChild(child , index);
             }
-
 
             return child;
         },
@@ -134,7 +131,6 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             }
             this = null;
         },
-
         /*
          *@id 元素的id
          *@boolen 是否深度查询，默认就在第一层子元素中查询
@@ -146,6 +142,9 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                         return this.children[i];
                     }
                 }
+            } else {
+                //深度查询
+
             }
             return null;
         },
@@ -169,7 +168,6 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
         getNumChildren : function() {
             return this.children.length;
         },
-
         //获取x,y点上的所有object  num 需要返回的obj数量
         getObjectsUnderPoint : function(x, y , num) {
             var result = [];
@@ -209,10 +207,6 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                 child._render(context);
             }
         }
-
-        
-
-
     });
 
     return DisplayObjectContainer;

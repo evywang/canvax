@@ -10,8 +10,6 @@
  * 然后 默认有实现了shape的 mouseover  mouseout  drag 事件
  *
  **/
-
-
 KISSY.add("canvax/index" ,
    function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Shapes ){
    var Canvax=function(opt){
@@ -524,6 +522,14 @@ KISSY.add("canvax/index" ,
 
     "canvax/shape/Shapes", //所有自定义shape的集合
 
-    "canvax/animation/animation"
+    "canvax/animation/animation",
+  
+    //如果用户没有加载underscore，作为被选方案，自己加载一个进来
+    !window._ ? "canvax/library/underscore" : "",
+
+    //如果用户没有加载flashcavnas在ie下面，并且也没有加载excanvas，就默认加载自己准备的flashcanvas进来
+    ( !document.createElement('canvas').getContext && !window.FlashCanvas && !window.G_vmlCanvasManager ) ? "canvax/library/flashCanvas/flashcanvas" : ""
+    
+
     ]
 });

@@ -8,7 +8,8 @@ module.exports = function(grunt) {
          },
          dist: {
              src: [
-                 "canvax/**/*.js"
+                 "canvax/**/*.js",
+                 "!canvax/library/**/*.js"
              ],
              dest: "build/index.js"
          }
@@ -26,10 +27,7 @@ module.exports = function(grunt) {
          main: {
              files: [
              {
-                 expand: true, src: ['library/underscore.js' , 'library/excanvas.js' , 'library/color.js'], dest: 'build/'
-             },
-             {
-                 expand: true, cwd: 'library/flashCanvas', src: ['**'], dest: 'build/library/flashCanvas'}
+                 expand: true, cwd: 'canvax/library', src: ['**'], dest: 'build/library'}
              ]
          }
       }
