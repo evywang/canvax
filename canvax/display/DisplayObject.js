@@ -475,13 +475,20 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         render : function(context) {
             //基类不提供render的具体实现，由后续具体的派生类各自实现
         },
+        //从树中删除
+        remove : function(){
+            if( this.parent ){
+                this.parent.removeChild(this);
+            }
+        },
         //元素的自我销毁
         destroy : function(){
-            if(this.parent){
-               this.parent.removeChild(this);
-            } else {
-               this = null;
-            }
+            this.remove();
+
+            //把自己从父节点中删除了后做自我清除，释放内存
+            this.context = null;
+            delete this.context;
+
         },
         toString : function(){
             var result;

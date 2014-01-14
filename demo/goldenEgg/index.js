@@ -5,6 +5,10 @@
           {
             name : "demo",
             path : "../.."
+          } ,
+          {
+            name : "canvax",
+            path : "../../"
           }
         ]
     }); 
@@ -21,6 +25,6 @@
        ];
 
        var game = new eggGame( el , urls );
-       
+       window.g = game;
     });
  });

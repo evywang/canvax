@@ -197,6 +197,7 @@ KISSY.add("demo/goldenEgg/eggGame" , function( S , Canvax , ImagesLoader , Anima
        //播放蛋破裂动画
        egg_slit : function( obj , e ){
             this.sprites[ _.indexOf( this.triggers , obj ) ].addChild( this.eggMovie ); 
+            this.eggMovie.play();
        },
        eggHover : function( obj , e ){
             if( this.gameBegin ) {
@@ -204,6 +205,14 @@ KISSY.add("demo/goldenEgg/eggGame" , function( S , Canvax , ImagesLoader , Anima
               return;
             }
             this.sprites[ _.indexOf( this.triggers , obj ) ].addChild( this.hummer ); 
+       },
+       reset    : function(){
+            this.gameBegin = false;
+            
+            this.hummer.remove();
+            
+            this.eggMovie.remove();
+            this.eggMovie.gotoAndStop(0);
        }
    }
 

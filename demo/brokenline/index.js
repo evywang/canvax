@@ -88,6 +88,9 @@
              {
                name : "demo",
                path : "../.."
+             } , {
+               name : "canvax",
+               path : "../../"
              }
            ]
        });

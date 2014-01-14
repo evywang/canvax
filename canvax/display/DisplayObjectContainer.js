@@ -23,6 +23,9 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
 
     Base.creatClass( DisplayObjectContainer , DisplayObject , {
         addChild : function(child){
+            if( !(child instanceof DisplayObject) ){
+               return false;
+            } 
             if(this.getChildIndex(child) != -1) {
                 child.parent = this;
                 return child;
@@ -118,9 +121,8 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
         },
         //集合类的自我销毁
         destroy : function(){
-            if(this.parent){
+            if( this.parent ){
                 this.parent.removeChild(this);
-                this.parent = null;
             }
 
             //依次销毁所有子元素

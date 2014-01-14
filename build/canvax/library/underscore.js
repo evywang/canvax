@@ -1277,4 +1277,3 @@ KISSY.add("canvax/library/underscore" , function(){
 }).call(window);
 
 });
-

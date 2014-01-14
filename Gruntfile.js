@@ -11,15 +11,16 @@ module.exports = function(grunt) {
                  "canvax/**/*.js",
                  "!canvax/library/**/*.js"
              ],
-             dest: "build/index.js"
+             dest: "build/canvax/index.js"
          }
      },
      uglify: {
          options: {
+
          },
          dist: {
              files: {
-                 'build/index-min.js': 'build/index.js'
+                 'build/canvax/index-min.js': 'build/canvax/index.js'
              }
          }
      },
@@ -27,7 +28,7 @@ module.exports = function(grunt) {
          main: {
              files: [
              {
-                 expand: true, cwd: 'canvax/library', src: ['**'], dest: 'build/library'}
+                 expand: true, cwd: 'canvax/library', src: ['**'], dest: 'build/canvax/library'}
              ]
          }
       }

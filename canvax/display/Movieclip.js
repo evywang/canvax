@@ -21,7 +21,6 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
 
       self.overPlay     = opt.overPlay   || false; //是否覆盖播放，为false只播放currentFrame 当前帧,true则会播放当前帧 和 当前帧之前的所有叠加
 
-
       self._frameRate    = Base.mainFrameRate;
       self._speedTime    = parseInt(1000/self._frameRate);
       self._preRenderTime= 0;
@@ -120,8 +119,6 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
  
          this._push2TaskList();
 
-         //因为有goto设置好了currentFrame
-         //this._next();
          this._preRenderTime = 0;
 
       },
@@ -140,8 +137,6 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
          this._push2TaskList();
          
          this._preRenderTime = new Date().getTime();
-         this._next();
-
       },
       _push2TaskList:function(){
          //把enterFrame push 到 引擎的任务列表
@@ -198,6 +193,10 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
          return this.currentFrame;
       },
       render:function(ctx){
+          //这里也还要做次过滤，如果不到speedTime，就略过
+          if( (Base.now-this._preRenderTime) < this._speedTime ){
+             return;
+          }
 
           //因为如果children为空的话，Movieclip 会把自己设置为 visible:false，不会执行到这个render
           //所以这里可以不用做children.length==0 的判断。 大胆的搞吧。
@@ -214,8 +213,7 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
               this.autoPlay = false;
           }
 
-          //console.log(this.id+"|"+(Base.now-this._preRenderTime)+"|"+this._speedTime)
-        
+          //console.log(this.currentFrame)
           
           //如果不循环
           if( this.currentFrame == this.getNumChildren()-1 ){
@@ -225,14 +223,14 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
               }
 
               //使用掉一次循环
-              if( _.isNumber( this.repeat ) ) {
+              if( _.isNumber( this.repeat ) && this.repeat > 0 ) {
                  this.repeat -- ;
               }
           }
 
           if(this.autoPlay){
               //如果要播放
-              if((Base.now-this._preRenderTime) >= this._speedTime ){
+              if( (Base.now-this._preRenderTime) >= this._speedTime ){
                   //先把当前绘制的时间点记录
                   this._preRenderTime = Base.now;
                   this._next();
@@ -247,6 +245,7 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
                   tList.splice( _.indexOf(tList , this) , 1 ); 
               }
           }
+
       } 
   });
 
