@@ -227,6 +227,9 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
               //那么，到了最后一帧就停止
               if(!this.repeat) {
                   this.stop();
+                  if( this.hasEvent("end") ){
+                      this.fire("end");
+                  }
               }
 
               //使用掉一次循环
