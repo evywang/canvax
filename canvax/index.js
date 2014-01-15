@@ -414,7 +414,7 @@ KISSY.add("canvax/index" ,
        heartBeat : function( opt ){
            //displayList中某个属性改变了
            var self = this;
-
+//console.log("heartBeat")
            //心跳包有两种，一种是某元素的可视属性改变了。一种是children有变动
            //分别对应convertType  为 context  and children
            if (opt.convertType == "context"){

@@ -1746,6 +1746,9 @@ KISSY.add("canvax/animation/animation" , function(S){
       },
       gotoAndPlay:function(i){
          this._goto(i);
+         this.play();
+
+         /*
          if(this.autoPlay){
            return;
          }
@@ -1760,7 +1763,10 @@ KISSY.add("canvax/animation/animation" , function(S){
  
          this._push2TaskList();
 
-         this._preRenderTime = 0;
+         //因为有goto设置好了currentFrame 所以这里不需要_next
+         //this._next();
+         this._preRenderTime = new Date().getTime();
+         */
 
       },
       play:function(){
@@ -1778,8 +1784,9 @@ KISSY.add("canvax/animation/animation" , function(S){
          this._push2TaskList();
          
          this._preRenderTime = new Date().getTime();
+         //this._next();
       },
-      _push2TaskList:function(){
+      _push2TaskList : function(){
          //把enterFrame push 到 引擎的任务列表
          if(!this._enterInCanvax){
            this.getStage().parent._taskList.push( this );
@@ -1854,7 +1861,7 @@ KISSY.add("canvax/animation/animation" , function(S){
               this.autoPlay = false;
           }
 
-          //console.log(this.currentFrame)
+          console.log(this.currentFrame)
           
           //如果不循环
           if( this.currentFrame == this.getNumChildren()-1 ){
@@ -3427,7 +3434,7 @@ KISSY.add("canvax/animation/animation" , function(S){
        heartBeat : function( opt ){
            //displayList中某个属性改变了
            var self = this;
-
+//console.log("heartBeat")
            //心跳包有两种，一种是某元素的可视属性改变了。一种是children有变动
            //分别对应convertType  为 context  and children
            if (opt.convertType == "context"){
