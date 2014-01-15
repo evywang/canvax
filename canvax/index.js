@@ -11,7 +11,7 @@
  *
  **/
 KISSY.add("canvax/index" ,
-   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Shapes , Animation , ImagesLoader ){
+   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Point , Shapes , Animation , ImagesLoader ){
    var Canvax=function(opt){
        var self = this;
        self.type = "canvax";
@@ -21,7 +21,7 @@ KISSY.add("canvax/index" ,
        self.dragTarget = null;
 
        //每帧 由 心跳 上报的 需要重绘的stages 列表
-       self.convertStages = [];
+       self.convertStages = {};
 
        self.rootOffset = {
           left:0,top:0
@@ -235,13 +235,15 @@ KISSY.add("canvax/index" ,
                }
            }
            //disable text selection on the canvas, works like a charm.	
-           event.preventDefault();
-           event.stopPropagation();
+           try {
+               event.preventDefault();
+               event.stopPropagation();
+           } catch(e){}
        },
        __getMouseTarget : function(event) {
 
            var oldObj = this.mouseTarget;
-           if(event.type=="mousemove" && oldObj && oldObj.hitTestPoint(this.mouseX, this.mouseY)){
+           if( event.type=="mousemove" && oldObj && oldObj.hitTestPoint( this.mouseX, this.mouseY ) ){
                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
                return;
@@ -352,7 +354,11 @@ KISSY.add("canvax/index" ,
        __startEnter : function(){
           var self = this;
           if(!self.requestAid){
-              self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
+              //self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
+              self.requestAid = requestAnimationFrame( function(){
+                 self.__enterFrame();
+              } );
+
           }
        },
        __enterFrame : function(){
@@ -377,6 +383,7 @@ KISSY.add("canvax/index" ,
                });
            
                self._heartBeat = false;
+               //debugger;
                self.convertStages = {};
 
                //渲染完了，打上最新时间挫
@@ -494,18 +501,22 @@ KISSY.add("canvax/index" ,
 
    //给Canvax 添加静态对象，指向stage ,shape,text,sprite等类
    Canvax.Display ={
-      Stage   : Stage,
-      Sprite  : Sprite,
-      Text    : Text,
-      Shape   : Shape,
-      Movieclip: Movieclip,
-      Bitmap  : Bitmap
+      Stage     : Stage,
+      Sprite    : Sprite,
+      Text      : Text,
+      Shape     : Shape,
+      Movieclip : Movieclip,
+      Bitmap    : Bitmap,
+      Point     : Point
    }
    //所有自定义shape的集合，可以直接再这个上面获取不必强制引入use('canvax/shape/Circle')这样
-   Canvax.Shapes = Shapes;
+   Canvax.Shapes    = Shapes;
 
-   Canvax.ImagesLoader = ImagesLoader;
-   Canvax.Animation    = Animation;
+   Canvax.Utils     = {
+       ImagesLoader : ImagesLoader
+   };
+   
+   Canvax.Animation = Animation;
 
    return Canvax;
 } , {
@@ -517,11 +528,11 @@ KISSY.add("canvax/index" ,
     "canvax/core/propertyFactory",
     
     "canvax/display/Sprite",
-    //"canvax/display/Stage",
     "canvax/display/Text",
     "canvax/display/Shape",
     "canvax/display/Movieclip",
     "canvax/display/Bitmap",
+    "canvax/display/Point",
 
     "canvax/shape/Shapes", //所有自定义shape的集合
 

@@ -222,6 +222,6 @@ KISSY.add("demo/goldenEgg/eggGame" , function( S , Canvax , ImagesLoader , Anima
    requires : [
      "canvax/",
      "canvax/utils/ImagesLoader",
-     "canvax/animation/animation"
+     "canvax/animation/Animation"
    ]
 })

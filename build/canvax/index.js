@@ -1,4 +1,4 @@
-KISSY.add("canvax/animation/animation" , function(S){
+KISSY.add("canvax/animation/Animation" , function(S){
     var lastTime = 0;
     var vendors = ['ms', 'moz', 'webkit', 'o'];
     for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
@@ -923,7 +923,7 @@ KISSY.add("canvax/animation/animation" , function(S){
     "canvax/core/Base"
   ]
 })
-;KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix,Point,Base , HitTestPoint , propertyFactory){
+;KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , propertyFactory){
 
     var DisplayObject = function(opt){
         arguments.callee.superclass.constructor.apply(this, arguments);
@@ -1430,7 +1430,7 @@ KISSY.add("canvax/animation/animation" , function(S){
     requires : [
       "canvax/event/EventDispatcher",
       "canvax/geom/Matrix",
-      "canvax/geom/Point",
+      "canvax/display/Point",
       "canvax/core/Base",
       "canvax/utils/HitTestPoint",
       "canvax/core/propertyFactory"
@@ -1453,8 +1453,10 @@ KISSY.add("canvax/animation/animation" , function(S){
     Base.creatClass( DisplayObjectContainer , DisplayObject , {
         addChild : function(child){
             if( !(child instanceof DisplayObject) ){
-               return false;
-            } 
+                //TODO:尼玛啊，这个东西一加上就会导致hover的事情没法触发
+                //主要是因为clone这个方法还有待改善
+                //return false;
+            }
             if(this.getChildIndex(child) != -1) {
                 child.parent = this;
                 return child;
@@ -1560,7 +1562,7 @@ KISSY.add("canvax/animation/animation" , function(S){
                 var child = this.children[i];
                 child.destroy();
             }
-            this = null;
+            //this = null;
         },
         /*
          *@id 元素的id
@@ -1905,6 +1907,41 @@ KISSY.add("canvax/animation/animation" , function(S){
     "canvax/core/Base"
   ]
 })
+;KISSY.add("canvax/display/Point" , function(S){
+   var Point = function(x,y){
+       if(arguments.length==1 && typeof arguments[0] == 'object' ){
+          var arg=arguments[0]
+          if( "x" in arg && "y" in arg ){
+             this.x = arg.x*1;
+             this.y = arg.y*1;
+          } else {
+             var i=0;
+             for (var p in arg){
+                 if(i==0){
+                   this.x = arg[p]*1;
+                 } else {
+                   this.y = arg[p]*1;
+                   break;
+                 }
+                 i++;
+             }
+          }
+
+          return;
+
+       }
+
+
+       x || (x=0);
+       y || (y=0);
+       this.x = x*1;
+       this.y = y*1;
+   };
+
+   return Point;
+},{requires:[
+  
+]})
 ;KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
 
    var Shape = function(opt){
@@ -2930,41 +2967,6 @@ KISSY.add("canvax/animation/animation" , function(S){
      "canvax/core/Base"
    ]
 });
-;KISSY.add("canvax/geom/Point" , function(S){
-   var Point = function(x,y){
-       if(arguments.length==1 && typeof arguments[0] == 'object' ){
-          var arg=arguments[0]
-          if( "x" in arg && "y" in arg ){
-             this.x = arg.x*1;
-             this.y = arg.y*1;
-          } else {
-             var i=0;
-             for (var p in arg){
-                 if(i==0){
-                   this.x = arg[p]*1;
-                 } else {
-                   this.y = arg[p]*1;
-                   break;
-                 }
-                 i++;
-             }
-          }
-
-          return;
-
-       }
-
-
-       x || (x=0);
-       y || (y=0);
-       this.x = x*1;
-       this.y = y*1;
-   };
-
-   return Point;
-},{requires:[
-  
-]})
 ;KISSY.add("canvax/geom/Vector" , function(S,Base){
         var vector = {
             add : function(out, v1, v2) {
@@ -3031,7 +3033,7 @@ KISSY.add("canvax/animation/animation" , function(S){
    ]
 });
 ;KISSY.add("canvax/index" ,
-   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Shapes , Animation , ImagesLoader ){
+   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Point , Shapes , Animation , ImagesLoader ){
    var Canvax=function(opt){
        var self = this;
        self.type = "canvax";
@@ -3041,7 +3043,7 @@ KISSY.add("canvax/animation/animation" , function(S){
        self.dragTarget = null;
 
        //每帧 由 心跳 上报的 需要重绘的stages 列表
-       self.convertStages = [];
+       self.convertStages = {};
 
        self.rootOffset = {
           left:0,top:0
@@ -3255,13 +3257,15 @@ KISSY.add("canvax/animation/animation" , function(S){
                }
            }
            //disable text selection on the canvas, works like a charm.	
-           event.preventDefault();
-           event.stopPropagation();
+           try {
+               event.preventDefault();
+               event.stopPropagation();
+           } catch(e){}
        },
        __getMouseTarget : function(event) {
 
            var oldObj = this.mouseTarget;
-           if(event.type=="mousemove" && oldObj && oldObj.hitTestPoint(this.mouseX, this.mouseY)){
+           if( event.type=="mousemove" && oldObj && oldObj.hitTestPoint( this.mouseX, this.mouseY ) ){
                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
                return;
@@ -3372,7 +3376,11 @@ KISSY.add("canvax/animation/animation" , function(S){
        __startEnter : function(){
           var self = this;
           if(!self.requestAid){
-              self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
+              //self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
+              self.requestAid = requestAnimationFrame( function(){
+                 self.__enterFrame();
+              } );
+
           }
        },
        __enterFrame : function(){
@@ -3397,6 +3405,7 @@ KISSY.add("canvax/animation/animation" , function(S){
                });
            
                self._heartBeat = false;
+               //debugger;
                self.convertStages = {};
 
                //渲染完了，打上最新时间挫
@@ -3514,18 +3523,22 @@ KISSY.add("canvax/animation/animation" , function(S){
 
    //给Canvax 添加静态对象，指向stage ,shape,text,sprite等类
    Canvax.Display ={
-      Stage   : Stage,
-      Sprite  : Sprite,
-      Text    : Text,
-      Shape   : Shape,
-      Movieclip: Movieclip,
-      Bitmap  : Bitmap
+      Stage     : Stage,
+      Sprite    : Sprite,
+      Text      : Text,
+      Shape     : Shape,
+      Movieclip : Movieclip,
+      Bitmap    : Bitmap,
+      Point     : Point
    }
    //所有自定义shape的集合，可以直接再这个上面获取不必强制引入use('canvax/shape/Circle')这样
-   Canvax.Shapes = Shapes;
+   Canvax.Shapes    = Shapes;
 
-   Canvax.ImagesLoader = ImagesLoader;
-   Canvax.Animation    = Animation;
+   Canvax.Utils     = {
+       ImagesLoader : ImagesLoader
+   };
+   
+   Canvax.Animation = Animation;
 
    return Canvax;
 } , {
@@ -3537,11 +3550,11 @@ KISSY.add("canvax/animation/animation" , function(S){
     "canvax/core/propertyFactory",
     
     "canvax/display/Sprite",
-    //"canvax/display/Stage",
     "canvax/display/Text",
     "canvax/display/Shape",
     "canvax/display/Movieclip",
     "canvax/display/Bitmap",
+    "canvax/display/Point",
 
     "canvax/shape/Shapes", //所有自定义shape的集合
 

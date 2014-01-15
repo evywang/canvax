@@ -24,8 +24,10 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
     Base.creatClass( DisplayObjectContainer , DisplayObject , {
         addChild : function(child){
             if( !(child instanceof DisplayObject) ){
-               return false;
-            } 
+                //TODO:尼玛啊，这个东西一加上就会导致hover的事情没法触发
+                //主要是因为clone这个方法还有待改善
+                //return false;
+            }
             if(this.getChildIndex(child) != -1) {
                 child.parent = this;
                 return child;
@@ -131,7 +133,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                 var child = this.children[i];
                 child.destroy();
             }
-            this = null;
+            //this = null;
         },
         /*
          *@id 元素的id

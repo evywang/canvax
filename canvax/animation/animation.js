@@ -5,7 +5,7 @@
  *
  * 动画类，内置了Tween.js 嗯 短小精悍，够用，所以直接打包进来了
  */
-KISSY.add("canvax/animation/animation" , function(S){
+KISSY.add("canvax/animation/Animation" , function(S){
     var lastTime = 0;
     var vendors = ['ms', 'moz', 'webkit', 'o'];
     for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {

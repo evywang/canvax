@@ -7,7 +7,7 @@
  */
 
 
-KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix,Point,Base , HitTestPoint , propertyFactory){
+KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , propertyFactory){
 
     var DisplayObject = function(opt){
         arguments.callee.superclass.constructor.apply(this, arguments);
@@ -514,7 +514,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
     requires : [
       "canvax/event/EventDispatcher",
       "canvax/geom/Matrix",
-      "canvax/geom/Point",
+      "canvax/display/Point",
       "canvax/core/Base",
       "canvax/utils/HitTestPoint",
       "canvax/core/propertyFactory"
