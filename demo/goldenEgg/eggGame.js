@@ -1,14 +1,13 @@
 KISSY.add("demo/goldenEgg/eggGame" , function( S , Canvax , ImagesLoader , Animation ){
    var eggGame = function( el , urls ){
-       this.el     = el ;
-       this.urls   = urls;
-       this.images = [];
-       this.width  = el.width() ;
-       this.height = el.height();
+       this.el        = el ;
+       this.urls      = urls;
+       this.images    = [];
+       this.width     = el.width() ;
+       this.height    = el.height();
        this.init();
-
-       this.hummer = null;//锤子
-       this.eggMovie=null;//蛋动画
+       this.hummer    = undefined;//锤子
+       this.eggMovie  = null;//蛋动画
 
        this.gameBegin = false; 
 
@@ -87,7 +86,7 @@ KISSY.add("demo/goldenEgg/eggGame" , function( S , Canvax , ImagesLoader , Anima
                 this.stage.addChild( this.sprites[i] );
 
            };
-
+           
            this.hummer = new Canvax.Display.Bitmap({
                 id  : "hummer",
                 img : this.images[0],
@@ -102,6 +101,10 @@ KISSY.add("demo/goldenEgg/eggGame" , function( S , Canvax , ImagesLoader , Anima
                     }
                 }
            });
+           
+
+           this.sprites[ 0 ].addChild( this.hummer );
+           //this.canvax.addChild( this.stage );
 
            //准备蛋破裂的动画
            this.eggMovie = new Canvax.Display.Movieclip({
@@ -177,14 +180,14 @@ KISSY.add("demo/goldenEgg/eggGame" , function( S , Canvax , ImagesLoader , Anima
             var tween1 = new Animation.Tween( { rotation : 0 } )
             .to( { rotation : 20 }, 200 )
             .onUpdate( function () {
-                self.hummer.context.rotation = this.rotation;
+                self.hummer && (self.hummer.context.rotation = this.rotation);
             } )
             .start();
 
             var tween2 = new Animation.Tween( { rotation : 2 } )
             .to( { rotation : -20 }, 100 )
             .onUpdate( function () {
-                self.hummer.context.rotation = this.rotation;
+                self.hummer && (self.hummer.context.rotation = this.rotation);
             } )
             .onComplete( function(){
                 cancelAnimationFrame(timer); 
@@ -205,6 +208,7 @@ KISSY.add("demo/goldenEgg/eggGame" , function( S , Canvax , ImagesLoader , Anima
               //游戏已经开始了
               return;
             }
+            
             this.sprites[ _.indexOf( this.triggers , obj ) ].addChild( this.hummer ); 
        },
        reset    : function(){

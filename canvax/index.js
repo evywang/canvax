@@ -84,6 +84,7 @@ KISSY.add("canvax/index" ,
        },
        _creatHoverStage : function(){
           //TODO:创建stage的时候一定要传入width height  两个参数
+          
           var self = this;
           self._hoverStage = new Stage( {
             id : "activCanvas"+(new Date()).getTime(),
@@ -101,18 +102,6 @@ KISSY.add("canvax/index" ,
           self._Event = new StageEvent();
           self.el.on("click" , function(e){
                self.__mouseHandler(e);
-               /*
-               var mouseX = e.pageX - self.rootOffset.left;
-               var mouseY = e.pageY - self.rootOffset.top;
-
-               if (self.mouseX != mouseX){
-                   self.mouseX = mouseX;
-               };
-               if (self.mouseY != mouseY){
-                   self.mouseY = mouseY;
-               };
-               var list = self.getObjectsUnderPoint(mouseX , mouseY);
-               */
           });
 
           //delegate mouse events on the el
@@ -141,23 +130,22 @@ KISSY.add("canvax/index" ,
         * @return {Object} 上下文
        */
        createPixelContext : function() {
+           
            var self = this;
            var _pixelCanvas = null;
            if(S.all("#_pixelCanvas").length==0){
-              _pixelCanvas=Base._createCanvas("_pixelCanvas",self.context.width,self.context.height); 
+              _pixelCanvas=Base._createCanvas("_pixelCanvas" , self.context.width , self.context.height); 
            } else {
               _pixelCanvas=S.all("#_pixelCanvas")[0];
            }
            
-           if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
-               FlashCanvas.initElement( _pixelCanvas );
-           }
-
            document.body.appendChild( _pixelCanvas );
+
+           Base.initElement( _pixelCanvas );
 
            _pixelCanvas.style.display = "none";
 
-           self._pixelCtx = _pixelCanvas.getContext('2d');
+           Base._pixelCtx = _pixelCanvas.getContext('2d');
 
        },
        /*
@@ -409,11 +397,19 @@ KISSY.add("canvax/index" ,
            }
        },
        afterAddChild : function(stage){
-           if(this.children.length==1){
-               this.el.append(stage.context2D.canvas);
+           var canvas = Base._createCanvas( stage.id , this.el.width() , this.el.height() );
+           if(this.children.length == 1){
+               this.el.append( canvas );
            } else if(this.children.length>1) {
-               this.el[0].insertBefore(stage.context2D.canvas , this._hoverStage.context2D.canvas);
-           }
+               this.el[0].insertBefore( canvas , this._hoverStage.context2D.canvas);
+           };
+
+           Base.initElement( canvas );
+
+           stage.context2D = canvas.getContext("2d");
+
+           stage.initStage(); 
+
        },
        afterDelChild : function(stage){
        
@@ -540,11 +536,9 @@ KISSY.add("canvax/index" ,
     "canvax/utils/ImagesLoader",
   
     //如果用户没有加载underscore，作为被选方案，自己加载一个进来
-    !window._ ? "canvax/library/underscore" : "",
+    !window._ ? "canvax/library/underscore" : ""
 
     //如果用户没有加载flashcavnas在ie下面，并且也没有加载excanvas，就默认加载自己准备的flashcanvas进来
-    ( !document.createElement('canvas').getContext && !window.FlashCanvas && !window.G_vmlCanvasManager ) ? "canvax/library/flashCanvas/flashcanvas" : ""
-    
-
+    //( !document.createElement('canvas').getContext && !window.FlashCanvas && !window.G_vmlCanvasManager ) ? "canvax/library/flashCanvas/flashcanvas" : ""
     ]
 });

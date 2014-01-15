@@ -9,9 +9,7 @@
  * */
 
 
-KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
-
-
+KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
     /**
      * 图形空间辅助类
      * isInside：是否在区域内部
@@ -21,8 +19,6 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
      * 使用本检测方法
      */
     var HitTestPoint={};
-
-    var _ctx;
 
     /**
      * 包含判断
@@ -37,9 +33,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
         }
         var zoneType = shape.type;
 
-        if (!_ctx) {
-            _ctx = Base.getContext();
-        }
+
         // 未实现或不可用时则数学运算，主要是line，brokenLine
         var _mathReturn = _mathMethod(zoneType, shape, x, y);
 
@@ -47,9 +41,9 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
             return _mathReturn;
         }
 
-        if (zoneType != 'beziercurve'&& shape.buildPath && _ctx.isPointInPath) {
-               return _buildPathMethod(shape, _ctx, x, y);
-        } else if (_ctx.getImageData) {
+        if (zoneType != 'beziercurve'&& shape.buildPath && Base._pixelCtx.isPointInPath) {
+               return _buildPathMethod(shape, Base._pixelCtx, x, y);
+        } else if (Base._pixelCtx.getImageData) {
             return _pixelMethod(shape, x, y);
         }
 
@@ -150,7 +144,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
     function _pixelMethod(shape, x, y) {
         var area = shape.context;
 
-        var _context = shape.getStage().parent._pixelCtx;
+        var _context = Base._pixelCtx;
 
         
 
@@ -483,16 +477,12 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
      * @param {Object} textFont
      */
     function getTextWidth(text, textFont) {
-        if (!_ctx) {
-            _ctx = Base.getContext();
-        }
-
-        _ctx.save();
+        Base._pixelCtx.save();
         if (textFont) {
-            _ctx.font = textFont;
+            Base._pixelCtx.font = textFont;
         }
-        var width = _ctx.measureText(text).width;
-        _ctx.restore();
+        var width = Base._pixelCtx.measureText(text).width;
+        Base._pixelCtx.restore();
 
         return width;
     }
@@ -504,8 +494,6 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
     };
 
     return HitTestPoint;
-
-
 
 },{
     requires : [

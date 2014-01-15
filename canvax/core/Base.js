@@ -7,27 +7,18 @@
 
 KISSY.add("canvax/core/Base" , function(S){
 
-
-    /**
-     * HitTestPoint 检测专用代码 begin
-     **/
-    var _canvas;
-    var _pixelCtx;
-    
-     /**
-     * HitTestPoint 检测专用代码 end
-     **/
     var classTypes = {};
     "Boolean Number String Function Array Date RegExp Object Error".replace(/[^, ]+/g, function(name) {
         classTypes["[object " + name + "]"] = name.toLowerCase()
     });
 
-
-
-
     var Base = {
         mainFrameRate   : 40,//默认主帧率
         now : 0,
+
+        /*像素检测专用*/
+        _pixelCtx   : null,
+
         __emptyFunc : function(){},
         //retina 屏幕优化
         _devicePixelRatio : window.devicePixelRatio || 1,
@@ -101,9 +92,14 @@ KISSY.add("canvax/core/Base" , function(S){
 
             return self;
         },
+        initElement : function( canvas ){
+            if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
+                FlashCanvas.initElement( canvas );
+            }
+        },
 
 
-        getContext : function(_ctx) {
+        getContext1 : function(_ctx) {
             if (!_ctx) {
                 //if (window.G_vmlCanvasManager) {
                 //    var _div = document.createElement('div');
@@ -117,9 +113,12 @@ KISSY.add("canvax/core/Base" , function(S){
 
                    //上面注释掉的为兼容excanvas的代码，下面的这个判断为兼容flashCanvas的代码
                    var canvas = document.createElement('canvas')
+
+                   
                    if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
                       FlashCanvas.initElement(canvas);
                    }
+                   
 
                     _ctx = canvas.getContext('2d');
                 //}

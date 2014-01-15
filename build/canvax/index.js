@@ -453,27 +453,18 @@ KISSY.add("canvax/animation/Animation" , function(S){
 })
 ;KISSY.add("canvax/core/Base" , function(S){
 
-
-    /**
-     * HitTestPoint 检测专用代码 begin
-     **/
-    var _canvas;
-    var _pixelCtx;
-    
-     /**
-     * HitTestPoint 检测专用代码 end
-     **/
     var classTypes = {};
     "Boolean Number String Function Array Date RegExp Object Error".replace(/[^, ]+/g, function(name) {
         classTypes["[object " + name + "]"] = name.toLowerCase()
     });
 
-
-
-
     var Base = {
         mainFrameRate   : 40,//默认主帧率
         now : 0,
+
+        /*像素检测专用*/
+        _pixelCtx   : null,
+
         __emptyFunc : function(){},
         //retina 屏幕优化
         _devicePixelRatio : window.devicePixelRatio || 1,
@@ -547,9 +538,14 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
             return self;
         },
+        initElement : function( canvas ){
+            if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
+                FlashCanvas.initElement( canvas );
+            }
+        },
 
 
-        getContext : function(_ctx) {
+        getContext1 : function(_ctx) {
             if (!_ctx) {
                 //if (window.G_vmlCanvasManager) {
                 //    var _div = document.createElement('div');
@@ -563,9 +559,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
                    //上面注释掉的为兼容excanvas的代码，下面的这个判断为兼容flashCanvas的代码
                    var canvas = document.createElement('canvas')
+
+                   
                    if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
                       FlashCanvas.initElement(canvas);
                    }
+                   
 
                     _ctx = canvas.getContext('2d');
                 //}
@@ -909,7 +908,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
               if(!style.dWidth || !style.dHeight ){
                  ctx.drawImage(image, 0, 0, style.width, style.height);
               } else {
-                 ctx.drawImage(image,style.dx , style.dy , style.dWidth , style.dHeight,0, 0, style.width, style.height );
+                 ctx.drawImage(image , style.dx , style.dy , style.dWidth , style.dHeight,0, 0, style.width, style.height );
               }
           }
       }
@@ -1452,6 +1451,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
     Base.creatClass( DisplayObjectContainer , DisplayObject , {
         addChild : function(child){
+            if( !child ) {
+                return;
+            } 
             if( !(child instanceof DisplayObject) ){
                 //TODO:尼玛啊，这个东西一加上就会导致hover的事情没法触发
                 //主要是因为clone这个方法还有待改善
@@ -1863,7 +1865,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
               this.autoPlay = false;
           }
 
-          console.log(this.currentFrame)
+          //console.log(this.currentFrame)
           
           //如果不循环
           if( this.currentFrame == this.getNumChildren()-1 ){
@@ -2116,33 +2118,13 @@ KISSY.add("canvax/animation/Animation" , function(S){
  
    Base.creatClass( Stage , DisplayObjectContainer , {
        init : function(){
+       },
+       //由canvax的afterAddChild 回调
+       initStage : function(){
           var self = this;
-
-          if ( !self.context.width || !self.context.height ){
-             //如果stage的高宽有为0的直接跳出，不创建canvas
-             return false;
-          };
-
-          //创见stage只需要两个参数即是width height，和 id ， 其他的都动态生成
-
-          var canvas = Base._createCanvas(self.id ,self.context.width,self.context.height)
-          
-          //S.all(document.body).prepend( canvas );
-          if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
-             FlashCanvas.initElement(canvas);
-          }
-          self.context2D = canvas.getContext("2d");
-          canvas = null;
-                    
-          //if (window.G_vmlCanvasManager) {
-          //    G_vmlCanvasManager.initElement(self.context2D.canvas);
-          //}
-     
-          //为retina屏幕做的优化
 
           self.context.scaleX = Base._devicePixelRatio;
           self.context.scaleY = Base._devicePixelRatio;
-
 
           self._isReady = true;
 
@@ -2156,13 +2138,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
                //handle drag target
                var p = dragTarget.globalToLocal(this.mouseX, this.mouseY);
                dragTarget.context.x = p.x;
-               dragTarget.context.y= p.y;
+               dragTarget.context.y = p.y;
            }
            Stage.superclass.render.call(this, context);
 
            this.stageRending = false;
            
-
        },
        heartBeat : function( opt ){
            //shape , name , value , preValue 
@@ -2172,13 +2153,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
            if (!self._isReady) {
               //在stage还没初始化完毕的情况下，无需做任何处理
               return;
-           }
-
+           };
 
            opt || (opt = {}); //如果opt为空，说明就是无条件刷新
-           opt.stage = self;
-
-           //Base.log('change '+ ev.attrName + ': '+ev.prevVal+' --> '+ev.newVal);
+           opt.stage   = self;
 
            //TODO临时先这么处理
            self.parent && self.parent.heartBeat(opt);
@@ -3109,6 +3087,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        },
        _creatHoverStage : function(){
           //TODO:创建stage的时候一定要传入width height  两个参数
+          
           var self = this;
           self._hoverStage = new Stage( {
             id : "activCanvas"+(new Date()).getTime(),
@@ -3126,18 +3105,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
           self._Event = new StageEvent();
           self.el.on("click" , function(e){
                self.__mouseHandler(e);
-               /*
-               var mouseX = e.pageX - self.rootOffset.left;
-               var mouseY = e.pageY - self.rootOffset.top;
-
-               if (self.mouseX != mouseX){
-                   self.mouseX = mouseX;
-               };
-               if (self.mouseY != mouseY){
-                   self.mouseY = mouseY;
-               };
-               var list = self.getObjectsUnderPoint(mouseX , mouseY);
-               */
           });
 
           //delegate mouse events on the el
@@ -3166,23 +3133,22 @@ KISSY.add("canvax/animation/Animation" , function(S){
         * @return {Object} 上下文
        */
        createPixelContext : function() {
+           
            var self = this;
            var _pixelCanvas = null;
            if(S.all("#_pixelCanvas").length==0){
-              _pixelCanvas=Base._createCanvas("_pixelCanvas",self.context.width,self.context.height); 
+              _pixelCanvas=Base._createCanvas("_pixelCanvas" , self.context.width , self.context.height); 
            } else {
               _pixelCanvas=S.all("#_pixelCanvas")[0];
            }
            
-           if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
-               FlashCanvas.initElement( _pixelCanvas );
-           }
-
            document.body.appendChild( _pixelCanvas );
+
+           Base.initElement( _pixelCanvas );
 
            _pixelCanvas.style.display = "none";
 
-           self._pixelCtx = _pixelCanvas.getContext('2d');
+           Base._pixelCtx = _pixelCanvas.getContext('2d');
 
        },
        /*
@@ -3434,11 +3400,19 @@ KISSY.add("canvax/animation/Animation" , function(S){
            }
        },
        afterAddChild : function(stage){
-           if(this.children.length==1){
-               this.el.append(stage.context2D.canvas);
+           var canvas = Base._createCanvas( stage.id , this.el.width() , this.el.height() );
+           if(this.children.length == 1){
+               this.el.append( canvas );
            } else if(this.children.length>1) {
-               this.el[0].insertBefore(stage.context2D.canvas , this._hoverStage.context2D.canvas);
-           }
+               this.el[0].insertBefore( canvas , this._hoverStage.context2D.canvas);
+           };
+
+           Base.initElement( canvas );
+
+           stage.context2D = canvas.getContext("2d");
+
+           stage.initStage(); 
+
        },
        afterDelChild : function(stage){
        
@@ -3565,12 +3539,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
     "canvax/utils/ImagesLoader",
   
     //如果用户没有加载underscore，作为被选方案，自己加载一个进来
-    !window._ ? "canvax/library/underscore" : "",
+    !window._ ? "canvax/library/underscore" : ""
 
     //如果用户没有加载flashcavnas在ie下面，并且也没有加载excanvas，就默认加载自己准备的flashcanvas进来
-    ( !document.createElement('canvas').getContext && !window.FlashCanvas && !window.G_vmlCanvasManager ) ? "canvax/library/flashCanvas/flashcanvas" : ""
-    
-
+    //( !document.createElement('canvas').getContext && !window.FlashCanvas && !window.G_vmlCanvasManager ) ? "canvax/library/flashCanvas/flashcanvas" : ""
     ]
 });
 ;KISSY.add("canvax/shape/Beziercurve" , function(S,Shape,Base){
@@ -5109,9 +5081,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       "canvax/shape/Rect"
     ]
 })
-;KISSY.add("canvax/utils/HitTestPoint" , function(S,Base){
-
-
+;KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
     /**
      * 图形空间辅助类
      * isInside：是否在区域内部
@@ -5121,8 +5091,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
      * 使用本检测方法
      */
     var HitTestPoint={};
-
-    var _ctx;
 
     /**
      * 包含判断
@@ -5137,9 +5105,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
         }
         var zoneType = shape.type;
 
-        if (!_ctx) {
-            _ctx = Base.getContext();
-        }
+
         // 未实现或不可用时则数学运算，主要是line，brokenLine
         var _mathReturn = _mathMethod(zoneType, shape, x, y);
 
@@ -5147,9 +5113,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return _mathReturn;
         }
 
-        if (zoneType != 'beziercurve'&& shape.buildPath && _ctx.isPointInPath) {
-               return _buildPathMethod(shape, _ctx, x, y);
-        } else if (_ctx.getImageData) {
+        if (zoneType != 'beziercurve'&& shape.buildPath && Base._pixelCtx.isPointInPath) {
+               return _buildPathMethod(shape, Base._pixelCtx, x, y);
+        } else if (Base._pixelCtx.getImageData) {
             return _pixelMethod(shape, x, y);
         }
 
@@ -5250,7 +5216,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
     function _pixelMethod(shape, x, y) {
         var area = shape.context;
 
-        var _context = shape.getStage().parent._pixelCtx;
+        var _context = Base._pixelCtx;
 
         
 
@@ -5583,16 +5549,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
      * @param {Object} textFont
      */
     function getTextWidth(text, textFont) {
-        if (!_ctx) {
-            _ctx = Base.getContext();
-        }
-
-        _ctx.save();
+        Base._pixelCtx.save();
         if (textFont) {
-            _ctx.font = textFont;
+            Base._pixelCtx.font = textFont;
         }
-        var width = _ctx.measureText(text).width;
-        _ctx.restore();
+        var width = Base._pixelCtx.measureText(text).width;
+        Base._pixelCtx.restore();
 
         return width;
     }
@@ -5604,8 +5566,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
     };
 
     return HitTestPoint;
-
-
 
 },{
     requires : [
@@ -5628,11 +5588,27 @@ KISSY.add("canvax/animation/Animation" , function(S){
        _loadHand : function( i , callback ) {
            var img  = new Image();
 
-           //把这个img 查到 它的url在urls中对应的index中去
-           this.images.splice( i , 1 , img );
+          
+           var self = this;
+        
 
+           img.onload = function () {
+               //if (img.complete == true) {
+               
+               //把这个img 查到 它的url在urls中对应的index中去
+               self.images.splice( i , 1 , img );
+               callback(i , img);
+               
+               //}
+               //alert(i)
+           }
+           return img;
+
+
+           /*
            //做浏览器嗅探添加不同的侦听
            var appname = navigator.appName.toLowerCase();
+
            if (appname.indexOf("netscape") == -1) {
                //ie
                img.onreadystatechange = function () {
@@ -5643,17 +5619,18 @@ KISSY.add("canvax/animation/Animation" , function(S){
            } else {
                //标准浏览器
                img.onload = function () {
-                   if (img.complete == true) {
+                   //if (img.complete == true) {
                        callback(i , img);
-                   }
+                   //}
                }
            }
            return img;
+           */
 
        },
        _load    : function( i , src , callback ){
            //必须先在src赋值前注册事件
-           this._loadHand( i , callback ).src = src;
+           this._loadHand( i , callback ).src = src+"?t="+new Date().getTime();
        },
        start   : function(){
            //开始加载
@@ -5665,7 +5642,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
                  self._load( i , url , function( i , img ){
                       //回传对应的索引 和 img对象
-                      self.loads ++ ;
+                      self.loads = self.loads+1 ;
 
                       if( self.hasEvent("secSuccess") ){
                           self.fire( {
@@ -5678,6 +5655,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                       if(self.loads == l){
                          //已经load完了
                          if( self.hasEvent("success") ){
+                             //alert('loads' + self.loads);
                              self.fire( {
                                 images : self.images,
                                 type   : "success"

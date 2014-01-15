@@ -220,7 +220,7 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
               this.autoPlay = false;
           }
 
-          console.log(this.currentFrame)
+          //console.log(this.currentFrame)
           
           //如果不循环
           if( this.currentFrame == this.getNumChildren()-1 ){

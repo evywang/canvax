@@ -23,6 +23,9 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
 
     Base.creatClass( DisplayObjectContainer , DisplayObject , {
         addChild : function(child){
+            if( !child ) {
+                return;
+            } 
             if( !(child instanceof DisplayObject) ){
                 //TODO:尼玛啊，这个东西一加上就会导致hover的事情没法触发
                 //主要是因为clone这个方法还有待改善
