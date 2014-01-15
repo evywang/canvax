@@ -11,7 +11,7 @@
  *
  **/
 KISSY.add("canvax/index" ,
-   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Shapes ){
+   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Shapes , Animation , ImagesLoader ){
    var Canvax=function(opt){
        var self = this;
        self.type = "canvax";
@@ -504,6 +504,9 @@ KISSY.add("canvax/index" ,
    //所有自定义shape的集合，可以直接再这个上面获取不必强制引入use('canvax/shape/Circle')这样
    Canvax.Shapes = Shapes;
 
+   Canvax.ImagesLoader = ImagesLoader;
+   Canvax.Animation    = Animation;
+
    return Canvax;
 } , {
    requires : [
@@ -522,7 +525,8 @@ KISSY.add("canvax/index" ,
 
     "canvax/shape/Shapes", //所有自定义shape的集合
 
-    "canvax/animation/animation",
+    "canvax/animation/Animation",
+    "canvax/utils/ImagesLoader",
   
     //如果用户没有加载underscore，作为被选方案，自己加载一个进来
     !window._ ? "canvax/library/underscore" : "",
