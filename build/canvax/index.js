@@ -1579,7 +1579,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 }
             } else {
                 //深度查询
-
+                //TODO:暂时未实现
+                return null
             }
             return null;
         },
@@ -3022,6 +3023,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
        self.type = "canvax";
        
        self.el = opt.el || null;
+
+       //如果这个时候el里面已经有东西了。嗯，也许曾经这个el被canvax干过一次了。
+       //那么要先清除这个el的所有内容。
+       self.el.html("");
+
        self.mouseTarget = null;
        self.dragTarget = null;
 

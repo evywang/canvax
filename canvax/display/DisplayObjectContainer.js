@@ -151,7 +151,8 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                 }
             } else {
                 //深度查询
-
+                //TODO:暂时未实现
+                return null
             }
             return null;
         },
