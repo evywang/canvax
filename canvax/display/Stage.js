@@ -33,9 +33,11 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,S
        init : function(){
        },
        //由canvax的afterAddChild 回调
-       initStage : function(){
+       initStage : function( context2D , width , height ){
           var self = this;
-
+          self.context2D = context2D;
+          self.context.width  = width;
+          self.context.height = height;
           self.context.scaleX = Base._devicePixelRatio;
           self.context.scaleY = Base._devicePixelRatio;
 

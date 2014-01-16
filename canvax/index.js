@@ -123,7 +123,6 @@ KISSY.add("canvax/index" ,
           self.el.on("mouseout" , function(e){
                self.__mouseHandler(e);
           });
-
        },
        /**
         * 获取像素拾取专用的上下文
@@ -397,7 +396,7 @@ KISSY.add("canvax/index" ,
            }
        },
        afterAddChild : function(stage){
-           var canvas = Base._createCanvas( stage.id , this.el.width() , this.el.height() );
+           var canvas = Base._createCanvas( stage.id , this.context.width , this.context.height );
            if(this.children.length == 1){
                this.el.append( canvas );
            } else if(this.children.length>1) {
@@ -406,9 +405,7 @@ KISSY.add("canvax/index" ,
 
            Base.initElement( canvas );
 
-           stage.context2D = canvas.getContext("2d");
-
-           stage.initStage(); 
+           stage.initStage( canvas.getContext("2d") , this.context.width , this.context.height ); 
 
        },
        afterDelChild : function(stage){

@@ -2120,9 +2120,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
        init : function(){
        },
        //由canvax的afterAddChild 回调
-       initStage : function(){
+       initStage : function( context2D , width , height ){
           var self = this;
-
+          self.context2D = context2D;
+          self.context.width  = width;
+          self.context.height = height;
           self.context.scaleX = Base._devicePixelRatio;
           self.context.scaleY = Base._devicePixelRatio;
 
@@ -3126,7 +3128,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
           self.el.on("mouseout" , function(e){
                self.__mouseHandler(e);
           });
-
        },
        /**
         * 获取像素拾取专用的上下文
@@ -3400,7 +3401,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
            }
        },
        afterAddChild : function(stage){
-           var canvas = Base._createCanvas( stage.id , this.el.width() , this.el.height() );
+           var canvas = Base._createCanvas( stage.id , this.context.width , this.context.height );
            if(this.children.length == 1){
                this.el.append( canvas );
            } else if(this.children.length>1) {
@@ -3409,9 +3410,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
            Base.initElement( canvas );
 
-           stage.context2D = canvas.getContext("2d");
-
-           stage.initStage(); 
+           stage.initStage( canvas.getContext("2d") , this.context.width , this.context.height ); 
 
        },
        afterDelChild : function(stage){
