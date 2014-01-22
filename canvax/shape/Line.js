@@ -19,7 +19,7 @@ KISSY.add("canvax/shape/Line" , function(S,Shape,Base){
       var self = this;
       this.type = "line";
       this.drawTypeOnly = "stroke";
-      opt.context || (opt.context={})
+      opt = Base.checkOpt( opt );
       self._context = {
            lineType      : opt.context.lineType || null, //可选 虚线 实现 的 类型
            xStart        : opt.context.xStart || 0 ,//{number},  // 必须，起点横坐标

@@ -11,9 +11,7 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
   var Movieclip = function( opt ){
 
       var self = this;
-
-      opt.context || (opt.context = {});
-
+      opt = Base.checkOpt( opt );
       self.type = "movieclip";
       self.currentFrame  = 0;
       self.autoPlay     = opt.autoPlay   || false;//是否自动播放
@@ -28,7 +26,7 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
       self._context = {
           //r : opt.context.r || 0   //{number},  // 必须，圆半径
       }
-      arguments.callee.superclass.constructor.apply(this, arguments);
+      arguments.callee.superclass.constructor.apply(this, [ opt ] );
   };
 
   Base.creatClass(Movieclip , DisplayObjectContainer , {

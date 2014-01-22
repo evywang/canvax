@@ -70,7 +70,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             self.context = null;
 
             //如果用户没有传入context设置，就默认为空的对象
-            opt.context || (opt.context = {});
+            opt = Base.checkOpt( opt );
 
             //提供给Coer.propertyFactory() 来 给 self.context 设置 propertys
             var _contextATTRS = {

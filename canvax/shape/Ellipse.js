@@ -19,7 +19,7 @@ KISSY.add("canvax/shape/Ellipse" , function(S,Shape,Base){
        var self = this;
        self.type = "ellipse";
 
-       opt.context || (opt.context={})
+       opt = Base.checkOpt( opt );
        self._context = {
            //x             : 0 , //{number},  // 丢弃
            //y             : 0 , //{number},  // 丢弃，原因同circle

@@ -543,8 +543,18 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 FlashCanvas.initElement( canvas );
             }
         },
-
-
+        //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
+        checkOpt    : function(opt){
+            if(!opt || ( opt && !opt.context )){
+              return {
+                context : {
+                
+                }
+              }   
+            } else {
+              return opt;
+            }
+        },
         getContext1 : function(_ctx) {
             if (!_ctx) {
                 //if (window.G_vmlCanvasManager) {
@@ -881,8 +891,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       //如果img没准备好，会出现意想不到的错误，我不给你负责
       self.img  = opt.img || null; //bitmap的图片来源，可以是页面上面的img 也可以是某个canvas
 
-
-      opt.context || (opt.context = {});
+      opt = Base.checkOpt( opt );
       self._context = {
           dx     : opt.context.dx     || 0, //图片切片的x位置
           dy     : opt.context.dy     || 0, //图片切片的y位置
@@ -985,7 +994,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             self.context = null;
 
             //如果用户没有传入context设置，就默认为空的对象
-            opt.context || (opt.context = {});
+            opt = Base.checkOpt( opt );
 
             //提供给Coer.propertyFactory() 来 给 self.context 设置 propertys
             var _contextATTRS = {
@@ -1657,9 +1666,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
   var Movieclip = function( opt ){
 
       var self = this;
-
-      opt.context || (opt.context = {});
-
+      opt = Base.checkOpt( opt );
       self.type = "movieclip";
       self.currentFrame  = 0;
       self.autoPlay     = opt.autoPlay   || false;//是否自动播放
@@ -1674,7 +1681,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       self._context = {
           //r : opt.context.r || 0   //{number},  // 必须，圆半径
       }
-      arguments.callee.superclass.constructor.apply(this, arguments);
+      arguments.callee.superclass.constructor.apply(this, [ opt ] );
   };
 
   Base.creatClass(Movieclip , DisplayObjectContainer , {
@@ -2099,7 +2106,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 })
 ;KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,StageEvent ){
   
-   var Stage = function( opt ){
+   var Stage = function( ){
 
        var self = this;
     
@@ -2190,7 +2197,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
             self.type = "text";
             self._reNewline = /\r?\n/;
 
-            opt.context || (opt.context = {})
+            //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
+            opt = Base.checkOpt( opt );
+            
             self._context = {
                 fontSize       : opt.context.fontSize       || 13 , //字体大小默认13
                 fontWeight     : opt.context.fontWeight     || "normal",
@@ -2199,14 +2208,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 fontStyle      : opt.context.fontStyle      || 'blank',
                 lineHeight     : opt.context.lineHeight     || 1.3,
                 //下面两个在displayObject中有
-                //textAlign      : opt.context.textAlign      || 'left',
-                //textBaseline   : opt.context.textBaseline   || 'top',
+                //textAlign    : opt.context.textAlign      || 'left',
+                //textBaseline : opt.context.textBaseline   || 'top',
                 textBackgroundColor:opt.context.textBackgroundColor|| ''
-
             };
-            self.text  = text.toString();
 
-            self.textLines = "";
+            self.text  = text.toString();
 
             arguments.callee.superclass.constructor.apply(this, [opt]);
         }
@@ -2215,20 +2222,20 @@ KISSY.add("canvax/animation/Animation" , function(S){
                var self = this;
             },
             render : function( ctx ){
-               this.textLines      = this._getTextLines();
-               this.context.width  = this._getTextWidth(ctx , this.textLines);
-               this.context.height = this._getTextHeight(ctx, this.textLines);
+               var textLines      = this._getTextLines();
+               this.context.width  = this._getTextWidth(ctx , textLines);
+               this.context.height = this._getTextHeight(ctx, textLines);
 
                this.clipTo && this.clipContext(this, ctx);
 
-               this._renderTextBackground(ctx, this.textLines);
-               this._renderText(ctx, this.textLines);
+               this._renderTextBackground(ctx, textLines);
+               this._renderText(ctx, textLines);
               
                this.clipTo && ctx.restore();
              
             },
             getTextWidth  : function(){
-               return this._getTextWidth( Base._pixelCtx , this._getTextLines() );
+               return this._getTextWidth(  Base._pixelCtx , this._getTextLines() );
             },
             getTextHeight : function(){
                return this._getTextHeight( Base._pixelCtx , this._getTextLines() );
@@ -3643,7 +3650,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        self.type = "brokenLine";
        self.drawTypeOnly = "stroke";
 
-       opt.context || (opt.context={})
+       opt = Base.checkOpt( opt );
        self._context = {
            pointList  : opt.context.pointList || [] //{Array}  // 必须，各个顶角坐标
        }
@@ -3730,7 +3737,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             var self = this;
             self.type = "circle";
 
-            opt.context || (opt.context = {})
+            opt = Base.checkOpt( opt );
             self._context = {
                 //x : 0 , // {number},  // 丢弃
                 //y : 0 , //{number},  // 丢弃，圆心xy坐标 都 为原点
@@ -3791,7 +3798,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       var self = this;
       self.type = "droplet";
 
-      opt.context || (opt.context={});
+      opt = Base.checkOpt( opt );
       self._context = {
           hr : opt.context.hr || 0 , //{number},  // 必须，水滴横宽（中心到水平边缘最宽处距离）
           vr : opt.context.vr || 0   //{number},  // 必须，水滴纵高（中心到尖端距离）
@@ -3855,7 +3862,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        var self = this;
        self.type = "ellipse";
 
-       opt.context || (opt.context={})
+       opt = Base.checkOpt( opt );
        self._context = {
            //x             : 0 , //{number},  // 丢弃
            //y             : 0 , //{number},  // 丢弃，原因同circle
@@ -3915,7 +3922,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
    var Heart = function(opt){
        var self = this;
        this.type = "heart";
-       opt.context || (opt.context = {});
+       opt = Base.checkOpt( opt );
        self._context = {
            //x             : 0,//{number},  // 必须，心形内部尖端横坐标
            //y             : 0,//{number},  // 必须，心形内部尖端纵坐标
@@ -3981,7 +3988,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       var self = this;
       this.type = "isogon";
 
-      opt.context || (opt.context={});
+      opt = Base.checkOpt( opt );
       self._context = {
            pointList : [],//从下面的r和n计算得到的边界值的集合
            //x             : 0,//{number},  // 必须，正n边形外接圆心横坐标
@@ -4073,7 +4080,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       var self = this;
       this.type = "line";
       this.drawTypeOnly = "stroke";
-      opt.context || (opt.context={})
+      opt = Base.checkOpt( opt );
       self._context = {
            lineType      : opt.context.lineType || null, //可选 虚线 实现 的 类型
            xStart        : opt.context.xStart || 0 ,//{number},  // 必须，起点横坐标
@@ -4140,7 +4147,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        var self = this;
        self.type = "path";
 
-       opt.context || (opt.context={});
+       opt = Base.checkOpt( opt );
        self._context = {
            $pointList : [], //从下面的path中计算得到的边界点的集合
            path : opt.context.path || ""  //字符串 必须，路径。例如:M 0 0 L 0 10 L 10 10 Z (一个三角形)
@@ -4649,7 +4656,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        var self = this;
        self.type = "polygon";
        self._hasFillAndStroke = true;
-       opt.context || (opt.context = {});
+       opt = Base.checkOpt( opt );
        self._context = {
            lineType      : opt.context.lineType  || null,
            pointList     : opt.context.pointList || []  //{Array},   // 必须，多边形各个顶角坐标
@@ -4790,7 +4797,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       var self = this;
       self.type = "rect";
 
-      opt.context || (opt.context = {});
+      opt = Base.checkOpt( opt );
       self._context = {
            //x             : 0,//{number},  // 必须，左上角横坐标
            //y             : 0,//{number},  // 必须，左上角纵坐标
@@ -4932,7 +4939,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        var self = this;
        self.type = "sector";
 
-       opt.context || (opt.context={})
+       opt = Base.checkOpt( opt );
        self._context = {
            pointList  : [],//边界点的集合,私有，从下面的属性计算的来
            //x             : {number},  // 必须，圆心横坐标

@@ -97,8 +97,18 @@ KISSY.add("canvax/core/Base" , function(S){
                 FlashCanvas.initElement( canvas );
             }
         },
-
-
+        //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
+        checkOpt    : function(opt){
+            if(!opt || ( opt && !opt.context )){
+              return {
+                context : {
+                
+                }
+              }   
+            } else {
+              return opt;
+            }
+        },
         getContext1 : function(_ctx) {
             if (!_ctx) {
                 //if (window.G_vmlCanvasManager) {

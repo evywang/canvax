@@ -18,7 +18,7 @@ KISSY.add("canvax/shape/Circle" ,
             var self = this;
             self.type = "circle";
 
-            opt.context || (opt.context = {})
+            opt = Base.checkOpt( opt );
             self._context = {
                 //x : 0 , // {number},  // 丢弃
                 //y : 0 , //{number},  // 丢弃，圆心xy坐标 都 为原点

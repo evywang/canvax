@@ -16,8 +16,7 @@ KISSY.add("canvax/display/Bitmap" , function(S , Shape , Base){
       //如果img没准备好，会出现意想不到的错误，我不给你负责
       self.img  = opt.img || null; //bitmap的图片来源，可以是页面上面的img 也可以是某个canvas
 
-
-      opt.context || (opt.context = {});
+      opt = Base.checkOpt( opt );
       self._context = {
           dx     : opt.context.dx     || 0, //图片切片的x位置
           dy     : opt.context.dy     || 0, //图片切片的y位置

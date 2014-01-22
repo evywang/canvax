@@ -17,7 +17,7 @@ KISSY.add("canvax/shape/Heart" , function(S , Shape , Base){
    var Heart = function(opt){
        var self = this;
        this.type = "heart";
-       opt.context || (opt.context = {});
+       opt = Base.checkOpt( opt );
        self._context = {
            //x             : 0,//{number},  // 必须，心形内部尖端横坐标
            //y             : 0,//{number},  // 必须，心形内部尖端纵坐标

@@ -11,7 +11,7 @@
 
 KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,StageEvent ){
   
-   var Stage = function( opt ){
+   var Stage = function( ){
 
        var self = this;
     

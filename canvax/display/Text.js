@@ -14,7 +14,9 @@ KISSY.add("canvax/display/Text" ,
             self.type = "text";
             self._reNewline = /\r?\n/;
 
-            opt.context || (opt.context = {})
+            //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
+            opt = Base.checkOpt( opt );
+            
             self._context = {
                 fontSize       : opt.context.fontSize       || 13 , //字体大小默认13
                 fontWeight     : opt.context.fontWeight     || "normal",
@@ -23,14 +25,12 @@ KISSY.add("canvax/display/Text" ,
                 fontStyle      : opt.context.fontStyle      || 'blank',
                 lineHeight     : opt.context.lineHeight     || 1.3,
                 //下面两个在displayObject中有
-                //textAlign      : opt.context.textAlign      || 'left',
-                //textBaseline   : opt.context.textBaseline   || 'top',
+                //textAlign    : opt.context.textAlign      || 'left',
+                //textBaseline : opt.context.textBaseline   || 'top',
                 textBackgroundColor:opt.context.textBackgroundColor|| ''
-
             };
-            self.text  = text.toString();
 
-            self.textLines = "";
+            self.text  = text.toString();
 
             arguments.callee.superclass.constructor.apply(this, [opt]);
         }
@@ -39,20 +39,20 @@ KISSY.add("canvax/display/Text" ,
                var self = this;
             },
             render : function( ctx ){
-               this.textLines      = this._getTextLines();
-               this.context.width  = this._getTextWidth(ctx , this.textLines);
-               this.context.height = this._getTextHeight(ctx, this.textLines);
+               var textLines      = this._getTextLines();
+               this.context.width  = this._getTextWidth(ctx , textLines);
+               this.context.height = this._getTextHeight(ctx, textLines);
 
                this.clipTo && this.clipContext(this, ctx);
 
-               this._renderTextBackground(ctx, this.textLines);
-               this._renderText(ctx, this.textLines);
+               this._renderTextBackground(ctx, textLines);
+               this._renderText(ctx, textLines);
               
                this.clipTo && ctx.restore();
              
             },
             getTextWidth  : function(){
-               return this._getTextWidth( Base._pixelCtx , this._getTextLines() );
+               return this._getTextWidth(  Base._pixelCtx , this._getTextLines() );
             },
             getTextHeight : function(){
                return this._getTextHeight( Base._pixelCtx , this._getTextLines() );

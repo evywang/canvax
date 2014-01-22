@@ -21,7 +21,7 @@ KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon , Base){
        var self = this;
        self.type = "sector";
 
-       opt.context || (opt.context={})
+       opt = Base.checkOpt( opt );
        self._context = {
            pointList  : [],//边界点的集合,私有，从下面的属性计算的来
            //x             : {number},  // 必须，圆心横坐标

@@ -18,7 +18,7 @@ KISSY.add("canvax/shape/Rect" , function( S , Shape , Base){
       var self = this;
       self.type = "rect";
 
-      opt.context || (opt.context = {});
+      opt = Base.checkOpt( opt );
       self._context = {
            //x             : 0,//{number},  // 必须，左上角横坐标
            //y             : 0,//{number},  // 必须，左上角纵坐标
