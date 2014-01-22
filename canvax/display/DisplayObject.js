@@ -13,6 +13,9 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         arguments.callee.superclass.constructor.apply(this, arguments);
         var self = this;
 
+        //如果用户没有传入context设置，就默认为空的对象
+        opt = Base.checkOpt( opt );
+
         //设置默认属性
         self.id = opt.id || null;
 
@@ -68,9 +71,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             //用来存取改显示对象所有和显示有关的属性，坐标，样式等。
             //该对象为Coer.propertyFactory()工厂函数生成
             self.context = null;
-
-            //如果用户没有传入context设置，就默认为空的对象
-            opt = Base.checkOpt( opt );
 
             //提供给Coer.propertyFactory() 来 给 self.context 设置 propertys
             var _contextATTRS = {
