@@ -30,6 +30,8 @@ KISSY.add("canvax/display/Text" ,
             };
             self.text  = text.toString();
 
+            self.textLines = "";
+
             arguments.callee.superclass.constructor.apply(this, [opt]);
         }
         Base.creatClass(Text , DisplayObject , {
@@ -37,21 +39,28 @@ KISSY.add("canvax/display/Text" ,
                var self = this;
             },
             render : function( ctx ){
-               var textLines = this.text.split(this._reNewline);
-
-               this.context.width = this._getTextWidth(ctx, textLines);
-               this.context.height = this._getTextHeight(ctx, textLines);
+               this.textLines      = this._getTextLines();
+               this.context.width  = this._getTextWidth(ctx , this.textLines);
+               this.context.height = this._getTextHeight(ctx, this.textLines);
 
                this.clipTo && this.clipContext(this, ctx);
 
-               this._renderTextBackground(ctx, textLines);
-               this._renderText(ctx, textLines);
-
+               this._renderTextBackground(ctx, this.textLines);
+               this._renderText(ctx, this.textLines);
               
                this.clipTo && ctx.restore();
              
             },
-            _renderText: function(ctx, textLines) {
+            getTextWidth  : function(){
+               return this._getTextWidth( Base._pixelCtx , this._getTextLines() );
+            },
+            getTextHeight : function(){
+               return this._getTextHeight( Base._pixelCtx , this._getTextLines() );
+            },
+            _getTextLines : function(){
+               return this.text.split(this._reNewline);
+            },
+            _renderText   : function(ctx, textLines) {
                 ctx.save();
                 this._setShadow(ctx);
                 this._renderTextFill(ctx, textLines);

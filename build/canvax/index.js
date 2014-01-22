@@ -2206,6 +2206,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
             };
             self.text  = text.toString();
 
+            self.textLines = "";
+
             arguments.callee.superclass.constructor.apply(this, [opt]);
         }
         Base.creatClass(Text , DisplayObject , {
@@ -2213,21 +2215,28 @@ KISSY.add("canvax/animation/Animation" , function(S){
                var self = this;
             },
             render : function( ctx ){
-               var textLines = this.text.split(this._reNewline);
-
-               this.context.width = this._getTextWidth(ctx, textLines);
-               this.context.height = this._getTextHeight(ctx, textLines);
+               this.textLines      = this._getTextLines();
+               this.context.width  = this._getTextWidth(ctx , this.textLines);
+               this.context.height = this._getTextHeight(ctx, this.textLines);
 
                this.clipTo && this.clipContext(this, ctx);
 
-               this._renderTextBackground(ctx, textLines);
-               this._renderText(ctx, textLines);
-
+               this._renderTextBackground(ctx, this.textLines);
+               this._renderText(ctx, this.textLines);
               
                this.clipTo && ctx.restore();
              
             },
-            _renderText: function(ctx, textLines) {
+            getTextWidth  : function(){
+               return this._getTextWidth( Base._pixelCtx , this._getTextLines() );
+            },
+            getTextHeight : function(){
+               return this._getTextHeight( Base._pixelCtx , this._getTextLines() );
+            },
+            _getTextLines : function(){
+               return this.text.split(this._reNewline);
+            },
+            _renderText   : function(ctx, textLines) {
                 ctx.save();
                 this._setShadow(ctx);
                 this._renderTextFill(ctx, textLines);
@@ -4925,11 +4934,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
        opt.context || (opt.context={})
        self._context = {
-           pointList : [],//边界点的集合,私有，从下面的属性计算的来
+           pointList  : [],//边界点的集合,私有，从下面的属性计算的来
            //x             : {number},  // 必须，圆心横坐标
            //y             : {number},  // 必须，圆心纵坐标
-           r0: opt.context.r0 || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
-           r : opt.context.r  || 0,//{number},  // 必须，外圆半径
+           r0         : opt.context.r0 || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
+           r          : opt.context.r  || 0,//{number},  // 必须，外圆半径
            startAngle : opt.context.startAngle || 0,//{number},  // 必须，起始角度[0, 360)
            endAngle   : opt.context.endAngle   || 0 //{number},  // 必须，结束角度(0, 360]
        }
