@@ -545,12 +545,15 @@ KISSY.add("canvax/animation/Animation" , function(S){
         },
         //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
         checkOpt    : function(opt){
-            if(!opt || ( opt && !opt.context )){
+            if( !opt ){
               return {
                 context : {
                 
                 }
               }   
+            } else if( opt && !opt.context ) {
+              opt.context = {}
+              return opt;
             } else {
               return opt;
             }
@@ -938,13 +941,13 @@ KISSY.add("canvax/animation/Animation" , function(S){
         var self = this;
 
         //如果用户没有传入context设置，就默认为空的对象
-        opt = Base.checkOpt( opt );
+        opt      = Base.checkOpt( opt );
 
         //设置默认属性
-        self.id = opt.id || null;
+        self.id  = opt.id || null;
 
         //相对父级元素的矩阵
-        self._transform = null;
+        self._transform      = null;
 
         //相对stage的全局矩阵
         //如果父子结构有变动，比如移动到另外个容器里面去了
@@ -952,20 +955,20 @@ KISSY.add("canvax/animation/Animation" , function(S){
         //怎么修改呢。self._transformStage=null就好了
         self._transformStage = null;
 
-        self._eventId = null;
+        self._eventId        = null;
 
         //心跳次数
-        self._heartBeatNum = 0;
+        self._heartBeatNum   = 0;
 
         //元素对应的stage元素
-        self.stage  = null;
+        self.stage           = null;
 
         //元素的父元素
-        self.parent = null;
+        self.parent          = null;
 
-        self._eventEnabled = false; //是否响应事件交互
+        self._eventEnabled   = false; //是否响应事件交互
 
-        self.dragEnabled   = false;   //是否启用元素的拖拽
+        self.dragEnabled     = false;   //是否启用元素的拖拽
 
         //创建好context
         self._createContext( opt );
@@ -1214,34 +1217,33 @@ KISSY.add("canvax/animation/Animation" , function(S){
         },
         /*
          *元素在z轴方向向下移动
-         *@index 移动的层级
+         *@num 移动的层级
          */
-        toBack : function(index){
+        toBack : function( num ){
            if(!this.parent) {
              return;
            }
            var fromIndex = this.getIndex();
            var toIndex = 0;
            
-           if(_.isNumber(index)){
-             if(index == 0){
+           if(_.isNumber( num )){
+             if( num == 0 ){
                 //原地不动
                 return;
-             }
-             toIndex = fromIndex-index;
+             };
+             toIndex = fromIndex - num;
            }
            var me = this.parent.children.splice( fromIndex , 1 )[0];
            if( toIndex < 0 ){
                toIndex = 0;
-           } 
+           };
            this.parent.addChildAt( me , toIndex );
-
         },
         /*
          *元素在z轴方向向上移动
-         *@index 移动的层数量 默认到顶端
+         *@num 移动的层数量 默认到顶端
          */
-        toFront : function(index){
+        toFront : function( num ){
 
            if(!this.parent) {
              return;
@@ -1250,12 +1252,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
            var pcl = this.parent.children.length;
            var toIndex = pcl;
            
-           if(_.isNumber(index)){
-             if(index == 0){
+           if(_.isNumber( num )){
+             if( num == 0 ){
                 //原地不动
                 return;
              }
-             toIndex = fromIndex+index+1;
+             toIndex = fromIndex + num + 1;
            }
            var me = this.parent.children.splice( fromIndex , 1 )[0];
            if(toIndex > pcl){
@@ -1487,8 +1489,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
                });
             }
 
-            if(this.afterAddChild){
-               this.afterAddChild(child);
+            if(this._afterAddChild){
+               this._afterAddChild(child);
             }
 
             return child;
@@ -1514,8 +1516,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
                });
             }
             
-            if(this.afterAddChild){
-               this.afterAddChild(child,index);
+            if(this._afterAddChild){
+               this._afterAddChild(child,index);
             }
 
             return child;
@@ -1542,8 +1544,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
                });
             };
             
-            if(this.afterDelChild){
-               this.afterDelChild(child , index);
+            if(this._afterDelChild){
+               this._afterDelChild(child , index);
             }
 
             return child;
@@ -3422,21 +3424,38 @@ KISSY.add("canvax/animation/Animation" , function(S){
               //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
            }
        },
-       afterAddChild : function(stage){
-           var canvas = Base._createCanvas( stage.id , this.context.width , this.context.height );
+       _afterAddChild : function( stage , index ){
+           var canvas;
+           var contextInit = true;
+           if(!stage.context2D){
+               contextInit = false;
+               canvas = Base._createCanvas( stage.id , this.context.width , this.context.height );
+           } else {
+               canvas = stage.context2D.canvas;
+           }
            if(this.children.length == 1){
                this.el.append( canvas );
            } else if(this.children.length>1) {
-               this.el[0].insertBefore( canvas , this._hoverStage.context2D.canvas);
+               if( index == undefined ) {
+                   //如果没有指定位置，那么就放到_hoverStage的下面。
+                   this.el[0].insertBefore( canvas , this._hoverStage.context2D.canvas);
+               } else {
+                   //如果有指定的位置，那么就指定的位置来
+                   if( index >= this.children.length-1 ){
+                      this.el.append( canvas );
+                   } else {
+                      this.el[0].insertBefore( canvas , this.children[ index ].context2D.canvas );
+                   }
+               }
            };
 
-           Base.initElement( canvas );
-
+           if( !contextInit ) {
+               Base.initElement( canvas );
+           }
            stage.initStage( canvas.getContext("2d") , this.context.width , this.context.height ); 
-
        },
-       afterDelChild : function(stage){
-       
+       _afterDelChild : function(stage){
+           this.el[0].removeChild( stage.context2D.canvas );
        },
        heartBeat : function( opt ){
            //displayList中某个属性改变了

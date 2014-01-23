@@ -50,8 +50,8 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                });
             }
 
-            if(this.afterAddChild){
-               this.afterAddChild(child);
+            if(this._afterAddChild){
+               this._afterAddChild(child);
             }
 
             return child;
@@ -77,8 +77,8 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                });
             }
             
-            if(this.afterAddChild){
-               this.afterAddChild(child,index);
+            if(this._afterAddChild){
+               this._afterAddChild(child,index);
             }
 
             return child;
@@ -105,8 +105,8 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                });
             };
             
-            if(this.afterDelChild){
-               this.afterDelChild(child , index);
+            if(this._afterDelChild){
+               this._afterDelChild(child , index);
             }
 
             return child;

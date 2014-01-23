@@ -400,21 +400,38 @@ KISSY.add("canvax/index" ,
               //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
            }
        },
-       afterAddChild : function(stage){
-           var canvas = Base._createCanvas( stage.id , this.context.width , this.context.height );
+       _afterAddChild : function( stage , index ){
+           var canvas;
+           var contextInit = true;
+           if(!stage.context2D){
+               contextInit = false;
+               canvas = Base._createCanvas( stage.id , this.context.width , this.context.height );
+           } else {
+               canvas = stage.context2D.canvas;
+           }
            if(this.children.length == 1){
                this.el.append( canvas );
            } else if(this.children.length>1) {
-               this.el[0].insertBefore( canvas , this._hoverStage.context2D.canvas);
+               if( index == undefined ) {
+                   //如果没有指定位置，那么就放到_hoverStage的下面。
+                   this.el[0].insertBefore( canvas , this._hoverStage.context2D.canvas);
+               } else {
+                   //如果有指定的位置，那么就指定的位置来
+                   if( index >= this.children.length-1 ){
+                      this.el.append( canvas );
+                   } else {
+                      this.el[0].insertBefore( canvas , this.children[ index ].context2D.canvas );
+                   }
+               }
            };
 
-           Base.initElement( canvas );
-
+           if( !contextInit ) {
+               Base.initElement( canvas );
+           }
            stage.initStage( canvas.getContext("2d") , this.context.width , this.context.height ); 
-
        },
-       afterDelChild : function(stage){
-       
+       _afterDelChild : function(stage){
+           this.el[0].removeChild( stage.context2D.canvas );
        },
        heartBeat : function( opt ){
            //displayList中某个属性改变了

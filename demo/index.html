@@ -47,12 +47,13 @@
            })
 
            stage = new Canvax.Display.Stage({
-               id : "chart",
+               id : "chart0",
                context:{
                  width : width,
                  height: height
                }
            });
+           
            //box.append( stage.get("canvas") );
  
         
@@ -456,7 +457,8 @@
 
            stage.addChild(heart);
            
-           stage.addChild( text );
+           
+
            stage.addChild(droplet);
 
            
@@ -468,6 +470,16 @@
                
                line.toBack(1);
                },1000)
+
+           window.stage1 = new Canvax.Display.Stage({
+               id : "chart2"               
+           });
+           stage1.addChild( text );
+
+
+           canvax.addChild( stage1 );
+
+           stage1.toFront();
 
 
 

@@ -14,13 +14,13 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         var self = this;
 
         //如果用户没有传入context设置，就默认为空的对象
-        opt = Base.checkOpt( opt );
+        opt      = Base.checkOpt( opt );
 
         //设置默认属性
-        self.id = opt.id || null;
+        self.id  = opt.id || null;
 
         //相对父级元素的矩阵
-        self._transform = null;
+        self._transform      = null;
 
         //相对stage的全局矩阵
         //如果父子结构有变动，比如移动到另外个容器里面去了
@@ -28,20 +28,20 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         //怎么修改呢。self._transformStage=null就好了
         self._transformStage = null;
 
-        self._eventId = null;
+        self._eventId        = null;
 
         //心跳次数
-        self._heartBeatNum = 0;
+        self._heartBeatNum   = 0;
 
         //元素对应的stage元素
-        self.stage  = null;
+        self.stage           = null;
 
         //元素的父元素
-        self.parent = null;
+        self.parent          = null;
 
-        self._eventEnabled = false; //是否响应事件交互
+        self._eventEnabled   = false; //是否响应事件交互
 
-        self.dragEnabled   = false;   //是否启用元素的拖拽
+        self.dragEnabled     = false;   //是否启用元素的拖拽
 
         //创建好context
         self._createContext( opt );
@@ -290,34 +290,33 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         },
         /*
          *元素在z轴方向向下移动
-         *@index 移动的层级
+         *@num 移动的层级
          */
-        toBack : function(index){
+        toBack : function( num ){
            if(!this.parent) {
              return;
            }
            var fromIndex = this.getIndex();
            var toIndex = 0;
            
-           if(_.isNumber(index)){
-             if(index == 0){
+           if(_.isNumber( num )){
+             if( num == 0 ){
                 //原地不动
                 return;
-             }
-             toIndex = fromIndex-index;
+             };
+             toIndex = fromIndex - num;
            }
            var me = this.parent.children.splice( fromIndex , 1 )[0];
            if( toIndex < 0 ){
                toIndex = 0;
-           } 
+           };
            this.parent.addChildAt( me , toIndex );
-
         },
         /*
          *元素在z轴方向向上移动
-         *@index 移动的层数量 默认到顶端
+         *@num 移动的层数量 默认到顶端
          */
-        toFront : function(index){
+        toFront : function( num ){
 
            if(!this.parent) {
              return;
@@ -326,12 +325,12 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
            var pcl = this.parent.children.length;
            var toIndex = pcl;
            
-           if(_.isNumber(index)){
-             if(index == 0){
+           if(_.isNumber( num )){
+             if( num == 0 ){
                 //原地不动
                 return;
              }
-             toIndex = fromIndex+index+1;
+             toIndex = fromIndex + num + 1;
            }
            var me = this.parent.children.splice( fromIndex , 1 )[0];
            if(toIndex > pcl){

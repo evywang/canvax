@@ -99,12 +99,15 @@ KISSY.add("canvax/core/Base" , function(S){
         },
         //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
         checkOpt    : function(opt){
-            if(!opt || ( opt && !opt.context )){
+            if( !opt ){
               return {
                 context : {
                 
                 }
               }   
+            } else if( opt && !opt.context ) {
+              opt.context = {}
+              return opt;
             } else {
               return opt;
             }
