@@ -147,12 +147,17 @@ KISSY.add("canvax/index" ,
 
            Base.initElement( _pixelCanvas );
 
-           //_pixelCanvas.style.display = "none";
-           _pixelCanvas.style.zIndex     = -1;
-           _pixelCanvas.style.position   = "absolute";
-           _pixelCanvas.style.left       = -self.context.width +"px";
-           _pixelCanvas.style.top        = -self.context.height+"px";
-           _pixelCanvas.style.visibility = "hidden";
+           if( Base.canvasSupport() ){
+               //canvas的话，哪怕是display:none的页可以用来左像素检测和measureText文本width检测
+               _pixelCanvas.style.displayi   = "none";
+           } else {
+               //flashCanvas 的话，swf如果display:none了。就做不了measureText 文本宽度 检测了
+               _pixelCanvas.style.zIndex     = -1;
+               _pixelCanvas.style.position   = "absolute";
+               _pixelCanvas.style.left       = -self.context.width  + "px";
+               _pixelCanvas.style.top        = -self.context.height + "px";
+               _pixelCanvas.style.visibility = "hidden";
+           }
 
            Base._pixelCtx = _pixelCanvas.getContext('2d');
 

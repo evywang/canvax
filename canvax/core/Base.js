@@ -42,6 +42,9 @@ KISSY.add("canvax/core/Base" , function(S){
             newDom.setAttribute('id', id);
             return newDom;
         },
+        canvasSupport : function() {
+            return !!document.createElement('canvas').getContext;
+        },
         createObject : function(proto, constructor) {
             var newProto;
             var ObjectCreate = Object.create;
@@ -112,33 +115,6 @@ KISSY.add("canvax/core/Base" , function(S){
               return opt;
             }
         },
-        getContext1 : function(_ctx) {
-            if (!_ctx) {
-                //if (window.G_vmlCanvasManager) {
-                //    var _div = document.createElement('div');
-                //    _div.style.position = 'absolute';
-                //    _div.style.top = '-1000px';
-                //    document.body.appendChild(_div);
-
-                //    _ctx = G_vmlCanvasManager.initElement(_div).getContext('2d');
-                //} else {
-
-
-                   //上面注释掉的为兼容excanvas的代码，下面的这个判断为兼容flashCanvas的代码
-                   var canvas = document.createElement('canvas')
-
-                   
-                   if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
-                      FlashCanvas.initElement(canvas);
-                   }
-                   
-
-                    _ctx = canvas.getContext('2d');
-                //}
-            }
-            return _ctx;
-        },
-
         _UID  : 0, //该值为向上的自增长整数值
         getUID:function(){
             return this._UID++;
