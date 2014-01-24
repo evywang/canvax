@@ -138,16 +138,21 @@ KISSY.add("canvax/index" ,
            var self = this;
            var _pixelCanvas = null;
            if(S.all("#_pixelCanvas").length==0){
-              _pixelCanvas=Base._createCanvas("_pixelCanvas" , self.context.width , self.context.height); 
+              _pixelCanvas = Base._createCanvas("_pixelCanvas" , self.context.width , self.context.height); 
            } else {
-              _pixelCanvas=S.all("#_pixelCanvas")[0];
+              _pixelCanvas = S.all("#_pixelCanvas")[0];
            }
            
            document.body.appendChild( _pixelCanvas );
 
            Base.initElement( _pixelCanvas );
 
-           _pixelCanvas.style.display = "none";
+           //_pixelCanvas.style.display = "none";
+           _pixelCanvas.style.zIndex     = -1;
+           _pixelCanvas.style.position   = "absolute";
+           _pixelCanvas.style.left       = -self.context.width +"px";
+           _pixelCanvas.style.top        = -self.context.height+"px";
+           _pixelCanvas.style.visibility = "hidden";
 
            Base._pixelCtx = _pixelCanvas.getContext('2d');
 

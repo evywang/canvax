@@ -39,9 +39,9 @@ KISSY.add("canvax/display/Text" ,
                var self = this;
             },
             render : function( ctx ){
-               var textLines      = this._getTextLines();
-               this.context.width  = this._getTextWidth(ctx , textLines);
-               this.context.height = this._getTextHeight(ctx, textLines);
+               var textLines       = this._getTextLines();
+               this.context.width  = this._getTextWidth( ctx , textLines);
+               this.context.height = this._getTextHeight(ctx , textLines);
 
                this.clipTo && this.clipContext(this, ctx);
 
