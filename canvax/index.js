@@ -149,7 +149,7 @@ KISSY.add("canvax/index" ,
 
            if( Base.canvasSupport() ){
                //canvas的话，哪怕是display:none的页可以用来左像素检测和measureText文本width检测
-               _pixelCanvas.style.displayi   = "none";
+               _pixelCanvas.style.display    = "none";
            } else {
                //flashCanvas 的话，swf如果display:none了。就做不了measureText 文本宽度 检测了
                _pixelCanvas.style.zIndex     = -1;

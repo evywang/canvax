@@ -72,8 +72,7 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
              ctx.closePath();
           }
 
-
-          if ( style.strokeStyle || style.lineWidth ){
+          if ( style.strokeStyle && style.lineWidth ){
               ctx.stroke();
           }
           //比如贝塞尔曲线画的线,drawTypeOnly==stroke，是不能使用fill的，后果很严重

@@ -250,11 +250,11 @@
                r : 100,
                r0:20,
                startAngle :0 ,
-               endAngle : 90,
+               endAngle : 30,
                fillStyle:color.getColor(colorInd++),
                strokeStyle:color.getColor(colorInd++),
-               lineWidth : 5,
-               lineJoin : "round"
+               lineWidth : 0
+               //lineJoin : "round"
              }
          });
          /*
@@ -436,7 +436,9 @@
 
            //stage.addChild(sector);
            //stage.addChild(rect1);
-           
+
+
+           /*
            stage.addChild(rect);
            stage.addChild(circle2);
 
@@ -445,9 +447,11 @@
            stage.addChild(brokenLine);
 
            stage.addChild(ellipse);
+           */
 
            stage.addChild(sector);
 
+           /*
            stage.addChild(map1);
 
            stage.addChild(path1);
@@ -461,7 +465,7 @@
 
            stage.addChild(droplet);
 
-           
+           */
 
            canvax.addChild(stage);
 
@@ -472,14 +476,14 @@
                },1000)
 
            window.stage1 = new Canvax.Display.Stage({
-               id : "chart2"               
+               id : "chart1"               
            });
            stage1.addChild( text );
 
 
            canvax.addChild( stage1 );
 
-           stage1.toFront();
+           //stage1.toFront();
 
 
 

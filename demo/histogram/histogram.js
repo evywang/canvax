@@ -536,7 +536,9 @@ KISSY.add("demo/histogram/histogram" , function( S , Base , Utils , Datasection 
                         y     : y-itemHeight,
                         width : barWidth,
                         height: itemHeight,
-                        fillStyle:graphs.barColor[fi]
+                        fillStyle:graphs.barColor[fi],
+                        
+                        radius: [barWidth/2 , barWidth/2, 0 , 0]
                       }
                   });
                   rect.hover(function(){

@@ -101,7 +101,7 @@
                    }
                },
                yAxis : {
-                   // fields : ["val2","val4"],
+                   fields : ["val2","val3","val4"],
                    dataMode:0
                }
 
@@ -110,7 +110,7 @@
            var chart = new Histogram( box );
 
            //data.length=16;
-           chart.draw(data , options);
+           chart.draw(data1 , options);
 
        })
    }) 
