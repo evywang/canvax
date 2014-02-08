@@ -110,11 +110,11 @@ KISSY.add("canvax/shape/Rect" , function( S , Shape , Base){
               ctx.lineTo(x, y);
               */
 
-              if(!!ctx.fillStyle){
+              if(!!style.fillStyle){
                  ctx.fillRect(x,y,this.context.width,this.context.height)
               }
               
-              if(!!ctx.lineWidth){
+              if(!!style.lineWidth){
                  ctx.strokeRect(x,y,this.context.width,this.context.height);
               }
               //ctx.rect(x, y, this.get("width"), this.get("height"));
@@ -130,6 +130,7 @@ KISSY.add("canvax/shape/Rect" , function( S , Shape , Base){
        */
       getRect : function(style) {
               var lineWidth;
+              var style = style ? style : this.context;
               if (style.fillStyle || style.strokeStyle) {
                   lineWidth = style.lineWidth || 1;
               }

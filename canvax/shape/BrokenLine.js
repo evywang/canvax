@@ -80,6 +80,7 @@ KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
            return;
        },
        getRect :  function(style) {
+           var style = style ? style : this.context;
            return Polygon.prototype.getRect(style);
        }
 

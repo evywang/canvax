@@ -15,7 +15,7 @@
  **/
 
 
-KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon , Base){
+KISSY.add("canvax/shape/Sector" , function(S , Shape , Math , Polygon , Base){
  
    var Sector = function(opt){
        var self = this;
@@ -39,99 +39,65 @@ KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon , Base){
    Base.creatClass(Sector , Shape , {
        draw : function(ctx, style) {
            
-                var x = 0;   // 圆心x
-                var y = 0;   // 圆心y
-                var r0 = typeof style.r0 == 'undefined'     // 形内半径[0,r)
-                         ? 0 : style.r0;
-                var r = style.r;                            // 扇形外半径(0,r]
-                var startAngle = style.startAngle;          // 起始角度[0,360)
-                var endAngle = style.endAngle;              // 结束角度(0,360]
-                var PI2 = Math.PI * 2;
+           var x = 0;   // 圆心x
+           var y = 0;   // 圆心y
 
-                startAngle = math.degreeToRadian(startAngle);
-                endAngle = math.degreeToRadian(endAngle);
+           // 形内半径[0,r)
+           var r0 = typeof style.r0 == 'undefined' ? 0 : style.r0;
+           var r = style.r;                            // 扇形外半径(0,r]
+           var startAngle = style.startAngle;          // 起始角度[0,360)
+           var endAngle   = style.endAngle;              // 结束角度(0,360]
 
-                //sin&cos已经在tool.math.缓存了，放心大胆的重复调用
-                //ctx.moveTo(
-                //    math.cos(startAngle) * r0 + x,
-                //    y - math.sin(startAngle) * r0
-                //);
+           startAngle = Math.degreeToRadian(startAngle);
+           endAngle   = Math.degreeToRadian(endAngle);
 
-                //ctx.lineTo(
-                //    math.cos(startAngle) * r + x,
-                //    y - math.sin(startAngle) * r
-                //);
+           ctx.arc(x, y, r, startAngle, endAngle, false);
 
-                ctx.arc(x, y, r, PI2 - startAngle, PI2 - endAngle, true);
-
-                //ctx.lineTo(
-                //    math.cos(endAngle) * r0 + x,
-                //    y - math.sin(endAngle) * r0
-                //);
-
-                if (r0 !== 0) {
-                    ctx.arc(x, y, r0, PI2 - endAngle, PI2 - startAngle, false);
-                }
-
-                return;
+           if (r0 !== 0) {
+               ctx.arc(x, y, r0, endAngle , startAngle, true);
+           }
         },
         getRect : function(style){
-            var x = 0;   // 圆心x
-            var y = 0;   // 圆心y
+            var style = style ? style : this.context;
             var r0 = typeof style.r0 == 'undefined'     // 形内半径[0,r)
                 ? 0 : style.r0;
             var r = style.r;                            // 扇形外半径(0,r]
             var startAngle = style.startAngle;          // 起始角度[0,360)
-            var endAngle = style.endAngle;              // 结束角度(0,360]
-            var pointList = [];
-            if (startAngle < 90 && endAngle > 90) {
-                pointList.push([
-                        x, y - r
-                        ]);
+            var endAngle   = style.endAngle;              // 结束角度(0,360]
+            var pointList  = [];
+            if (startAngle < 90 && endAngle  > 90) {
+                pointList.push([ 0 , r ]);
             }
             if (startAngle < 180 && endAngle > 180) {
-                pointList.push([
-                        x - r, y
-                        ]);
+                pointList.push([ -r, 0  ]);
             }
             if (startAngle < 270 && endAngle > 270) {
-                pointList.push([
-                        x, y + r
-                        ]);
+                pointList.push([ 0, -r ]);
             }
             if (startAngle < 360 && endAngle > 360) {
-                pointList.push([
-                        x + r, y
-                        ]);
+                pointList.push([ r, 0 ]);
             }
 
-            startAngle = math.degreeToRadian(startAngle);
-            endAngle = math.degreeToRadian(endAngle);
-
+            startAngle = Math.degreeToRadian(startAngle);
+            endAngle   = Math.degreeToRadian(endAngle);
 
             pointList.push([
-                    math.cos(startAngle) * r0 + x,
-                    y - math.sin(startAngle) * r0
+                    Math.cos(startAngle) * r0 , Math.sin(startAngle) * r0
                     ]);
 
             pointList.push([
-                    math.cos(startAngle) * r + x,
-                    y - math.sin(startAngle) * r
+                    Math.cos(startAngle) * r  , Math.sin(startAngle) * r
                     ]);
 
             pointList.push([
-                    math.cos(endAngle) * r + x,
-                    y - math.sin(endAngle) * r
+                    Math.cos(endAngle)   * r  ,  Math.sin(endAngle)  * r
                     ]);
 
             pointList.push([
-                    math.cos(endAngle) * r0 + x,
-                    y - math.sin(endAngle) * r0
+                    Math.cos(endAngle)   * r0 ,  Math.sin(endAngle)  * r0
                     ]);
 
-                
             style.pointList = pointList;
-            
             return Polygon.prototype.getRect(style);
 
         }

@@ -59,6 +59,7 @@ KISSY.add("canvax/shape/Line" , function(S,Shape,Base){
        */
       getRect:function(style) {
           var lineWidth = style.lineWidth || 1;
+          var style = style ? style : this.context;
           return {
               x : Math.min(style.xStart, style.xEnd) - lineWidth,
                 y : Math.min(style.yStart, style.yEnd) - lineWidth,

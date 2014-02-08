@@ -49,6 +49,7 @@ KISSY.add("canvax/shape/Circle" ,
              */
             getRect : function(style) {
                 var lineWidth;
+                var style = style ? style : this.context;
                 if (style.fillStyle || style.strokeStyle ) {
                     lineWidth = style.lineWidth || 1;
                 } else {

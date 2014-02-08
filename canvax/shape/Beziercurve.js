@@ -59,6 +59,8 @@ KISSY.add("canvax/shape/Beziercurve" , function(S,Shape,Base){
 
     },
     getRect : function(style) {
+        var style = style ? style : this.context;
+
         var _minX = Math.min(style.xStart, style.xEnd, style.cpX1);
         var _minY = Math.min(style.yStart, style.yEnd, style.cpY1);
         var _maxX = Math.max(style.xStart, style.xEnd, style.cpX1);

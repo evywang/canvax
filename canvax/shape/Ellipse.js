@@ -50,6 +50,7 @@ KISSY.add("canvax/shape/Ellipse" , function(S,Shape,Base){
        },
        getRect : function(style){
            var lineWidth;
+           var style = style ? style : this.context;
            if (style.fillStyle || style.strokeStyle) {
                lineWidth = style.lineWidth || 1;
            }

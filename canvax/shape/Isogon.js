@@ -81,6 +81,7 @@ KISSY.add("canvax/shape/Isogon" , function(S , Shape , math , Base){
        */
       getRect : function(style) {
           var lineWidth;
+          var style = style ? style : this.context;
           if (style.strokeStyle || style.fillStyle) {
               lineWidth = style.lineWidth || 1;
           }

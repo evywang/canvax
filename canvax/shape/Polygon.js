@@ -110,8 +110,10 @@ KISSY.add("canvax/shape/Polygon" , function(S , Shape , Base){
        getRect : function(style) {
            var minX =  Number.MAX_VALUE;
            var maxX =  Number.MIN_VALUE;
-           var minY = Number.MAX_VALUE;
-           var maxY = Number.MIN_VALUE;
+           var minY =  Number.MAX_VALUE;
+           var maxY =  Number.MIN_VALUE;
+
+           var style = style ? style : this.context;
 
            var pointList = style.pointList.$model;
            for(var i = 0, l = pointList.length; i < l; i++) {

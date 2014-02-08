@@ -241,7 +241,7 @@
 
          
 
-          var sector =new Canvax.Shapes.Sector({
+          window.sector =new Canvax.Shapes.Sector({
               id : "sector",
               context : {
                x :600,
@@ -249,14 +249,26 @@
 
                r : 100,
                r0:20,
-               startAngle :0 ,
-               endAngle : 30,
+               startAngle :20 ,
+               endAngle : 90,
                fillStyle:color.getColor(colorInd++),
                strokeStyle:color.getColor(colorInd++),
                lineWidth : 0
                //lineJoin : "round"
              }
          });
+         
+         var srect = sector.getRect();
+         var sector_rect = new Canvax.Shapes.Rect({
+             context : {
+                 x           : 600 + srect.x,
+                 y           : 110 + srect.y,
+                 width       : srect.width,
+                 height      : srect.height,
+                 strokeStyle : "red",
+                 lineWidth   : 1
+             }
+         })
          /*
          sector.on("mouseover" , function(){
              this.context.lineWidth = 10;
@@ -450,6 +462,7 @@
            */
 
            stage.addChild(sector);
+           stage.addChild(sector_rect);
 
            /*
            stage.addChild(map1);
