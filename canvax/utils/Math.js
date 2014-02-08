@@ -55,8 +55,9 @@ KISSY.add("canvax/utils/Math" , function(S){
         }
 
         return {
-            sin : sin,
-            cos : cos,
+            PI  : Math.PI  ,
+            sin : sin      ,
+            cos : cos      ,
             degreeToRadian : degreeToRadian,
             radianToDegree : radianToDegree
         };

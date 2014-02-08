@@ -18,14 +18,14 @@
 KISSY.add("canvax/shape/Sector" , function(S , Shape , Math , Polygon , Base){
  
    var Sector = function(opt){
-       var self = this;
+       var self  = this;
        self.type = "sector";
 
        opt = Base.checkOpt( opt );
-       self._context = {
+       self.clockwise =  opt.clockwise || false;//是否顺时针，默认为false(顺时针)
+
+       self._context  = {
            pointList  : [],//边界点的集合,私有，从下面的属性计算的来
-           //x             : {number},         // 必须，圆心横坐标
-           //y             : {number},         // 必须，圆心纵坐标
            r0         : opt.context.r0         || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
            r          : opt.context.r          || 0,//{number},  // 必须，外圆半径
            startAngle : opt.context.startAngle || 0,//{number},  // 必须，起始角度[0, 360)
@@ -39,9 +39,6 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , Math , Polygon , Base){
    Base.creatClass(Sector , Shape , {
        draw : function(ctx, style) {
            
-           var x = 0;   // 圆心x
-           var y = 0;   // 圆心y
-
            // 形内半径[0,r)
            var r0 = typeof style.r0 == 'undefined' ? 0 : style.r0;
            var r = style.r;                            // 扇形外半径(0,r]
@@ -51,10 +48,9 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , Math , Polygon , Base){
            startAngle = Math.degreeToRadian(startAngle);
            endAngle   = Math.degreeToRadian(endAngle);
 
-           ctx.arc(x, y, r, startAngle, endAngle, false);
-
+           ctx.arc( 0 , 0 , r, startAngle, endAngle, this.clockwise);
            if (r0 !== 0) {
-               ctx.arc(x, y, r0, endAngle , startAngle, true);
+               ctx.arc( 0 , 0 , r0, endAngle , startAngle, !this.clockwise);
            }
         },
         getRect : function(style){

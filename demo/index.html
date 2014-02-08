@@ -243,14 +243,15 @@
 
           window.sector =new Canvax.Shapes.Sector({
               id : "sector",
+              //clockwise : true,//逆时针
               context : {
                x :600,
                y : 110,
 
                r : 100,
                r0:20,
-               startAngle :20 ,
-               endAngle : 90,
+               startAngle :180 ,
+               endAngle : 10,
                fillStyle:color.getColor(colorInd++),
                strokeStyle:color.getColor(colorInd++),
                lineWidth : 0
@@ -285,7 +286,7 @@
              id : "polygon",
              context : {
                  x:400,
-                 y:50,
+                 y:150,
 
                   lineType  : "dashed",
                  pointList : [[310, 120], [360, 120], [348, 230], [250, 340], [146, 200]],
@@ -450,7 +451,6 @@
            //stage.addChild(rect1);
 
 
-           /*
            stage.addChild(rect);
            stage.addChild(circle2);
 
@@ -459,12 +459,10 @@
            stage.addChild(brokenLine);
 
            stage.addChild(ellipse);
-           */
 
            stage.addChild(sector);
            stage.addChild(sector_rect);
 
-           /*
            stage.addChild(map1);
 
            stage.addChild(path1);
@@ -478,7 +476,6 @@
 
            stage.addChild(droplet);
 
-           */
 
            canvax.addChild(stage);
 
