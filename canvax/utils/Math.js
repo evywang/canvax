@@ -54,12 +54,21 @@ KISSY.add("canvax/utils/Math" , function(S){
             return angle / _radians;
         }
 
+        /*
+         * 校验角度到360度内
+         * @param {angle} number
+         */
+        function degreeTo360( angle ) {
+           return Math.abs(360 + parseInt(angle) % 360) % 360;
+        }
+
         return {
             PI  : Math.PI  ,
             sin : sin      ,
             cos : cos      ,
             degreeToRadian : degreeToRadian,
-            radianToDegree : radianToDegree
+            radianToDegree : radianToDegree,
+            degreeTo360    : degreeTo360   
         };
  
 },{

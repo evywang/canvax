@@ -15,7 +15,7 @@
  **/
 
 
-KISSY.add("canvax/shape/Sector" , function(S , Shape , Math , Polygon , Base){
+KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Polygon , Base){
  
    var Sector = function(opt){
        var self  = this;
@@ -34,8 +34,6 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , Math , Polygon , Base){
        arguments.callee.superclass.constructor.apply(this , arguments);
    };
 
-
-
    Base.creatClass(Sector , Shape , {
        draw : function(ctx, style) {
            
@@ -45,8 +43,8 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , Math , Polygon , Base){
            var startAngle = style.startAngle;          // 起始角度[0,360)
            var endAngle   = style.endAngle;              // 结束角度(0,360]
 
-           startAngle = Math.degreeToRadian(startAngle);
-           endAngle   = Math.degreeToRadian(endAngle);
+           startAngle = myMath.degreeToRadian(startAngle);
+           endAngle   = myMath.degreeToRadian(endAngle);
 
            ctx.arc( 0 , 0 , r, startAngle, endAngle, this.clockwise);
            if (r0 !== 0) {
@@ -58,39 +56,49 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , Math , Polygon , Base){
             var r0 = typeof style.r0 == 'undefined'     // 形内半径[0,r)
                 ? 0 : style.r0;
             var r = style.r;                            // 扇形外半径(0,r]
-            var startAngle = style.startAngle;          // 起始角度[0,360)
-            var endAngle   = style.endAngle;              // 结束角度(0,360]
+            var startAngle = myMath.degreeTo360(style.startAngle);            // 起始角度[0,360)
+            var endAngle   = myMath.degreeTo360(style.endAngle);              // 结束角度(0,360]
+
+            var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
+            if ( (startAngle > endAngle && !this.clockwise ) || (startAngle < endAngle && this.clockwise ) ) {
+                regIn      = false;
+            }
+            //度的范围，从小到大
+            var regAngle   = [ Math.min( startAngle , endAngle ) , Math.max( startAngle , endAngle ) ];
+
             var pointList  = [];
-            if (startAngle < 90 && endAngle  > 90) {
-                pointList.push([ 0 , r ]);
-            }
-            if (startAngle < 180 && endAngle > 180) {
-                pointList.push([ -r, 0  ]);
-            }
-            if (startAngle < 270 && endAngle > 270) {
-                pointList.push([ 0, -r ]);
-            }
-            if (startAngle < 360 && endAngle > 360) {
-                pointList.push([ r, 0 ]);
+
+            var p4Direction= {
+                "90" : [ 0 , r ],
+                "180": [ -r, 0 ],
+                "270": [ 0 , -r],
+                "360": [ r , 0 ] 
+            };
+
+            for ( var d in p4Direction ){
+                var inAngleReg = parseInt(d) > regAngle[0] && parseInt(d) < regAngle[1];
+                if( (inAngleReg && regIn) || (!inAngleReg && !regIn) ){
+                    pointList.push( p4Direction[ d ] );
+                }
             }
 
-            startAngle = Math.degreeToRadian(startAngle);
-            endAngle   = Math.degreeToRadian(endAngle);
+            startAngle = myMath.degreeToRadian(startAngle);
+            endAngle   = myMath.degreeToRadian(endAngle);
 
             pointList.push([
-                    Math.cos(startAngle) * r0 , Math.sin(startAngle) * r0
+                    myMath.cos(startAngle) * r0 , myMath.sin(startAngle) * r0
                     ]);
 
             pointList.push([
-                    Math.cos(startAngle) * r  , Math.sin(startAngle) * r
+                    myMath.cos(startAngle) * r  , myMath.sin(startAngle) * r
                     ]);
 
             pointList.push([
-                    Math.cos(endAngle)   * r  ,  Math.sin(endAngle)  * r
+                    myMath.cos(endAngle)   * r  ,  myMath.sin(endAngle)  * r
                     ]);
 
             pointList.push([
-                    Math.cos(endAngle)   * r0 ,  Math.sin(endAngle)  * r0
+                    myMath.cos(endAngle)   * r0 ,  myMath.sin(endAngle)  * r0
                     ]);
 
             style.pointList = pointList;
