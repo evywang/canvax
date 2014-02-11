@@ -9,7 +9,7 @@
  * @pointList 各个顶角坐标
  **/
  
-KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
+KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Base){
    var BrokenLine = function(opt){
        var self = this;
        self.type = "brokenLine";
@@ -25,22 +25,22 @@ KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
    }
 
    Base.creatClass(BrokenLine , Shape , {
-       draw : function(ctx, style) {
-           var pointList = style.pointList.$model;
+       draw : function(ctx, context) {
+           var pointList = context.pointList.$model;
            if (pointList.length < 2) {
                // 少于2个点就不画了~
                return;
            }
-           if (!style.lineType || style.lineType == 'solid') {
+           if (!context.lineType || context.lineType == 'solid') {
                //默认为实线
                ctx.moveTo(pointList[0][0],pointList[0][1]);
                for (var i = 1, l = pointList.length; i < l; i++) {
                    ctx.lineTo(pointList[i][0],pointList[i][1]);
                }
-           } else if (style.lineType == 'dashed' || style.lineType == 'dotted') {
+           } else if (context.lineType == 'dashed' || context.lineType == 'dotted') {
                //画虚线的方法  by loutongbing@baidu.com
-               var lineWidth = style.lineWidth || 1;
-               var dashPattern = [ lineWidth * (style.lineType == 'dashed' ? 6 : 1), lineWidth * 4 ];
+               var lineWidth = context.lineWidth || 1;
+               var dashPattern = [ lineWidth * (context.lineType == 'dashed' ? 6 : 1), lineWidth * 4 ];
                ctx.moveTo(pointList[0][0],pointList[0][1]);
                for (var i = 1, l = pointList.length; i < l; i++) {
                    var fromX = pointList[i - 1][0];
@@ -79,9 +79,9 @@ KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
 
            return;
        },
-       getRect :  function(style) {
-           var style = style ? style : this.context;
-           return Polygon.prototype.getRect(style);
+       getRect :  function(context) {
+           var context = context ? context : this.context;
+           return this.getRectFormPointList( context );
        }
 
 
@@ -93,7 +93,6 @@ KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
 } , {
    requires:[
      "canvax/display/Shape",
-     "canvax/shape/Polygon",
      "canvax/core/Base"
    ]
 });

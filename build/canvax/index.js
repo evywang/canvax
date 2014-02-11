@@ -1997,8 +1997,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
              ctx.closePath();
           }
 
-
-          if ( style.strokeStyle || style.lineWidth ){
+          if ( style.strokeStyle && style.lineWidth ){
               ctx.stroke();
           }
           //比如贝塞尔曲线画的线,drawTypeOnly==stroke，是不能使用fill的，后果很严重
@@ -2049,6 +2048,46 @@ KISSY.add("canvax/animation/Animation" , function(S){
                     y1 + (deltaY / numDashes) * i
                 );
             }
+      },
+      /*
+       *从pointList节点中获取到4个方向的边界节点
+       *@param  context 
+       *
+       **/
+      getRectFormPointList : function( context ){
+          var minX =  Number.MAX_VALUE;
+          var maxX =  Number.MIN_VALUE;
+          var minY =  Number.MAX_VALUE;
+          var maxY =  Number.MIN_VALUE;
+
+          var pointList = context.pointList.$model;
+          for(var i = 0, l = pointList.length; i < l; i++) {
+              if (pointList[i][0] < minX) {
+                  minX = pointList[i][0];
+              }
+              if (pointList[i][0] > maxX) {
+                  maxX = pointList[i][0];
+              }
+              if (pointList[i][1] < minY) {
+                  minY = pointList[i][1];
+              }
+              if (pointList[i][1] > maxY) {
+                  maxY = pointList[i][1];
+              }
+          }
+
+          var lineWidth;
+          if (context.strokeStyle || context.fillStyle  ) {
+              lineWidth = context.lineWidth || 1;
+          } else {
+              lineWidth = 0;
+          }
+          return {
+              x      : Math.round(minX - lineWidth / 2),
+              y      : Math.round(minY - lineWidth / 2),
+              width  : maxX - minX + lineWidth,
+              height : maxY - minY + lineWidth
+          };
       }
    });
 
@@ -3149,7 +3188,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
            if( Base.canvasSupport() ){
                //canvas的话，哪怕是display:none的页可以用来左像素检测和measureText文本width检测
-               _pixelCanvas.style.displayi   = "none";
+               _pixelCanvas.style.display    = "none";
            } else {
                //flashCanvas 的话，swf如果display:none了。就做不了measureText 文本宽度 检测了
                _pixelCanvas.style.zIndex     = -1;
@@ -3571,7 +3610,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
     //( !document.createElement('canvas').getContext && !window.FlashCanvas && !window.G_vmlCanvasManager ) ? "canvax/library/flashCanvas/flashcanvas" : ""
     ]
 });
-;KISSY.add("canvax/shape/Beziercurve" , function(S,Shape,Base){
+;KISSY.add("canvax/shape/Beziercurve" , function( S , Shape , Base ){
   var Beziercurve = function(opt){
       var self=this;
       self.type = "beziercurve";
@@ -3614,6 +3653,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
     },
     getRect : function(style) {
+        var style = style ? style : this.context;
+
         var _minX = Math.min(style.xStart, style.xEnd, style.cpX1);
         var _minY = Math.min(style.yStart, style.yEnd, style.cpY1);
         var _maxX = Math.max(style.xStart, style.xEnd, style.cpX1);
@@ -3649,7 +3690,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
     "canvax/core/Base"
   ]
 });
-;KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Polygon , Base){
+;KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Base){
    var BrokenLine = function(opt){
        var self = this;
        self.type = "brokenLine";
@@ -3665,22 +3706,22 @@ KISSY.add("canvax/animation/Animation" , function(S){
    }
 
    Base.creatClass(BrokenLine , Shape , {
-       draw : function(ctx, style) {
-           var pointList = style.pointList.$model;
+       draw : function(ctx, context) {
+           var pointList = context.pointList.$model;
            if (pointList.length < 2) {
                // 少于2个点就不画了~
                return;
            }
-           if (!style.lineType || style.lineType == 'solid') {
+           if (!context.lineType || context.lineType == 'solid') {
                //默认为实线
                ctx.moveTo(pointList[0][0],pointList[0][1]);
                for (var i = 1, l = pointList.length; i < l; i++) {
                    ctx.lineTo(pointList[i][0],pointList[i][1]);
                }
-           } else if (style.lineType == 'dashed' || style.lineType == 'dotted') {
+           } else if (context.lineType == 'dashed' || context.lineType == 'dotted') {
                //画虚线的方法  by loutongbing@baidu.com
-               var lineWidth = style.lineWidth || 1;
-               var dashPattern = [ lineWidth * (style.lineType == 'dashed' ? 6 : 1), lineWidth * 4 ];
+               var lineWidth = context.lineWidth || 1;
+               var dashPattern = [ lineWidth * (context.lineType == 'dashed' ? 6 : 1), lineWidth * 4 ];
                ctx.moveTo(pointList[0][0],pointList[0][1]);
                for (var i = 1, l = pointList.length; i < l; i++) {
                    var fromX = pointList[i - 1][0];
@@ -3719,8 +3760,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
            return;
        },
-       getRect :  function(style) {
-           return Polygon.prototype.getRect(style);
+       getRect :  function(context) {
+           var context = context ? context : this.context;
+           return this.getRectFormPointList( context );
        }
 
 
@@ -3732,7 +3774,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
 } , {
    requires:[
      "canvax/display/Shape",
-     "canvax/shape/Polygon",
      "canvax/core/Base"
    ]
 });
@@ -3773,6 +3814,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
              */
             getRect : function(style) {
                 var lineWidth;
+                var style = style ? style : this.context;
                 if (style.fillStyle || style.strokeStyle ) {
                     lineWidth = style.lineWidth || 1;
                 } else {
@@ -3837,6 +3879,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       },
       getRect : function(style){
           var lineWidth;
+          var style = style ? style : this.context;
           if (style.fillStyle || style.strokeStyle) {
               lineWidth = style.lineWidth || 1;
           } else {
@@ -3898,6 +3941,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        },
        getRect : function(style){
            var lineWidth;
+           var style = style ? style : this.context;
            if (style.fillStyle || style.strokeStyle) {
                lineWidth = style.lineWidth || 1;
            }
@@ -3963,6 +4007,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        },
        getRect : function(style){
            var lineWidth;
+           var style = style ? style : this.context;
            if (style.fillStyle || style.strokeStyle ) {
                lineWidth = style.lineWidth || 1;
            } else {
@@ -4054,6 +4099,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        */
       getRect : function(style) {
           var lineWidth;
+          var style = style ? style : this.context;
           if (style.strokeStyle || style.fillStyle) {
               lineWidth = style.lineWidth || 1;
           }
@@ -4125,6 +4171,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        */
       getRect:function(style) {
           var lineWidth = style.lineWidth || 1;
+          var style = style ? style : this.context;
           return {
               x : Math.min(style.xStart, style.xEnd) - lineWidth,
                 y : Math.min(style.yStart, style.yEnd) - lineWidth,
@@ -4581,6 +4628,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
          */
         getRect : function(style) {
             var lineWidth;
+            var style = style ? style : this.context;
             if (style.strokeStyle || style.fillStyle) {
                 lineWidth = style.lineWidth || 1;
             }
@@ -4750,40 +4798,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
            
            return;
        },
-       getRect : function(style) {
-           var minX =  Number.MAX_VALUE;
-           var maxX =  Number.MIN_VALUE;
-           var minY = Number.MAX_VALUE;
-           var maxY = Number.MIN_VALUE;
-
-           var pointList = style.pointList.$model;
-           for(var i = 0, l = pointList.length; i < l; i++) {
-               if (pointList[i][0] < minX) {
-                   minX = pointList[i][0];
-               }
-               if (pointList[i][0] > maxX) {
-                   maxX = pointList[i][0];
-               }
-               if (pointList[i][1] < minY) {
-                   minY = pointList[i][1];
-               }
-               if (pointList[i][1] > maxY) {
-                   maxY = pointList[i][1];
-               }
-           }
-
-           var lineWidth;
-           if (style.strokeStyle || style.fillStyle  ) {
-               lineWidth = style.lineWidth || 1;
-           } else {
-               lineWidth = 0;
-           }
-           return {
-               x : Math.round(minX - lineWidth / 2),
-               y : Math.round(minY - lineWidth / 2),
-               width : maxX - minX + lineWidth,
-               height : maxY - minY + lineWidth
-           };
+       getRect : function(context) {
+           var context = context ? context : this.context;
+           return this.getRectFormPointList( context );
        }
 
    } );
@@ -4894,11 +4911,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
               ctx.lineTo(x, y);
               */
 
-              if(!!ctx.fillStyle){
+              if(!!style.fillStyle){
                  ctx.fillRect(x,y,this.context.width,this.context.height)
               }
               
-              if(!!ctx.lineWidth){
+              if(!!style.lineWidth){
                  ctx.strokeRect(x,y,this.context.width,this.context.height);
               }
               //ctx.rect(x, y, this.get("width"), this.get("height"));
@@ -4914,6 +4931,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        */
       getRect : function(style) {
               var lineWidth;
+              var style = style ? style : this.context;
               if (style.fillStyle || style.strokeStyle) {
                   lineWidth = style.lineWidth || 1;
               }
@@ -4938,125 +4956,97 @@ KISSY.add("canvax/animation/Animation" , function(S){
     "canvax/core/Base"
   ]
 });
-;KISSY.add("canvax/shape/Sector" , function(S,Shape,math,Polygon , Base){
+;KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
  
    var Sector = function(opt){
-       var self = this;
+       var self  = this;
        self.type = "sector";
 
        opt = Base.checkOpt( opt );
-       self._context = {
+       self.clockwise =  opt.clockwise || false;//是否顺时针，默认为false(顺时针)
+
+       self._context  = {
            pointList  : [],//边界点的集合,私有，从下面的属性计算的来
-           //x             : {number},  // 必须，圆心横坐标
-           //y             : {number},  // 必须，圆心纵坐标
-           r0         : opt.context.r0 || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
-           r          : opt.context.r  || 0,//{number},  // 必须，外圆半径
+           r0         : opt.context.r0         || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
+           r          : opt.context.r          || 0,//{number},  // 必须，外圆半径
            startAngle : opt.context.startAngle || 0,//{number},  // 必须，起始角度[0, 360)
            endAngle   : opt.context.endAngle   || 0 //{number},  // 必须，结束角度(0, 360]
        }
        arguments.callee.superclass.constructor.apply(this , arguments);
    };
 
-
-
    Base.creatClass(Sector , Shape , {
-       draw : function(ctx, style) {
+       draw : function(ctx, context) {
            
-                var x = 0;   // 圆心x
-                var y = 0;   // 圆心y
-                var r0 = typeof style.r0 == 'undefined'     // 形内半径[0,r)
-                         ? 0 : style.r0;
-                var r = style.r;                            // 扇形外半径(0,r]
-                var startAngle = style.startAngle;          // 起始角度[0,360)
-                var endAngle = style.endAngle;              // 结束角度(0,360]
-                var PI2 = Math.PI * 2;
+           // 形内半径[0,r)
+           var r0 = typeof context.r0 == 'undefined' ? 0 : context.r0;
+           var r = context.r;                            // 扇形外半径(0,r]
+           var startAngle = context.startAngle;          // 起始角度[0,360)
+           var endAngle   = context.endAngle;              // 结束角度(0,360]
 
-                startAngle = math.degreeToRadian(startAngle);
-                endAngle = math.degreeToRadian(endAngle);
+           startAngle = myMath.degreeToRadian(startAngle);
+           endAngle   = myMath.degreeToRadian(endAngle);
 
-                //sin&cos已经在tool.math.缓存了，放心大胆的重复调用
-                //ctx.moveTo(
-                //    math.cos(startAngle) * r0 + x,
-                //    y - math.sin(startAngle) * r0
-                //);
-
-                //ctx.lineTo(
-                //    math.cos(startAngle) * r + x,
-                //    y - math.sin(startAngle) * r
-                //);
-
-                ctx.arc(x, y, r, PI2 - startAngle, PI2 - endAngle, true);
-
-                //ctx.lineTo(
-                //    math.cos(endAngle) * r0 + x,
-                //    y - math.sin(endAngle) * r0
-                //);
-
-                if (r0 !== 0) {
-                    ctx.arc(x, y, r0, PI2 - endAngle, PI2 - startAngle, false);
-                }
-
-                return;
+           ctx.arc( 0 , 0 , r, startAngle, endAngle, this.clockwise);
+           if (r0 !== 0) {
+               ctx.arc( 0 , 0 , r0, endAngle , startAngle, !this.clockwise);
+           }
         },
-        getRect : function(style){
-            var x = 0;   // 圆心x
-            var y = 0;   // 圆心y
-            var r0 = typeof style.r0 == 'undefined'     // 形内半径[0,r)
-                ? 0 : style.r0;
-            var r = style.r;                            // 扇形外半径(0,r]
-            var startAngle = style.startAngle;          // 起始角度[0,360)
-            var endAngle = style.endAngle;              // 结束角度(0,360]
-            var pointList = [];
-            if (startAngle < 90 && endAngle > 90) {
-                pointList.push([
-                        x, y - r
-                        ]);
+        getRect : function(context){
+            var context = context ? context : this.context;
+            var r0 = typeof context.r0 == 'undefined'     // 形内半径[0,r)
+                ? 0 : context.r0;
+            var r = context.r;                            // 扇形外半径(0,r]
+            var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
+            var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
+
+            var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
+            if ( (startAngle > endAngle && !this.clockwise ) || (startAngle < endAngle && this.clockwise ) ) {
+                regIn      = false;
             }
-            if (startAngle < 180 && endAngle > 180) {
-                pointList.push([
-                        x - r, y
-                        ]);
-            }
-            if (startAngle < 270 && endAngle > 270) {
-                pointList.push([
-                        x, y + r
-                        ]);
-            }
-            if (startAngle < 360 && endAngle > 360) {
-                pointList.push([
-                        x + r, y
-                        ]);
+            //度的范围，从小到大
+            var regAngle   = [ 
+                Math.min( startAngle , endAngle ) , 
+                Math.max( startAngle , endAngle ) 
+            ];
+
+            var pointList  = [];
+
+            var p4Direction= {
+                "90" : [ 0 , r ],
+                "180": [ -r, 0 ],
+                "270": [ 0 , -r],
+                "360": [ r , 0 ] 
+            };
+
+            for ( var d in p4Direction ){
+                var inAngleReg = parseInt(d) > regAngle[0] && parseInt(d) < regAngle[1];
+                if( (inAngleReg && regIn) || (!inAngleReg && !regIn) ){
+                    pointList.push( p4Direction[ d ] );
+                }
             }
 
-            startAngle = math.degreeToRadian(startAngle);
-            endAngle = math.degreeToRadian(endAngle);
-
+            startAngle = myMath.degreeToRadian(startAngle);
+            endAngle   = myMath.degreeToRadian(endAngle);
 
             pointList.push([
-                    math.cos(startAngle) * r0 + x,
-                    y - math.sin(startAngle) * r0
+                    myMath.cos(startAngle) * r0 , myMath.sin(startAngle) * r0
                     ]);
 
             pointList.push([
-                    math.cos(startAngle) * r + x,
-                    y - math.sin(startAngle) * r
+                    myMath.cos(startAngle) * r  , myMath.sin(startAngle) * r
                     ]);
 
             pointList.push([
-                    math.cos(endAngle) * r + x,
-                    y - math.sin(endAngle) * r
+                    myMath.cos(endAngle)   * r  ,  myMath.sin(endAngle)  * r
                     ]);
 
             pointList.push([
-                    math.cos(endAngle) * r0 + x,
-                    y - math.sin(endAngle) * r0
+                    myMath.cos(endAngle)   * r0 ,  myMath.sin(endAngle)  * r0
                     ]);
 
-                
-            style.pointList = pointList;
-            
-            return Polygon.prototype.getRect(style);
-
+            context.pointList = pointList;
+            return this.getRectFormPointList( context );
         }
 
    });
@@ -5067,7 +5057,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
    requires:[
      "canvax/display/Shape",
      "canvax/utils/Math",
-     "canvax/shape/Polygon",
      "canvax/core/Base"
    ]
 });
@@ -5749,11 +5738,21 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return angle / _radians;
         }
 
+        /*
+         * 校验角度到360度内
+         * @param {angle} number
+         */
+        function degreeTo360( angle ) {
+           return Math.abs(360 + parseInt(angle) % 360) % 360;
+        }
+
         return {
-            sin : sin,
-            cos : cos,
+            PI  : Math.PI  ,
+            sin : sin      ,
+            cos : cos      ,
             degreeToRadian : degreeToRadian,
-            radianToDegree : radianToDegree
+            radianToDegree : radianToDegree,
+            degreeTo360    : degreeTo360   
         };
  
 },{

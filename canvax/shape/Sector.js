@@ -15,7 +15,7 @@
  **/
 
 
-KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Polygon , Base){
+KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
  
    var Sector = function(opt){
        var self  = this;
@@ -35,13 +35,13 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Polygon , Base){
    };
 
    Base.creatClass(Sector , Shape , {
-       draw : function(ctx, style) {
+       draw : function(ctx, context) {
            
            // 形内半径[0,r)
-           var r0 = typeof style.r0 == 'undefined' ? 0 : style.r0;
-           var r = style.r;                            // 扇形外半径(0,r]
-           var startAngle = style.startAngle;          // 起始角度[0,360)
-           var endAngle   = style.endAngle;              // 结束角度(0,360]
+           var r0 = typeof context.r0 == 'undefined' ? 0 : context.r0;
+           var r = context.r;                            // 扇形外半径(0,r]
+           var startAngle = context.startAngle;          // 起始角度[0,360)
+           var endAngle   = context.endAngle;              // 结束角度(0,360]
 
            startAngle = myMath.degreeToRadian(startAngle);
            endAngle   = myMath.degreeToRadian(endAngle);
@@ -51,20 +51,23 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Polygon , Base){
                ctx.arc( 0 , 0 , r0, endAngle , startAngle, !this.clockwise);
            }
         },
-        getRect : function(style){
-            var style = style ? style : this.context;
-            var r0 = typeof style.r0 == 'undefined'     // 形内半径[0,r)
-                ? 0 : style.r0;
-            var r = style.r;                            // 扇形外半径(0,r]
-            var startAngle = myMath.degreeTo360(style.startAngle);            // 起始角度[0,360)
-            var endAngle   = myMath.degreeTo360(style.endAngle);              // 结束角度(0,360]
+        getRect : function(context){
+            var context = context ? context : this.context;
+            var r0 = typeof context.r0 == 'undefined'     // 形内半径[0,r)
+                ? 0 : context.r0;
+            var r = context.r;                            // 扇形外半径(0,r]
+            var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
+            var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
 
             var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
             if ( (startAngle > endAngle && !this.clockwise ) || (startAngle < endAngle && this.clockwise ) ) {
                 regIn      = false;
             }
             //度的范围，从小到大
-            var regAngle   = [ Math.min( startAngle , endAngle ) , Math.max( startAngle , endAngle ) ];
+            var regAngle   = [ 
+                Math.min( startAngle , endAngle ) , 
+                Math.max( startAngle , endAngle ) 
+            ];
 
             var pointList  = [];
 
@@ -101,9 +104,8 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Polygon , Base){
                     myMath.cos(endAngle)   * r0 ,  myMath.sin(endAngle)  * r0
                     ]);
 
-            style.pointList = pointList;
-            return Polygon.prototype.getRect(style);
-
+            context.pointList = pointList;
+            return this.getRectFormPointList( context );
         }
 
    });
@@ -114,7 +116,6 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Polygon , Base){
    requires:[
      "canvax/display/Shape",
      "canvax/utils/Math",
-     "canvax/shape/Polygon",
      "canvax/core/Base"
    ]
 });

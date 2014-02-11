@@ -16,7 +16,7 @@
  * @yEnd   终点纵坐标
  */
 
-KISSY.add("canvax/shape/Beziercurve" , function(S,Shape,Base){
+KISSY.add("canvax/shape/Beziercurve" , function( S , Shape , Base ){
   var Beziercurve = function(opt){
       var self=this;
       self.type = "beziercurve";

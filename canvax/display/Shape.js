@@ -123,6 +123,46 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
                     y1 + (deltaY / numDashes) * i
                 );
             }
+      },
+      /*
+       *从pointList节点中获取到4个方向的边界节点
+       *@param  context 
+       *
+       **/
+      getRectFormPointList : function( context ){
+          var minX =  Number.MAX_VALUE;
+          var maxX =  Number.MIN_VALUE;
+          var minY =  Number.MAX_VALUE;
+          var maxY =  Number.MIN_VALUE;
+
+          var pointList = context.pointList.$model;
+          for(var i = 0, l = pointList.length; i < l; i++) {
+              if (pointList[i][0] < minX) {
+                  minX = pointList[i][0];
+              }
+              if (pointList[i][0] > maxX) {
+                  maxX = pointList[i][0];
+              }
+              if (pointList[i][1] < minY) {
+                  minY = pointList[i][1];
+              }
+              if (pointList[i][1] > maxY) {
+                  maxY = pointList[i][1];
+              }
+          }
+
+          var lineWidth;
+          if (context.strokeStyle || context.fillStyle  ) {
+              lineWidth = context.lineWidth || 1;
+          } else {
+              lineWidth = 0;
+          }
+          return {
+              x      : Math.round(minX - lineWidth / 2),
+              y      : Math.round(minY - lineWidth / 2),
+              width  : maxX - minX + lineWidth,
+              height : maxY - minY + lineWidth
+          };
       }
    });
 
