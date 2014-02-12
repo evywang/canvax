@@ -9,7 +9,7 @@
  */
 
 
-KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,StageEvent ){
+KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base ){
   
    var Stage = function( ){
 
@@ -91,7 +91,6 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,S
 },{
   requires:[
     "canvax/display/DisplayObjectContainer",
-    "canvax/core/Base",
-    "canvax/event/StageEvent"
+    "canvax/core/Base"
   ]
 });

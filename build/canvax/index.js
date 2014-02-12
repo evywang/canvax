@@ -1120,7 +1120,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return p;
             
         },
-        localToGlobal : function(x, y){
+        localToGlobal : function( point ){
             var cm = this._transformStage;
             if(!cm){
                 cm = this.getConcatenatedMatrix();
@@ -1131,11 +1131,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
             cm=cm.clone();
                 
             if (cm == null) return {x:0, y:0};
-            var m = new Matrix(1, 0, 0, 1, x, y);
+            var m = new Matrix(1, 0, 0, 1, point.x , point.y);
             m.concat(cm);
-            return {x:m.tx, y:m.ty};
+            return new Point( m.tx , m.ty ); //{x:m.tx, y:m.ty};
         },
-        globalToLocal : function(x, y) {
+        globalToLocal : function( point ) {
             var cm = this._transformStage;
             if(!cm){
                 cm = this.getConcatenatedMatrix();
@@ -1145,16 +1145,15 @@ KISSY.add("canvax/animation/Animation" , function(S){
             //自己克隆，避免影响倒this._transformStage
             cm=cm.clone();
 
-
-            if (cm == null) return {x:0, y:0};
+            if (cm == null) return new Point( 0 , 0 ); //{x:0, y:0};
             cm.invert();
-            var m = new Matrix(1, 0, 0, 1, x, y);
+            var m = new Matrix(1, 0, 0, 1, point.x , point.y);
             m.concat(cm);
-            return {x:m.tx, y:m.ty};
+            return new Point( m.tx , m.ty ); //{x:m.tx, y:m.ty};
         },
-        localToTarget : function(x, y, target){
-            var p = localToGlobal(x, y);
-            return target.globalToLocal(p.x, p.y);
+        localToTarget : function( point , target){
+            var p = localToGlobal( point );
+            return target.globalToLocal( p );
         },
         getConcatenatedMatrix : function(){
             //TODO: cache the concatenated matrix to get better performance
@@ -1303,10 +1302,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return style
         },
         //显示对象的选取检测处理函数
-        hitTestPoint : function( mouseX , mouseY){
+        getChildInPoint : function( point ){
             var result; //检测的结果
-            var x = mouseX ;
-            var y = mouseY ;
+            var x = point.x ;
+            var y = point.y ;
 
             //这个时候如果有对context的set，告诉引擎不需要watch，因为这个是引擎触发的，不是用户
             //用户set context 才需要触发watch
@@ -1422,7 +1421,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       "canvax/core/propertyFactory"
     ]
 });
-;KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObject){
+;KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObject , Point){
 
     DisplayObjectContainer = function(opt){
        var self = this;
@@ -1592,7 +1591,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return this.children.length;
         },
         //获取x,y点上的所有object  num 需要返回的obj数量
-        getObjectsUnderPoint : function(x, y , num) {
+        getObjectsUnderPoint : function( point , num) {
             var result = [];
             for(var i = this.children.length - 1; i >= 0; i--) {
                 var child = this.children[i];
@@ -1604,14 +1603,14 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 if( child instanceof DisplayObjectContainer ) {
                     //是集合
                     if (child.mouseChildren && child.getNumChildren() > 0){
-                       var objs = child.getObjectsUnderPoint(x, y);
+                       var objs = child.getObjectsUnderPoint( point );
                        if (objs.length > 0){
                           result = result.concat( objs );
                        }
                     }		
                 } else {
-                    //非集合，可以开始做hitTestPoint了
-                    if (child.hitTestPoint(x, y)) {
+                    //非集合，可以开始做getChildInPoint了
+                    if (child.getChildInPoint( point )) {
                         result.push(child);
                         if (num != undefined && !isNaN(num)){
                            if(result.length == num){
@@ -1637,7 +1636,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
 },{
    requires:[
      "canvax/core/Base",
-     "canvax/display/DisplayObject"
+     "canvax/display/DisplayObject",
+     "canvax/display/Point"
    ]
 })
 ;KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base){
@@ -2121,7 +2121,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
     "canvax/core/Base"
   ]
 })
-;KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base,StageEvent ){
+;KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base ){
   
    var Stage = function( ){
 
@@ -2203,8 +2203,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 },{
   requires:[
     "canvax/display/DisplayObjectContainer",
-    "canvax/core/Base",
-    "canvax/event/StageEvent"
+    "canvax/core/Base"
   ]
 });
 ;KISSY.add("canvax/display/Text" ,
@@ -2505,6 +2504,71 @@ KISSY.add("canvax/animation/Animation" , function(S){
         ]
     }
 );
+;KISSY.add("canvax/event/CanvaxEvent" , function(S,EventBase,Base){
+    var CanvaxEvent = function(type, bubbles, cancelable) {
+        EventBase.call(this, type, bubbles, cancelable);
+
+        this.mouseX = 0;
+        this.mouseY = 0;
+    }
+
+    Base.creatClass(CanvaxEvent , EventBase , {
+        toString : function() {
+        return "[CanvaxEvent type=" + this.type + ", mouseX=" + this.mouseX + ", mouseY=" + this.mouseY + "]";
+    }
+
+    });
+
+    CanvaxEvent.EVENTS = [
+       "click" , "mousedown" , "mousemove" , "mouseup" , "mouseout"    
+    ];
+
+    var addOrRmoveEventHand = function( domHand , ieHand ){
+        if( document[ domHand ] ){
+            return function( el , type , fn ){
+                if( el.length ){
+                    for(var i=0 ; i < el.length ; i++){
+                        arguments.callee( el[i] , type , fn );
+                    }
+                } else {
+                    el[ domHand ]( type , fn , false );
+                }
+            };
+        } else {
+            return function( el , type , fn ){
+                if( el.length ){
+                    for(var i=0 ; i < el.length ; i++){
+                        arguments.callee( el[i],type,fn );
+                    }
+                } else {
+                    el[ ieHand ]( "on"+type , function(){
+                        return fn.call( el , window.event );
+                    });
+                }
+            };
+        }
+    }
+
+    /*
+     * 添加事件侦听
+     */
+    CanvaxEvent.addEvent    = addOrRmoveEventHand( "addEventListener" , "attachEvent" );
+     /*
+     * 删除事件侦听
+     */
+    CanvaxEvent.removeEvent = addOrRmoveEventHand( "removeEventListener" , "detachEvent" );
+
+
+    return CanvaxEvent;
+
+} , {
+    requires : [
+        "canvax/event/EventBase",
+        "canvax/core/Base"
+        ]
+})
+
+
 ;KISSY.add("canvax/event/EventBase" , function(S,core){
     var EventBase = function(type, bubbles, cancelable) {
         this.type = type;
@@ -2815,40 +2879,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
     requires:[
         ]
 });
-;KISSY.add("canvax/event/StageEvent" , function(S,EventBase,Base){
-    var StageEvent = function(type, bubbles, cancelable) {
-        EventBase.call(this, type, bubbles, cancelable);
-
-        this.mouseX = 0;
-        this.mouseY = 0;
-    }
-
-    Base.creatClass(StageEvent , EventBase , {
-        toString : function() {
-        return "[StageEvent type=" + this.type + ", mouseX=" + this.mouseX + ", mouseY=" + this.mouseY + "]";
-    }
-
-    });
-
-    //Stage event types
-    StageEvent.ENTER_FRAME = "enterframe";
-    StageEvent.MOUSE_DOWN = "mousedown";
-    StageEvent.MOUSE_UP = "mouseup";
-    StageEvent.MOUSE_MOVE = "mousemove";
-    StageEvent.MOUSE_OVER = "mouseover";
-    StageEvent.MOUSE_OUT = "mouseout";
-
-
-    return StageEvent;
-
-} , {
-    requires : [
-        "canvax/event/EventBase",
-        "canvax/core/Base"
-        ]
-})
-
-
 ;KISSY.add("canvax/geom/Matrix" , function(S,Base){
   
     var Matrix = function(a, b, c, d, tx, ty){
@@ -3050,7 +3080,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
    ]
 });
 ;KISSY.add("canvax/index" ,
-   function( S , DisplayObjectContainer , Stage , Base , StageEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Point , Shapes , Animation , ImagesLoader ){
+   function( S , DisplayObjectContainer , Stage , Base , CanvaxEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Point , Shapes , Animation , ImagesLoader , Hammer ){
+       
    var Canvax=function(opt){
        var self = this;
        self.type = "canvax";
@@ -3061,8 +3092,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
        //那么要先清除这个el的所有内容。
        self.el.html("");
 
-       self.mouseTarget = null;
-       self.dragTarget = null;
+       self.curPoints       = [ new Point( 0 , 0 ) ] //mouseX,mouseY 的 point 集合
+
+       //当前激活的点对应的obj，在touch下可以是个数组,和上面的curPoints对应
+       self.curPointsTarget = null;
+       self.dragTarget      = null;
 
        //每帧 由 心跳 上报的 需要重绘的stages 列表
        self.convertStages = {};
@@ -3070,8 +3104,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
        self.rootOffset = {
           left:0,top:0
        };
-       self.mouseX = 0;
-       self.mouseY = 0;
 
        self._heartBeat = false;//心跳，默认为false，即false的时候引擎处于静默状态 true则启动渲染
        
@@ -3112,7 +3144,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        init : function(){
           var self = this;
 
-          self.context.width = self.el.width();
+          self.context.width  = self.el.width();
           self.context.height = self.el.height();
 
           //然后创建一个用于绘制激活shape的 stage到activation
@@ -3139,34 +3171,53 @@ KISSY.add("canvax/animation/Animation" , function(S){
           } );
           self.addChild( self._hoverStage );
        },
+       _eventHand : null , //该处理函数在_initEvent中初始化
        _initEvent : function(){
           //初始绑定事件，为后续的displayList的事件分发提供入口
           var self = this;
           self.rootOffset = self.el.offset();
-          self._Event = new StageEvent();
-          self.el.on("click" , function(e){
-               self.__mouseHandler(e);
-          });
+          self._Event     = new CanvaxEvent();
+ 
+          var _moveStep = 0; //move的时候的频率设置
 
-          //delegate mouse events on the el
-          self.el.on("mousedown" , function(e){
-               self.__mouseHandler(e);
-          });  
-          self._moveStep = 0;
-          self.el.on("mousemove" , function(e){
-               if(self._moveStep<1){
-                  self._moveStep++;
-                  return;
-               }
-               self._moveStep = 0;
-               self.__mouseHandler(e);
-          });  
-          self.el.on("mouseup" , function(e){
-               self.__mouseHandler(e);
-          });
-          self.el.on("mouseout" , function(e){
-               self.__mouseHandler(e);
-          });
+          if( !(Hammer && Hammer.NO_MOUSEEVENTS) ) {
+              var _eventHand = self._eventHand = function( e ){
+                  //如果发现是mousemove的话，要做mousemove的频率控制
+                  if( e.type == "mousemove" ){
+                      if(_moveStep<1){
+                          _moveStep++;
+                          return;
+                      }
+                      _moveStep = 0;
+                  }
+                  self.__mouseHandler(e);
+              }
+              //依次添加上浏览器的自带事件侦听
+              _.each( CanvaxEvent.EVENTS , function( type ){
+                  CanvaxEvent.addEvent( self.el , type , self._eventHand ); 
+              } );
+          } 
+
+          //触屏系统则引入Hammer
+          if( Hammer && Hammer.HAS_TOUCHEVENTS ){
+              var el = self.el[0]
+              self._hammer = Hammer( el ).on( Hammer.EventsTypes , function( e ){
+                 //console.log(e.type)
+                 //同样的，如果是drag事件，则要左频率控制
+                 
+                  /*
+                 if( e.type == "drag" ){
+                      if(_moveStep<1){
+                          _moveStep++;
+                          return;
+                      }
+                      _moveStep = 0;
+                 }
+                 */
+                 self.__touchHandler(e);
+              } );
+          }
+
        },
        /**
         * 获取像素拾取专用的上下文
@@ -3197,34 +3248,45 @@ KISSY.add("canvax/animation/Animation" , function(S){
                _pixelCanvas.style.top        = -self.context.height + "px";
                _pixelCanvas.style.visibility = "hidden";
            }
-
            Base._pixelCtx = _pixelCanvas.getContext('2d');
+       },
+       /*
+        *触屏事件处理函数
+        * */
+       __touchHandler : function( event ) {
+          var self = this;
+          //touch下的curPointsTarget 从touches中来
+          var touchesTarget = [];
+          _.each( event.gesture.touches , function( touch ){
 
+              touchesTarget.push(  )
+          });
        },
        /*
         * 鼠标事件处理函数
         * */
        __mouseHandler : function(event) {
            var self = this;
-           var mouseX = event.pageX - self.rootOffset.left;
-           var mouseY = event.pageY - self.rootOffset.top;
-           
-           //stage拥有mouseX and mouseY
-           self.mouseX = mouseX;
-           self.mouseY = mouseY;
+           self.curPoints = [ new Point( 
+                   event.pageX - self.rootOffset.left , 
+                   event.pageY - self.rootOffset.top
+                   )];
+           var curMousePoint = self.curPoints[0]; 
 
-           if(event.type == "mousedown"){
-              
-              if(!self.mouseTarget){
-                var obj = self.getObjectsUnderPoint(self.mouseX, self.mouseY, 1)[0];
+           //self.mouseX = event.pageX - self.rootOffset.left;
+           //self.mouseY = event.pageY - self.rootOffset.top;
+           
+           if( event.type == "mousedown" ){
+              if(!self.curPointsTarget){
+                var obj = self.getObjectsUnderPoint( curMousePoint , 1)[0];
                 if(obj){
-                  self.mouseTarget = obj;
+                  self.curPointsTarget = obj;
                 }
               }
-              self.mouseTarget && self.dragEnabled && (self._touching = true);
+              self.curPointsTarget && self.dragEnabled && (self._touching = true);
            }
 
-           if(event.type == "mouseup" || event.type == "mouseout"){
+           if( event.type == "mouseup" || event.type == "mouseout" ){
               if(self._draging == true){
                  //说明刚刚在拖动
                  self._dragEnd();
@@ -3233,26 +3295,26 @@ KISSY.add("canvax/animation/Animation" , function(S){
               self._touching = false;
            }
 
-           if(event.type=="mouseout"){
-              self.__getMouseTarget(event);
+           if( event.type == "mouseout" ){
+              self.__getcurPointsTarget(event , curMousePoint);
            }
  
            if( event.type == "mousemove" || event.type == "mousedown" ){
                //拖动过程中就不在做其他的mouseover检测，drag优先
-               if(self._touching && event.type == "mousemove" && self.mouseTarget){
+               if(self._touching && event.type == "mousemove" && self.curPointsTarget){
                   //说明正在拖动啊
                   if(!self._draging){
                      //begin drag
-                     self.mouseTarget.dragBegin && self.mouseTarget.dragBegin(event);
+                     self.curPointsTarget.dragBegin && self.curPointsTarget.dragBegin(event);
                      
                      //先把本尊给隐藏了
-                     self.mouseTarget.context.visible = false;
+                     self.curPointsTarget.context.visible = false;
                                           
                      //然后克隆一个副本到activeStage
                      self._clone2hoverStage();
                   } else {
                      //drag ing
-                     self._dragIng();
+                     self._dragHander();
                   }
                   self._draging = true;
                   return self;
@@ -3260,41 +3322,40 @@ KISSY.add("canvax/animation/Animation" , function(S){
                //常规mousemove检测
                //move事件中，需要不停的搜索target，这个开销挺大，
                //后续可以优化，加上和帧率相当的延迟处理
-               this.__getMouseTarget(event);
+               this.__getcurPointsTarget( event , curMousePoint );
 
            } else {
                //其他的事件就直接在target上面派发事件
-               if(this.mouseTarget){
+               if( this.curPointsTarget ){
                    //event
                    var e = _.extend(self._Event , event);
-                   e.target = e.currentTarget = this.mouseTarget || this;
-                   e.mouseX = this.mouseX;
-                   e.mouseY = this.mouseY;
+                   e.target = e.currentTarget = this.curPointsTarget || this;
+                   e.mouseX = curMousePoint.x;
+                   e.mouseY = curMousePoint.y;
 
                    //dispatch event
-                   this.mouseTarget.dispatchEvent(e);
+                   this.curPointsTarget.dispatchEvent(e);
                }
            }
-           //disable text selection on the canvas, works like a charm.	
            try {
                event.preventDefault();
                event.stopPropagation();
            } catch(e){}
        },
-       __getMouseTarget : function(event) {
+       __getcurPointsTarget : function(event , point ) {
 
-           var oldObj = this.mouseTarget;
-           if( event.type=="mousemove" && oldObj && oldObj.hitTestPoint( this.mouseX, this.mouseY ) ){
+           var oldObj = this.curPointsTarget;
+           if( event.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
                return;
            }
-           var obj = this.getObjectsUnderPoint(this.mouseX, this.mouseY, 1)[0];
+           var obj = this.getObjectsUnderPoint( point , 1)[0];
            var e = _.extend(this._Event , event);
 
            e.target = e.currentTarget = obj;
-           e.mouseX = this.mouseX;
-           e.mouseY = this.mouseY;
+           e.mouseX = point.x;
+           e.mouseY = point.y;
 
            this._cursorHander( obj , oldObj );
 
@@ -3302,7 +3363,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                if(!oldObj){
                   return;
                }
-               this.mouseTarget = null;
+               this.curPointsTarget = null;
                e.type = "mouseout";
                e.target = e.currentTarget = oldObj;
                //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
@@ -3314,37 +3375,37 @@ KISSY.add("canvax/animation/Animation" , function(S){
                //this.setCursor("default");
            };
            if(obj && oldObj != obj && obj._hoverable){
-               this.mouseTarget = obj;
+               this.curPointsTarget = obj;
                e.type = "mouseover";
                e.target = e.currentTarget = obj;
                obj.dispatchEvent(e);
-               //this.setCursor(obj.context.cursor);
            };
 
        },
        //克隆一个元素到hover stage中去
        _clone2hoverStage : function(){
            var self = this;
-           var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
+           var _dragDuplicate = self._hoverStage.getChildById(self.curPointsTarget.id);
            if(!_dragDuplicate){
-               _dragDuplicate = self.mouseTarget.clone(true);
+               _dragDuplicate = self.curPointsTarget.clone(true);
                _dragDuplicate._transform = _dragDuplicate.getConcatenatedMatrix();
                self._hoverStage.addChild( _dragDuplicate );
            }
-           _dragDuplicate.context = propertyFactory(self.mouseTarget.context.$model);
+           _dragDuplicate.context = propertyFactory(self.curPointsTarget.context.$model);
            _dragDuplicate.context.$owner = _dragDuplicate;
-           _dragDuplicate.context.$watch = self.mouseTarget.context.$watch;
+           _dragDuplicate.context.$watch = self.curPointsTarget.context.$watch;
            _dragDuplicate.context.visible = true;
 
-           _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal(self.mouseX , self.mouseY)
+           _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal( self.curPoints[0] );
        },
        //drag 中 的处理函数
-       _dragIng  : function(){
+       _dragHander  : function(){
            var self = this;
-           var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
-           _dragDuplicate.context.x = self.mouseX - _dragDuplicate._dragPoint.x; 
-           _dragDuplicate.context.y = self.mouseY - _dragDuplicate._dragPoint.y;  
-           self.mouseTarget.drag && self.mouseTarget.drag(event);
+           var _dragDuplicate = self._hoverStage.getChildById(self.curPointsTarget.id);
+
+           _dragDuplicate.context.x = self.curPoints[0].x - _dragDuplicate._dragPoint.x; 
+           _dragDuplicate.context.y = self.curPoints[0].y - _dragDuplicate._dragPoint.y;  
+           self.curPointsTarget.drag && self.curPointsTarget.drag(event);
        },
        //drag结束的处理函数
        _dragEnd  : function(){
@@ -3352,15 +3413,15 @@ KISSY.add("canvax/animation/Animation" , function(S){
            self.dragEnd && self.dragEnd(event);  
            //拖动停止， 那么要先把本尊给显示出来先
            //这里还可以做优化，因为拖动停止了但是还是在hover状态，没必要把本尊显示的。
-           //self.mouseTarget.context.visible = true;
+           //self.curPointsTarget.context.visible = true;
 
            //_dragDuplicate 复制在_hoverStage 中的副本
-           var _dragDuplicate = self._hoverStage.getChildById(self.mouseTarget.id);
-           self.mouseTarget.context = _dragDuplicate.context;
-           self.mouseTarget.context.$owner = self.mouseTarget;
+           var _dragDuplicate                   = self._hoverStage.getChildById(self.curPointsTarget.id);
+           self.curPointsTarget.context         = _dragDuplicate.context;
+           self.curPointsTarget.context.$owner  = self.curPointsTarget;
            //这个时候的target还是隐藏状态呢
-           self.mouseTarget.context.visible = false;
-           self.mouseTarget._updateTransform();
+           self.curPointsTarget.context.visible = false;
+           self.curPointsTarget._updateTransform();
            if(event.type == "mouseout"){
                _dragDuplicate.destroy();
            }
@@ -3588,7 +3649,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
     "canvax/display/DisplayObjectContainer" ,
     "canvax/display/Stage", 
     "canvax/core/Base",
-    "canvax/event/StageEvent",
+    "canvax/event/CanvaxEvent",
     "canvax/core/propertyFactory",
     
     "canvax/display/Sprite",
@@ -3602,9 +3663,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
     "canvax/animation/Animation",
     "canvax/utils/ImagesLoader",
+
+    ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
   
     //如果用户没有加载underscore，作为被选方案，自己加载一个进来
-    !window._ ? "canvax/library/underscore" : ""
+    !window._ ? "canvax/library/underscore" : "",
+    
 
     //如果用户没有加载flashcavnas在ie下面，并且也没有加载excanvas，就默认加载自己准备的flashcanvas进来
     //( !document.createElement('canvas').getContext && !window.FlashCanvas && !window.G_vmlCanvasManager ) ? "canvax/library/flashCanvas/flashcanvas" : ""
@@ -4963,14 +5027,14 @@ KISSY.add("canvax/animation/Animation" , function(S){
        self.type = "sector";
 
        opt = Base.checkOpt( opt );
-       self.clockwise =  opt.clockwise || false;//是否顺时针，默认为false(顺时针)
-
        self._context  = {
            pointList  : [],//边界点的集合,私有，从下面的属性计算的来
            r0         : opt.context.r0         || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
            r          : opt.context.r          || 0,//{number},  // 必须，外圆半径
            startAngle : opt.context.startAngle || 0,//{number},  // 必须，起始角度[0, 360)
-           endAngle   : opt.context.endAngle   || 0 //{number},  // 必须，结束角度(0, 360]
+           endAngle   : opt.context.endAngle   || 0, //{number},  // 必须，结束角度(0, 360]
+           clockwise  : opt.context.clockwise  || false //是否顺时针，默认为false(顺时针)
+
        }
        arguments.callee.superclass.constructor.apply(this , arguments);
    };
@@ -4987,9 +5051,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
            startAngle = myMath.degreeToRadian(startAngle);
            endAngle   = myMath.degreeToRadian(endAngle);
 
-           ctx.arc( 0 , 0 , r, startAngle, endAngle, this.clockwise);
+           ctx.arc( 0 , 0 , r, startAngle, endAngle, this.context.clockwise);
            if (r0 !== 0) {
-               ctx.arc( 0 , 0 , r0, endAngle , startAngle, !this.clockwise);
+               ctx.arc( 0 , 0 , r0, endAngle , startAngle, !this.context.clockwise);
            }
         },
         getRect : function(context){
@@ -5001,8 +5065,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
             var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
 
             var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
-            if ( (startAngle > endAngle && !this.clockwise ) || (startAngle < endAngle && this.clockwise ) ) {
-                regIn      = false;
+            if ( (startAngle > endAngle && !this.context.clockwise ) || (startAngle < endAngle && this.context.clockwise ) ) {
+                regIn      = false; //out
             }
             //度的范围，从小到大
             var regAngle   = [ 
@@ -5096,7 +5160,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       "canvax/shape/Rect"
     ]
 })
-;KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
+;KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
     /**
      * 图形空间辅助类
      * isInside：是否在区域内部
@@ -5205,16 +5269,16 @@ KISSY.add("canvax/animation/Animation" , function(S){
      *
      * @param {Object} shapeClazz ： shape类
      * @param {Object} context : 上下文
-     * @param {Object} area ：目标区域
+     * @param {Object} context ：目标区域
      * @param {number} x ： 横坐标
      * @param {number} y ： 纵坐标
      * @return {boolean} true表示坐标处在图形中
      */
     function _buildPathMethod(shape, context, x, y) {
-        var area = shape.context;
+        var context = shape.context;
         // 图形类实现路径创建了则用类的path
         context.beginPath();
-        shape.buildPath(context, area);
+        shape.buildPath(context, context);
         context.closePath();
         return context.isPointInPath(x, y);
     }
@@ -5223,13 +5287,13 @@ KISSY.add("canvax/animation/Animation" , function(S){
      * 通过像素值来判断，三个方法中最慢，但是支持广,不足之处是excanvas不支持像素处理
      *
      * @param {Object} shapeClazz ： shape类
-     * @param {Object} area ：目标区域
+     * @param {Object} context ：目标区域
      * @param {number} x ： 横坐标
      * @param {number} y ： 纵坐标
      * @return {boolean} true表示坐标处在图形中
      */
     function _pixelMethod(shape, x, y) {
-        var area = shape.context;
+        var context  = shape.context;
 
         var _context = Base._pixelCtx;
 
@@ -5237,7 +5301,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         _context.save();
         _context.beginPath();
-        shape.setContextStyle(_context , area);
+        shape.setContextStyle(_context , context);
        
         _context.transform.apply( _context , shape.getConcatenatedMatrix().toArray() );
 
@@ -5246,7 +5310,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
         _context.clearRect( shape._rect.x-10 , shape._rect.y-10 , shape._rect.width+20 , shape._rect.height+20 );
 
 
-        shape.draw(_context,  area);
+        shape.draw( _context,  context );
         shape.drawEnd(_context);
         _context.closePath();
         _context.restore();
@@ -5312,12 +5376,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
     /**
      * 线段包含判断
      */
-    function _isInsideLine(area , x, y) {
-        var _x1 = area.xStart;
-        var _y1 = area.yStart;
-        var _x2 = area.xEnd;
-        var _y2 = area.yEnd;
-        var _l = area.lineWidth;
+    function _isInsideLine( context , x , y ) {
+        var _x1 = context.xStart;
+        var _y1 = context.yStart;
+        var _x2 = context.xEnd;
+        var _y2 = context.yEnd;
+        var _l  = context.lineWidth;
         var _a = 0;
         var _b = _x1;
 
@@ -5334,8 +5398,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
     }
 
     function _isInsideBrokenLine(shape, x, y) {
-        var area = shape.context;
-        var pointList = area.pointList.$model;
+        var context   = shape.context;
+        var pointList = context.pointList.$model;
         var lineArea;
         var insideCatch = false;
         for (var i = 0, l = pointList.length - 1; i < l; i++) {
@@ -5344,7 +5408,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 yStart : pointList[i][1],
                 xEnd : pointList[i + 1][0],
                 yEnd : pointList[i + 1][1],
-                lineWidth : area.lineWidth
+                lineWidth : context.lineWidth
             };
             if (!_isInsideRectangle(
                         {
@@ -5372,12 +5436,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
     }
 
     function _isInsideRing(shape , x, y) {
-        var area = shape.context;
+        var context = shape.context;
         if (_isInsideCircle(shape , x, y)
                 && !_isInsideCircle(
                     shape,
                     x, y,
-                    area.r0 || 0
+                    context.r0 || 0
                     )
            ){
                // 大圆内，小圆外
@@ -5405,8 +5469,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
      * 圆形包含判断
      */
     function _isInsideCircle(shape, x, y , r) {
-        var area = shape.context;
-        !r && (r=area.r);
+        var context = shape.context;
+        !r && ( r = context.r );
         return (x * x + y * y) < r * r;
     }
 
@@ -5414,28 +5478,34 @@ KISSY.add("canvax/animation/Animation" , function(S){
      * 扇形包含判断
      */
     function _isInsideSector(shape, x, y) {
-        var area = shape.context
+        var context = shape.context
         if (!_isInsideCircle(shape, x, y)
-                || (area.r0 > 0 && _isInsideCircle( shape ,x, y , area.r0))
+                || ( context.r0 > 0 && _isInsideCircle( shape ,x, y , context.r0))
            ){
                // 大圆外或者小圆内直接false
                return false;
            }
         else {
             // 判断夹角
-            var angle = (360
-                    - Math.atan2(y , x )
-                    / Math.PI
-                    * 180)
-                % 360;
-            var endA = (360 + area.endAngle) % 360;
-            var startA = (360 + area.startAngle) % 360;
-            if (endA > startA) {
-                return (angle >= startA && angle <= endA);
-            } else {
-                return !(angle >= endA && angle <= startA);
-            }
+            var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
+            var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
 
+            var angle      = (Math.atan2(y , x ) / Math.PI * 180) % 360;
+            
+            var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
+            if ( (startAngle > endAngle && !context.clockwise ) || (startAngle < endAngle && context.clockwise ) ) {
+                regIn      = false; //out
+            }
+            //度的范围，从小到大
+            var regAngle   = [ 
+                Math.min( startAngle , endAngle ) , 
+                Math.max( startAngle , endAngle ) 
+            ];
+
+            //console.log(angle+"|"+startAngle+"|"+endAngle)
+
+            var inAngleReg = angle > regAngle[0] && angle < regAngle[1];
+            return (inAngleReg && regIn) || (!inAngleReg && !regIn);
         }
     }
 
@@ -5443,11 +5513,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
      *椭圆包含判断
      * */
     function _isPointInElipse(shape , x , y) {
-        var area=shape.context;
-        var center={x:0,y:0};
+        var context = shape.context;
+        var center  = { x:0 , y:0 };
         //x半径
-        var XRadius = area.hr;
-        var YRadius = area.vr;
+        var XRadius = context.hr;
+        var YRadius = context.vr;
 
         var p = {
             x : x,
@@ -5481,8 +5551,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
          * 如果一个点在多边形外部，任意角度做射线要么与多边形有一个交点，
          * 要么有两个交点，要么没有交点，要么有与多边形边界线重叠。
          */
-        var area = shape.context ? shape.context : shape;
-        var polygon = area.pointList.$model || area.pointList;
+        var context = shape.context ? shape.context : shape;
+        var polygon = context.pointList.$model || context.pointList;
         var i;
         var j;
         var N = polygon.length;
@@ -5544,8 +5614,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
      * 路径包含判断，依赖多边形判断
      */
     function _isInsidePath(shape, x, y) {
-        var area = shape.context;
-        var pointList = area.$pointList || area.pointList.$model;
+        var context = shape.context;
+        var pointList = context.$pointList || context.pointList.$model;
         var insideCatch = false;
         for (var i = 0, l = pointList.length; i < l; i++) {
             insideCatch = _isInsidePolygon(
@@ -5584,7 +5654,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
 },{
     requires : [
-        "canvax/core/Base"
+        "canvax/core/Base",
+        "canvax/utils/Math",
         ]
 });
 ;KISSY.add("canvax/utils/ImagesLoader" , function( S , Base , EventDispatcher ){

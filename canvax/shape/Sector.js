@@ -22,14 +22,14 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
        self.type = "sector";
 
        opt = Base.checkOpt( opt );
-       self.clockwise =  opt.clockwise || false;//是否顺时针，默认为false(顺时针)
-
        self._context  = {
            pointList  : [],//边界点的集合,私有，从下面的属性计算的来
            r0         : opt.context.r0         || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
            r          : opt.context.r          || 0,//{number},  // 必须，外圆半径
            startAngle : opt.context.startAngle || 0,//{number},  // 必须，起始角度[0, 360)
-           endAngle   : opt.context.endAngle   || 0 //{number},  // 必须，结束角度(0, 360]
+           endAngle   : opt.context.endAngle   || 0, //{number},  // 必须，结束角度(0, 360]
+           clockwise  : opt.context.clockwise  || false //是否顺时针，默认为false(顺时针)
+
        }
        arguments.callee.superclass.constructor.apply(this , arguments);
    };
@@ -46,9 +46,9 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
            startAngle = myMath.degreeToRadian(startAngle);
            endAngle   = myMath.degreeToRadian(endAngle);
 
-           ctx.arc( 0 , 0 , r, startAngle, endAngle, this.clockwise);
+           ctx.arc( 0 , 0 , r, startAngle, endAngle, this.context.clockwise);
            if (r0 !== 0) {
-               ctx.arc( 0 , 0 , r0, endAngle , startAngle, !this.clockwise);
+               ctx.arc( 0 , 0 , r0, endAngle , startAngle, !this.context.clockwise);
            }
         },
         getRect : function(context){
@@ -60,8 +60,8 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
             var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
 
             var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
-            if ( (startAngle > endAngle && !this.clockwise ) || (startAngle < endAngle && this.clockwise ) ) {
-                regIn      = false;
+            if ( (startAngle > endAngle && !this.context.clockwise ) || (startAngle < endAngle && this.context.clockwise ) ) {
+                regIn      = false; //out
             }
             //度的范围，从小到大
             var regAngle   = [ 

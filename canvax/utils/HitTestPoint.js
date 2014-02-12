@@ -9,7 +9,7 @@
  * */
 
 
-KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
+KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
     /**
      * 图形空间辅助类
      * isInside：是否在区域内部
@@ -118,16 +118,16 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
      *
      * @param {Object} shapeClazz ： shape类
      * @param {Object} context : 上下文
-     * @param {Object} area ：目标区域
+     * @param {Object} context ：目标区域
      * @param {number} x ： 横坐标
      * @param {number} y ： 纵坐标
      * @return {boolean} true表示坐标处在图形中
      */
     function _buildPathMethod(shape, context, x, y) {
-        var area = shape.context;
+        var context = shape.context;
         // 图形类实现路径创建了则用类的path
         context.beginPath();
-        shape.buildPath(context, area);
+        shape.buildPath(context, context);
         context.closePath();
         return context.isPointInPath(x, y);
     }
@@ -136,13 +136,13 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
      * 通过像素值来判断，三个方法中最慢，但是支持广,不足之处是excanvas不支持像素处理
      *
      * @param {Object} shapeClazz ： shape类
-     * @param {Object} area ：目标区域
+     * @param {Object} context ：目标区域
      * @param {number} x ： 横坐标
      * @param {number} y ： 纵坐标
      * @return {boolean} true表示坐标处在图形中
      */
     function _pixelMethod(shape, x, y) {
-        var area = shape.context;
+        var context  = shape.context;
 
         var _context = Base._pixelCtx;
 
@@ -150,7 +150,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
 
         _context.save();
         _context.beginPath();
-        shape.setContextStyle(_context , area);
+        shape.setContextStyle(_context , context);
        
         _context.transform.apply( _context , shape.getConcatenatedMatrix().toArray() );
 
@@ -159,7 +159,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
         _context.clearRect( shape._rect.x-10 , shape._rect.y-10 , shape._rect.width+20 , shape._rect.height+20 );
 
 
-        shape.draw(_context,  area);
+        shape.draw( _context,  context );
         shape.drawEnd(_context);
         _context.closePath();
         _context.restore();
@@ -225,12 +225,12 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
     /**
      * 线段包含判断
      */
-    function _isInsideLine(area , x, y) {
-        var _x1 = area.xStart;
-        var _y1 = area.yStart;
-        var _x2 = area.xEnd;
-        var _y2 = area.yEnd;
-        var _l = area.lineWidth;
+    function _isInsideLine( context , x , y ) {
+        var _x1 = context.xStart;
+        var _y1 = context.yStart;
+        var _x2 = context.xEnd;
+        var _y2 = context.yEnd;
+        var _l  = context.lineWidth;
         var _a = 0;
         var _b = _x1;
 
@@ -247,8 +247,8 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
     }
 
     function _isInsideBrokenLine(shape, x, y) {
-        var area = shape.context;
-        var pointList = area.pointList.$model;
+        var context   = shape.context;
+        var pointList = context.pointList.$model;
         var lineArea;
         var insideCatch = false;
         for (var i = 0, l = pointList.length - 1; i < l; i++) {
@@ -257,7 +257,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
                 yStart : pointList[i][1],
                 xEnd : pointList[i + 1][0],
                 yEnd : pointList[i + 1][1],
-                lineWidth : area.lineWidth
+                lineWidth : context.lineWidth
             };
             if (!_isInsideRectangle(
                         {
@@ -285,12 +285,12 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
     }
 
     function _isInsideRing(shape , x, y) {
-        var area = shape.context;
+        var context = shape.context;
         if (_isInsideCircle(shape , x, y)
                 && !_isInsideCircle(
                     shape,
                     x, y,
-                    area.r0 || 0
+                    context.r0 || 0
                     )
            ){
                // 大圆内，小圆外
@@ -318,8 +318,8 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
      * 圆形包含判断
      */
     function _isInsideCircle(shape, x, y , r) {
-        var area = shape.context;
-        !r && (r=area.r);
+        var context = shape.context;
+        !r && ( r = context.r );
         return (x * x + y * y) < r * r;
     }
 
@@ -327,28 +327,34 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
      * 扇形包含判断
      */
     function _isInsideSector(shape, x, y) {
-        var area = shape.context
+        var context = shape.context
         if (!_isInsideCircle(shape, x, y)
-                || (area.r0 > 0 && _isInsideCircle( shape ,x, y , area.r0))
+                || ( context.r0 > 0 && _isInsideCircle( shape ,x, y , context.r0))
            ){
                // 大圆外或者小圆内直接false
                return false;
            }
         else {
             // 判断夹角
-            var angle = (360
-                    - Math.atan2(y , x )
-                    / Math.PI
-                    * 180)
-                % 360;
-            var endA = (360 + area.endAngle) % 360;
-            var startA = (360 + area.startAngle) % 360;
-            if (endA > startA) {
-                return (angle >= startA && angle <= endA);
-            } else {
-                return !(angle >= endA && angle <= startA);
-            }
+            var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
+            var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
 
+            var angle      = (Math.atan2(y , x ) / Math.PI * 180) % 360;
+            
+            var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
+            if ( (startAngle > endAngle && !context.clockwise ) || (startAngle < endAngle && context.clockwise ) ) {
+                regIn      = false; //out
+            }
+            //度的范围，从小到大
+            var regAngle   = [ 
+                Math.min( startAngle , endAngle ) , 
+                Math.max( startAngle , endAngle ) 
+            ];
+
+            //console.log(angle+"|"+startAngle+"|"+endAngle)
+
+            var inAngleReg = angle > regAngle[0] && angle < regAngle[1];
+            return (inAngleReg && regIn) || (!inAngleReg && !regIn);
         }
     }
 
@@ -356,11 +362,11 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
      *椭圆包含判断
      * */
     function _isPointInElipse(shape , x , y) {
-        var area=shape.context;
-        var center={x:0,y:0};
+        var context = shape.context;
+        var center  = { x:0 , y:0 };
         //x半径
-        var XRadius = area.hr;
-        var YRadius = area.vr;
+        var XRadius = context.hr;
+        var YRadius = context.vr;
 
         var p = {
             x : x,
@@ -394,8 +400,8 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
          * 如果一个点在多边形外部，任意角度做射线要么与多边形有一个交点，
          * 要么有两个交点，要么没有交点，要么有与多边形边界线重叠。
          */
-        var area = shape.context ? shape.context : shape;
-        var polygon = area.pointList.$model || area.pointList;
+        var context = shape.context ? shape.context : shape;
+        var polygon = context.pointList.$model || context.pointList;
         var i;
         var j;
         var N = polygon.length;
@@ -457,8 +463,8 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
      * 路径包含判断，依赖多边形判断
      */
     function _isInsidePath(shape, x, y) {
-        var area = shape.context;
-        var pointList = area.$pointList || area.pointList.$model;
+        var context = shape.context;
+        var pointList = context.$pointList || context.pointList.$model;
         var insideCatch = false;
         for (var i = 0, l = pointList.length; i < l; i++) {
             insideCatch = _isInsidePolygon(
@@ -497,6 +503,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base){
 
 },{
     requires : [
-        "canvax/core/Base"
+        "canvax/core/Base",
+        "canvax/utils/Math",
         ]
 });

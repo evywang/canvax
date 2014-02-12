@@ -217,7 +217,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             return p;
             
         },
-        localToGlobal : function(x, y){
+        localToGlobal : function( point ){
             var cm = this._transformStage;
             if(!cm){
                 cm = this.getConcatenatedMatrix();
@@ -228,11 +228,11 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             cm=cm.clone();
                 
             if (cm == null) return {x:0, y:0};
-            var m = new Matrix(1, 0, 0, 1, x, y);
+            var m = new Matrix(1, 0, 0, 1, point.x , point.y);
             m.concat(cm);
-            return {x:m.tx, y:m.ty};
+            return new Point( m.tx , m.ty ); //{x:m.tx, y:m.ty};
         },
-        globalToLocal : function(x, y) {
+        globalToLocal : function( point ) {
             var cm = this._transformStage;
             if(!cm){
                 cm = this.getConcatenatedMatrix();
@@ -242,16 +242,15 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             //自己克隆，避免影响倒this._transformStage
             cm=cm.clone();
 
-
-            if (cm == null) return {x:0, y:0};
+            if (cm == null) return new Point( 0 , 0 ); //{x:0, y:0};
             cm.invert();
-            var m = new Matrix(1, 0, 0, 1, x, y);
+            var m = new Matrix(1, 0, 0, 1, point.x , point.y);
             m.concat(cm);
-            return {x:m.tx, y:m.ty};
+            return new Point( m.tx , m.ty ); //{x:m.tx, y:m.ty};
         },
-        localToTarget : function(x, y, target){
-            var p = localToGlobal(x, y);
-            return target.globalToLocal(p.x, p.y);
+        localToTarget : function( point , target){
+            var p = localToGlobal( point );
+            return target.globalToLocal( p );
         },
         getConcatenatedMatrix : function(){
             //TODO: cache the concatenated matrix to get better performance
@@ -400,10 +399,10 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             return style
         },
         //显示对象的选取检测处理函数
-        hitTestPoint : function( mouseX , mouseY){
+        getChildInPoint : function( point ){
             var result; //检测的结果
-            var x = mouseX ;
-            var y = mouseY ;
+            var x = point.x ;
+            var y = point.y ;
 
             //这个时候如果有对context的set，告诉引擎不需要watch，因为这个是引擎触发的，不是用户
             //用户set context 才需要触发watch

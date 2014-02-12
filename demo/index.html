@@ -243,11 +243,11 @@
 
           window.sector =new Canvax.Shapes.Sector({
               id : "sector",
-              clockwise : true,//逆时针
               context : {
                x :600,
                y : 110,
 
+               //clockwise : true,//逆时针
                r : 100,
                r0:20, 
                startAngle :180 ,
@@ -270,7 +270,7 @@
                  lineWidth   : 1
              }
          })
-         /*
+         
          sector.on("mouseover" , function(){
              this.context.lineWidth = 10;
          })
@@ -278,7 +278,7 @@
          sector.on("mouseout" , function(){
              this.context.lineWidth = 5;
          })
-         */
+         
 
       
          //不规则多变形

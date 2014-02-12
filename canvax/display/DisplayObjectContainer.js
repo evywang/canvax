@@ -7,7 +7,7 @@
  */
 
 
-KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObject){
+KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObject , Point){
 
     DisplayObjectContainer = function(opt){
        var self = this;
@@ -177,7 +177,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             return this.children.length;
         },
         //获取x,y点上的所有object  num 需要返回的obj数量
-        getObjectsUnderPoint : function(x, y , num) {
+        getObjectsUnderPoint : function( point , num) {
             var result = [];
             for(var i = this.children.length - 1; i >= 0; i--) {
                 var child = this.children[i];
@@ -189,14 +189,14 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
                 if( child instanceof DisplayObjectContainer ) {
                     //是集合
                     if (child.mouseChildren && child.getNumChildren() > 0){
-                       var objs = child.getObjectsUnderPoint(x, y);
+                       var objs = child.getObjectsUnderPoint( point );
                        if (objs.length > 0){
                           result = result.concat( objs );
                        }
                     }		
                 } else {
-                    //非集合，可以开始做hitTestPoint了
-                    if (child.hitTestPoint(x, y)) {
+                    //非集合，可以开始做getChildInPoint了
+                    if (child.getChildInPoint( point )) {
                         result.push(child);
                         if (num != undefined && !isNaN(num)){
                            if(result.length == num){
@@ -222,6 +222,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
 },{
    requires:[
      "canvax/core/Base",
-     "canvax/display/DisplayObject"
+     "canvax/display/DisplayObject",
+     "canvax/display/Point"
    ]
 })
