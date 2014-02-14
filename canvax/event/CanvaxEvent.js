@@ -52,6 +52,8 @@ KISSY.add("canvax/event/CanvaxEvent" , function(S,EventBase,Base){
         }
     }
 
+
+
     /*
      * 添加事件侦听
      */
@@ -60,7 +62,17 @@ KISSY.add("canvax/event/CanvaxEvent" , function(S,EventBase,Base){
      * 删除事件侦听
      */
     CanvaxEvent.removeEvent = addOrRmoveEventHand( "removeEventListener" , "detachEvent" );
-
+    
+    //阻止浏览器的默认行为 
+    CanvaxEvent.stopDefault = function( e ) { 
+            //阻止默认浏览器动作(W3C) 
+                if ( e && e.preventDefault ) 
+                    e.preventDefault(); 
+            //IE中阻止函数器默认动作的方式 
+                else
+                    window.event.returnValue = false; 
+            return false; 
+    }
 
     return CanvaxEvent;
 

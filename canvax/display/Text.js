@@ -8,7 +8,7 @@
 
 
 KISSY.add("canvax/display/Text" ,
-    function(S , DisplayObject , Base) {
+    function(S , Shape , Base) {
         var Text = function(text , opt) {
             var self = this;
             self.type = "text";
@@ -22,7 +22,7 @@ KISSY.add("canvax/display/Text" ,
                 fontWeight     : opt.context.fontWeight     || "normal",
                 fontFamily     : opt.context.fontFamily     || "微软雅黑",
                 textDecoration : opt.context.textDecoration || '',  
-                fontStyle      : opt.context.fontStyle      || 'blank',
+                fillStyle      : opt.context.fontStyle || opt.context.fillStyle   || 'blank',
                 lineHeight     : opt.context.lineHeight     || 1.3,
                 //下面两个在displayObject中有
                 //textAlign    : opt.context.textAlign      || 'left',
@@ -30,15 +30,20 @@ KISSY.add("canvax/display/Text" ,
                 textBackgroundColor:opt.context.textBackgroundColor|| ''
             };
 
+            self._context.font = self._getFontDeclaration();
+
             self.text  = text.toString();
 
             arguments.callee.superclass.constructor.apply(this, [opt]);
+
         }
-        Base.creatClass(Text , DisplayObject , {
+
+        //DisplayObject
+        Base.creatClass(Text , Shape , {
             init : function(text , opt){
                var self = this;
             },
-            render : function( ctx ){
+            draw : function( ctx ){
                var textLines       = this._getTextLines();
                this.context.width  = this._getTextWidth( ctx , textLines);
                this.context.height = this._getTextHeight(ctx , textLines);
@@ -63,16 +68,21 @@ KISSY.add("canvax/display/Text" ,
             _renderText   : function(ctx, textLines) {
                 ctx.save();
                 this._setShadow(ctx);
-                this._renderTextFill(ctx, textLines);
+                this._renderTextFill(  ctx, textLines);
                 this._renderTextStroke(ctx, textLines);
                 this._removeShadow(ctx);
                 ctx.restore();
             },
-            /**
-             * @private
-             * @param {CanvasRenderingContext2D} ctx Context to render on
-             * @param {Array} textLines Array of all text lines
-             */
+            _getFontDeclaration: function() {
+                //return "40px Arial"
+                return [
+                    // node-canvas needs "weight style", while browsers need "style weight"
+                    //this._context.fillStyle  , 
+                    //this._context.fontWeight ,
+                    this._context.fontSize + 'px',
+                    this._context.fontFamily
+                    ].join(' ');
+            },
             _renderTextFill: function(ctx, textLines) {
                 if (!this.context.fillStyle ) return;
 
@@ -94,11 +104,6 @@ KISSY.add("canvax/display/Text" ,
                 }
             },
 
-            /**
-             * @private
-             * @param {CanvasRenderingContext2D} ctx Context to render on
-             * @param {Array} textLines Array of all text lines
-             */
             _renderTextStroke: function(ctx, textLines) {
                 if (!this.context.strokeStyle && !this._skipFillStrokeCheck) return;
 
@@ -234,11 +239,6 @@ KISSY.add("canvax/display/Text" ,
                 }
                 return l;
             },
-
-            /**
-             * @private
-             * @return {Number} Top offset
-             */
             _getTopOffset: function() {
                 var t = 0;
                 switch(this.context.textBaseline){
@@ -300,7 +300,7 @@ KISSY.add("canvax/display/Text" ,
     },
     {
         requires : [
-         "canvax/display/DisplayObject",
+         "canvax/display/Shape",
          "canvax/core/Base"
         ]
     }

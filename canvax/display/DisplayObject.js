@@ -41,7 +41,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
         self._eventEnabled   = false; //是否响应事件交互
 
-        self.dragEnabled     = false;   //是否启用元素的拖拽
+        self.dragEnabled     = true; //false;   //是否启用元素的拖拽
 
         //创建好context
         self._createContext( opt );
@@ -121,7 +121,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
             //然后看继承者是否有提供_context 对象 需要 我 merge到_context2D_context中去的
             if (self._context) {
-                _contextATTRS = _.extend(self._context , _contextATTRS);
+                _contextATTRS = _.extend(_contextATTRS , self._context );
             }
 
             //有些引擎内部设置context属性的时候是不用上报心跳的，比如做hitTestPoint热点检测的时候

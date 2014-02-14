@@ -20,15 +20,20 @@ KISSY.add("canvax/index" ,
        
        self.el = opt.el || null;
 
+       //是否阻止浏览器默认事件的执行
+       self.preventDefault = true;
+       if( opt.preventDefault === false ){
+           self.preventDefault = false
+       }
+
        //如果这个时候el里面已经有东西了。嗯，也许曾经这个el被canvax干过一次了。
        //那么要先清除这个el的所有内容。
        self.el.html("");
 
-       self.curPoints       = [ new Point( 0 , 0 ) ] //mouseX,mouseY 的 point 集合
+       self.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
 
        //当前激活的点对应的obj，在touch下可以是个数组,和上面的curPoints对应
-       self.curPointsTarget = null;
-       self.dragTarget      = null;
+       self.curPointsTarget = [];
 
        //每帧 由 心跳 上报的 需要重绘的stages 列表
        self.convertStages = {};
@@ -103,54 +108,6 @@ KISSY.add("canvax/index" ,
           } );
           self.addChild( self._hoverStage );
        },
-       _eventHand : null , //该处理函数在_initEvent中初始化
-       _initEvent : function(){
-          //初始绑定事件，为后续的displayList的事件分发提供入口
-          var self = this;
-          self.rootOffset = self.el.offset();
-          self._Event     = new CanvaxEvent();
- 
-          var _moveStep = 0; //move的时候的频率设置
-
-          if( !(Hammer && Hammer.NO_MOUSEEVENTS) ) {
-              var _eventHand = self._eventHand = function( e ){
-                  //如果发现是mousemove的话，要做mousemove的频率控制
-                  if( e.type == "mousemove" ){
-                      if(_moveStep<1){
-                          _moveStep++;
-                          return;
-                      }
-                      _moveStep = 0;
-                  }
-                  self.__mouseHandler(e);
-              }
-              //依次添加上浏览器的自带事件侦听
-              _.each( CanvaxEvent.EVENTS , function( type ){
-                  CanvaxEvent.addEvent( self.el , type , self._eventHand ); 
-              } );
-          } 
-
-          //触屏系统则引入Hammer
-          if( Hammer && Hammer.HAS_TOUCHEVENTS ){
-              var el = self.el[0]
-              self._hammer = Hammer( el ).on( Hammer.EventsTypes , function( e ){
-                 //console.log(e.type)
-                 //同样的，如果是drag事件，则要左频率控制
-                 
-                  /*
-                 if( e.type == "drag" ){
-                      if(_moveStep<1){
-                          _moveStep++;
-                          return;
-                      }
-                      _moveStep = 0;
-                 }
-                 */
-                 self.__touchHandler(e);
-              } );
-          }
-
-       },
        /**
         * 获取像素拾取专用的上下文
         * @return {Object} 上下文
@@ -182,112 +139,270 @@ KISSY.add("canvax/index" ,
            }
            Base._pixelCtx = _pixelCanvas.getContext('2d');
        },
+       _eventHand : null , //该处理函数在_initEvent中初始化
+       _initEvent : function(){
+          //初始绑定事件，为后续的displayList的事件分发提供入口
+          var self = this;
+          self.rootOffset = self.el.offset();
+          self._Event     = new CanvaxEvent();
+ 
+          var _moveStep = 0; //move的时候的频率设置
+
+          if( !(Hammer && Hammer.NO_MOUSEEVENTS) ) {
+              var _eventHand = self._eventHand = function( e ){
+                  //如果发现是mousemove的话，要做mousemove的频率控制
+                  if( e.type == "mousemove" ){
+                      if(_moveStep<1){
+                          _moveStep++;
+                          return;
+                      }
+                      _moveStep = 0;
+                  }
+                  self.__mouseHandler( e );
+              }
+              //依次添加上浏览器的自带事件侦听
+              _.each( CanvaxEvent.EVENTS , function( type ){
+                  CanvaxEvent.addEvent( self.el , type , self._eventHand ); 
+              } );
+          } 
+
+          //触屏系统则引入Hammer
+          if( Hammer && Hammer.HAS_TOUCHEVENTS ){
+              var el = self.el[0]
+              self._hammer = Hammer( el ).on( Hammer.EventsTypes , function( e ){
+                 console.log(e.type)
+                 //同样的，如果是drag事件，则要左频率控制
+                 /*
+                 if( e.type == "drag" ){
+                      if(_moveStep<1){
+                          _moveStep++;
+                          return;
+                      }
+                      _moveStep = 0;
+                 }
+                 */
+                 self.__touchHandler(e);
+              } );
+          }
+
+       },
+       
        /*
         *触屏事件处理函数
         * */
-       __touchHandler : function( event ) {
-          var self = this;
-          //touch下的curPointsTarget 从touches中来
-          var touchesTarget = [];
-          _.each( event.gesture.touches , function( touch ){
+       __touchHandler : function( e ) {
+          var self          = this;
 
-              touchesTarget.push(  )
-          });
+          //用hamer的方式来阻止执行浏览器默认事件
+          if( this.preventDefault ) {
+              this._hammer.options.prevent_default = true
+          } else {
+              this._hammer.options.prevent_default = false
+          }
+
+          //touch下的curPointsTarget 从touches中来
+          self.curPoints = self.__getPointInTouchs( e );
+
+          var childs     = self.__getChildInTouchs( self.curPoints );
+
+          if( e.type == "release" ) {
+              self.__dispatchEventInChilds( e , self.curPointsTarget );
+          } else {
+
+              //drag开始
+              if( e.type == "dragstart"){
+                  //dragstart的时候touch已经准备好了target，curPointsTarget里面只要有一个是有效的
+                  //就认为drags开始
+                  _.each( self.curPointsTarget , function( child , i ){
+                      if( child && child.dragEnabled ){
+                         //只要有一个元素就认为正在准备drag了
+                         self._draging = true;
+                         //然后克隆一个副本到activeStage
+                         self._clone2hoverStage( child );
+                         //先把本尊给隐藏了
+                         child.context.visible = false;
+
+                         return false;
+                      }
+                  } ) 
+
+              }
+
+              //dragIng
+              if( e.type == "drag"){
+                  if( self._draging ){
+                      _.each( self.curPointsTarget , function( child , i ){
+                          if( child && child.dragEnabled) {
+                             self._dragHander( e , child , i);
+                          }
+                      } )
+                  }
+              }
+
+              //drag结束
+              if( e.type == "dragend"){
+                  if( self._draging ){
+                      _.each( self.curPointsTarget , function( child , i ){
+                          if( child && child.dragEnabled) {
+                              self._dragEnd( e , child , 0 );
+                              child.context.visible = true;
+                          }
+                      } );
+                      self._draging = false;
+                  }
+              }
+
+              self.__dispatchEventInChilds( e , childs );
+          }
+
+           
+          
+          if( e.type == "touch" ) {
+            self.curPointsTarget = childs;
+          }
        },
+       /*
+        *@param {array} childs 
+        * */
+       __dispatchEventInChilds : function( e , childs ){
+           if( !childs && !("length" in childs) ){
+             return;
+           }
+           var self = this;
+           _.each( childs , function( child , i){
+               if( child ){
+                   //ce
+                   var ce = _.extend(self._Event , e);
+                   ce.target = ce.currentTarget = child || this;
+                   ce.point  = self.curPoints[i];
+
+                   //dispatch e
+                   child.dispatchEvent( ce );
+               }
+
+           } );
+       },
+       //从touchs中获取到对应touch , 在上面添加上canvax坐标系统的x，y
+       __getPointInTouchs : function( e ){
+           var self          = this;
+           var curTouchs    = [];
+           _.each( e.gesture.touches , function( touch ){
+              touch.x = touch.pageX - self.rootOffset.left , 
+              touch.y = touch.pageY - self.rootOffset.top
+              curTouchs.push( touch );
+           });
+          return curTouchs;
+       },
+       __getChildInTouchs : function( touchs ){
+          var self = this;
+          var touchesTarget = [];
+          _.each( touchs , function(touch){
+              touchesTarget.push( self.getObjectsUnderPoint( touch , 1)[0] );
+          } );
+          return touchesTarget;
+       },
+
+
+       /*
+        *触屏类处理结束
+        * */
+
+
        /*
         * 鼠标事件处理函数
         * */
-       __mouseHandler : function(event) {
+       __mouseHandler : function(e) {
            var self = this;
            self.curPoints = [ new Point( 
-                   event.pageX - self.rootOffset.left , 
-                   event.pageY - self.rootOffset.top
+                   e.pageX - self.rootOffset.left , 
+                   e.pageY - self.rootOffset.top
                    )];
-           var curMousePoint = self.curPoints[0]; 
 
-           //self.mouseX = event.pageX - self.rootOffset.left;
-           //self.mouseY = event.pageY - self.rootOffset.top;
-           
-           if( event.type == "mousedown" ){
-              if(!self.curPointsTarget){
+           var curMousePoint  = self.curPoints[0]; 
+           var curMouseTarget = self.curPointsTarget[0];
+
+           if( e.type == "mousedown" ){
+              //如果curTarget 的数组为空或者第一个为falsh ，，，
+              if( !curMouseTarget ){
                 var obj = self.getObjectsUnderPoint( curMousePoint , 1)[0];
                 if(obj){
-                  self.curPointsTarget = obj;
+                  self.curPointsTarget = [ obj ];
                 }
               }
-              self.curPointsTarget && self.dragEnabled && (self._touching = true);
+              curMouseTarget = self.curPointsTarget[0];
+              if ( curMouseTarget && self.dragEnabled ){
+                  self._touching = true
+              }
            }
 
-           if( event.type == "mouseup" || event.type == "mouseout" ){
+           if( e.type == "mouseup" || e.type == "mouseout" ){
               if(self._draging == true){
                  //说明刚刚在拖动
-                 self._dragEnd();
+                 self._dragEnd( e , curMouseTarget , 0 );
               }
               self._draging  = false;
               self._touching = false;
            }
 
-           if( event.type == "mouseout" ){
-              self.__getcurPointsTarget(event , curMousePoint);
+           if( e.type == "mouseout" ){
+              self.__getcurPointsTarget(e , curMousePoint);
            }
- 
-           if( event.type == "mousemove" || event.type == "mousedown" ){
+           if( e.type == "mousemove" || e.type == "mousedown" ){
                //拖动过程中就不在做其他的mouseover检测，drag优先
-               if(self._touching && event.type == "mousemove" && self.curPointsTarget){
+               if(self._touching && e.type == "mousemove" && curMouseTarget){
                   //说明正在拖动啊
                   if(!self._draging){
                      //begin drag
-                     self.curPointsTarget.dragBegin && self.curPointsTarget.dragBegin(event);
+                     curMouseTarget.dragBegin && curMouseTarget.dragBegin(e);
                      
                      //先把本尊给隐藏了
-                     self.curPointsTarget.context.visible = false;
+                     curMouseTarget.context.visible = false;
                                           
                      //然后克隆一个副本到activeStage
-                     self._clone2hoverStage();
+                     self._clone2hoverStage( curMouseTarget );
                   } else {
                      //drag ing
-                     self._dragHander();
+                     self._dragHander( e , curMouseTarget , 0 );
                   }
                   self._draging = true;
-                  return self;
+               } else {
+                   //常规mousemove检测
+                   //move事件中，需要不停的搜索target，这个开销挺大，
+                   //后续可以优化，加上和帧率相当的延迟处理
+                   self.__getcurPointsTarget( e , curMousePoint );
                }
-               //常规mousemove检测
-               //move事件中，需要不停的搜索target，这个开销挺大，
-               //后续可以优化，加上和帧率相当的延迟处理
-               this.__getcurPointsTarget( event , curMousePoint );
 
            } else {
                //其他的事件就直接在target上面派发事件
-               if( this.curPointsTarget ){
-                   //event
-                   var e = _.extend(self._Event , event);
-                   e.target = e.currentTarget = this.curPointsTarget || this;
-                   e.mouseX = curMousePoint.x;
-                   e.mouseY = curMousePoint.y;
+               if( curMouseTarget ){
+                   //canvaxEvent
+                   var ce = _.extend( self._Event , e );
+                   ce.target = ce.currentTarget = curMouseTarget || this;
+                   ce.point  = curMousePoint;
 
-                   //dispatch event
-                   this.curPointsTarget.dispatchEvent(e);
+                   //dispatch e
+                   curMouseTarget.dispatchEvent( ce );
                }
            }
-           try {
-               event.preventDefault();
-               event.stopPropagation();
-           } catch(e){}
-       },
-       __getcurPointsTarget : function(event , point ) {
 
-           var oldObj = this.curPointsTarget;
-           if( event.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
+           if( this.preventDefault ) {
+               CanvaxEvent.stopDefault( e );
+           }
+
+       },
+       __getcurPointsTarget : function(e , point ) {
+
+           var oldObj = this.curPointsTarget[0];
+           if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
                return;
            }
            var obj = this.getObjectsUnderPoint( point , 1)[0];
-           var e = _.extend(this._Event , event);
+           var e = _.extend(this._Event , e);
 
            e.target = e.currentTarget = obj;
-           e.mouseX = point.x;
-           e.mouseY = point.y;
+           e.point  = point;
 
            this._cursorHander( obj , oldObj );
 
@@ -295,7 +410,7 @@ KISSY.add("canvax/index" ,
                if(!oldObj){
                   return;
                }
-               this.curPointsTarget = null;
+               this.curPointsTarget[0] = null;
                e.type = "mouseout";
                e.target = e.currentTarget = oldObj;
                //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
@@ -307,7 +422,7 @@ KISSY.add("canvax/index" ,
                //this.setCursor("default");
            };
            if(obj && oldObj != obj && obj._hoverable){
-               this.curPointsTarget = obj;
+               this.curPointsTarget[0] = obj;
                e.type = "mouseover";
                e.target = e.currentTarget = obj;
                obj.dispatchEvent(e);
@@ -315,46 +430,46 @@ KISSY.add("canvax/index" ,
 
        },
        //克隆一个元素到hover stage中去
-       _clone2hoverStage : function(){
+       _clone2hoverStage : function( target ){
            var self = this;
-           var _dragDuplicate = self._hoverStage.getChildById(self.curPointsTarget.id);
+           var _dragDuplicate = self._hoverStage.getChildById( target.id );
            if(!_dragDuplicate){
-               _dragDuplicate = self.curPointsTarget.clone(true);
-               _dragDuplicate._transform = _dragDuplicate.getConcatenatedMatrix();
+               _dragDuplicate             = target.clone(true);
+               _dragDuplicate._transform  = _dragDuplicate.getConcatenatedMatrix();
                self._hoverStage.addChild( _dragDuplicate );
            }
-           _dragDuplicate.context = propertyFactory(self.curPointsTarget.context.$model);
-           _dragDuplicate.context.$owner = _dragDuplicate;
-           _dragDuplicate.context.$watch = self.curPointsTarget.context.$watch;
+           _dragDuplicate.context         = propertyFactory( target.context.$model );
+           _dragDuplicate.context.$owner  = _dragDuplicate;
+           _dragDuplicate.context.$watch  = target.context.$watch;
            _dragDuplicate.context.visible = true;
 
            _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal( self.curPoints[0] );
        },
        //drag 中 的处理函数
-       _dragHander  : function(){
+       _dragHander  : function( e , target , i ){
            var self = this;
-           var _dragDuplicate = self._hoverStage.getChildById(self.curPointsTarget.id);
+           var _dragDuplicate = self._hoverStage.getChildById( target.id );
 
-           _dragDuplicate.context.x = self.curPoints[0].x - _dragDuplicate._dragPoint.x; 
-           _dragDuplicate.context.y = self.curPoints[0].y - _dragDuplicate._dragPoint.y;  
-           self.curPointsTarget.drag && self.curPointsTarget.drag(event);
+           _dragDuplicate.context.x = self.curPoints[i].x - _dragDuplicate._dragPoint.x; 
+           _dragDuplicate.context.y = self.curPoints[i].y - _dragDuplicate._dragPoint.y;  
+           target.drag && target.drag( e );
        },
        //drag结束的处理函数
-       _dragEnd  : function(){
+       _dragEnd  : function( e , target , i ){
            var self = this;
-           self.dragEnd && self.dragEnd(event);  
+
+           self.dragEnd && self.dragEnd( e );  
            //拖动停止， 那么要先把本尊给显示出来先
            //这里还可以做优化，因为拖动停止了但是还是在hover状态，没必要把本尊显示的。
-           //self.curPointsTarget.context.visible = true;
 
            //_dragDuplicate 复制在_hoverStage 中的副本
-           var _dragDuplicate                   = self._hoverStage.getChildById(self.curPointsTarget.id);
-           self.curPointsTarget.context         = _dragDuplicate.context;
-           self.curPointsTarget.context.$owner  = self.curPointsTarget;
+           var _dragDuplicate     = self._hoverStage.getChildById( target.id );
+           target.context         = _dragDuplicate.context;
+           target.context.$owner  = target;
            //这个时候的target还是隐藏状态呢
-           self.curPointsTarget.context.visible = false;
-           self.curPointsTarget._updateTransform();
-           if(event.type == "mouseout"){
+           target.context.visible = false;
+           target._updateTransform();
+           if( e.type == "mouseout" || e.type == "dragend"){
                _dragDuplicate.destroy();
            }
        },
@@ -600,9 +715,6 @@ KISSY.add("canvax/index" ,
   
     //如果用户没有加载underscore，作为被选方案，自己加载一个进来
     !window._ ? "canvax/library/underscore" : "",
-    
 
-    //如果用户没有加载flashcavnas在ie下面，并且也没有加载excanvas，就默认加载自己准备的flashcanvas进来
-    //( !document.createElement('canvas').getContext && !window.FlashCanvas && !window.G_vmlCanvasManager ) ? "canvax/library/flashCanvas/flashcanvas" : ""
     ]
 });
