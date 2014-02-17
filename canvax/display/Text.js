@@ -8,11 +8,13 @@
 
 
 KISSY.add("canvax/display/Text" ,
-    function(S , Shape , Base) {
+    function(S , DisplayObject , Base) {
         var Text = function(text , opt) {
             var self = this;
             self.type = "text";
             self._reNewline = /\r?\n/;
+            self.fontProperts = [ "fontStyle" , "fontVariant" , "fontWeight" , "fontSize" , "fontFamily"];
+
 
             //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
             opt = Base.checkOpt( opt );
@@ -21,13 +23,14 @@ KISSY.add("canvax/display/Text" ,
                 fontSize       : opt.context.fontSize       || 13 , //字体大小默认13
                 fontWeight     : opt.context.fontWeight     || "normal",
                 fontFamily     : opt.context.fontFamily     || "微软雅黑",
-                textDecoration : opt.context.textDecoration || '',  
-                fillStyle      : opt.context.fontStyle || opt.context.fillStyle   || 'blank',
+                textDecoration : opt.context.textDecoration,  
+                fillStyle      : opt.context.fontColor      || opt.context.fillStyle   || 'blank',
                 lineHeight     : opt.context.lineHeight     || 1.3,
                 //下面两个在displayObject中有
                 //textAlign    : opt.context.textAlign      || 'left',
                 //textBaseline : opt.context.textBaseline   || 'top',
-                textBackgroundColor:opt.context.textBackgroundColor|| ''
+                backgroundColor     : opt.context.backgroundColor ,
+                textBackgroundColor : opt.context.textBackgroundColor
             };
 
             self._context.font = self._getFontDeclaration();
@@ -37,21 +40,33 @@ KISSY.add("canvax/display/Text" ,
             arguments.callee.superclass.constructor.apply(this, [opt]);
 
         }
-
-        //DisplayObject
-        Base.creatClass(Text , Shape , {
+        Base.creatClass(Text , DisplayObject , {
+            $watch : function( name , value , preValue ){
+                 //context属性有变化的监听函数
+                 if( name in  this.fontProperts){
+                     //如果修改的是font的某个内容，就重新组装一遍font的值，
+                     //然后通知引擎这次对context的修改不需要上报心跳
+                     this._notWatch    = false;
+                     this.context.font = this._getFontDeclaration();
+                 }
+            },
             init : function(text , opt){
                var self = this;
             },
-            draw : function( ctx ){
-               var textLines       = this._getTextLines();
-               this.context.width  = this._getTextWidth( ctx , textLines);
-               this.context.height = this._getTextHeight(ctx , textLines);
+            render : function( ctx ){
+               var textLines = this._getTextLines();
+
+               this.context.width = this._getTextWidth(ctx, textLines);
+               this.context.height = this._getTextHeight(ctx, textLines);
+
+               ctx.fillStyle = this.context.fillStyle;
+               ctx.font      = this.context.font;
 
                this.clipTo && this.clipContext(this, ctx);
 
                this._renderTextBackground(ctx, textLines);
                this._renderText(ctx, textLines);
+
               
                this.clipTo && ctx.restore();
              
@@ -63,26 +78,36 @@ KISSY.add("canvax/display/Text" ,
                return this._getTextHeight( Base._pixelCtx , this._getTextLines() );
             },
             _getTextLines : function(){
-               return this.text.split(this._reNewline);
+               return this.text.split( this._reNewline );
             },
-            _renderText   : function(ctx, textLines) {
+            _renderText: function(ctx, textLines) {
                 ctx.save();
                 this._setShadow(ctx);
-                this._renderTextFill(  ctx, textLines);
+                this._renderTextFill(ctx, textLines);
                 this._renderTextStroke(ctx, textLines);
                 this._removeShadow(ctx);
                 ctx.restore();
             },
             _getFontDeclaration: function() {
-                //return "40px Arial"
-                return [
-                    // node-canvas needs "weight style", while browsers need "style weight"
-                    //this._context.fillStyle  , 
-                    //this._context.fontWeight ,
-                    this._context.fontSize + 'px',
-                    this._context.fontFamily
-                    ].join(' ');
+                var self         = this;
+                var fontArr      = [];
+                    
+                _.each( this.fontProperts , function( p ){
+                    var fontP    =  self._context[p];
+                    if( p == "fontSize" ) { 
+                        fontP = parseFloat( fontP ) + "px"
+                    }
+                    fontP && fontArr.push( fontP );
+                } );
+
+                return fontArr.join(' ');
+
             },
+            /**
+             * @private
+             * @param {CanvasRenderingContext2D} ctx Context to render on
+             * @param {Array} textLines Array of all text lines
+             */
             _renderTextFill: function(ctx, textLines) {
                 if (!this.context.fillStyle ) return;
 
@@ -104,6 +129,11 @@ KISSY.add("canvax/display/Text" ,
                 }
             },
 
+            /**
+             * @private
+             * @param {CanvasRenderingContext2D} ctx Context to render on
+             * @param {Array} textLines Array of all text lines
+             */
             _renderTextStroke: function(ctx, textLines) {
                 if (!this.context.strokeStyle && !this._skipFillStrokeCheck) return;
 
@@ -239,6 +269,11 @@ KISSY.add("canvax/display/Text" ,
                 }
                 return l;
             },
+
+            /**
+             * @private
+             * @return {Number} Top offset
+             */
             _getTopOffset: function() {
                 var t = 0;
                 switch(this.context.textBaseline){
@@ -300,7 +335,7 @@ KISSY.add("canvax/display/Text" ,
     },
     {
         requires : [
-         "canvax/display/Shape",
+         "canvax/display/DisplayObject",
          "canvax/core/Base"
         ]
     }

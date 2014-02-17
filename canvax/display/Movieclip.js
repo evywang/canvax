@@ -14,10 +14,10 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
       opt = Base.checkOpt( opt );
       self.type = "movieclip";
       self.currentFrame  = 0;
-      self.autoPlay     = opt.autoPlay   || false;//是否自动播放
-      self.repeat       = opt.repeat     || 0;//是否循环播放,repeat为数字，则表示循环多少次，为true or !运算结果为true 的话表示永久循环
+      self.autoPlay      = opt.autoPlay   || false;//是否自动播放
+      self.repeat        = opt.repeat     || 0;//是否循环播放,repeat为数字，则表示循环多少次，为true or !运算结果为true 的话表示永久循环
 
-      self.overPlay     = opt.overPlay   || false; //是否覆盖播放，为false只播放currentFrame 当前帧,true则会播放当前帧 和 当前帧之前的所有叠加
+      self.overPlay      = opt.overPlay   || false; //是否覆盖播放，为false只播放currentFrame 当前帧,true则会播放当前帧 和 当前帧之前的所有叠加
 
       self._frameRate    = Base.mainFrameRate;
       self._speedTime    = parseInt(1000/self._frameRate);
@@ -199,9 +199,14 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
       },
       render:function(ctx){
           //这里也还要做次过滤，如果不到speedTime，就略过
+          //console.log("moveclip_reder_ready")
+
+          //TODO：如果是改变moviclip的x or y 等 非帧动画 属性的时候加上这个就会 有漏帧现象，先注释掉
+          /* 
           if( (Base.now-this._preRenderTime) < this._speedTime ){
              return;
           }
+          */
 
           //因为如果children为空的话，Movieclip 会把自己设置为 visible:false，不会执行到这个render
           //所以这里可以不用做children.length==0 的判断。 大胆的搞吧。

@@ -872,8 +872,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
       opt = Base.checkOpt( opt );
       self._context = {
-          dx     : opt.context.dx     || 0, //图片切片的x位置
-          dy     : opt.context.dy     || 0, //图片切片的y位置
+          dx     : opt.context.dx, //图片切片的x位置
+          dy     : opt.context.dy, //图片切片的y位置
           dWidth : opt.context.dWidth || 0, //切片的width
           dHeight: opt.context.dHeight|| 0  //切片的height
       }
@@ -893,10 +893,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
           if(!style.width || !style.height ){
               ctx.drawImage(image, 0, 0);
           } else {
-              if(!style.dWidth || !style.dHeight ){
+              if( style.dx == undefined || style.dy == undefined  ){
                  ctx.drawImage(image, 0, 0, style.width, style.height);
               } else {
-                 ctx.drawImage(image , style.dx , style.dy , style.dWidth , style.dHeight,0, 0, style.width, style.height );
+                 !style.dWidth  && ( style.dWidth  = style.width  );
+                 !style.dHeight && ( style.dHeight = style.height );
+                 ctx.drawImage(image , style.dx , style.dy , style.dWidth , style.dHeight , 0 , 0 , style.width, style.height );
               }
           }
       }
@@ -1036,6 +1038,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 if(this.$owner._notWatch){
                     return;
                 };
+
+                if(this.$owner.$watch){
+                   this.$owner.$watch( name , value , preValue );
+                }
 
                 //TODO 暂时所有的属性都上报，有时间了在来慢慢梳理
                 var stage = this.$owner.getStage(); 
@@ -1647,10 +1653,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
       opt = Base.checkOpt( opt );
       self.type = "movieclip";
       self.currentFrame  = 0;
-      self.autoPlay     = opt.autoPlay   || false;//是否自动播放
-      self.repeat       = opt.repeat     || 0;//是否循环播放,repeat为数字，则表示循环多少次，为true or !运算结果为true 的话表示永久循环
+      self.autoPlay      = opt.autoPlay   || false;//是否自动播放
+      self.repeat        = opt.repeat     || 0;//是否循环播放,repeat为数字，则表示循环多少次，为true or !运算结果为true 的话表示永久循环
 
-      self.overPlay     = opt.overPlay   || false; //是否覆盖播放，为false只播放currentFrame 当前帧,true则会播放当前帧 和 当前帧之前的所有叠加
+      self.overPlay      = opt.overPlay   || false; //是否覆盖播放，为false只播放currentFrame 当前帧,true则会播放当前帧 和 当前帧之前的所有叠加
 
       self._frameRate    = Base.mainFrameRate;
       self._speedTime    = parseInt(1000/self._frameRate);
@@ -1832,9 +1838,14 @@ KISSY.add("canvax/animation/Animation" , function(S){
       },
       render:function(ctx){
           //这里也还要做次过滤，如果不到speedTime，就略过
+          //console.log("moveclip_reder_ready")
+
+          //TODO：如果是改变moviclip的x or y 等 非帧动画 属性的时候加上这个就会 有漏帧现象，先注释掉
+          /* 
           if( (Base.now-this._preRenderTime) < this._speedTime ){
              return;
           }
+          */
 
           //因为如果children为空的话，Movieclip 会把自己设置为 visible:false，不会执行到这个render
           //所以这里可以不用做children.length==0 的判断。 大胆的搞吧。
@@ -1972,10 +1983,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
       },
       setContextStyle : function(ctx, style) {
           // 简单判断不做严格类型检测
-          for (p in style){
+          for (p in style.$model){
               if(p in ctx){
-                if (style[p]) {
-                  ctx[p] = style[p];
+                if (style.$model[p]) {
+                  ctx[p] = style.$model[p];
                 }
               }
           }
@@ -2207,11 +2218,13 @@ KISSY.add("canvax/animation/Animation" , function(S){
   ]
 });
 ;KISSY.add("canvax/display/Text" ,
-    function(S , Shape , Base) {
+    function(S , DisplayObject , Base) {
         var Text = function(text , opt) {
             var self = this;
             self.type = "text";
             self._reNewline = /\r?\n/;
+            self.fontProperts = [ "fontStyle" , "fontVariant" , "fontWeight" , "fontSize" , "fontFamily"];
+
 
             //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
             opt = Base.checkOpt( opt );
@@ -2220,13 +2233,14 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 fontSize       : opt.context.fontSize       || 13 , //字体大小默认13
                 fontWeight     : opt.context.fontWeight     || "normal",
                 fontFamily     : opt.context.fontFamily     || "微软雅黑",
-                textDecoration : opt.context.textDecoration || '',  
-                fillStyle      : opt.context.fontStyle || opt.context.fillStyle   || 'blank',
+                textDecoration : opt.context.textDecoration,  
+                fillStyle      : opt.context.fontColor      || opt.context.fillStyle   || 'blank',
                 lineHeight     : opt.context.lineHeight     || 1.3,
                 //下面两个在displayObject中有
                 //textAlign    : opt.context.textAlign      || 'left',
                 //textBaseline : opt.context.textBaseline   || 'top',
-                textBackgroundColor:opt.context.textBackgroundColor|| ''
+                backgroundColor     : opt.context.backgroundColor ,
+                textBackgroundColor : opt.context.textBackgroundColor
             };
 
             self._context.font = self._getFontDeclaration();
@@ -2236,21 +2250,33 @@ KISSY.add("canvax/animation/Animation" , function(S){
             arguments.callee.superclass.constructor.apply(this, [opt]);
 
         }
-
-        //DisplayObject
-        Base.creatClass(Text , Shape , {
+        Base.creatClass(Text , DisplayObject , {
+            $watch : function( name , value , preValue ){
+                 //context属性有变化的监听函数
+                 if( name in  this.fontProperts){
+                     //如果修改的是font的某个内容，就重新组装一遍font的值，
+                     //然后通知引擎这次对context的修改不需要上报心跳
+                     this._notWatch    = false;
+                     this.context.font = this._getFontDeclaration();
+                 }
+            },
             init : function(text , opt){
                var self = this;
             },
-            draw : function( ctx ){
-               var textLines       = this._getTextLines();
-               this.context.width  = this._getTextWidth( ctx , textLines);
-               this.context.height = this._getTextHeight(ctx , textLines);
+            render : function( ctx ){
+               var textLines = this._getTextLines();
+
+               this.context.width = this._getTextWidth(ctx, textLines);
+               this.context.height = this._getTextHeight(ctx, textLines);
+
+               ctx.fillStyle = this.context.fillStyle;
+               ctx.font      = this.context.font;
 
                this.clipTo && this.clipContext(this, ctx);
 
                this._renderTextBackground(ctx, textLines);
                this._renderText(ctx, textLines);
+
               
                this.clipTo && ctx.restore();
              
@@ -2262,26 +2288,36 @@ KISSY.add("canvax/animation/Animation" , function(S){
                return this._getTextHeight( Base._pixelCtx , this._getTextLines() );
             },
             _getTextLines : function(){
-               return this.text.split(this._reNewline);
+               return this.text.split( this._reNewline );
             },
-            _renderText   : function(ctx, textLines) {
+            _renderText: function(ctx, textLines) {
                 ctx.save();
                 this._setShadow(ctx);
-                this._renderTextFill(  ctx, textLines);
+                this._renderTextFill(ctx, textLines);
                 this._renderTextStroke(ctx, textLines);
                 this._removeShadow(ctx);
                 ctx.restore();
             },
             _getFontDeclaration: function() {
-                //return "40px Arial"
-                return [
-                    // node-canvas needs "weight style", while browsers need "style weight"
-                    //this._context.fillStyle  , 
-                    //this._context.fontWeight ,
-                    this._context.fontSize + 'px',
-                    this._context.fontFamily
-                    ].join(' ');
+                var self         = this;
+                var fontArr      = [];
+                    
+                _.each( this.fontProperts , function( p ){
+                    var fontP    =  self._context[p];
+                    if( p == "fontSize" ) { 
+                        fontP = parseFloat( fontP ) + "px"
+                    }
+                    fontP && fontArr.push( fontP );
+                } );
+
+                return fontArr.join(' ');
+
             },
+            /**
+             * @private
+             * @param {CanvasRenderingContext2D} ctx Context to render on
+             * @param {Array} textLines Array of all text lines
+             */
             _renderTextFill: function(ctx, textLines) {
                 if (!this.context.fillStyle ) return;
 
@@ -2303,6 +2339,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 }
             },
 
+            /**
+             * @private
+             * @param {CanvasRenderingContext2D} ctx Context to render on
+             * @param {Array} textLines Array of all text lines
+             */
             _renderTextStroke: function(ctx, textLines) {
                 if (!this.context.strokeStyle && !this._skipFillStrokeCheck) return;
 
@@ -2438,6 +2479,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 }
                 return l;
             },
+
+            /**
+             * @private
+             * @return {Number} Top offset
+             */
             _getTopOffset: function() {
                 var t = 0;
                 switch(this.context.textBaseline){
@@ -2499,7 +2545,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
     },
     {
         requires : [
-         "canvax/display/Shape",
+         "canvax/display/DisplayObject",
          "canvax/core/Base"
         ]
     }
@@ -3261,7 +3307,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
                       _moveStep = 0;
                  }
                  */
-                 self.__touchHandler(e);
+                 self.__touchHandler( e );
+                 
+                 //在canvax 上面 出发全局 事件
+                 self.__dispatchEventInChilds( e , [self] )
               } );
           }
 
@@ -3578,6 +3627,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
           //根据最新的帧率，来计算最新的间隔刷新时间
           this._speedTime = parseInt(1000/Base.mainFrameRate);
        },
+       getFrameRate : function(){
+          return  Base.mainFrameRate;
+       },
 
        //如果引擎处于静默状态的话，就会启动
        __startEnter : function(){
@@ -3592,7 +3644,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
        },
        __enterFrame : function(){
            var self = this;
-
            //不管怎么样，__enterFrame执行了就要把
            //requestAid null 掉
            self.requestAid = null;
@@ -3606,6 +3657,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                    //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
                    return;
                }
+
 
                _.each(_.values(self.convertStages) , function(convertStage){
                   convertStage.stage._render(convertStage.stage.context2D);

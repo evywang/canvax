@@ -25,31 +25,24 @@
              {
                name : "canvax",
                path : "../../"
+             },
+             {
+               name : "demo",
+               path : "../../"
              }
-           ]
+           ] 
        });
 
-       KISSY.use("canvax/ , node" , function( S ,Canvax ){
+       var files = [ "bg.png" , "flappy_packer.png" , "ground.png" ];
 
-           var box = S.one("#flappyBird");
-           var width = box.width();
-           var height = box.height();
-         
-           canvax = new Canvax({
-              id : "canvax",
-              el : box
-           })
+       KISSY.use("canvax/ , demo/flappyBird/ , node" , function( S , Canvax , GameApp ){
 
-           stage = new Canvax.Display.Stage({
-               id : "chart0",
-               context:{
-                 width : width,
-                 height: height
-               }
+           var fileloader = new Canvax.Utils.ImagesLoader( files );
+           fileloader.on("success" , function( e ) {
+               window.app = new GameApp( S.all("#flappyBird") , e.images );
            });
-
-           canvax.addChild( stage );
-
+           fileloader.start();
+           
        })
    }) 
    </script>

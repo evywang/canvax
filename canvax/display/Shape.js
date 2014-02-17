@@ -47,10 +47,10 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
       },
       setContextStyle : function(ctx, style) {
           // 简单判断不做严格类型检测
-          for (p in style){
+          for (p in style.$model){
               if(p in ctx){
-                if (style[p]) {
-                  ctx[p] = style[p];
+                if (style.$model[p]) {
+                  ctx[p] = style.$model[p];
                 }
               }
           }

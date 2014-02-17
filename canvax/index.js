@@ -181,7 +181,10 @@ KISSY.add("canvax/index" ,
                       _moveStep = 0;
                  }
                  */
-                 self.__touchHandler(e);
+                 self.__touchHandler( e );
+                 
+                 //在canvax 上面 出发全局 事件
+                 self.__dispatchEventInChilds( e , [self] )
               } );
           }
 
@@ -498,6 +501,9 @@ KISSY.add("canvax/index" ,
           //根据最新的帧率，来计算最新的间隔刷新时间
           this._speedTime = parseInt(1000/Base.mainFrameRate);
        },
+       getFrameRate : function(){
+          return  Base.mainFrameRate;
+       },
 
        //如果引擎处于静默状态的话，就会启动
        __startEnter : function(){
@@ -512,7 +518,6 @@ KISSY.add("canvax/index" ,
        },
        __enterFrame : function(){
            var self = this;
-
            //不管怎么样，__enterFrame执行了就要把
            //requestAid null 掉
            self.requestAid = null;
@@ -526,6 +531,7 @@ KISSY.add("canvax/index" ,
                    //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
                    return;
                }
+
 
                _.each(_.values(self.convertStages) , function(convertStage){
                   convertStage.stage._render(convertStage.stage.context2D);

@@ -18,8 +18,8 @@ KISSY.add("canvax/display/Bitmap" , function(S , Shape , Base){
 
       opt = Base.checkOpt( opt );
       self._context = {
-          dx     : opt.context.dx     || 0, //图片切片的x位置
-          dy     : opt.context.dy     || 0, //图片切片的y位置
+          dx     : opt.context.dx, //图片切片的x位置
+          dy     : opt.context.dy, //图片切片的y位置
           dWidth : opt.context.dWidth || 0, //切片的width
           dHeight: opt.context.dHeight|| 0  //切片的height
       }
@@ -39,10 +39,12 @@ KISSY.add("canvax/display/Bitmap" , function(S , Shape , Base){
           if(!style.width || !style.height ){
               ctx.drawImage(image, 0, 0);
           } else {
-              if(!style.dWidth || !style.dHeight ){
+              if( style.dx == undefined || style.dy == undefined  ){
                  ctx.drawImage(image, 0, 0, style.width, style.height);
               } else {
-                 ctx.drawImage(image , style.dx , style.dy , style.dWidth , style.dHeight,0, 0, style.width, style.height );
+                 !style.dWidth  && ( style.dWidth  = style.width  );
+                 !style.dHeight && ( style.dHeight = style.height );
+                 ctx.drawImage(image , style.dx , style.dy , style.dWidth , style.dHeight , 0 , 0 , style.width, style.height );
               }
           }
       }

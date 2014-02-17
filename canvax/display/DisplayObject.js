@@ -134,6 +134,10 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                     return;
                 };
 
+                if(this.$owner.$watch){
+                   this.$owner.$watch( name , value , preValue );
+                }
+
                 //TODO 暂时所有的属性都上报，有时间了在来慢慢梳理
                 var stage = this.$owner.getStage(); 
 
