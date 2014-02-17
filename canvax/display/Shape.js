@@ -45,17 +45,7 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
       getRect:function(style){
           return style
       },
-      setContextStyle : function(ctx, style) {
-          // 简单判断不做严格类型检测
-          for (p in style.$model){
-              if(p in ctx){
-                if (style.$model[p]) {
-                  ctx[p] = style.$model[p];
-                }
-              }
-          }
-          return;
-      },
+  
       drawEnd : function(ctx){
           if(this._hasFillAndStroke){
               //如果在子shape类里面已经实现stroke fill 等操作， 就不需要统一的d
@@ -89,7 +79,7 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
          var context = self.getStage().context2D;
 
          if (style){
-           self.setContextStyle( context ,style );
+           Base.setContextStyle( context , style );
          }
          
          if (self.context.type == "shape"){

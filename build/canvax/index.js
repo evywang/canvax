@@ -503,7 +503,17 @@ KISSY.add("canvax/animation/Animation" , function(S){
             newProto.constructor = constructor;
             return newProto;
         },
-
+        setContextStyle : function( ctx , style ){
+            // 简单判断不做严格类型检测
+            for (p in style.$model){
+                if(p in ctx){
+                    if (style.$model[p]) {
+                        ctx[p] = style.$model[p];
+                    }
+                }
+            }
+            return;
+        },
         creatClass : function(r, s, px){
             if (!s || !r) {
                 return r;
@@ -1981,17 +1991,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       getRect:function(style){
           return style
       },
-      setContextStyle : function(ctx, style) {
-          // 简单判断不做严格类型检测
-          for (p in style.$model){
-              if(p in ctx){
-                if (style.$model[p]) {
-                  ctx[p] = style.$model[p];
-                }
-              }
-          }
-          return;
-      },
+  
       drawEnd : function(ctx){
           if(this._hasFillAndStroke){
               //如果在子shape类里面已经实现stroke fill 等操作， 就不需要统一的d
@@ -2025,7 +2025,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
          var context = self.getStage().context2D;
 
          if (style){
-           self.setContextStyle( context ,style );
+           Base.setContextStyle( context , style );
          }
          
          if (self.context.type == "shape"){
@@ -2269,8 +2269,21 @@ KISSY.add("canvax/animation/Animation" , function(S){
                this.context.width = this._getTextWidth(ctx, textLines);
                this.context.height = this._getTextHeight(ctx, textLines);
 
-               ctx.fillStyle = this.context.fillStyle;
-               ctx.font      = this.context.font;
+               //ctx.fillStyle = this.context.fillStyle;
+               //ctx.font      = this.context.font;
+
+               for (p in this.context.$model){
+                   if(p in ctx){
+                       if ( p != "textBaseline" && this.context.$model[p] ) {
+                           ctx[p] = this.context.$model[p];
+                       }
+                   }
+               }
+
+
+               //像shape一样的要设置样式
+               //Base.setContextStyle( ctx , this.context );
+
 
                this.clipTo && this.clipContext(this, ctx);
 
@@ -2332,7 +2345,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                             'fillText',
                             ctx,
                             textLines[i],
-                            this._getLeftOffset(),
+                            0,//this._getLeftOffset(),
                             this._getTopOffset() + lineHeights,
                             i
                             );
@@ -2367,7 +2380,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                             'strokeText',
                             ctx,
                             textLines[i],
-                            this._getLeftOffset(),
+                            0, //this._getLeftOffset(),
                             this._getTopOffset() + lineHeights,
                             i
                             );
@@ -2407,7 +2420,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 }
             },
             _renderChars: function(method, ctx, chars, left, top) {
-                ctx[method](chars, left, top);
+                ctx[method]( chars , 0 , top );
             },
             _setShadow: function(ctx) {
                 if (!this.shadow) return;

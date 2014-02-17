@@ -57,7 +57,17 @@ KISSY.add("canvax/core/Base" , function(S){
             newProto.constructor = constructor;
             return newProto;
         },
-
+        setContextStyle : function( ctx , style ){
+            // 简单判断不做严格类型检测
+            for (p in style.$model){
+                if(p in ctx){
+                    if (style.$model[p]) {
+                        ctx[p] = style.$model[p];
+                    }
+                }
+            }
+            return;
+        },
         creatClass : function(r, s, px){
             if (!s || !r) {
                 return r;

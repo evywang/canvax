@@ -59,8 +59,21 @@ KISSY.add("canvax/display/Text" ,
                this.context.width = this._getTextWidth(ctx, textLines);
                this.context.height = this._getTextHeight(ctx, textLines);
 
-               ctx.fillStyle = this.context.fillStyle;
-               ctx.font      = this.context.font;
+               //ctx.fillStyle = this.context.fillStyle;
+               //ctx.font      = this.context.font;
+
+               for (p in this.context.$model){
+                   if(p in ctx){
+                       if ( p != "textBaseline" && this.context.$model[p] ) {
+                           ctx[p] = this.context.$model[p];
+                       }
+                   }
+               }
+
+
+               //像shape一样的要设置样式
+               //Base.setContextStyle( ctx , this.context );
+
 
                this.clipTo && this.clipContext(this, ctx);
 
@@ -122,7 +135,7 @@ KISSY.add("canvax/display/Text" ,
                             'fillText',
                             ctx,
                             textLines[i],
-                            this._getLeftOffset(),
+                            0,//this._getLeftOffset(),
                             this._getTopOffset() + lineHeights,
                             i
                             );
@@ -157,7 +170,7 @@ KISSY.add("canvax/display/Text" ,
                             'strokeText',
                             ctx,
                             textLines[i],
-                            this._getLeftOffset(),
+                            0, //this._getLeftOffset(),
                             this._getTopOffset() + lineHeights,
                             i
                             );
@@ -197,7 +210,7 @@ KISSY.add("canvax/display/Text" ,
                 }
             },
             _renderChars: function(method, ctx, chars, left, top) {
-                ctx[method](chars, left, top);
+                ctx[method]( chars , 0 , top );
             },
             _setShadow: function(ctx) {
                 if (!this.shadow) return;
