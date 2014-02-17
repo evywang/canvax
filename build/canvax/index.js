@@ -2266,7 +2266,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             render : function( ctx ){
                var textLines = this._getTextLines();
 
-               this.context.width = this._getTextWidth(ctx, textLines);
+               this.context.width  = this._getTextWidth( ctx, textLines);
                this.context.height = this._getTextHeight(ctx, textLines);
 
                //ctx.fillStyle = this.context.fillStyle;
@@ -2295,7 +2295,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
              
             },
             getTextWidth  : function(){
-               return this._getTextWidth(  Base._pixelCtx , this._getTextLines() );
+               var width = 0;
+               Base._pixelCtx.save();
+               Base._pixelCtx.font = this.context.font;
+               width = this._getTextWidth(  Base._pixelCtx , this._getTextLines() );
+               Base._pixelCtx.restore();
+               return width;
             },
             getTextHeight : function(){
                return this._getTextHeight( Base._pixelCtx , this._getTextLines() );
@@ -2439,6 +2444,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 return this.context.fontSize * this.context.lineHeight;
             },
             _getTextWidth: function(ctx, textLines) {
+                
                 var maxWidth = ctx.measureText(textLines[0] || '|').width;
 
                 for (var i = 1, len = textLines.length; i < len; i++) {
@@ -2467,7 +2473,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
                 ctx.save();
                 ctx.fillStyle = this.context.backgroundColor;
-
                 ctx.fillRect(
                         this._getLeftOffset(),
                         this._getTopOffset(),
@@ -2476,6 +2481,44 @@ KISSY.add("canvax/animation/Animation" , function(S){
                         );
 
                 ctx.restore();
+            },
+            _renderTextLinesBackground: function(ctx, textLines) {
+                if (!this.context.textBackgroundColor) return;
+
+                ctx.save();
+                ctx.fillStyle = this.context.textBackgroundColor;
+
+                for (var i = 0, len = textLines.length; i < len; i++) {
+
+                    if (textLines[i] !== '') {
+
+                        var lineWidth      = this._getLineWidth(ctx, textLines[i]);
+                        debugger;
+                        var lineLeftOffset = this._getLineLeftOffset(lineWidth);
+
+                        ctx.fillRect(
+                                this._getLeftOffset() + lineLeftOffset,
+                                this._getTopOffset() + (i * this.context.fontSize * this.context.lineHeight),
+                                lineWidth,
+                                this.context.fontSize * this.context.lineHeight
+                                );
+                    }
+                }
+                ctx.restore();
+            },
+            _getLineWidth: function(ctx, line) {
+                return this.context.textAlign === 'justify'
+                    ? this.context.width
+                    : ctx.measureText(line).width;
+            },
+            _getLineLeftOffset: function(lineWidth) {
+                if (this.context.textAlign === 'center') {
+                    return (this.context.width - lineWidth) / 2;
+                }
+                if (this.context.textAlign === 'right') {
+                    return this.context.width - lineWidth;
+                }
+                return 0;
             },
             _getLeftOffset: function() {
                 var l = 0;
@@ -2512,43 +2555,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 }
                 return t;
 
-            },
-            _renderTextLinesBackground: function(ctx, textLines) {
-                if (!this.context.textBackgroundColor) return;
-
-                ctx.save();
-                ctx.fillStyle = this.context.textBackgroundColor;
-
-                for (var i = 0, len = textLines.length; i < len; i++) {
-
-                    if (textLines[i] !== '') {
-
-                        var lineWidth = this._getLineWidth(ctx, textLines[i]);
-                        var lineLeftOffset = this._getLineLeftOffset(lineWidth);
-
-                        ctx.fillRect(
-                                this._getLeftOffset() + lineLeftOffset,
-                                this._getTopOffset() + (i * this.context.fontSize * this.context.lineHeight),
-                                lineWidth,
-                                this.context.fontSize * this.context.lineHeight
-                                );
-                    }
-                }
-                ctx.restore();
-            },
-            _getLineWidth: function(ctx, line) {
-                return this.context.textAlign === 'justify'
-                    ? this.context.width
-                    : ctx.measureText(line).width;
-            },
-            _getLineLeftOffset: function(lineWidth) {
-                if (this.context.textAlign === 'center') {
-                    return (this.context.width - lineWidth) / 2;
-                }
-                if (this.context.textAlign === 'right') {
-                    return this.context.width - lineWidth;
-                }
-                return 0;
             }
 
             
