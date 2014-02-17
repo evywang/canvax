@@ -86,6 +86,11 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
             ];
             */
 
+            var isCicle = false;
+            if( Math.abs( this.startAngle - this.endAngle ) == 360 ){
+                isCicle = true;
+            }
+
             var pointList  = [];
 
             var p4Direction= {
@@ -97,29 +102,31 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
 
             for ( var d in p4Direction ){
                 var inAngleReg = parseInt(d) > this.regAngle[0] && parseInt(d) < this.regAngle[1];
-                if( (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
+                if( isCicle || (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
                     pointList.push( p4Direction[ d ] );
                 }
             }
 
-            startAngle = myMath.degreeToRadian( this.context.startAngle );
-            endAngle   = myMath.degreeToRadian( this.context.endAngle   );
+            if( !isCicle ) {
+                startAngle = myMath.degreeToRadian( this.context.startAngle );
+                endAngle   = myMath.degreeToRadian( this.context.endAngle   );
 
-            pointList.push([
-                    myMath.cos(startAngle) * r0 , myMath.sin(startAngle) * r0
-                    ]);
+                pointList.push([
+                        myMath.cos(startAngle) * r0 , myMath.sin(startAngle) * r0
+                        ]);
 
-            pointList.push([
-                    myMath.cos(startAngle) * r  , myMath.sin(startAngle) * r
-                    ]);
+                pointList.push([
+                        myMath.cos(startAngle) * r  , myMath.sin(startAngle) * r
+                        ]);
 
-            pointList.push([
-                    myMath.cos(endAngle)   * r  ,  myMath.sin(endAngle)  * r
-                    ]);
+                pointList.push([
+                        myMath.cos(endAngle)   * r  ,  myMath.sin(endAngle)  * r
+                        ]);
 
-            pointList.push([
-                    myMath.cos(endAngle)   * r0 ,  myMath.sin(endAngle)  * r0
-                    ]);
+                pointList.push([
+                        myMath.cos(endAngle)   * r0 ,  myMath.sin(endAngle)  * r0
+                        ]);
+            }
 
             context.pointList = pointList;
             return this.getRectFormPointList( context );

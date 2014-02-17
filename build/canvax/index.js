@@ -5285,6 +5285,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
             ];
             */
 
+            var isCicle = false;
+            if( Math.abs( this.startAngle - this.endAngle ) == 360 ){
+                isCicle = true;
+            }
+
             var pointList  = [];
 
             var p4Direction= {
@@ -5296,29 +5301,31 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
             for ( var d in p4Direction ){
                 var inAngleReg = parseInt(d) > this.regAngle[0] && parseInt(d) < this.regAngle[1];
-                if( (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
+                if( isCicle || (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
                     pointList.push( p4Direction[ d ] );
                 }
             }
 
-            startAngle = myMath.degreeToRadian( this.context.startAngle );
-            endAngle   = myMath.degreeToRadian( this.context.endAngle   );
+            if( !isCicle ) {
+                startAngle = myMath.degreeToRadian( this.context.startAngle );
+                endAngle   = myMath.degreeToRadian( this.context.endAngle   );
 
-            pointList.push([
-                    myMath.cos(startAngle) * r0 , myMath.sin(startAngle) * r0
-                    ]);
+                pointList.push([
+                        myMath.cos(startAngle) * r0 , myMath.sin(startAngle) * r0
+                        ]);
 
-            pointList.push([
-                    myMath.cos(startAngle) * r  , myMath.sin(startAngle) * r
-                    ]);
+                pointList.push([
+                        myMath.cos(startAngle) * r  , myMath.sin(startAngle) * r
+                        ]);
 
-            pointList.push([
-                    myMath.cos(endAngle)   * r  ,  myMath.sin(endAngle)  * r
-                    ]);
+                pointList.push([
+                        myMath.cos(endAngle)   * r  ,  myMath.sin(endAngle)  * r
+                        ]);
 
-            pointList.push([
-                    myMath.cos(endAngle)   * r0 ,  myMath.sin(endAngle)  * r0
-                    ]);
+                pointList.push([
+                        myMath.cos(endAngle)   * r0 ,  myMath.sin(endAngle)  * r0
+                        ]);
+            }
 
             context.pointList = pointList;
             return this.getRectFormPointList( context );
@@ -6025,7 +6032,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
          * @param {angle} number
          */
         function degreeTo360( angle ) {
-           return Math.abs(360 + parseInt(angle) % 360) % 360;
+           var reAng = Math.abs(360 + Math.round( angle ) % 360) % 360;
+           if( reAng == 0 && angle !== 0 ){
+               reAng = 360
+           }
+           return reAng;
         }
 
         return {

@@ -67,14 +67,14 @@
                x :600,
                y : 110,
 
-               clockwise : true,//逆时针
+               //clockwise : true,//逆时针
                r : 100,
                r0:20, 
-               startAngle :180 ,
-               endAngle : 10,
+               startAngle :0 ,
+               endAngle : 360 ,
                fillStyle:color.getColor(colorInd++),
                strokeStyle:color.getColor(colorInd++),
-               lineWidth : 0
+               lineWidth : 1
                //lineJoin : "round"
              }
          });
@@ -89,7 +89,7 @@
                  strokeStyle : "red",
                  lineWidth   : 1
              }
-         })
+         });
          /*
          sector.on("touch" , function(){
              this.context.lineWidth = 10;
