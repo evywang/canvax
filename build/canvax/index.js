@@ -5244,7 +5244,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
            var startAngle = context.startAngle;          // 起始角度[0,360)
            var endAngle   = context.endAngle;              // 结束角度(0,360]
 
-           if( startAngle == endAngle ) {
+           if( startAngle == endAngle &&  startAngle*endAngle !=0 ) {
                //如果两个角度相等，那么就认为是个圆环了，那么就改写角度为从0-360
                startAngle = 0;
                endAngle   = 360;
@@ -5293,7 +5293,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
             */
 
             var isCicle = false;
-            if( Math.abs( this.startAngle - this.endAngle ) == 360 || this.startAngle == this.endAngle ){
+            if( Math.abs( this.startAngle - this.endAngle ) == 360 
+                    || ( this.startAngle == this.endAngle && this.startAngle * this.endAngle != 0 ) ){
                 isCicle = true;
             }
 
