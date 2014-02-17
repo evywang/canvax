@@ -5238,15 +5238,23 @@ KISSY.add("canvax/animation/Animation" , function(S){
    Base.creatClass(Sector , Shape , {
        draw : function(ctx, context) {
            
+           debugger;
            // 形内半径[0,r)
            var r0 = typeof context.r0 == 'undefined' ? 0 : context.r0;
            var r = context.r;                            // 扇形外半径(0,r]
            var startAngle = context.startAngle;          // 起始角度[0,360)
            var endAngle   = context.endAngle;              // 结束角度(0,360]
 
+           if( startAngle == endAngle ) {
+               //如果两个角度相等，那么就认为是个圆环了，那么就改写角度为从0-360
+               startAngle = 0;
+               endAngle   = 360;
+           }
+
            startAngle = myMath.degreeToRadian(startAngle);
            endAngle   = myMath.degreeToRadian(endAngle);
 
+           
            ctx.arc( 0 , 0 , r, startAngle, endAngle, this.context.clockwise);
            if (r0 !== 0) {
                ctx.arc( 0 , 0 , r0, endAngle , startAngle, !this.context.clockwise);
@@ -5286,7 +5294,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             */
 
             var isCicle = false;
-            if( Math.abs( this.startAngle - this.endAngle ) == 360 ){
+            if( Math.abs( this.startAngle - this.endAngle ) == 360 || this.startAngle == this.endAngle ){
                 isCicle = true;
             }
 

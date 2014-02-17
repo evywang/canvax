@@ -155,7 +155,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
         $readyHide : function(){
            this.stage.getChildById("ready").context.visible = false;
            this.readyState = false;
-           debugger;
+           
            if( this.readyFly ){
                this.readyFly.stop();
                Canvax.Animation.remove( this.readyFly );
@@ -165,7 +165,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
         $readyShow : function( alpha ){
            this.stage.getChildById("ready").context.visible = true;
            this.readyState = true;
-           this.$readyFly();
+           //this.$readyFly();
            animate();
         },
         $readyFly  : function(){
