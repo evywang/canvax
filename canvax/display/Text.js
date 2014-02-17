@@ -283,7 +283,6 @@ KISSY.add("canvax/display/Text" ,
                     if (textLines[i] !== '') {
 
                         var lineWidth      = this._getLineWidth(ctx, textLines[i]);
-                        debugger;
                         var lineLeftOffset = this._getLineLeftOffset(lineWidth);
 
                         ctx.fillRect(

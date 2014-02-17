@@ -2493,7 +2493,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                     if (textLines[i] !== '') {
 
                         var lineWidth      = this._getLineWidth(ctx, textLines[i]);
-                        debugger;
                         var lineLeftOffset = this._getLineLeftOffset(lineWidth);
 
                         ctx.fillRect(
