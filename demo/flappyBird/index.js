@@ -15,13 +15,27 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
         this.height= S.all(el).height();
         this.birdW = 83 * this.scale;
         this.birdH = 60 * this.scale;
-        this.birdFall = false;
+
+        //这个是整个鸟飞行的Interval
+        this.birdFly = false;
+
+        //下面两个是鸟上升的时候抬头和下降的时候低头的动画tween对象
+        this.birdFall;
+        this.birdUp;
+
+        //一次跳跃的高度
+        this.birdUpH = 50
+
+
+        this.grount  = null;
         this.groundH = 241 * this.scale;
 
         this.birdReadyY = (this.height - this.groundH)/2 + this.birdH/2;
 
         this.readyState = true;
-        this.readyFly   = null;
+
+        //树
+        this.tree = {};
 
         this.files = {
              bg     : files[0],
@@ -50,17 +64,26 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
                   height: self.height
               }
            });
-           
+
            //创建滚动的地板
-           var ground = new Canvax.Display.Bitmap({
-              id : "ground",
-              img: this.files.ground,
+           this.ground = new Canvax.Display.Sprite({
               context : {
-                 y     : this.height - this.groundH,
-                 width : self.width,
-                 height: this.groundH
+                width : this.width*2,
+                height: this.groundH,
+                y     : this.height - this.groundH
               }
            });
+
+           for( var i=0 ; i<2 ; i++ ){
+             this.ground.addChild(new Canvax.Display.Bitmap({
+                 img : this.files.ground,
+                 context  : {
+                    x     : this.width*i,
+                    width : this.width,
+                    height: this.groundH
+                 }
+             }))
+           }
            
            
            this.bird = new Canvax.Display.Movieclip({
@@ -71,7 +94,11 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
                  x     : this.width/4*1,
                  y     : this.birdReadyY,
                  width : this.birdW,
-                 height: this.birdH
+                 height: this.birdH,
+                 rotateOrigin : {
+                     x : this.birdW/2,
+                     y : this.birdH/2
+                 }
               }
            });
 
@@ -85,13 +112,11 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
                      height : self.bird.context.height,
                      dx     : fram[0],
                      dy     : fram[1],
-                     dWidth : fram[2] , 
+                     dWidth : fram[2], 
                      dHeight: fram[3]
                   }
                }) )
            } );
-
-           //get Ready
            
            var readyW = 463 * this.scale;
            var readyH = ( 250 + 130 ) * this.scale
@@ -105,7 +130,6 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
               }
            });
 
-           
            $ready.addChild( new Canvax.Display.Bitmap({
               img     : self.files.flappyPacker,
               context : {
@@ -117,8 +141,6 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
                   dHeight: 129
               } 
            }));
-           
-
            
            $ready.addChild( new Canvax.Display.Bitmap({
               img     : self.files.flappyPacker,
@@ -137,7 +159,12 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
 
            this.stage.addChild( bg );
 
-           this.stage.addChild( ground );
+           //创建树
+           this.stage.addChild( this.initTrees() );
+
+
+
+           this.stage.addChild( this.ground );
 
            this.stage.addChild( $ready );
 
@@ -145,27 +172,43 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
            this.canvax.addChild( this.stage );
 
            this.canvax.on("tap" , function(){
-               //self.resetBirdSpeed();
-               self.gameStart();
+               if(!self.birdFly) {
+                   self.gameStart();
+               }
+               self.resetBirdSpeed();
            });
 
            self.$readyShow();
 
+           new Canvax.Animation.Tween( {x:0} )
+               .to( { x : -self.width }, 3000 )
+               .repeat( Infinity )
+               .onUpdate( function () {
+                   self.ground.context.x = this.x;
+               } ).start();
+
+           
+
+           
+           this.treesTween();
         },
         $readyHide : function(){
-           this.stage.getChildById("ready").context.visible = false;
+           var self = this;
+           new Canvax.Animation.Tween( {a : 1} )
+               .to( { a : 0 }, 500 )
+               .onUpdate( function () {
+                   self.stage.getChildById("ready").context.alpha = this.a;
+               } ).start();
+
            this.readyState = false;
            
-           if( this.readyFly ){
-               this.readyFly.stop();
-               Canvax.Animation.remove( this.readyFly );
-               this.readyFly = null;
-           }
+           this.fly1.stop();
+           this.fly2.stop();
         },
         $readyShow : function( alpha ){
-           this.stage.getChildById("ready").context.visible = true;
+           this.stage.getChildById("ready").context.alpha = 1;
            this.readyState = true;
-           //this.$readyFly();
+           this.$readyFly();
            animate();
         },
         $readyFly  : function(){
@@ -173,60 +216,220 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
             if( !self.readyState ) {
               return;
             }
-            var fly1 = new Canvax.Animation.Tween( { y : this.birdReadyY } )
+            var p1 = { y : this.birdReadyY };
+            var p2 = { y : this.birdReadyY - this.birdH/2 }
+            this.fly1 = new Canvax.Animation.Tween( p1 )
                 .to( { y : (this.birdReadyY - this.birdH/2) }, 500 )
                 .onUpdate( function () {
                     self.bird.context.y = this.y;
                 } ).onComplete( function(){
-                    self.readyFly = fly2
+                    p1.y = self.birdReadyY;
                 } );
 
-            self.readyFly = fly1;
-            
-            var fly2 = new Canvax.Animation.Tween( { y :  this.birdReadyY - this.birdH/2} )
+            this.fly2 = new Canvax.Animation.Tween( p2 )
                 .to( { y : this.birdReadyY }, 500 )
                 .onUpdate( function () {
                     self.bird.context.y = this.y;
                 } ).onComplete( function(){
-                    self.$readyFly();
+                    p2.y = self.birdReadyY - self.birdH/2 
                 } );
+
             
-            fly1.chain( fly2 ).start();
+            this.fly1.chain( this.fly2 );
+            this.fly2.chain( this.fly1 );
+
+            this.fly1.start();
+        },
+        initTrees  : function(){
+            this.tree.Sprite = new Canvax.Display.Sprite({
+                id : "trees" , 
+                context : {
+                      x : this.width,
+                      y : 0,
+                  width : this.width*2
+                }
+            });
+
+            this.tree.Sprite.addChild( this.creatTree() );
+
+            return this.tree.Sprite;
+
+        },
+        treesTween : function(){
+            var self = this;
+            var t1 = new Canvax.Animation.Tween( { x : self.width } )
+               .to( { x : 0 }, 5000 )
+               .onUpdate( function () {
+                   self.tree.Sprite.context.x = this.x;
+                   self.checkPosition( );
+               } );
+
+            var t2 = new Canvax.Animation.Tween( { x : 0 } )
+               .to( { x : -self.width }, 5000 )
+               .repeat( Infinity )
+               .onUpdate( function () {
+                   self.tree.Sprite.context.x = this.x;
+                   self.checkPosition( );
+                   //console.log( this.x )
+               } ).onComplete(function(){
+                   _.each( self.tree.Sprite.children , function( tree ){
+                       tree.context.x -= self.width;
+                   } );
+               });
+
+            t1.chain( t2 );
+            t1.start();
+        },
+        checkPosition : function(){
+            var lastTreeInd = this.tree.Sprite.getNumChildren() - 1 ;
+            var lastTree    = this.tree.Sprite.getChildAt( lastTreeInd );
+            var lastTreeG   = lastTree.localToGlobal( {x : lastTree.context.x , y : 0} );
+            debugger;
+            if( lastTreeG.x < (this.width - lastTree.context.width) ){
+                debugger;
+            }
+        },
+        creatTree  : function(){
+            var boxH        = this.height - this.groundH;
+            var BarWidth    = 130 * this.scale;
+            var spaceWidth  = parseInt( BarWidth * ( 1 + Math.random()*3/10) );
+            var lastTreeInd = this.tree.Sprite.getNumChildren();
+            var lastTreeX   = !lastTreeInd ? 0 : this.tree.Sprite.getChildAt( lastTreeInd ).context.x;
+            var s = new Canvax.Display.Sprite({
+                id : "tree" + ( lastTreeInd + 1 ),
+                context : {
+                    x  : lastTreeX + BarWidth + spaceWidth ,
+                    width : BarWidth,
+                    height: boxH
+                }
+            });
+            
+            //创建缺口位置
+            var minBarHeight = BarWidth; //已bar的宽度来作为一个柱子的最小height
+            var gapH = parseInt( this.birdUpH * ( 1.8 + Math.random()*3/10 ) );//Math.random()*3/10
+            var gapY = minBarHeight + parseInt( Math.random() * (boxH - minBarHeight*2 - gapH) );
+
+            var b1dH = gapY / this.scale;
+            s.addChild( new Canvax.Display.Bitmap({
+                img : this.files.flappyPacker,
+                context : {
+                    width : BarWidth,
+                    height: gapY,
+                    dx    : 160,
+                    dy    : 484 + ( 802 - b1dH ),
+                    dWidth: 130,
+                    dHeight : b1dH
+                }
+            }) );
+
+            var b2H = boxH - gapY - gapH; //下面的柱子的高度
+            s.addChild( new Canvax.Display.Bitmap({
+                img : this.files.flappyPacker,
+                context : {
+                    y     : gapY + gapH,
+                    width : BarWidth,
+                    height: b2H,
+                    dx    : 10,
+                    dy    : 480,
+                    dWidth: 130,
+                    dHeight : b2H / this.scale
+                }
+            }) );
+
+            return s;
+            
         },
         gameStart  : function(){
+            this.bird.play();
             this.$readyHide();
-            this.resetBirdSpeed(); 
-        },
-
-        gameOver : function(){
-            clearTimeout( this.birdFall );
-
-        },
-        tabHand : function(){
+            //this.resetBirdSpeed();
             
+        },
+        gameOver : function(){
+            clearTimeout( this.birdFly );
+            this.bird.context.y = this.height - this.groundH - this.birdH;
+
+            //停止掉所有在跑的tween动画
+            Canvax.Animation.removeAll();
+            clearTimeout( this.birdFly );
+            this.birdFall = null;
+            this.birdUp = null;
+            this.bird.stop();
+
+            //然后把鸟旋转到90度
+            this.bird.context.rotation = 90;
+
+            console.log("over")
         },
         resetBirdSpeed : function(){
             var self  = this;
             var now_y = this.bird.context.y;
             
             console.log( now_y )
-            if(!!this.birdFall)
-                clearTimeout( this.birdFall );
-            var bird_t = 0;
-            this.birdFall = setInterval( function(){
-                bird_t ++;
-                var q = -10;
-                var y = now_y + Math.pow( ( bird_t + q ) , 2 ) - 100;
+            if(!!this.birdFly )
+                clearInterval( this.birdFly );
+            if(!!self.birdFall ) {
+               //如果这个时候正在旋转向下
+               self.birdFall.stop();
+               self.birdFall = null;
+            };
+            //然后如果发现角度没有-20的抬头，就
+            if( !self.birdUp && self.bird.context.rotation != -20 ){
+                //上升阶段，并且角度不为 -30
+                var rUp = { r : self.bird.context.rotation };
+                self.birdUp   = new Canvax.Animation.Tween( rUp )
+                    .to( { r : -20 }, 200 )
+                    .onUpdate( function () {
+                        self.bird.context.rotation = this.r;
+                    } ).onComplete(function(){
+                        self.birdUp = null;
+                    }).start(); 
 
-                if( y > ( self.height - self.groundH ) ){
+                //往上飞比较吃力，要加快频率
+                self.bird.setFrameRate( 20 );
+
+            }
+
+            var bird_t = 0;
+            this.birdFly = setInterval( function(){
+                bird_t ++;
+                
+                var y = self.getV( now_y , self.birdUpH , bird_t , 0.8 );
+
+                if( now_y < y && bird_t > 0 && !self.birdFall) {
+                    //下降阶段
+                    var r = { r : self.bird.context.rotation }
+                    self.birdFall = new Canvax.Animation.Tween( r )
+                        .to( { r : 90 }, 350 )
+                        .onUpdate( function () {
+                           self.bird.context.rotation = this.r;
+                        } ).start(); 
+                }
+                
+                if( y > ( self.height - self.groundH - self.birdH) ){
                     self.gameOver();
                     return;
                 }
-
-                console.log(y)
+                console.log( y < now_y );
                 self.bird.context.y = y;
+                
             } , 30 );
 
+        },
+        /**
+         *上抛公式
+         *
+         */
+        getV : function(y, h, t, g){
+            g = g || 0.98;
+            function fn(v, t){
+                return v * t - 0.5 * g * t * t;
+            }
+            function v0(h){
+                return Math.sqrt(2 * h * g);
+            }
+
+            return y - fn(v0(h), t);
         }
     }
     return flappyBird;

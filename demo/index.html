@@ -258,6 +258,10 @@
                //lineJoin : "round"
              }
          });
+
+         sector.on("mousemove" , function( e ){
+             debugger;
+         });
          
          var srect = sector.getRect();
          var sector_rect = new Canvax.Shapes.Rect({
@@ -455,7 +459,7 @@
            //stage.addChild(sector);
            //stage.addChild(rect1);
 
-/*
+        /*
            stage.addChild(rect);
            stage.addChild(circle2);
 
@@ -464,10 +468,11 @@
            stage.addChild(brokenLine);
 
            stage.addChild(ellipse);
-
-           stage.addChild(sector);
+*/
            stage.addChild(sector_rect);
+           stage.addChild(sector);
 
+           /*
            stage.addChild(map1);
 
            stage.addChild(path1);
@@ -480,10 +485,12 @@
            
 
            stage.addChild(droplet);
+           */
 
 
            canvax.addChild(stage);
 
+           /*
            stage.addChild(line);
            setTimeout(function(){
                
@@ -491,7 +498,6 @@
                },1000)
 
 
-               */
            window.stage1 = new Canvax.Display.Stage({
                id : "chart1"               
            });
@@ -499,6 +505,7 @@
 
 
            canvax.addChild( stage1 );
+           */
 
            //stage1.toFront();
 

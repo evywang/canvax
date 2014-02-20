@@ -44,7 +44,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                _tweens.push( tween );
             },
             remove: function ( tween ) {
-                var i = _.indexOf( tween , _tweens );
+                var i = _.indexOf( _tweens , tween );
                 if ( i !== -1 ) {
                     _tweens.splice( i, 1 );
                 }
@@ -937,11 +937,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
         //相对父级元素的矩阵
         self._transform      = null;
 
-        //相对stage的全局矩阵
-        //如果父子结构有变动，比如移动到另外个容器里面去了
-        //就要对应的修改新为的矩阵
-        //怎么修改呢。self._transformStage=null就好了
-        self._transformStage = null;
 
         self._eventId        = null;
 
@@ -956,7 +951,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         self._eventEnabled   = false; //是否响应事件交互
 
-        self.dragEnabled     = true; //false;   //是否启用元素的拖拽
+        self.dragEnabled     = false;   //是否启用元素的拖拽
 
         //创建好context
         self._createContext( opt );
@@ -1022,7 +1017,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 shadowOffsetX : opt.context.shadowOffsetX  || null,
                 shadowOffsetY : opt.context.shadowOffsetY  || null,
                 strokeStyle   : opt.context.strokeStyle    || null,
-                globalAlpha   : opt.context.globalAlpha    || null,
+                //globalAlpha   : opt.context.globalAlpha    || null,
                 font          : opt.context.font           || null,
                 textAlign     : opt.context.textAlign      || "left",
                 textBaseline  : opt.context.textBaseline   || "top",
@@ -1131,35 +1126,20 @@ KISSY.add("canvax/animation/Animation" , function(S){
             } 
            
             //一直回溯到顶层object， 即是stage， stage的parent为null
-            
             this.stage = p;
             return p;
             
         },
         localToGlobal : function( point ){
-            var cm = this._transformStage;
-            if(!cm){
-                cm = this.getConcatenatedMatrix();
-                this._transformStage , cm;
-            }
+            var cm = this.getConcatenatedMatrix();
 
-            //自己克隆，避免影响倒this._transformStage
-            cm=cm.clone();
-                
-            if (cm == null) return {x:0, y:0};
+            if (cm == null) return Point( 0 , 0 );
             var m = new Matrix(1, 0, 0, 1, point.x , point.y);
             m.concat(cm);
             return new Point( m.tx , m.ty ); //{x:m.tx, y:m.ty};
         },
         globalToLocal : function( point ) {
-            var cm = this._transformStage;
-            if(!cm){
-                cm = this.getConcatenatedMatrix();
-                this._transformStage = cm;
-            }
-            
-            //自己克隆，避免影响倒this._transformStage
-            cm=cm.clone();
+            var cm = this.getConcatenatedMatrix();
 
             if (cm == null) return new Point( 0 , 0 ); //{x:0, y:0};
             cm.invert();
@@ -1172,17 +1152,13 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return target.globalToLocal( p );
         },
         getConcatenatedMatrix : function(){
-            //TODO: cache the concatenated matrix to get better performance
-            var cm = this._transformStage;
-            if(cm){
-                return cm;
-            }
-            cm = new Matrix();
+            var cm = new Matrix();
             for (var o = this; o != null; o = o.parent) {
                 cm.concat( o._transform );
-                if( !o.parent || o.type=="stage" ) break;
+                if( !o.parent || ( o.parent && o.parent.type=="stage" ) ) {
+                    break;
+                }
             }
-            this._transformStage = cm;
             return cm;
         },
         /*
@@ -1271,8 +1247,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
             _transform.identity();
 
             //是否需要Transform
-           
-
             if(this.context.scaleX !== 1 || this.context.scaleY!==1){
                 //如果有缩放
                 //缩放的原点坐标
@@ -1280,13 +1254,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 if( origin.x || origin.y ){
                     _transform.translate( -origin.x , -origin.y );
                 }
-
                 _transform.scale( this.context.scaleX , this.context.scaleY );
                 if( origin.x || origin.y ){
                     _transform.translate( origin.x , origin.y );
                 };
             };
-
 
             var rotation = this.context.rotation;
             if(rotation){
@@ -1300,7 +1272,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 if( origin.x || origin.y ){
                     _transform.translate( origin.x , origin.y );
                 }
-
             };
             
             if(this.context.x!=0 || this.context.y!=0){
@@ -1310,8 +1281,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
             this._transform = _transform;
 
-            //更新_transform  对应的全局_transformStage 也要滞空，好在下次使用_transformStage的时候能
-            //this._transformStage = null;
             return _transform;
         },
         getRect:function(style){
@@ -1359,7 +1328,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
             }
 
             //正式开始第一步的矩形范围判断
-           
             if (x >= this._rect.x
                 && x <= (this._rect.x + this._rect.width)
                 && y >= this._rect.y
@@ -1368,7 +1336,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                //那么就在这个元素的矩形范围内
                //return true;
                result = HitTestPoint.isInside( this , x , y );
-
             } else {
                //如果连矩形内都不是，那么肯定的，这个不是我们要找的shap
                result = false;
@@ -3080,7 +3047,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return out;
         }
 
-
     } );
 
     return Matrix;
@@ -3543,8 +3509,16 @@ KISSY.add("canvax/animation/Animation" , function(S){
            if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
+               //开发派发常规mousemove事件
+
+               e.target = e.currentTarget = oldObj;
+               e.point  = oldObj.globalToLocal( point );
+               
+               oldObj.dispatchEvent(e);
+
                return;
            }
+
            var obj = this.getObjectsUnderPoint( point , 1)[0];
            var e = _.extend(this._Event , e);
 
@@ -3566,8 +3540,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
                   oldObj.context.visible = true;
                }
                oldObj.dispatchEvent(e);
-               //this.setCursor("default");
            };
+
            if(obj && oldObj != obj && obj._hoverable){
                this.curPointsTarget[0] = obj;
                e.type = "mouseover";
@@ -3590,6 +3564,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
            _dragDuplicate.context.$watch  = target.context.$watch;
            _dragDuplicate.context.visible = true;
 
+           debugger;
            _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal( self.curPoints[0] );
        },
        //drag 中 的处理函数
@@ -5290,12 +5265,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 Math.min( startAngle , endAngle ) , 
                 Math.max( startAngle , endAngle ) 
             ];
-            */
+            */ 
 
-            var isCicle = false;
-            if( Math.abs( this.startAngle - this.endAngle ) == 360 
-                    || ( this.startAngle == this.endAngle && this.startAngle * this.endAngle != 0 ) ){
-                isCicle = true;
+            var isCircle = false;
+            if( Math.abs( this.context.startAngle - this.context.endAngle ) == 360 
+                    || ( this.context.startAngle == this.context.endAngle && this.context.startAngle * this.context.endAngle != 0 ) ){
+                isCircle = true;
             }
 
             var pointList  = [];
@@ -5309,12 +5284,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
             for ( var d in p4Direction ){
                 var inAngleReg = parseInt(d) > this.regAngle[0] && parseInt(d) < this.regAngle[1];
-                if( isCicle || (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
+                if( isCircle || (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
                     pointList.push( p4Direction[ d ] );
                 }
             }
 
-            if( !isCicle ) {
+            if( !isCircle ) {
                 startAngle = myMath.degreeToRadian( this.context.startAngle );
                 endAngle   = myMath.degreeToRadian( this.context.endAngle   );
 
@@ -5527,7 +5502,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         _context.save();
         _context.beginPath();
-        shape.setContextStyle(_context , context);
+        Base.setContextStyle(_context , context);
        
         _context.transform.apply( _context , shape.getConcatenatedMatrix().toArray() );
 

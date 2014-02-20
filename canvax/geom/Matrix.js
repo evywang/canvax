@@ -132,7 +132,6 @@ KISSY.add("canvax/geom/Matrix" , function(S,Base){
             return out;
         }
 
-
     } );
 
     return Matrix;

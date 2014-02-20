@@ -51,7 +51,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                _tweens.push( tween );
             },
             remove: function ( tween ) {
-                var i = _.indexOf( tween , _tweens );
+                var i = _.indexOf( _tweens , tween );
                 if ( i !== -1 ) {
                     _tweens.splice( i, 1 );
                 }

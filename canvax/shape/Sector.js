@@ -91,12 +91,12 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
                 Math.min( startAngle , endAngle ) , 
                 Math.max( startAngle , endAngle ) 
             ];
-            */
+            */ 
 
-            var isCicle = false;
-            if( Math.abs( this.startAngle - this.endAngle ) == 360 
-                    || ( this.startAngle == this.endAngle && this.startAngle * this.endAngle != 0 ) ){
-                isCicle = true;
+            var isCircle = false;
+            if( Math.abs( this.context.startAngle - this.context.endAngle ) == 360 
+                    || ( this.context.startAngle == this.context.endAngle && this.context.startAngle * this.context.endAngle != 0 ) ){
+                isCircle = true;
             }
 
             var pointList  = [];
@@ -110,12 +110,12 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
 
             for ( var d in p4Direction ){
                 var inAngleReg = parseInt(d) > this.regAngle[0] && parseInt(d) < this.regAngle[1];
-                if( isCicle || (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
+                if( isCircle || (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
                     pointList.push( p4Direction[ d ] );
                 }
             }
 
-            if( !isCicle ) {
+            if( !isCircle ) {
                 startAngle = myMath.degreeToRadian( this.context.startAngle );
                 endAngle   = myMath.degreeToRadian( this.context.endAngle   );
 

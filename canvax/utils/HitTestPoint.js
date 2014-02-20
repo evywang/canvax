@@ -150,7 +150,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
 
         _context.save();
         _context.beginPath();
-        shape.setContextStyle(_context , context);
+        Base.setContextStyle(_context , context);
        
         _context.transform.apply( _context , shape.getConcatenatedMatrix().toArray() );
 

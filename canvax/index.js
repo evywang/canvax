@@ -399,8 +399,16 @@ KISSY.add("canvax/index" ,
            if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
+               //开发派发常规mousemove事件
+
+               e.target = e.currentTarget = oldObj;
+               e.point  = oldObj.globalToLocal( point );
+               
+               oldObj.dispatchEvent(e);
+
                return;
            }
+
            var obj = this.getObjectsUnderPoint( point , 1)[0];
            var e = _.extend(this._Event , e);
 
@@ -422,8 +430,8 @@ KISSY.add("canvax/index" ,
                   oldObj.context.visible = true;
                }
                oldObj.dispatchEvent(e);
-               //this.setCursor("default");
            };
+
            if(obj && oldObj != obj && obj._hoverable){
                this.curPointsTarget[0] = obj;
                e.type = "mouseover";
@@ -446,6 +454,7 @@ KISSY.add("canvax/index" ,
            _dragDuplicate.context.$watch  = target.context.$watch;
            _dragDuplicate.context.visible = true;
 
+           debugger;
            _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal( self.curPoints[0] );
        },
        //drag 中 的处理函数
