@@ -715,7 +715,9 @@ KISSY.add("canvax/index" ,
    Canvax.Animation = Animation;
    Canvax.Base      = Base;
 
-   Canvax.Event.EventDispatcher = EventDispatcher;
+   Canvax.Event     = {
+      EventDispatcher : EventDispatcher
+   }
 
    return Canvax;
 } , {

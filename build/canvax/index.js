@@ -3869,7 +3869,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
    Canvax.Animation = Animation;
    Canvax.Base      = Base;
 
-   Canvax.Event.EventDispatcher = EventDispatcher;
+   Canvax.Event     = {
+      EventDispatcher : EventDispatcher
+   }
 
    return Canvax;
 } , {
