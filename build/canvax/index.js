@@ -2721,21 +2721,27 @@ KISSY.add("canvax/animation/Animation" , function(S){
          
       on : function(type, listener){
         this._addEventListener( type, listener);
+        return this;
       },
       addEventListener:function(type, listener){
         this._addEventListener( type, listener);
+        return this;
       },
       un : function(type,listener){
         this._removeEventListener( type, listener);
+        return this;
       },
       removeEventListener:function(type,listener){
         this._removeEventListener( type, listener);
+        return this;
       },
       removeEventListenerByType:function(type){
         this._removeEventListenerByType( type);
+        return this;
       },
       removeAllEventListeners:function(){
         this._removeAllEventListeners();
+        return this;
       },
       fire : function(event){
         if(_.isString(event)){
@@ -2745,7 +2751,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
     
         }
         this.dispatchEvent(event);
-
+        return this;
       },
       dispatchEvent:function(event){
         if(event.type == "mouseover"){
@@ -2789,6 +2795,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
             }
         }
 
+        return this;
+
       },
       hasEvent:function(type){
         return this._hasEventListener(type);
@@ -2799,12 +2807,14 @@ KISSY.add("canvax/animation/Animation" , function(S){
       hover : function( overFun , outFun ){
         this.on("mouseover" , overFun);
         this.on("mouseout"  , outFun );
+        return this;
       },
       once : function(type, listener){
         this.on(type , function(){
             listener.apply(this , arguments);
             this.un(type , arguments.callee);
-        })
+        });
+        return this;
       }
   });
 

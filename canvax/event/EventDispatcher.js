@@ -19,21 +19,27 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
          
       on : function(type, listener){
         this._addEventListener( type, listener);
+        return this;
       },
       addEventListener:function(type, listener){
         this._addEventListener( type, listener);
+        return this;
       },
       un : function(type,listener){
         this._removeEventListener( type, listener);
+        return this;
       },
       removeEventListener:function(type,listener){
         this._removeEventListener( type, listener);
+        return this;
       },
       removeEventListenerByType:function(type){
         this._removeEventListenerByType( type);
+        return this;
       },
       removeAllEventListeners:function(){
         this._removeAllEventListeners();
+        return this;
       },
       fire : function(event){
         if(_.isString(event)){
@@ -43,7 +49,7 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
     
         }
         this.dispatchEvent(event);
-
+        return this;
       },
       dispatchEvent:function(event){
         if(event.type == "mouseover"){
@@ -87,6 +93,8 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
             }
         }
 
+        return this;
+
       },
       hasEvent:function(type){
         return this._hasEventListener(type);
@@ -97,12 +105,14 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
       hover : function( overFun , outFun ){
         this.on("mouseover" , overFun);
         this.on("mouseout"  , outFun );
+        return this;
       },
       once : function(type, listener){
         this.on(type , function(){
             listener.apply(this , arguments);
             this.un(type , arguments.callee);
-        })
+        });
+        return this;
       }
   });
 
