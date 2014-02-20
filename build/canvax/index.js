@@ -949,7 +949,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         self._eventEnabled   = false; //是否响应事件交互
 
-        self.dragEnabled     = true;//false;   //是否启用元素的拖拽
+        self.dragEnabled     = false;   //是否启用元素的拖拽
 
         //创建好context
         self._createContext( opt );
@@ -3166,7 +3166,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
    ]
 });
 ;KISSY.add("canvax/index" ,
-   function( S , DisplayObjectContainer , Stage , Base , CanvaxEvent , propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Point , Shapes , Animation , ImagesLoader , Hammer ){
+   function( S , DisplayObjectContainer , Stage , Base , CanvaxEvent , EventDispatcher ,propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Point , Shapes , Animation , ImagesLoader , Hammer ){
        
    var Canvax=function(opt){
        var self = this;
@@ -3867,6 +3867,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
    };
    
    Canvax.Animation = Animation;
+   Canvax.Base      = Base;
+
+   Canvax.Event.EventDispatcher = EventDispatcher;
 
    return Canvax;
 } , {
@@ -3875,6 +3878,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
     "canvax/display/Stage", 
     "canvax/core/Base",
     "canvax/event/CanvaxEvent",
+    "canvax/event/EventDispatcher",
     "canvax/core/propertyFactory",
     
     "canvax/display/Sprite",
