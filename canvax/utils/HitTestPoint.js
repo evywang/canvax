@@ -339,7 +339,8 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
             var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
             var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
 
-            var angle      = (Math.atan2(y , x ) / Math.PI * 180) % 360;
+            //计算该点所在的角度
+            var angle      = myMath.degreeTo360( (Math.atan2(y , x ) / Math.PI * 180) % 360 );
             
             var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
             if ( (startAngle > endAngle && !context.clockwise ) || (startAngle < endAngle && context.clockwise ) ) {
