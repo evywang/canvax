@@ -433,7 +433,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             }
 
             // 快速预判并保留判断矩形
-            if(!this._rect) {
+            //if(!this._rect) {
                 //如果没有图像的_rect
                 this._rect = this.getRect(this.context);
                 if(!this._rect){
@@ -445,7 +445,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 if( !this.context.height && !!this._rect.height ){
                     this.context.height = this._rect.height;
                 }
-            };
+            //};
 
             if(!this._rect.width || !this._rect.height) {
                 return false;
