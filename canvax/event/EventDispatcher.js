@@ -38,7 +38,7 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
       fire : function(event){
         if(_.isString(event)){
           //如果是str，比如mouseover
-          event = {type : event};
+          event = { type : event };
         } else {
     
         }
@@ -53,6 +53,7 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
            if(preHeartBeat != this._heartBeatNum){
                this._hoverClass = true;
                var canvax = this.getStage().parent;
+ 
                //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
                //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
                //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
@@ -60,13 +61,17 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
                    //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
 
                } else {
-                   delete canvax.convertStages[this.getStage().id];
+                   delete canvax.convertStages[ this.getStage().id ];
                }
 
                //然后clone一份obj，添加到_hoverStage 中
                var activShape = this.clone(true);
-               activShape._transform = activShape.getConcatenatedMatrix();
-               canvax._hoverStage.addChild(activShape);
+               //activShape._setPositionFromMatrix( this.getConcatenatedMatrix() );
+               activShape._transform = this.getConcatenatedMatrix();
+               canvax._hoverStage.addChild( activShape );
+
+               //然后在内部的convertStages 中把 this的记录去掉
+               
            }
            return;
         }

@@ -938,8 +938,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
         self._transform      = null;
 
 
-        self._eventId        = null;
-
         //心跳次数
         self._heartBeatNum   = 0;
 
@@ -951,15 +949,13 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         self._eventEnabled   = false; //是否响应事件交互
 
-        self.dragEnabled     = false;   //是否启用元素的拖拽
+        self.dragEnabled     = true;//false;   //是否启用元素的拖拽
 
         //创建好context
         self._createContext( opt );
 
         var UID = Base.createId(self.type);
 
-        //给每个元素添加eventid，EventManager 事件管理器中要用
-        self._eventId = UID;
 
         //如果没有id 则 沿用uid
         if(self.id == null){
@@ -1040,6 +1036,13 @@ KISSY.add("canvax/animation/Animation" , function(S){
             _contextATTRS.$owner = self;
             _contextATTRS.$watch = function(name , value , preValue){
 
+                //下面的这些属性变化，都会需要重新组织矩阵属性_transform 
+                var transFormProps = [ "x" , "y" , "scaleX" , "scaleY" , "rotation" , "scaleOrigin" , "rotateOrigin" ];
+
+                if( _.indexOf( transFormProps ) , name  ) {
+                    this.$owner._updateTransform();
+                }
+
                 if(this.$owner._notWatch){
                     return;
                 };
@@ -1079,9 +1082,21 @@ KISSY.add("canvax/animation/Animation" , function(S){
          * 镜像基本上是框架内部在实现  镜像的id相同 主要用来把自己画到另外的stage里面，比如
          * mouseover和mouseout的时候调用*/
         clone:function(myself){
+            var newObj = new this.constructor({
+                id      : this.id,
+                context : this.context.$model
+            });
+            if (!myself){
+                newObj.id       = Base.createId(newObj.type);
+            }
+            return newObj;
+
+            /*
             var newObj = _.clone(this);
             newObj.parent = null;
             newObj.stage  = null;
+            
+            
             //newObj.context= propertyFactory(this.context.$model);
             if(!myself){
               //新对象的id不能相同
@@ -1092,6 +1107,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
               newObj.context.$watch = this.context.$watch;
             }
             return newObj;
+            */
         },
         heartBeat : function(opt){
            this._heartBeatNum ++;
@@ -1234,15 +1250,32 @@ KISSY.add("canvax/animation/Animation" , function(S){
         },
         _transformHander : function(context, toGlobal){
 
-            context.transform.apply(context , this._updateTransform().toArray());
+            var transForm = this._transform;
+            if( !transForm ) {
+                transForm = this._updateTransform();
+            }
+
+            //运用矩阵开始变形
+            context.transform.apply( context , transForm.toArray() );
  
             //设置透明度
             context.globalAlpha *= this.context.alpha;
         },
+        //从一个矩阵公式来反推x,y ,scalce, rotate等属性到 obj的context上面
+        _setPositionFromMatrix : function( Matrix ){
+            this.context.x      = Matrix.tx;
+            this.context.y      = Matrix.ty;
+            this.context.scaleX = Matrix.a ;
+            this.context.scaleY = Matrix.d ;
+
+        },
         _updateTransform : function() {
             
             
-            var _transform = this._transform || new Matrix();
+            //var _transform = this._transform || new Matrix();
+            //
+
+            var _transform = new Matrix();
 
             _transform.identity();
 
@@ -1261,14 +1294,14 @@ KISSY.add("canvax/animation/Animation" , function(S){
             };
 
             var rotation = this.context.rotation;
-            if(rotation){
+            if( rotation ){
                 //如果有旋转
                 //旋转的原点坐标
                 var origin = new Point(this.context.rotateOrigin);
                 if( origin.x || origin.y ){
                     _transform.translate( -origin.x , -origin.y );
                 }
-                _transform.rotate( rotation%360 * Math.PI/180);
+                _transform.rotate( rotation % 360 * Math.PI/180 );
                 if( origin.x || origin.y ){
                     _transform.translate( origin.x , origin.y );
                 }
@@ -1289,6 +1322,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
         //显示对象的选取检测处理函数
         getChildInPoint : function( point ){
             var result; //检测的结果
+
+            //第一步，吧glob的point转换到对应的obj的层级内的坐标系统
+            if( this.type != "stage" && this.parent && this.parent.type != "stage" ) {
+                point = this.parent.globalToLocal( point );
+            }
+
             var x = point.x ;
             var y = point.y ;
 
@@ -2701,7 +2740,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
       fire : function(event){
         if(_.isString(event)){
           //如果是str，比如mouseover
-          event = {type : event};
+          event = { type : event };
         } else {
     
         }
@@ -2716,6 +2755,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
            if(preHeartBeat != this._heartBeatNum){
                this._hoverClass = true;
                var canvax = this.getStage().parent;
+ 
                //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
                //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
                //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
@@ -2723,13 +2763,17 @@ KISSY.add("canvax/animation/Animation" , function(S){
                    //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
 
                } else {
-                   delete canvax.convertStages[this.getStage().id];
+                   delete canvax.convertStages[ this.getStage().id ];
                }
 
                //然后clone一份obj，添加到_hoverStage 中
                var activShape = this.clone(true);
-               activShape._transform = activShape.getConcatenatedMatrix();
-               canvax._hoverStage.addChild(activShape);
+               //activShape._setPositionFromMatrix( this.getConcatenatedMatrix() );
+               activShape._transform = this.getConcatenatedMatrix();
+               canvax._hoverStage.addChild( activShape );
+
+               //然后在内部的convertStages 中把 this的记录去掉
+               
            }
            return;
         }
@@ -3556,25 +3600,36 @@ KISSY.add("canvax/animation/Animation" , function(S){
            var _dragDuplicate = self._hoverStage.getChildById( target.id );
            if(!_dragDuplicate){
                _dragDuplicate             = target.clone(true);
-               _dragDuplicate._transform  = _dragDuplicate.getConcatenatedMatrix();
+               //_dragDuplicate._setPositionFromMatrix( target.getConcatenatedMatrix() );
+
+               _dragDuplicate._transform = target.getConcatenatedMatrix();
                self._hoverStage.addChild( _dragDuplicate );
            }
-           _dragDuplicate.context         = propertyFactory( target.context.$model );
-           _dragDuplicate.context.$owner  = _dragDuplicate;
-           _dragDuplicate.context.$watch  = target.context.$watch;
            _dragDuplicate.context.visible = true;
 
-           debugger;
+           
            _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal( self.curPoints[0] );
        },
        //drag 中 的处理函数
        _dragHander  : function( e , target , i ){
            var self = this;
            var _dragDuplicate = self._hoverStage.getChildById( target.id );
-
-           _dragDuplicate.context.x = self.curPoints[i].x - _dragDuplicate._dragPoint.x; 
-           _dragDuplicate.context.y = self.curPoints[i].y - _dragDuplicate._dragPoint.y;  
+           var gPoint = new Point( self.curPoints[i].x - _dragDuplicate._dragPoint.x , self.curPoints[i].y - _dragDuplicate._dragPoint.y );
+           _dragDuplicate.context.x = gPoint.x; 
+           _dragDuplicate.context.y = gPoint.y;  
            target.drag && target.drag( e );
+
+           //要对应的修改本尊的位置，但是要告诉引擎不要watch这个时候的变化
+           var tPoint = gPoint;
+           if( target.type != "stage" && target.parent && target.parent.type != "stage" ){
+               tPoint = target.parent.globalToLocal( gPoint );
+           }
+           target._notWatch = true;
+           target.context.x = tPoint.x;
+           target.context.y = tPoint.y;
+           target._notWatch = false;
+           //同步完毕本尊的位置
+
        },
        //drag结束的处理函数
        _dragEnd  : function( e , target , i ){
@@ -3586,11 +3641,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
            //_dragDuplicate 复制在_hoverStage 中的副本
            var _dragDuplicate     = self._hoverStage.getChildById( target.id );
-           target.context         = _dragDuplicate.context;
-           target.context.$owner  = target;
+
            //这个时候的target还是隐藏状态呢
            target.context.visible = false;
-           target._updateTransform();
+           //target._updateTransform();
            if( e.type == "mouseout" || e.type == "dragend"){
                _dragDuplicate.destroy();
            }
@@ -3650,7 +3704,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                    //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
                    return;
                }
-
 
                _.each(_.values(self.convertStages) , function(convertStage){
                   convertStage.stage._render(convertStage.stage.context2D);

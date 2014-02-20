@@ -53,6 +53,22 @@
                  height: height
                }
            });
+
+           window.sprite = new Canvax.Display.Sprite({
+               context : {
+                  x    : 10,
+                  y    : 10,
+                  width : 300,
+                  height: 300
+               }
+           });
+
+           sprite.on("mousemove" , function( e ){
+               
+           })
+
+           stage.addChild( sprite );
+
            
            //box.append( stage.get("canvas") );
  
@@ -260,7 +276,7 @@
          });
 
          sector.on("mousemove" , function( e ){
-             debugger;
+             
          });
          
          var srect = sector.getRect();
@@ -459,20 +475,23 @@
            //stage.addChild(sector);
            //stage.addChild(rect1);
 
-        /*
            stage.addChild(rect);
+           sprite.addChild(sector);
+
+
            stage.addChild(circle2);
+
+             /*
 
            stage.addChild(circle3);
            stage.addChild(bezier);
            stage.addChild(brokenLine);
 
            stage.addChild(ellipse);
-*/
-           stage.addChild(sector_rect);
-           stage.addChild(sector);
 
-           /*
+           sprite.addChild(sector_rect);
+           
+           
            stage.addChild(map1);
 
            stage.addChild(path1);

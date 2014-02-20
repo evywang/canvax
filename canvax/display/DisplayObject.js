@@ -23,8 +23,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         self._transform      = null;
 
 
-        self._eventId        = null;
-
         //心跳次数
         self._heartBeatNum   = 0;
 
@@ -36,15 +34,13 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
         self._eventEnabled   = false; //是否响应事件交互
 
-        self.dragEnabled     = false;   //是否启用元素的拖拽
+        self.dragEnabled     = true;//false;   //是否启用元素的拖拽
 
         //创建好context
         self._createContext( opt );
 
         var UID = Base.createId(self.type);
 
-        //给每个元素添加eventid，EventManager 事件管理器中要用
-        self._eventId = UID;
 
         //如果没有id 则 沿用uid
         if(self.id == null){
@@ -125,6 +121,13 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             _contextATTRS.$owner = self;
             _contextATTRS.$watch = function(name , value , preValue){
 
+                //下面的这些属性变化，都会需要重新组织矩阵属性_transform 
+                var transFormProps = [ "x" , "y" , "scaleX" , "scaleY" , "rotation" , "scaleOrigin" , "rotateOrigin" ];
+
+                if( _.indexOf( transFormProps ) , name  ) {
+                    this.$owner._updateTransform();
+                }
+
                 if(this.$owner._notWatch){
                     return;
                 };
@@ -164,9 +167,21 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
          * 镜像基本上是框架内部在实现  镜像的id相同 主要用来把自己画到另外的stage里面，比如
          * mouseover和mouseout的时候调用*/
         clone:function(myself){
+            var newObj = new this.constructor({
+                id      : this.id,
+                context : this.context.$model
+            });
+            if (!myself){
+                newObj.id       = Base.createId(newObj.type);
+            }
+            return newObj;
+
+            /*
             var newObj = _.clone(this);
             newObj.parent = null;
             newObj.stage  = null;
+            
+            
             //newObj.context= propertyFactory(this.context.$model);
             if(!myself){
               //新对象的id不能相同
@@ -177,6 +192,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
               newObj.context.$watch = this.context.$watch;
             }
             return newObj;
+            */
         },
         heartBeat : function(opt){
            this._heartBeatNum ++;
@@ -319,15 +335,32 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         },
         _transformHander : function(context, toGlobal){
 
-            context.transform.apply(context , this._updateTransform().toArray());
+            var transForm = this._transform;
+            if( !transForm ) {
+                transForm = this._updateTransform();
+            }
+
+            //运用矩阵开始变形
+            context.transform.apply( context , transForm.toArray() );
  
             //设置透明度
             context.globalAlpha *= this.context.alpha;
         },
+        //从一个矩阵公式来反推x,y ,scalce, rotate等属性到 obj的context上面
+        _setPositionFromMatrix : function( Matrix ){
+            this.context.x      = Matrix.tx;
+            this.context.y      = Matrix.ty;
+            this.context.scaleX = Matrix.a ;
+            this.context.scaleY = Matrix.d ;
+
+        },
         _updateTransform : function() {
             
             
-            var _transform = this._transform || new Matrix();
+            //var _transform = this._transform || new Matrix();
+            //
+
+            var _transform = new Matrix();
 
             _transform.identity();
 
@@ -346,14 +379,14 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             };
 
             var rotation = this.context.rotation;
-            if(rotation){
+            if( rotation ){
                 //如果有旋转
                 //旋转的原点坐标
                 var origin = new Point(this.context.rotateOrigin);
                 if( origin.x || origin.y ){
                     _transform.translate( -origin.x , -origin.y );
                 }
-                _transform.rotate( rotation%360 * Math.PI/180);
+                _transform.rotate( rotation % 360 * Math.PI/180 );
                 if( origin.x || origin.y ){
                     _transform.translate( origin.x , origin.y );
                 }
@@ -374,6 +407,12 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         //显示对象的选取检测处理函数
         getChildInPoint : function( point ){
             var result; //检测的结果
+
+            //第一步，吧glob的point转换到对应的obj的层级内的坐标系统
+            if( this.type != "stage" && this.parent && this.parent.type != "stage" ) {
+                point = this.parent.globalToLocal( point );
+            }
+
             var x = point.x ;
             var y = point.y ;
 

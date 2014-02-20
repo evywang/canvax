@@ -446,25 +446,36 @@ KISSY.add("canvax/index" ,
            var _dragDuplicate = self._hoverStage.getChildById( target.id );
            if(!_dragDuplicate){
                _dragDuplicate             = target.clone(true);
-               _dragDuplicate._transform  = _dragDuplicate.getConcatenatedMatrix();
+               //_dragDuplicate._setPositionFromMatrix( target.getConcatenatedMatrix() );
+
+               _dragDuplicate._transform = target.getConcatenatedMatrix();
                self._hoverStage.addChild( _dragDuplicate );
            }
-           _dragDuplicate.context         = propertyFactory( target.context.$model );
-           _dragDuplicate.context.$owner  = _dragDuplicate;
-           _dragDuplicate.context.$watch  = target.context.$watch;
            _dragDuplicate.context.visible = true;
 
-           debugger;
+           
            _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal( self.curPoints[0] );
        },
        //drag 中 的处理函数
        _dragHander  : function( e , target , i ){
            var self = this;
            var _dragDuplicate = self._hoverStage.getChildById( target.id );
-
-           _dragDuplicate.context.x = self.curPoints[i].x - _dragDuplicate._dragPoint.x; 
-           _dragDuplicate.context.y = self.curPoints[i].y - _dragDuplicate._dragPoint.y;  
+           var gPoint = new Point( self.curPoints[i].x - _dragDuplicate._dragPoint.x , self.curPoints[i].y - _dragDuplicate._dragPoint.y );
+           _dragDuplicate.context.x = gPoint.x; 
+           _dragDuplicate.context.y = gPoint.y;  
            target.drag && target.drag( e );
+
+           //要对应的修改本尊的位置，但是要告诉引擎不要watch这个时候的变化
+           var tPoint = gPoint;
+           if( target.type != "stage" && target.parent && target.parent.type != "stage" ){
+               tPoint = target.parent.globalToLocal( gPoint );
+           }
+           target._notWatch = true;
+           target.context.x = tPoint.x;
+           target.context.y = tPoint.y;
+           target._notWatch = false;
+           //同步完毕本尊的位置
+
        },
        //drag结束的处理函数
        _dragEnd  : function( e , target , i ){
@@ -476,11 +487,10 @@ KISSY.add("canvax/index" ,
 
            //_dragDuplicate 复制在_hoverStage 中的副本
            var _dragDuplicate     = self._hoverStage.getChildById( target.id );
-           target.context         = _dragDuplicate.context;
-           target.context.$owner  = target;
+
            //这个时候的target还是隐藏状态呢
            target.context.visible = false;
-           target._updateTransform();
+           //target._updateTransform();
            if( e.type == "mouseout" || e.type == "dragend"){
                _dragDuplicate.destroy();
            }
@@ -540,7 +550,6 @@ KISSY.add("canvax/index" ,
                    //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
                    return;
                }
-
 
                _.each(_.values(self.convertStages) , function(convertStage){
                   convertStage.stage._render(convertStage.stage.context2D);
