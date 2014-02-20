@@ -5275,7 +5275,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        }
        arguments.callee.superclass.constructor.apply(this , arguments);
        
-       this.getRegAngle();
+       
 
    };
 
@@ -5321,6 +5321,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 ? 0 : context.r0;
             var r = context.r;                            // 扇形外半径(0,r]
             
+            this.getRegAngle();
             /*
             var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
             var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
