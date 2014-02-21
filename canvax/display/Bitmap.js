@@ -24,7 +24,6 @@ KISSY.add("canvax/display/Bitmap" , function(S , Shape , Base){
           dHeight: opt.context.dHeight|| 0  //切片的height
       }
 
-
       arguments.callee.superclass.constructor.apply(this, arguments);
 
   };

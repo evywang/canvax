@@ -888,7 +888,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
           dHeight: opt.context.dHeight|| 0  //切片的height
       }
 
-
       arguments.callee.superclass.constructor.apply(this, arguments);
 
   };
@@ -949,13 +948,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         self._eventEnabled   = false; //是否响应事件交互
 
-        self.dragEnabled     = false;   //是否启用元素的拖拽
+        self.dragEnabled     = true; //false;   //是否启用元素的拖拽
 
         //创建好context
         self._createContext( opt );
 
         var UID = Base.createId(self.type);
-
 
         //如果没有id 则 沿用uid
         if(self.id == null){
@@ -964,17 +962,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         self.init.apply(self , arguments);
 
-
         //所有属性准备好了后，先要计算一次this._updateTransform()得到_tansform
         this._updateTransform();
-
     };
-    
     Base.creatClass( DisplayObject , EventDispatcher , {
-    //DisplayObject.prototype = {
-        init : function(){
-            //TODO: 这个方法由各派生类自己实现
-        },
+        init : function(){},
         _createContext : function( opt ){
             var self = this;
             //所有显示对象，都有一个类似canvas.context类似的 context属性
@@ -1085,33 +1077,19 @@ KISSY.add("canvax/animation/Animation" , function(S){
          * 默认为绝对意义上面的新个体，新对象id不能相同
          * 镜像基本上是框架内部在实现  镜像的id相同 主要用来把自己画到另外的stage里面，比如
          * mouseover和mouseout的时候调用*/
-        clone:function(myself){
-            var newObj = new this.constructor({
+        clone : function( myself ){
+            var conf   = {
                 id      : this.id,
                 context : this.context.$model
-            });
+            }
+            if( this.img ){
+                conf.img = this.img;
+            }
+            var newObj = new this.constructor( conf );
             if (!myself){
                 newObj.id       = Base.createId(newObj.type);
             }
             return newObj;
-
-            /*
-            var newObj = _.clone(this);
-            newObj.parent = null;
-            newObj.stage  = null;
-            
-            
-            //newObj.context= propertyFactory(this.context.$model);
-            if(!myself){
-              //新对象的id不能相同
-              newObj.id             = Base.createId(newObj.type);
-              newObj._eventId       = newObj.id;
-              newObj.context        = propertyFactory(this.context.$model);
-              newObj.context.$owner = newObj;
-              newObj.context.$watch = this.context.$watch;
-            }
-            return newObj;
-            */
         },
         heartBeat : function(opt){
            this._heartBeatNum ++;
@@ -1144,7 +1122,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 return false;
               }
             } 
-           
             //一直回溯到顶层object， 即是stage， stage的parent为null
             this.stage = p;
             return p;
@@ -1268,20 +1245,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
             //设置透明度
             context.globalAlpha *= this.context.alpha;
         },
-        //从一个矩阵公式来反推x,y ,scalce, rotate等属性到 obj的context上面
-        _setPositionFromMatrix : function( Matrix ){
-            this.context.x      = Matrix.tx;
-            this.context.y      = Matrix.ty;
-            this.context.scaleX = Matrix.a ;
-            this.context.scaleY = Matrix.d ;
-
-        },
         _updateTransform : function() {
-            
-            
-            //var _transform = this._transform || new Matrix();
-            //
-
+        
             var _transform = new Matrix();
 
             _transform.identity();
@@ -1354,33 +1319,27 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 y = originPos[1];
             }
 
-            // 快速预判并保留判断矩形
-            //if(!this._rect) {
-                //如果没有图像的_rect
-                this._rect = this.getRect(this.context);
-                if(!this._rect){
-                   return false;
-                };
-                if( !this.context.width && !!this._rect.width ){
-                    this.context.width = this._rect.width;
-                }
-                if( !this.context.height && !!this._rect.height ){
-                    this.context.height = this._rect.height;
-                }
-            //};
+            var _rect = this._rect = this.getRect(this.context);
 
-            if(!this._rect.width || !this._rect.height) {
+            if(!_rect){
                 return false;
-            }
-
+            };
+            if( !this.context.width && !!_rect.width ){
+                this.context.width = _rect.width;
+            };
+            if( !this.context.height && !!_rect.height ){
+                this.context.height = _rect.height;
+            };
+            if(!_rect.width || !_rect.height) {
+                return false;
+            };
             //正式开始第一步的矩形范围判断
-            if (x >= this._rect.x
-                && x <= (this._rect.x + this._rect.width)
-                && y >= this._rect.y
-                && y <= (this._rect.y + this._rect.height)
+            if (x    >= _rect.x
+                && x <= (_rect.x + _rect.width)
+                && y >= _rect.y
+                && y <= (_rect.y + _rect.height)
             ) {
                //那么就在这个元素的矩形范围内
-               //return true;
                result = HitTestPoint.isInside( this , x , y );
             } else {
                //如果连矩形内都不是，那么肯定的，这个不是我们要找的shap
@@ -1414,32 +1373,24 @@ KISSY.add("canvax/animation/Animation" , function(S){
         //元素的自我销毁
         destroy : function(){
             this.remove();
-
             //把自己从父节点中删除了后做自我清除，释放内存
             this.context = null;
             delete this.context;
-
         },
         toString : function(){
             var result;
-            
             if (!this.parent) {
               return this.id+"(stage)";
             }
             for(var o = this ; o != null; o = o.parent) {		
-                //prefer id over name if specified
                 var s = o.id+"("+ o.type +")";
                 result = result == null ? s : (s + "-->" + result);
                 if (o == o.parent || !o.parent) break;
             }
-
             return result; 
         }
-
     } );
-
     return DisplayObject;
-
 } , {
     requires : [
       "canvax/event/EventDispatcher",
@@ -1469,16 +1420,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
             if( !child ) {
                 return;
             } 
-            if( !(child instanceof DisplayObject) ){
-                //TODO:尼玛啊，这个东西一加上就会导致hover的事情没法触发
-                //主要是因为clone这个方法还有待改善
-                //return false;
-            }
             if(this.getChildIndex(child) != -1) {
                 child.parent = this;
                 return child;
             }
-
             //如果他在别的子元素中，那么就从别人那里删除了
             if(child.parent) {
                 child.parent.removeChild(child);
@@ -1572,13 +1517,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
             if( this.parent ){
                 this.parent.removeChild(this);
             }
-
             //依次销毁所有子元素
             //TODO：这个到底有没有必要。还有待商榷
             _.each( this.children , function( child ){
                 child.destroy();
             } );
-
         },
         /*
          *@id 元素的id
@@ -1658,9 +1601,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             }
         }
     });
-
     return DisplayObjectContainer;
-
 },{
    requires:[
      "canvax/core/Base",
@@ -1765,27 +1706,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
       gotoAndPlay:function(i){
          this._goto(i);
          this.play();
-
-         /*
-         if(this.autoPlay){
-           return;
-         }
-         this.autoPlay = true;
-         var canvax = this.getStage().parent;
-         if(!canvax._heartBeat && canvax._taskList.length==0){
-             //手动启动引擎 
-             //canvax.__enterFrame();
-             canvax.__startEnter();
-             //requestAnimationFrame( _.bind(canvax.__enterFrame,canvax) );
-         }
- 
-         this._push2TaskList();
-
-         //因为有goto设置好了currentFrame 所以这里不需要_next
-         //this._next();
-         this._preRenderTime = new Date().getTime();
-         */
-
       },
       play:function(){
          if(this.autoPlay){
@@ -1795,14 +1715,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
          var canvax = this.getStage().parent;
          if(!canvax._heartBeat && canvax._taskList.length==0){
              //手动启动引擎
-             //canvax.__enterFrame();
              canvax.__startEnter();
-             //requestAnimationFrame( _.bind(canvax.__enterFrame,canvax) );
          }
          this._push2TaskList();
          
          this._preRenderTime = new Date().getTime();
-         //this._next();
       },
       _push2TaskList : function(){
          //把enterFrame push 到 引擎的任务列表
@@ -1818,7 +1735,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
          var self = this;
          if((Base.now-self._preRenderTime) >= self._speedTime ){
              //大于_speedTime，才算完成了一帧
-             
              //上报心跳 无条件心跳吧。
              //后续可以加上对应的 Movieclip 跳帧 心跳
              self.getStage().heartBeat();
@@ -1884,8 +1800,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
               this.autoPlay = false;
           }
 
-          //console.log(this.currentFrame)
-          
           //如果不循环
           if( this.currentFrame == this.getNumChildren()-1 ){
               //那么，到了最后一帧就停止
@@ -1895,7 +1809,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                       this.fire("end");
                   }
               }
-
               //使用掉一次循环
               if( _.isNumber( this.repeat ) && this.repeat > 0 ) {
                  this.repeat -- ;
@@ -3198,7 +3111,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
        //如果这个时候el里面已经有东西了。嗯，也许曾经这个el被canvax干过一次了。
        //那么要先清除这个el的所有内容。
-       self.el.html("");
+       self.el.html("<div class=''></div>");
+       self.el = self.el.all("div");
 
        self.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
 
@@ -3340,9 +3254,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
           if( Hammer && Hammer.HAS_TOUCHEVENTS ){
               var el = self.el[0]
               self._hammer = Hammer( el ).on( Hammer.EventsTypes , function( e ){
-                 console.log(e.type)
+                 //console.log(e.type)
                  //同样的，如果是drag事件，则要左频率控制
-                 /*
                  if( e.type == "drag" ){
                       if(_moveStep<1){
                           _moveStep++;
@@ -3350,7 +3263,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                       }
                       _moveStep = 0;
                  }
-                 */
+
                  self.__touchHandler( e );
                  
                  //在canvax 上面 出发全局 事件
@@ -3427,8 +3340,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
               self.__dispatchEventInChilds( e , childs );
           }
-
-           
           
           if( e.type == "touch" ) {
             self.curPointsTarget = childs;
@@ -3474,8 +3385,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
           } );
           return touchesTarget;
        },
-
-
        /*
         *触屏类处理结束
         * */
@@ -3616,14 +3525,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
            var _dragDuplicate = self._hoverStage.getChildById( target.id );
            if(!_dragDuplicate){
                _dragDuplicate             = target.clone(true);
-               //_dragDuplicate._setPositionFromMatrix( target.getConcatenatedMatrix() );
-
-               _dragDuplicate._transform = target.getConcatenatedMatrix();
+               _dragDuplicate._transform  = target.getConcatenatedMatrix();
                self._hoverStage.addChild( _dragDuplicate );
            }
            _dragDuplicate.context.visible = true;
-
-           
            _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal( self.curPoints[0] );
        },
        //drag 中 的处理函数
@@ -3645,7 +3550,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
            target.context.y = tPoint.y;
            target._notWatch = false;
            //同步完毕本尊的位置
-
        },
        //drag结束的处理函数
        _dragEnd  : function( e , target , i ){
@@ -3787,7 +3691,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
        heartBeat : function( opt ){
            //displayList中某个属性改变了
            var self = this;
-//console.log("heartBeat")
            //心跳包有两种，一种是某元素的可视属性改变了。一种是children有变动
            //分别对应convertType  为 context  and children
            if (opt.convertType == "context"){

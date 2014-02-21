@@ -26,16 +26,10 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             if( !child ) {
                 return;
             } 
-            if( !(child instanceof DisplayObject) ){
-                //TODO:尼玛啊，这个东西一加上就会导致hover的事情没法触发
-                //主要是因为clone这个方法还有待改善
-                //return false;
-            }
             if(this.getChildIndex(child) != -1) {
                 child.parent = this;
                 return child;
             }
-
             //如果他在别的子元素中，那么就从别人那里删除了
             if(child.parent) {
                 child.parent.removeChild(child);
@@ -129,13 +123,11 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             if( this.parent ){
                 this.parent.removeChild(this);
             }
-
             //依次销毁所有子元素
             //TODO：这个到底有没有必要。还有待商榷
             _.each( this.children , function( child ){
                 child.destroy();
             } );
-
         },
         /*
          *@id 元素的id
@@ -215,9 +207,7 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
             }
         }
     });
-
     return DisplayObjectContainer;
-
 },{
    requires:[
      "canvax/core/Base",

@@ -28,7 +28,8 @@ KISSY.add("canvax/index" ,
 
        //如果这个时候el里面已经有东西了。嗯，也许曾经这个el被canvax干过一次了。
        //那么要先清除这个el的所有内容。
-       self.el.html("");
+       self.el.html("<div class=''></div>");
+       self.el = self.el.all("div");
 
        self.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
 
@@ -170,9 +171,8 @@ KISSY.add("canvax/index" ,
           if( Hammer && Hammer.HAS_TOUCHEVENTS ){
               var el = self.el[0]
               self._hammer = Hammer( el ).on( Hammer.EventsTypes , function( e ){
-                 console.log(e.type)
+                 //console.log(e.type)
                  //同样的，如果是drag事件，则要左频率控制
-                 /*
                  if( e.type == "drag" ){
                       if(_moveStep<1){
                           _moveStep++;
@@ -180,7 +180,7 @@ KISSY.add("canvax/index" ,
                       }
                       _moveStep = 0;
                  }
-                 */
+
                  self.__touchHandler( e );
                  
                  //在canvax 上面 出发全局 事件
@@ -257,8 +257,6 @@ KISSY.add("canvax/index" ,
 
               self.__dispatchEventInChilds( e , childs );
           }
-
-           
           
           if( e.type == "touch" ) {
             self.curPointsTarget = childs;
@@ -304,8 +302,6 @@ KISSY.add("canvax/index" ,
           } );
           return touchesTarget;
        },
-
-
        /*
         *触屏类处理结束
         * */
@@ -446,14 +442,10 @@ KISSY.add("canvax/index" ,
            var _dragDuplicate = self._hoverStage.getChildById( target.id );
            if(!_dragDuplicate){
                _dragDuplicate             = target.clone(true);
-               //_dragDuplicate._setPositionFromMatrix( target.getConcatenatedMatrix() );
-
-               _dragDuplicate._transform = target.getConcatenatedMatrix();
+               _dragDuplicate._transform  = target.getConcatenatedMatrix();
                self._hoverStage.addChild( _dragDuplicate );
            }
            _dragDuplicate.context.visible = true;
-
-           
            _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal( self.curPoints[0] );
        },
        //drag 中 的处理函数
@@ -475,7 +467,6 @@ KISSY.add("canvax/index" ,
            target.context.y = tPoint.y;
            target._notWatch = false;
            //同步完毕本尊的位置
-
        },
        //drag结束的处理函数
        _dragEnd  : function( e , target , i ){
@@ -617,7 +608,6 @@ KISSY.add("canvax/index" ,
        heartBeat : function( opt ){
            //displayList中某个属性改变了
            var self = this;
-//console.log("heartBeat")
            //心跳包有两种，一种是某元素的可视属性改变了。一种是children有变动
            //分别对应convertType  为 context  and children
            if (opt.convertType == "context"){

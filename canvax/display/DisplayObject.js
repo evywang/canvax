@@ -34,13 +34,12 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
         self._eventEnabled   = false; //是否响应事件交互
 
-        self.dragEnabled     = false;   //是否启用元素的拖拽
+        self.dragEnabled     = true; //false;   //是否启用元素的拖拽
 
         //创建好context
         self._createContext( opt );
 
         var UID = Base.createId(self.type);
-
 
         //如果没有id 则 沿用uid
         if(self.id == null){
@@ -49,17 +48,11 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
         self.init.apply(self , arguments);
 
-
         //所有属性准备好了后，先要计算一次this._updateTransform()得到_tansform
         this._updateTransform();
-
     };
-    
     Base.creatClass( DisplayObject , EventDispatcher , {
-    //DisplayObject.prototype = {
-        init : function(){
-            //TODO: 这个方法由各派生类自己实现
-        },
+        init : function(){},
         _createContext : function( opt ){
             var self = this;
             //所有显示对象，都有一个类似canvas.context类似的 context属性
@@ -170,33 +163,19 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
          * 默认为绝对意义上面的新个体，新对象id不能相同
          * 镜像基本上是框架内部在实现  镜像的id相同 主要用来把自己画到另外的stage里面，比如
          * mouseover和mouseout的时候调用*/
-        clone:function(myself){
-            var newObj = new this.constructor({
+        clone : function( myself ){
+            var conf   = {
                 id      : this.id,
                 context : this.context.$model
-            });
+            }
+            if( this.img ){
+                conf.img = this.img;
+            }
+            var newObj = new this.constructor( conf );
             if (!myself){
                 newObj.id       = Base.createId(newObj.type);
             }
             return newObj;
-
-            /*
-            var newObj = _.clone(this);
-            newObj.parent = null;
-            newObj.stage  = null;
-            
-            
-            //newObj.context= propertyFactory(this.context.$model);
-            if(!myself){
-              //新对象的id不能相同
-              newObj.id             = Base.createId(newObj.type);
-              newObj._eventId       = newObj.id;
-              newObj.context        = propertyFactory(this.context.$model);
-              newObj.context.$owner = newObj;
-              newObj.context.$watch = this.context.$watch;
-            }
-            return newObj;
-            */
         },
         heartBeat : function(opt){
            this._heartBeatNum ++;
@@ -229,7 +208,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 return false;
               }
             } 
-           
             //一直回溯到顶层object， 即是stage， stage的parent为null
             this.stage = p;
             return p;
@@ -353,20 +331,8 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             //设置透明度
             context.globalAlpha *= this.context.alpha;
         },
-        //从一个矩阵公式来反推x,y ,scalce, rotate等属性到 obj的context上面
-        _setPositionFromMatrix : function( Matrix ){
-            this.context.x      = Matrix.tx;
-            this.context.y      = Matrix.ty;
-            this.context.scaleX = Matrix.a ;
-            this.context.scaleY = Matrix.d ;
-
-        },
         _updateTransform : function() {
-            
-            
-            //var _transform = this._transform || new Matrix();
-            //
-
+        
             var _transform = new Matrix();
 
             _transform.identity();
@@ -439,33 +405,27 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 y = originPos[1];
             }
 
-            // 快速预判并保留判断矩形
-            //if(!this._rect) {
-                //如果没有图像的_rect
-                this._rect = this.getRect(this.context);
-                if(!this._rect){
-                   return false;
-                };
-                if( !this.context.width && !!this._rect.width ){
-                    this.context.width = this._rect.width;
-                }
-                if( !this.context.height && !!this._rect.height ){
-                    this.context.height = this._rect.height;
-                }
-            //};
+            var _rect = this._rect = this.getRect(this.context);
 
-            if(!this._rect.width || !this._rect.height) {
+            if(!_rect){
                 return false;
-            }
-
+            };
+            if( !this.context.width && !!_rect.width ){
+                this.context.width = _rect.width;
+            };
+            if( !this.context.height && !!_rect.height ){
+                this.context.height = _rect.height;
+            };
+            if(!_rect.width || !_rect.height) {
+                return false;
+            };
             //正式开始第一步的矩形范围判断
-            if (x >= this._rect.x
-                && x <= (this._rect.x + this._rect.width)
-                && y >= this._rect.y
-                && y <= (this._rect.y + this._rect.height)
+            if (x    >= _rect.x
+                && x <= (_rect.x + _rect.width)
+                && y >= _rect.y
+                && y <= (_rect.y + _rect.height)
             ) {
                //那么就在这个元素的矩形范围内
-               //return true;
                result = HitTestPoint.isInside( this , x , y );
             } else {
                //如果连矩形内都不是，那么肯定的，这个不是我们要找的shap
@@ -499,32 +459,24 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         //元素的自我销毁
         destroy : function(){
             this.remove();
-
             //把自己从父节点中删除了后做自我清除，释放内存
             this.context = null;
             delete this.context;
-
         },
         toString : function(){
             var result;
-            
             if (!this.parent) {
               return this.id+"(stage)";
             }
             for(var o = this ; o != null; o = o.parent) {		
-                //prefer id over name if specified
                 var s = o.id+"("+ o.type +")";
                 result = result == null ? s : (s + "-->" + result);
                 if (o == o.parent || !o.parent) break;
             }
-
             return result; 
         }
-
     } );
-
     return DisplayObject;
-
 } , {
     requires : [
       "canvax/event/EventDispatcher",

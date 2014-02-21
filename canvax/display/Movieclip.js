@@ -104,27 +104,6 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
       gotoAndPlay:function(i){
          this._goto(i);
          this.play();
-
-         /*
-         if(this.autoPlay){
-           return;
-         }
-         this.autoPlay = true;
-         var canvax = this.getStage().parent;
-         if(!canvax._heartBeat && canvax._taskList.length==0){
-             //手动启动引擎 
-             //canvax.__enterFrame();
-             canvax.__startEnter();
-             //requestAnimationFrame( _.bind(canvax.__enterFrame,canvax) );
-         }
- 
-         this._push2TaskList();
-
-         //因为有goto设置好了currentFrame 所以这里不需要_next
-         //this._next();
-         this._preRenderTime = new Date().getTime();
-         */
-
       },
       play:function(){
          if(this.autoPlay){
@@ -134,14 +113,11 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
          var canvax = this.getStage().parent;
          if(!canvax._heartBeat && canvax._taskList.length==0){
              //手动启动引擎
-             //canvax.__enterFrame();
              canvax.__startEnter();
-             //requestAnimationFrame( _.bind(canvax.__enterFrame,canvax) );
          }
          this._push2TaskList();
          
          this._preRenderTime = new Date().getTime();
-         //this._next();
       },
       _push2TaskList : function(){
          //把enterFrame push 到 引擎的任务列表
@@ -157,7 +133,6 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
          var self = this;
          if((Base.now-self._preRenderTime) >= self._speedTime ){
              //大于_speedTime，才算完成了一帧
-             
              //上报心跳 无条件心跳吧。
              //后续可以加上对应的 Movieclip 跳帧 心跳
              self.getStage().heartBeat();
@@ -223,8 +198,6 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
               this.autoPlay = false;
           }
 
-          //console.log(this.currentFrame)
-          
           //如果不循环
           if( this.currentFrame == this.getNumChildren()-1 ){
               //那么，到了最后一帧就停止
@@ -234,7 +207,6 @@ KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base)
                       this.fire("end");
                   }
               }
-
               //使用掉一次循环
               if( _.isNumber( this.repeat ) && this.repeat > 0 ) {
                  this.repeat -- ;
