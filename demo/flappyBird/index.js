@@ -178,6 +178,22 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
                self.resetBirdSpeed();
            });
 
+           S.one(document).on('keydown',function(e){
+               switch(e.keyCode){
+                   case 27:
+                       // clearTimeout(mainTime);
+                       //resetAll();
+                       break;
+                   case 32:
+                       if(!self.birdFly) {
+                           self.gameStart();
+                       }
+                       self.resetBirdSpeed();
+                    
+                       break;
+               }
+           })
+
            self.$readyShow();
 
            new Canvax.Animation.Tween( {x:0} )
@@ -187,10 +203,10 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
                    self.ground.context.x = this.x;
                } ).start();
 
-           
+           //this.treesTween();
+
 
            
-           this.treesTween();
         },
         $readyHide : function(){
            var self = this;
@@ -260,41 +276,73 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
             var t1 = new Canvax.Animation.Tween( { x : self.width } )
                .to( { x : 0 }, 5000 )
                .onUpdate( function () {
-                   self.tree.Sprite.context.x = this.x;
-                   self.checkPosition( );
+                   !self.checkPosition( ) && ( self.tree.Sprite.context.x = this.x );
                } );
 
-            var t2 = new Canvax.Animation.Tween( { x : 0 } )
+            var p = { x : 0 }
+            var t2 = new Canvax.Animation.Tween( p )
                .to( { x : -self.width }, 5000 )
-               .repeat( Infinity )
+               //.repeat( Infinity )
                .onUpdate( function () {
-                   self.tree.Sprite.context.x = this.x;
-                   self.checkPosition( );
-                   //console.log( this.x )
+                   !self.checkPosition( ) && ( self.tree.Sprite.context.x = this.x );
                } ).onComplete(function(){
+                   p.x = 0;
+                   self.tree.Sprite.context.x = 0;
                    _.each( self.tree.Sprite.children , function( tree ){
                        tree.context.x -= self.width;
                    } );
                });
 
             t1.chain( t2 );
+            t2.chain( t2 );
             t1.start();
         },
         checkPosition : function(){
+            var self = this;
             var lastTreeInd = this.tree.Sprite.getNumChildren() - 1 ;
             var lastTree    = this.tree.Sprite.getChildAt( lastTreeInd );
-            var lastTreeG   = lastTree.localToGlobal( {x : lastTree.context.x , y : 0} );
-            debugger;
+            var lastTreeG   = lastTree.localToGlobal();
+            
+            var hitState = false; //返回的检测状态。默认为
             if( lastTreeG.x < (this.width - lastTree.context.width) ){
-                debugger;
+                //就在创建一棵树
+                this.tree.Sprite.addChild( this.creatTree() );
             }
+
+            _.each( this.tree.Sprite.children , function( tree ){
+                var treeG = tree.localToGlobal();
+                if( treeG.x < - tree.context.width ){
+                    //离开了屏幕就把自己清除
+                    tree.destroy();
+                    return;
+                }
+
+                var birdHitTree = treeG.x < ( self.bird.context.x + self.bird.context.width ) && treeG.x > ( self.bird.context.x - tree.context.width ); 
+
+                
+                //还在屏幕内的。就做碰撞检测
+                if( birdHitTree ) {
+                    //好，就是这个根柱子了，然后看是否在缺口内
+                    if( self.bird.context.y < ( treeG.y + tree.children[0].context.height )
+                        || self.bird.context.y > ( treeG.y + tree.children[1].context.y - self.bird.context.height )
+                        ) {
+                          //肯定撞上了
+                          //console.log("over");
+                          self.gameOver();
+                          hitState = true;
+                          return false;
+                        }
+                }
+            } );
+
+            return hitState;
         },
         creatTree  : function(){
             var boxH        = this.height - this.groundH;
             var BarWidth    = 130 * this.scale;
-            var spaceWidth  = parseInt( BarWidth * ( 1 + Math.random()*3/10) );
-            var lastTreeInd = this.tree.Sprite.getNumChildren();
-            var lastTreeX   = !lastTreeInd ? 0 : this.tree.Sprite.getChildAt( lastTreeInd ).context.x;
+            var spaceWidth  = parseInt( BarWidth * ( 1.5 + Math.random()*3/10) );
+            var lastTreeInd = this.tree.Sprite.getNumChildren() -1 ;
+            var lastTreeX   = lastTreeInd < 0 ? 0 : this.tree.Sprite.getChildAt( lastTreeInd ).context.x;
             var s = new Canvax.Display.Sprite({
                 id : "tree" + ( lastTreeInd + 1 ),
                 context : {
@@ -343,11 +391,13 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
             this.bird.play();
             this.$readyHide();
             //this.resetBirdSpeed();
+
+            this.treesTween();
             
         },
         gameOver : function(){
             clearTimeout( this.birdFly );
-            this.bird.context.y = this.height - this.groundH - this.birdH;
+            //this.bird.context.y = this.height - this.groundH - this.birdH;
 
             //停止掉所有在跑的tween动画
             Canvax.Animation.removeAll();
@@ -357,15 +407,13 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
             this.bird.stop();
 
             //然后把鸟旋转到90度
-            this.bird.context.rotation = 90;
+            //this.bird.context.rotation = 90;
 
-            console.log("over")
         },
         resetBirdSpeed : function(){
             var self  = this;
             var now_y = this.bird.context.y;
             
-            console.log( now_y )
             if(!!this.birdFly )
                 clearInterval( this.birdFly );
             if(!!self.birdFall ) {
@@ -410,7 +458,6 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
                     self.gameOver();
                     return;
                 }
-                console.log( y < now_y );
                 self.bird.context.y = y;
                 
             } , 30 );

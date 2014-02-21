@@ -49,6 +49,10 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
         self.init.apply(self , arguments);
 
+
+        //所有属性准备好了后，先要计算一次this._updateTransform()得到_tansform
+        this._updateTransform();
+
     };
     
     Base.creatClass( DisplayObject , EventDispatcher , {
@@ -232,6 +236,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             
         },
         localToGlobal : function( point ){
+            !point && ( point = new Point( 0 , 0 ) );
             var cm = this.getConcatenatedMatrix();
 
             if (cm == null) return Point( 0 , 0 );
@@ -240,6 +245,8 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             return new Point( m.tx , m.ty ); //{x:m.tx, y:m.ty};
         },
         globalToLocal : function( point ) {
+            !point && ( point = new Point( 0 , 0 ) );
+
             var cm = this.getConcatenatedMatrix();
 
             if (cm == null) return new Point( 0 , 0 ); //{x:0, y:0};

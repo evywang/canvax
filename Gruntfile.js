@@ -22,6 +22,7 @@ module.exports = function(grunt) {
              files: [
                {'build/canvax/index-min.js': 'build/canvax/index.js'},
                {'build/canvax/library/underscore-min.js': 'build/canvax/library/underscore.js'},
+               {'build/canvax/library/hammer-min.js': 'build/canvax/library/hammer.js'},
                {'build/canvax/library/excanvas-min.js'  : 'build/canvax/library/excanvas.js'},
                {'build/canvax/library/flashCanvas/flashcanvas-min.js'  : 'build/canvax/library/flashCanvas/flashcanvas.js'}
              ]

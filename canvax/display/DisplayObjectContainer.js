@@ -132,11 +132,10 @@ KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObj
 
             //依次销毁所有子元素
             //TODO：这个到底有没有必要。还有待商榷
-            for(var i = 0, len = this.children.length; i < len; i++) {
-                var child = this.children[i];
+            _.each( this.children , function( child ){
                 child.destroy();
-            }
-            //this = null;
+            } );
+
         },
         /*
          *@id 元素的id

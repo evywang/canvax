@@ -964,6 +964,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         self.init.apply(self , arguments);
 
+
+        //所有属性准备好了后，先要计算一次this._updateTransform()得到_tansform
+        this._updateTransform();
+
     };
     
     Base.creatClass( DisplayObject , EventDispatcher , {
@@ -1147,6 +1151,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             
         },
         localToGlobal : function( point ){
+            !point && ( point = new Point( 0 , 0 ) );
             var cm = this.getConcatenatedMatrix();
 
             if (cm == null) return Point( 0 , 0 );
@@ -1155,6 +1160,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return new Point( m.tx , m.ty ); //{x:m.tx, y:m.ty};
         },
         globalToLocal : function( point ) {
+            !point && ( point = new Point( 0 , 0 ) );
+
             var cm = this.getConcatenatedMatrix();
 
             if (cm == null) return new Point( 0 , 0 ); //{x:0, y:0};
@@ -1568,11 +1575,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
             //依次销毁所有子元素
             //TODO：这个到底有没有必要。还有待商榷
-            for(var i = 0, len = this.children.length; i < len; i++) {
-                var child = this.children[i];
+            _.each( this.children , function( child ){
                 child.destroy();
-            }
-            //this = null;
+            } );
+
         },
         /*
          *@id 元素的id
