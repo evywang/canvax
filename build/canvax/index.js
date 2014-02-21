@@ -3111,7 +3111,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
        //如果这个时候el里面已经有东西了。嗯，也许曾经这个el被canvax干过一次了。
        //那么要先清除这个el的所有内容。
-       self.el.html("<div class=''></div>");
+       self.el.html("<div class='' style='width:" +self.el.width()+ "px;height:" +self.el.height()+ "px'></div>");
        self.el = self.el.all("div");
 
        self.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
