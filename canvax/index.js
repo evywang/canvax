@@ -28,6 +28,8 @@ KISSY.add("canvax/index" ,
 
        //如果这个时候el里面已经有东西了。嗯，也许曾经这个el被canvax干过一次了。
        //那么要先清除这个el的所有内容。
+       //默认的el是一个自己创建的div，因为要在这个div上面注册n多个事件 来 在整个canvax系统里面进行事件分发。
+       //所以不能直接用配置传进来的el对象。因为可能会重复添加很多的事件在上面。导致很多内容无法释放。
        self.el.html("<div class='' style='width:" +self.el.width()+ "px;height:" +self.el.height()+ "px'></div>");
        self.el = self.el.all("div");
 
@@ -221,7 +223,7 @@ KISSY.add("canvax/index" ,
                          //只要有一个元素就认为正在准备drag了
                          self._draging = true;
                          //然后克隆一个副本到activeStage
-                         self._clone2hoverStage( child );
+                         self._clone2hoverStage( child ,i );
                          //先把本尊给隐藏了
                          child.context.visible = false;
 
@@ -358,7 +360,7 @@ KISSY.add("canvax/index" ,
                      curMouseTarget.context.visible = false;
                                           
                      //然后克隆一个副本到activeStage
-                     self._clone2hoverStage( curMouseTarget );
+                     self._clone2hoverStage( curMouseTarget , 0 );
                   } else {
                      //drag ing
                      self._dragHander( e , curMouseTarget , 0 );
@@ -437,7 +439,7 @@ KISSY.add("canvax/index" ,
 
        },
        //克隆一个元素到hover stage中去
-       _clone2hoverStage : function( target ){
+       _clone2hoverStage : function( target , i ){
            var self = this;
            var _dragDuplicate = self._hoverStage.getChildById( target.id );
            if(!_dragDuplicate){
@@ -446,7 +448,7 @@ KISSY.add("canvax/index" ,
                self._hoverStage.addChild( _dragDuplicate );
            }
            _dragDuplicate.context.visible = true;
-           _dragDuplicate._dragPoint = _dragDuplicate.globalToLocal( self.curPoints[0] );
+           _dragDuplicate._dragPoint = target.globalToLocal( self.curPoints[ i ] );
        },
        //drag 中 的处理函数
        _dragHander  : function( e , target , i ){

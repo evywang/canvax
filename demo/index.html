@@ -56,8 +56,8 @@
 
            window.sprite = new Canvax.Display.Sprite({
                context : {
-                  x    : 100,
-                  y    : 100,
+                  x    : 10,
+                  y    : 10,
                   width : 300,
                   height: 300
                }
@@ -472,9 +472,10 @@
         
          
 
+          sprite.addChild(sector);
+          /*
 
            stage.addChild(rect);
-           sprite.addChild(sector);
 
 
            stage.addChild(circle2);
@@ -502,8 +503,7 @@
            stage.addChild(droplet);
 
 
-           canvax.addChild(stage);
-
+           
            stage.addChild(line);
            setTimeout(function(){
                
@@ -518,8 +518,12 @@
 
 
            canvax.addChild( stage1 );
+           */
 
            //stage1.toFront();
+
+           canvax.addChild(stage);
+
 
 
 
