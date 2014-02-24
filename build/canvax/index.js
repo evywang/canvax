@@ -3176,7 +3176,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
           
           this._isReady = true;
        },
-       reset : function(){
+       reSet : function(){
           //重新设置坐标系统 高宽 等。
           this.rootOffset      = this.el.offset();
        },
