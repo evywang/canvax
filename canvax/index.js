@@ -15,66 +15,63 @@ KISSY.add("canvax/index" ,
    function( S , DisplayObjectContainer , Stage , Base , CanvaxEvent , EventDispatcher ,propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Point , Shapes , Animation , ImagesLoader , Hammer ){
        
    var Canvax=function(opt){
-       var self = this;
-       self.type = "canvax";
+       this.type = "canvax";
        
-       self.el = opt.el || null;
+       this.el = opt.el || null;
 
        //是否阻止浏览器默认事件的执行
-       self.preventDefault = true;
+       this.preventDefault = true;
        if( opt.preventDefault === false ){
-           self.preventDefault = false
+           this.preventDefault = false
        }
 
        //如果这个时候el里面已经有东西了。嗯，也许曾经这个el被canvax干过一次了。
        //那么要先清除这个el的所有内容。
        //默认的el是一个自己创建的div，因为要在这个div上面注册n多个事件 来 在整个canvax系统里面进行事件分发。
        //所以不能直接用配置传进来的el对象。因为可能会重复添加很多的事件在上面。导致很多内容无法释放。
-       self.el.html("<div class='' style='width:" +self.el.width()+ "px;height:" +self.el.height()+ "px'></div>");
-       self.el = self.el.all("div");
+       this.el.html("<div class='' style='width:" + this.el.width() + "px;height:" + this.el.height() + "px'></div>");
+       this.el = this.el.all("div");
 
-       self.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
+       this.rootOffset      = this.el.offset();
+
+       this.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
 
        //当前激活的点对应的obj，在touch下可以是个数组,和上面的curPoints对应
-       self.curPointsTarget = [];
+       this.curPointsTarget = [];
 
        //每帧 由 心跳 上报的 需要重绘的stages 列表
-       self.convertStages = {};
+       this.convertStages = {};
 
-       self.rootOffset = {
-          left:0,top:0
-       };
-
-       self._heartBeat = false;//心跳，默认为false，即false的时候引擎处于静默状态 true则启动渲染
+       this._heartBeat = false;//心跳，默认为false，即false的时候引擎处于静默状态 true则启动渲染
        
        //设置帧率
-       self._speedTime = parseInt(1000/Base.mainFrameRate);
-       self._preRenderTime = 0;
+       this._speedTime = parseInt(1000/Base.mainFrameRate);
+       this._preRenderTime = 0;
 
        //任务列表, 如果_taskList 不为空，那么主引擎就一直跑
        //为 含有__enterFrame 方法 DisplayObject 的对象列表
        //比如Movieclip的__enterFrame方法。
-       self._taskList = [];
+       this._taskList = [];
        
-       self._Event = null;
+       this._Event = null;
 
-       self._hoverStage = null;
+       this._hoverStage = null;
        
        //为整个项目提供像素检测的容器
-       self._pixelCtx = null;
+       this._pixelCtx = null;
 
-       self._isReady = false;
+       this._isReady = false;
 
        /**
         *交互相关属性
         * */
        //接触canvas
-       self._touching = false;
+       this._touching = false;
        //正在拖动，前提是_touching=true
-       self._draging =false;
+       this._draging =false;
 
        //当前的鼠标状态
-       self._cursor  = "default";
+       this._cursor  = "default";
        
        arguments.callee.superclass.constructor.apply(this, arguments);
        
@@ -82,34 +79,34 @@ KISSY.add("canvax/index" ,
    
    Base.creatClass(Canvax , DisplayObjectContainer , {
        init : function(){
-          var self = this;
-
-          self.context.width  = self.el.width();
-          self.context.height = self.el.height();
+          this.context.width  = this.el.width();
+          this.context.height = this.el.height();
 
           //然后创建一个用于绘制激活shape的 stage到activation
-          self._creatHoverStage();
+          this._creatHoverStage();
 
           //初始化事件委托到root元素上面
-          self._initEvent();
+          this._initEvent();
 
           //创建一个如果要用像素检测的时候的容器
-          self.createPixelContext();
+          this.createPixelContext();
           
-          self._isReady = true;
+          this._isReady = true;
+       },
+       reset : function(){
+          //重新设置坐标系统 高宽 等。
+          this.rootOffset      = this.el.offset();
        },
        _creatHoverStage : function(){
           //TODO:创建stage的时候一定要传入width height  两个参数
-          
-          var self = this;
-          self._hoverStage = new Stage( {
+          this._hoverStage = new Stage( {
             id : "activCanvas"+(new Date()).getTime(),
             context : {
-              width : self.context.width,
-              height: self.context.height
+              width : this.context.width,
+              height: this.context.height
             }
           } );
-          self.addChild( self._hoverStage );
+          this.addChild( this._hoverStage );
        },
        /**
         * 获取像素拾取专用的上下文
@@ -117,10 +114,9 @@ KISSY.add("canvax/index" ,
        */
        createPixelContext : function() {
            
-           var self = this;
            var _pixelCanvas = null;
            if(S.all("#_pixelCanvas").length==0){
-              _pixelCanvas = Base._createCanvas("_pixelCanvas" , self.context.width , self.context.height); 
+              _pixelCanvas = Base._createCanvas("_pixelCanvas" , this.context.width , this.context.height); 
            } else {
               _pixelCanvas = S.all("#_pixelCanvas")[0];
            }
@@ -136,8 +132,8 @@ KISSY.add("canvax/index" ,
                //flashCanvas 的话，swf如果display:none了。就做不了measureText 文本宽度 检测了
                _pixelCanvas.style.zIndex     = -1;
                _pixelCanvas.style.position   = "absolute";
-               _pixelCanvas.style.left       = -self.context.width  + "px";
-               _pixelCanvas.style.top        = -self.context.height + "px";
+               _pixelCanvas.style.left       = - this.context.width  + "px";
+               _pixelCanvas.style.top        = - this.context.height + "px";
                _pixelCanvas.style.visibility = "hidden";
            }
            Base._pixelCtx = _pixelCanvas.getContext('2d');
@@ -146,7 +142,6 @@ KISSY.add("canvax/index" ,
        _initEvent : function(){
           //初始绑定事件，为后续的displayList的事件分发提供入口
           var self = this;
-          self.rootOffset = self.el.offset();
           self._Event     = new CanvaxEvent();
  
           var _moveStep = 0; //move的时候的频率设置
