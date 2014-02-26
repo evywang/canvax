@@ -1081,13 +1081,13 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return newObj;
         },
         heartBeat : function(opt){
-            if( this.$owner._heart ){
+            if( this._heart ){
                 //如果该元素已经上报了心跳。
                 //嗯嗯，那就不再继续上报了
                 return;
             }
             //说明已经上报心跳 
-            this.$owner._heart = true; 
+            this._heart = true; 
 
            
             //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
