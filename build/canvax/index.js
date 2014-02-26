@@ -461,10 +461,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
     var Base = {
         mainFrameRate   : 40,//默认主帧率
         now : 0,
-
         /*像素检测专用*/
         _pixelCtx   : null,
-
         __emptyFunc : function(){},
         //retina 屏幕优化
         _devicePixelRatio : window.devicePixelRatio || 1,
@@ -483,8 +481,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
             //newDom.setAttribute('height', _height );
             newDom.setAttribute('width', _width * this._devicePixelRatio);
             newDom.setAttribute('height', _height * this._devicePixelRatio);
-
-
             newDom.setAttribute('id', id);
             return newDom;
         },
@@ -518,15 +514,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
             if (!s || !r) {
                 return r;
             }
-
-            var sp = s.prototype,
-                rp;
-
+            var sp = s.prototype, rp;
             // add prototype chain
             rp = Base.createObject(sp, r);
             r.prototype = _.extend(rp, r.prototype);
             r.superclass = Base.createObject(sp, s);
-
             // add prototype overrides
             if (px) {
                 _.extend(rp, px);
@@ -2164,7 +2156,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
             arguments.callee.superclass.constructor.apply(this, [opt]);
 
-        }
+        };
         Base.creatClass(Text , DisplayObject , {
             $watch : function( name , value , preValue ){
                  //context属性有变化的监听函数
@@ -2184,9 +2176,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                this.context.width  = this._getTextWidth( ctx, textLines);
                this.context.height = this._getTextHeight(ctx, textLines);
 
-               //ctx.fillStyle = this.context.fillStyle;
-               //ctx.font      = this.context.font;
-
                for (p in this.context.$model){
                    if(p in ctx){
                        if ( p != "textBaseline" && this.context.$model[p] ) {
@@ -2195,19 +2184,16 @@ KISSY.add("canvax/animation/Animation" , function(S){
                    }
                }
 
-
-               //像shape一样的要设置样式
-               //Base.setContextStyle( ctx , this.context );
-
-
                this.clipTo && this.clipContext(this, ctx);
 
                this._renderTextBackground(ctx, textLines);
                this._renderText(ctx, textLines);
-
               
                this.clipTo && ctx.restore();
-             
+            },
+            resetText     : function( text ){
+               this.text  = text.toString();
+               this.heartBeat();
             },
             getTextWidth  : function(){
                var width = 0;
