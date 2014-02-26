@@ -1034,7 +1034,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 //下面的这些属性变化，都会需要重新组织矩阵属性_transform 
                 var transFormProps = [ "x" , "y" , "scaleX" , "scaleY" , "rotation" , "scaleOrigin" , "rotateOrigin" ];
 
-                if( _.indexOf( transFormProps ) , name  ) {
+                if( _.indexOf( transFormProps , name ) ) {
                     this.$owner._updateTransform();
                 }
 
@@ -1046,14 +1046,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                     this.$owner.$watch( name , value , preValue );
                 }
 
-                if( this.$owner._heart ){
-                    //如果该元素已经上报了心跳。
-                    //嗯嗯，那就不再继续上报了
-                    return;
-                }
-                //说明已经上报心跳 
-                this.$owner._heart = true; 
-
+                
                 this.$owner.heartBeat( {
                     convertType:"context",
                     shape      : this.$owner,
@@ -1088,12 +1081,22 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return newObj;
         },
         heartBeat : function(opt){
-           this._heartBeatNum ++;
+            if( this.$owner._heart ){
+                //如果该元素已经上报了心跳。
+                //嗯嗯，那就不再继续上报了
+                return;
+            }
+            //说明已经上报心跳 
+            this.$owner._heart = true; 
 
-           //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
-           //的属性，所以，通知到stage.displayAttrHasChange
-           var stage = this.getStage();
-           stage.heartBeat && stage.heartBeat(opt);
+           
+            //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
+            //的属性，所以，通知到stage.displayAttrHasChange
+            var stage = this.getStage();
+            if( stage ){
+                this._heartBeatNum ++;
+                stage.heartBeat && stage.heartBeat( opt );
+            }
         },
         getCurrentWidth : function(){
            return Math.abs(this.context.width * this.context.scaleX);
@@ -3353,10 +3356,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
            _.each( childs , function( child , i){
                if( child ){
                    //ce
-                   var ce        = _.extend(self._Event , e);
-                   ce.target     = ce.currentTarget = child || this;
-                   ce.stagePoint = self.curPoints[i];
-                   ce.point      = child.globalToLocal( ce.stagePoint );
+                   var ce         = _.extend(self._Event , e);
+                   ce.target      = ce.currentTarget = child || this;
+                   ce.stagePoint  = self.curPoints[i];
+                   ce.point       = ce.target.globalToLocal( ce.stagePoint );
+
 
                    //dispatch e
                    child.dispatchEvent( ce );
@@ -3459,9 +3463,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                    var ce        = _.extend( self._Event , e );
                    ce.target     = ce.currentTarget = curMouseTarget || this;
                    ce.stagePoint = curMousePoint;
-                   ce.point      = child.globalToLocal( ce.stagePoint );
-
-                   //dispatch e
+                   ce.point      = ce.target.globalToLocal( ce.stagePoint );
                    curMouseTarget.dispatchEvent( ce );
                }
            }

@@ -270,10 +270,11 @@ KISSY.add("canvax/index" ,
            _.each( childs , function( child , i){
                if( child ){
                    //ce
-                   var ce        = _.extend(self._Event , e);
-                   ce.target     = ce.currentTarget = child || this;
-                   ce.stagePoint = self.curPoints[i];
-                   ce.point      = child.globalToLocal( ce.stagePoint );
+                   var ce         = _.extend(self._Event , e);
+                   ce.target      = ce.currentTarget = child || this;
+                   ce.stagePoint  = self.curPoints[i];
+                   ce.point       = ce.target.globalToLocal( ce.stagePoint );
+
 
                    //dispatch e
                    child.dispatchEvent( ce );
@@ -376,9 +377,7 @@ KISSY.add("canvax/index" ,
                    var ce        = _.extend( self._Event , e );
                    ce.target     = ce.currentTarget = curMouseTarget || this;
                    ce.stagePoint = curMousePoint;
-                   ce.point      = child.globalToLocal( ce.stagePoint );
-
-                   //dispatch e
+                   ce.point      = ce.target.globalToLocal( ce.stagePoint );
                    curMouseTarget.dispatchEvent( ce );
                }
            }
