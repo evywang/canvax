@@ -3358,8 +3358,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
                    //ce
                    var ce         = _.extend(self._Event , e);
                    ce.target      = ce.currentTarget = child || this;
-                   ce.stagePoint  = self.curPoints[i];
-                   ce.point       = ce.target.globalToLocal( ce.stagePoint );
+                   ce.point       = self.curPoints[i]
+                   
+                   //ce.stagePoint  = self.curPoints[i];
+                   //ce.point       = ce.target.globalToLocal( ce.stagePoint );
 
 
                    //dispatch e
@@ -3462,8 +3464,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
                    //canvaxEvent
                    var ce        = _.extend( self._Event , e );
                    ce.target     = ce.currentTarget = curMouseTarget || this;
-                   ce.stagePoint = curMousePoint;
-                   ce.point      = ce.target.globalToLocal( ce.stagePoint );
+ce.point = curMousePoint
+                   //ce.stagePoint = curMousePoint;
+                   //ce.point      = ce.target.globalToLocal( ce.stagePoint );
                    curMouseTarget.dispatchEvent( ce );
                }
            }
