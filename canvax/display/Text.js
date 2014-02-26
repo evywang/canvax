@@ -39,7 +39,7 @@ KISSY.add("canvax/display/Text" ,
 
             arguments.callee.superclass.constructor.apply(this, [opt]);
 
-        }
+        };
         Base.creatClass(Text , DisplayObject , {
             $watch : function( name , value , preValue ){
                  //context属性有变化的监听函数
@@ -59,9 +59,6 @@ KISSY.add("canvax/display/Text" ,
                this.context.width  = this._getTextWidth( ctx, textLines);
                this.context.height = this._getTextHeight(ctx, textLines);
 
-               //ctx.fillStyle = this.context.fillStyle;
-               //ctx.font      = this.context.font;
-
                for (p in this.context.$model){
                    if(p in ctx){
                        if ( p != "textBaseline" && this.context.$model[p] ) {
@@ -70,19 +67,16 @@ KISSY.add("canvax/display/Text" ,
                    }
                }
 
-
-               //像shape一样的要设置样式
-               //Base.setContextStyle( ctx , this.context );
-
-
                this.clipTo && this.clipContext(this, ctx);
 
                this._renderTextBackground(ctx, textLines);
                this._renderText(ctx, textLines);
-
               
                this.clipTo && ctx.restore();
-             
+            },
+            resetText     : function( text ){
+               this.text  = text.toString();
+               this.heartBeat();
             },
             getTextWidth  : function(){
                var width = 0;
