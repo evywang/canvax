@@ -272,10 +272,8 @@ KISSY.add("canvax/index" ,
                    //ce
                    var ce         = _.extend(self._Event , e);
                    ce.target      = ce.currentTarget = child || this;
-                   ce.point       = self.curPoints[i]
-                   
-                   //ce.stagePoint  = self.curPoints[i];
-                   //ce.point       = ce.target.globalToLocal( ce.stagePoint );
+                   ce.stagePoint  = self.curPoints[i];
+                   ce.point       = ce.target.globalToLocal( ce.stagePoint );
 
 
                    //dispatch e
@@ -378,9 +376,8 @@ KISSY.add("canvax/index" ,
                    //canvaxEvent
                    var ce        = _.extend( self._Event , e );
                    ce.target     = ce.currentTarget = curMouseTarget || this;
-ce.point = curMousePoint
-                   //ce.stagePoint = curMousePoint;
-                   //ce.point      = ce.target.globalToLocal( ce.stagePoint );
+                   ce.stagePoint = curMousePoint;
+                   ce.point      = ce.target.globalToLocal( ce.stagePoint );
                    curMouseTarget.dispatchEvent( ce );
                }
            }
