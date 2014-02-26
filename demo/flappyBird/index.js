@@ -74,7 +74,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
               }
            });
 
-           for( var i=0 ; i<2 ; i++ ){
+           for( var i=0 ; i < 2 ; i++ ){
              this.ground.addChild(new Canvax.Display.Bitmap({
                  img : this.files.ground,
                  context  : {
@@ -442,7 +442,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
             this.birdFly = setInterval( function(){
                 bird_t ++;
                 
-                var y = self.getV( now_y , self.birdUpH , bird_t , 0.8 );
+                var y = self.getV( now_y , self.birdUpH , bird_t  , 0.8 );
 
                 if( now_y < y && bird_t > 0 && !self.birdFall) {
                     //下降阶段

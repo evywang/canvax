@@ -30,7 +30,7 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Base){
             accessores = {}, //内部用于转换的对象
             callSetters = [],
             callGetters = [],
-            VBPublics = _.keys(unwatchOne); //用于IE6-8
+            VBPublics = _.keys( unwatchOne ); //用于IE6-8
 
         model = model || {};//这是pmodel上的$model属性
         watchMore = watchMore || {};//以$开头但要强制监听的属性
@@ -93,14 +93,11 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Base){
                             }
                             if (value !== neo) {
 
-                                //if (valueType === "array" || valueType === "object") {
-
                                 if( neoType === "array" || neoType === "object" ){
 
                                     value = neo.$model ? neo : propertyFactory(neo , neo);
 
                                     complexValue = value.$model;
-
 
                                 } else {//如果是其他数据类型
                                     value = neo
@@ -119,7 +116,6 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Base){
                                 
                                 //所有的赋值都要触发watch的监听事件
                                 pmodel.$watch && pmodel.$watch.call(pmodel , name, value, preValue)
-
 
                             }
                         } else {

@@ -622,7 +622,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             accessores = {}, //内部用于转换的对象
             callSetters = [],
             callGetters = [],
-            VBPublics = _.keys(unwatchOne); //用于IE6-8
+            VBPublics = _.keys( unwatchOne ); //用于IE6-8
 
         model = model || {};//这是pmodel上的$model属性
         watchMore = watchMore || {};//以$开头但要强制监听的属性
@@ -685,14 +685,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
                             }
                             if (value !== neo) {
 
-                                //if (valueType === "array" || valueType === "object") {
-
                                 if( neoType === "array" || neoType === "object" ){
 
                                     value = neo.$model ? neo : propertyFactory(neo , neo);
 
                                     complexValue = value.$model;
-
 
                                 } else {//如果是其他数据类型
                                     value = neo
@@ -711,7 +708,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                                 
                                 //所有的赋值都要触发watch的监听事件
                                 pmodel.$watch && pmodel.$watch.call(pmodel , name, value, preValue)
-
 
                             }
                         } else {
@@ -940,6 +936,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
         //心跳次数
         self._heartBeatNum   = 0;
 
+        //是否已经提交心跳
+        self._heart          = false;
+
         //元素对应的stage元素
         self.stage           = null;
 
@@ -1039,33 +1038,30 @@ KISSY.add("canvax/animation/Animation" , function(S){
                     this.$owner._updateTransform();
                 }
 
-                if(this.$owner._notWatch){
+                if( this.$owner._notWatch ){
                     return;
                 };
 
-                if(this.$owner.$watch){
-                   this.$owner.$watch( name , value , preValue );
+                if( this.$owner.$watch ){
+                    this.$owner.$watch( name , value , preValue );
                 }
 
-                //TODO 暂时所有的属性都上报，有时间了在来慢慢梳理
-                var stage = this.$owner.getStage(); 
+                if( this.$owner._heart ){
+                    //如果该元素已经上报了心跳。
+                    //嗯嗯，那就不再继续上报了
+                    return;
+                }
+                //说明已经上报心跳 
+                this.$owner._heart = true; 
 
-                if(stage.stageRending){
-                    //如果这个时候stage正在渲染中，嗯。那么所有的 attrs的 set 都忽略
-                    //TODO：先就这么处理，如果后续发现这些忽略掉的set，会影响到渲染，那么就在
-                    //考虑加入 在这里加入设置下一step的心跳的机制
-                    return
-                };
-
-                //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
-                //的属性，所以，通知到stage.displayAttrHasChange
                 this.$owner.heartBeat( {
                     convertType:"context",
-                    shape   : this.$owner,
-                    name    : name,
-                    value   : value,
-                    preValue: preValue
+                    shape      : this.$owner,
+                    name       : name,
+                    value      : value,
+                    preValue   : preValue
                 });
+                
             };
 
             //执行init之前，应该就根据参数，把context组织好线
@@ -1093,6 +1089,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
         },
         heartBeat : function(opt){
            this._heartBeatNum ++;
+
+           //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
+           //的属性，所以，通知到stage.displayAttrHasChange
            var stage = this.getStage();
            stage.heartBeat && stage.heartBeat(opt);
         },
@@ -1358,7 +1357,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
             if(!noTransform) {
                 this._transformHander(context, globalTransform);
             }
-            this.render(context);
+            this._heart = false;
+            this.render( context );
             context.restore();
         },
         render : function(context) {
@@ -3353,9 +3353,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
            _.each( childs , function( child , i){
                if( child ){
                    //ce
-                   var ce = _.extend(self._Event , e);
-                   ce.target = ce.currentTarget = child || this;
-                   ce.point  = self.curPoints[i];
+                   var ce        = _.extend(self._Event , e);
+                   ce.target     = ce.currentTarget = child || this;
+                   ce.stagePoint = self.curPoints[i];
+                   ce.point      = child.globalToLocal( ce.stagePoint );
 
                    //dispatch e
                    child.dispatchEvent( ce );
@@ -3455,9 +3456,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
                //其他的事件就直接在target上面派发事件
                if( curMouseTarget ){
                    //canvaxEvent
-                   var ce = _.extend( self._Event , e );
-                   ce.target = ce.currentTarget = curMouseTarget || this;
-                   ce.point  = curMousePoint;
+                   var ce        = _.extend( self._Event , e );
+                   ce.target     = ce.currentTarget = curMouseTarget || this;
+                   ce.stagePoint = curMousePoint;
+                   ce.point      = child.globalToLocal( ce.stagePoint );
 
                    //dispatch e
                    curMouseTarget.dispatchEvent( ce );
@@ -3598,7 +3600,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        //如果引擎处于静默状态的话，就会启动
        __startEnter : function(){
           var self = this;
-          if(!self.requestAid){
+          if( !self.requestAid ){
               //self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
               self.requestAid = requestAnimationFrame( function(){
                  self.__enterFrame();
@@ -3613,16 +3615,20 @@ KISSY.add("canvax/animation/Animation" , function(S){
            self.requestAid = null;
            Base.now = new Date().getTime();
 
-           if(self._heartBeat){
+           if( self._heartBeat ){
 
-               if((Base.now-self._preRenderTime) < self._speedTime ){
+               //console.log(self._speedTime)
+               if(( Base.now - self._preRenderTime ) < self._speedTime ){
                    //事件speed不够，下一帧再来
                    self.__startEnter();
-                   //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
                    return;
                }
+               
 
-               _.each(_.values(self.convertStages) , function(convertStage){
+               //开始渲染的事件
+               self.fire("beginRender");
+
+               _.each(_.values( self.convertStages ) , function(convertStage){
                   convertStage.stage._render(convertStage.stage.context2D);
                });
            
@@ -3632,12 +3638,15 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
                //渲染完了，打上最新时间挫
                self._preRenderTime = new Date().getTime();
+
+               //渲染结束
+               self.fire("afterRender");
            }
            
            //先跑任务队列,因为有可能再具体的hander中会把自己清除掉
            //所以跑任务和下面的length检测分开来
            if(self._taskList.length > 0){
-              for(var i=0,l=self._taskList.length;i<l;i++){
+              for(var i=0,l = self._taskList.length ; i < l ; i++ ){
                  var obj = self._taskList[i];
                  if(obj.__enterFrame){
                     obj.__enterFrame();
@@ -3649,7 +3658,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
            //如果依然还有任务。 就继续enterFrame.
            if(self._taskList.length > 0){
               self.__startEnter();
-              //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
            }
        },
        _afterAddChild : function( stage , index ){

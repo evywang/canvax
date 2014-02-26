@@ -26,6 +26,9 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         //心跳次数
         self._heartBeatNum   = 0;
 
+        //是否已经提交心跳
+        self._heart          = false;
+
         //元素对应的stage元素
         self.stage           = null;
 
@@ -125,33 +128,30 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                     this.$owner._updateTransform();
                 }
 
-                if(this.$owner._notWatch){
+                if( this.$owner._notWatch ){
                     return;
                 };
 
-                if(this.$owner.$watch){
-                   this.$owner.$watch( name , value , preValue );
+                if( this.$owner.$watch ){
+                    this.$owner.$watch( name , value , preValue );
                 }
 
-                //TODO 暂时所有的属性都上报，有时间了在来慢慢梳理
-                var stage = this.$owner.getStage(); 
+                if( this.$owner._heart ){
+                    //如果该元素已经上报了心跳。
+                    //嗯嗯，那就不再继续上报了
+                    return;
+                }
+                //说明已经上报心跳 
+                this.$owner._heart = true; 
 
-                if(stage.stageRending){
-                    //如果这个时候stage正在渲染中，嗯。那么所有的 attrs的 set 都忽略
-                    //TODO：先就这么处理，如果后续发现这些忽略掉的set，会影响到渲染，那么就在
-                    //考虑加入 在这里加入设置下一step的心跳的机制
-                    return
-                };
-
-                //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
-                //的属性，所以，通知到stage.displayAttrHasChange
                 this.$owner.heartBeat( {
                     convertType:"context",
-                    shape   : this.$owner,
-                    name    : name,
-                    value   : value,
-                    preValue: preValue
+                    shape      : this.$owner,
+                    name       : name,
+                    value      : value,
+                    preValue   : preValue
                 });
+                
             };
 
             //执行init之前，应该就根据参数，把context组织好线
@@ -179,6 +179,9 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         },
         heartBeat : function(opt){
            this._heartBeatNum ++;
+
+           //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
+           //的属性，所以，通知到stage.displayAttrHasChange
            var stage = this.getStage();
            stage.heartBeat && stage.heartBeat(opt);
         },
@@ -444,7 +447,8 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             if(!noTransform) {
                 this._transformHander(context, globalTransform);
             }
-            this.render(context);
+            this._heart = false;
+            this.render( context );
             context.restore();
         },
         render : function(context) {

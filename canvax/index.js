@@ -270,9 +270,10 @@ KISSY.add("canvax/index" ,
            _.each( childs , function( child , i){
                if( child ){
                    //ce
-                   var ce = _.extend(self._Event , e);
-                   ce.target = ce.currentTarget = child || this;
-                   ce.point  = self.curPoints[i];
+                   var ce        = _.extend(self._Event , e);
+                   ce.target     = ce.currentTarget = child || this;
+                   ce.stagePoint = self.curPoints[i];
+                   ce.point      = child.globalToLocal( ce.stagePoint );
 
                    //dispatch e
                    child.dispatchEvent( ce );
@@ -372,9 +373,10 @@ KISSY.add("canvax/index" ,
                //其他的事件就直接在target上面派发事件
                if( curMouseTarget ){
                    //canvaxEvent
-                   var ce = _.extend( self._Event , e );
-                   ce.target = ce.currentTarget = curMouseTarget || this;
-                   ce.point  = curMousePoint;
+                   var ce        = _.extend( self._Event , e );
+                   ce.target     = ce.currentTarget = curMouseTarget || this;
+                   ce.stagePoint = curMousePoint;
+                   ce.point      = child.globalToLocal( ce.stagePoint );
 
                    //dispatch e
                    curMouseTarget.dispatchEvent( ce );
@@ -515,7 +517,7 @@ KISSY.add("canvax/index" ,
        //如果引擎处于静默状态的话，就会启动
        __startEnter : function(){
           var self = this;
-          if(!self.requestAid){
+          if( !self.requestAid ){
               //self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
               self.requestAid = requestAnimationFrame( function(){
                  self.__enterFrame();
@@ -530,16 +532,20 @@ KISSY.add("canvax/index" ,
            self.requestAid = null;
            Base.now = new Date().getTime();
 
-           if(self._heartBeat){
+           if( self._heartBeat ){
 
-               if((Base.now-self._preRenderTime) < self._speedTime ){
+               //console.log(self._speedTime)
+               if(( Base.now - self._preRenderTime ) < self._speedTime ){
                    //事件speed不够，下一帧再来
                    self.__startEnter();
-                   //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
                    return;
                }
+               
 
-               _.each(_.values(self.convertStages) , function(convertStage){
+               //开始渲染的事件
+               self.fire("beginRender");
+
+               _.each(_.values( self.convertStages ) , function(convertStage){
                   convertStage.stage._render(convertStage.stage.context2D);
                });
            
@@ -549,12 +555,15 @@ KISSY.add("canvax/index" ,
 
                //渲染完了，打上最新时间挫
                self._preRenderTime = new Date().getTime();
+
+               //渲染结束
+               self.fire("afterRender");
            }
            
            //先跑任务队列,因为有可能再具体的hander中会把自己清除掉
            //所以跑任务和下面的length检测分开来
            if(self._taskList.length > 0){
-              for(var i=0,l=self._taskList.length;i<l;i++){
+              for(var i=0,l = self._taskList.length ; i < l ; i++ ){
                  var obj = self._taskList[i];
                  if(obj.__enterFrame){
                     obj.__enterFrame();
@@ -566,7 +575,6 @@ KISSY.add("canvax/index" ,
            //如果依然还有任务。 就继续enterFrame.
            if(self._taskList.length > 0){
               self.__startEnter();
-              //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
            }
        },
        _afterAddChild : function( stage , index ){
