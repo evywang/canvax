@@ -15,10 +15,8 @@ KISSY.add("canvax/core/Base" , function(S){
     var Base = {
         mainFrameRate   : 40,//默认主帧率
         now : 0,
-
         /*像素检测专用*/
         _pixelCtx   : null,
-
         __emptyFunc : function(){},
         //retina 屏幕优化
         _devicePixelRatio : window.devicePixelRatio || 1,
@@ -37,8 +35,6 @@ KISSY.add("canvax/core/Base" , function(S){
             //newDom.setAttribute('height', _height );
             newDom.setAttribute('width', _width * this._devicePixelRatio);
             newDom.setAttribute('height', _height * this._devicePixelRatio);
-
-
             newDom.setAttribute('id', id);
             return newDom;
         },
@@ -72,15 +68,11 @@ KISSY.add("canvax/core/Base" , function(S){
             if (!s || !r) {
                 return r;
             }
-
-            var sp = s.prototype,
-                rp;
-
+            var sp = s.prototype, rp;
             // add prototype chain
             rp = Base.createObject(sp, r);
             r.prototype = _.extend(rp, r.prototype);
             r.superclass = Base.createObject(sp, s);
-
             // add prototype overrides
             if (px) {
                 _.extend(rp, px);
