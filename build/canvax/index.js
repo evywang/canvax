@@ -1034,7 +1034,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 //下面的这些属性变化，都会需要重新组织矩阵属性_transform 
                 var transFormProps = [ "x" , "y" , "scaleX" , "scaleY" , "rotation" , "scaleOrigin" , "rotateOrigin" ];
 
-                if( _.indexOf( transFormProps , name ) ) {
+                if( _.indexOf( transFormProps , name ) > 0 ) {
                     this.$owner._updateTransform();
                 }
 
