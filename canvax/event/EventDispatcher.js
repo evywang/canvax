@@ -65,18 +65,15 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
                //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
                if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
                    //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
-
                } else {
                    delete canvax.convertStages[ this.getStage().id ];
+                   this._heart = false;
                }
 
                //然后clone一份obj，添加到_hoverStage 中
                var activShape = this.clone(true);
-               //activShape._setPositionFromMatrix( this.getConcatenatedMatrix() );
                activShape._transform = this.getConcatenatedMatrix();
                canvax._hoverStage.addChild( activShape );
-
-               //然后在内部的convertStages 中把 this的记录去掉
                
            }
            return;

@@ -26,8 +26,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         //心跳次数
         self._heartBeatNum   = 0;
 
-        //是否已经提交心跳
-        self._heart          = false;
 
         //元素对应的stage元素
         self.stage           = null;
@@ -170,15 +168,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             return newObj;
         },
         heartBeat : function(opt){
-            if( this._heart ){
-                //如果该元素已经上报了心跳。
-                //嗯嗯，那就不再继续上报了
-                return;
-            }
-            //说明已经上报心跳 
-            //this._heart = true; 
-
-           
             //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
             //的属性，所以，通知到stage.displayAttrHasChange
             var stage = this.getStage();
@@ -194,7 +183,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 	       return Math.abs(this.context.height * this.context.scaleY);
         },
         getStage : function(){
-            if(this.stage) {
+            if( this.stage ) {
                 return this.stage;
             }
             var p = this;
@@ -449,7 +438,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             if(!noTransform) {
                 this._transformHander(context, globalTransform);
             }
-            this._heart = false;
             this.render( context );
             context.restore();
         },

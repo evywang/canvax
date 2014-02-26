@@ -634,15 +634,15 @@ KISSY.add("canvax/index" ,
                };
 
                if(shape){
-                   if (!self.convertStages[stage.id].convertShapes[shape.id]){
-                       self.convertStages[stage.id].convertShapes[shape.id]={
+                   if (!self.convertStages[ stage.id ].convertShapes[ shape.id ]){
+                       self.convertStages[ stage.id ].convertShapes[ shape.id ]={
                            shape : shape,
-                           convertType : null,
-                           convertLog  : []
+                           convertType : null
                        }
+                   } else {
+                       //如果已经上报了该shape的心跳。
+                       return;
                    }
-                   var ss = self.convertStages[stage.id].convertShapes[shape.id];
-                   ss.convertLog.push(name,value,preValue);
                }
            }
 

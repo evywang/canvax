@@ -936,8 +936,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
         //心跳次数
         self._heartBeatNum   = 0;
 
-        //是否已经提交心跳
-        self._heart          = false;
 
         //元素对应的stage元素
         self.stage           = null;
@@ -1080,15 +1078,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return newObj;
         },
         heartBeat : function(opt){
-            if( this._heart ){
-                //如果该元素已经上报了心跳。
-                //嗯嗯，那就不再继续上报了
-                return;
-            }
-            //说明已经上报心跳 
-            //this._heart = true; 
-
-           
             //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
             //的属性，所以，通知到stage.displayAttrHasChange
             var stage = this.getStage();
@@ -1104,7 +1093,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 	       return Math.abs(this.context.height * this.context.scaleY);
         },
         getStage : function(){
-            if(this.stage) {
+            if( this.stage ) {
                 return this.stage;
             }
             var p = this;
@@ -1359,7 +1348,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
             if(!noTransform) {
                 this._transformHander(context, globalTransform);
             }
-            this._heart = false;
             this.render( context );
             context.restore();
         },
@@ -2688,18 +2676,15 @@ KISSY.add("canvax/animation/Animation" , function(S){
                //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
                if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
                    //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
-
                } else {
                    delete canvax.convertStages[ this.getStage().id ];
+                   this._heart = false;
                }
 
                //然后clone一份obj，添加到_hoverStage 中
                var activShape = this.clone(true);
-               //activShape._setPositionFromMatrix( this.getConcatenatedMatrix() );
                activShape._transform = this.getConcatenatedMatrix();
                canvax._hoverStage.addChild( activShape );
-
-               //然后在内部的convertStages 中把 this的记录去掉
                
            }
            return;
@@ -3719,15 +3704,15 @@ KISSY.add("canvax/animation/Animation" , function(S){
                };
 
                if(shape){
-                   if (!self.convertStages[stage.id].convertShapes[shape.id]){
-                       self.convertStages[stage.id].convertShapes[shape.id]={
+                   if (!self.convertStages[ stage.id ].convertShapes[ shape.id ]){
+                       self.convertStages[ stage.id ].convertShapes[ shape.id ]={
                            shape : shape,
-                           convertType : null,
-                           convertLog  : []
+                           convertType : null
                        }
+                   } else {
+                       //如果已经上报了该shape的心跳。
+                       return;
                    }
-                   var ss = self.convertStages[stage.id].convertShapes[shape.id];
-                   ss.convertLog.push(name,value,preValue);
                }
            }
 
