@@ -1086,7 +1086,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 return;
             }
             //说明已经上报心跳 
-            this._heart = true; 
+            //this._heart = true; 
 
            
             //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
