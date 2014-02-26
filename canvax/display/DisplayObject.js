@@ -136,7 +136,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                     this.$owner.$watch( name , value , preValue );
                 }
 
-                
                 this.$owner.heartBeat( {
                     convertType:"context",
                     shape      : this.$owner,
@@ -177,7 +176,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 return;
             }
             //说明已经上报心跳 
-            //this._heart = true; 
+            this._heart = true; 
 
            
             //stage存在，才说self代表的display已经被添加到了displayList中，绘图引擎需要知道其改变后
