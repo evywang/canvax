@@ -78,9 +78,9 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
          var style = self.context;
          var ctx = self.getStage().context2D;
 
-         if (style){
-           Base.setContextStyle( ctx , style );
-         }
+         //if( style ){
+         //   Base.setContextStyle( ctx , this.context );
+         //}
          
          if (self.context.type == "shape"){
              //type == shape的时候，自定义绘画
@@ -89,11 +89,7 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
          } else {
              //这个时候，说明该shape是调用已经绘制好的 shape 模块，这些模块全部在../shape目录下面
              if( self.draw ){
-                 //fill stroke 之前， 就应该要closepath 否则线条转角口会有缺口。
-                 //drawTypeOnly 由继承shape的具体绘制类提供
-                 //if ( self.drawTypeOnly != "stroke" ){
-                     ctx.beginPath();
-                 //}
+                 ctx.beginPath();
                  self.draw( ctx , style );
                  self.drawEnd( ctx );
              }

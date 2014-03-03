@@ -150,7 +150,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
 
         _context.save();
         _context.beginPath();
-        Base.setContextStyle(_context , context);
+        Base.setContextStyle( _context , context.$model );
        
         _context.transform.apply( _context , shape.getConcatenatedMatrix().toArray() );
 
@@ -175,10 +175,9 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
             x = originPos[0];
             y = originPos[1];
         }
-        
 
         return _isPainted(_context, x , y);
-    }
+    };
 
     /**
      * 坐标像素值，判断坐标是否被作色
@@ -213,14 +212,14 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
         }
 
         return false;
-    }
+    };
 
     /**
      * !isInside
      */
     function isOutside(shape, x, y) {
         return !isInside(shape, x, y);
-    }
+    };
 
     /**
      * 线段包含判断
@@ -244,7 +243,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
 
         var _s = (_a * x - y + _b) * (_a * x - y + _b) / (_a * _a + 1);
         return  _s <= _l / 2 * _l / 2;
-    }
+    };
 
     function _isInsideBrokenLine(shape, x, y) {
         var context   = shape.context;
@@ -282,7 +281,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
             }
         }
         return insideCatch;
-    }
+    };
 
     function _isInsideRing(shape , x, y) {
         var context = shape.context;
@@ -297,7 +296,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
                return true;
            }
         return false;
-    }
+    };
 
     /**
      * 矩形包含判断
@@ -312,7 +311,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
                return true;
            }
         return false;
-    }
+    };
 
     /**
      * 圆形包含判断
@@ -321,7 +320,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
         var context = shape.context;
         !r && ( r = context.r );
         return (x * x + y * y) < r * r;
-    }
+    };
 
     /**
      * 扇形包含判断
@@ -357,7 +356,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
             var inAngleReg = angle > regAngle[0] && angle < regAngle[1];
             return (inAngleReg && regIn) || (!inAngleReg && !regIn);
         }
-    }
+    };
 
     /*
      *椭圆包含判断
@@ -388,7 +387,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
         iRes = YRadius * p.x + XRadius * p.y - XRadius * YRadius;
 
         return (iRes < 0);
-    }
+    };
 
     /**
      * 多边形包含判断
@@ -458,7 +457,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
             }
         }
         return inside;
-    }
+    };
 
     /**
      * 路径包含判断，依赖多边形判断
@@ -476,7 +475,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
             }
         }
         return insideCatch;
-    }
+    };
 
     /**
      * 测算单行文本欢度
@@ -492,7 +491,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
         Base._pixelCtx.restore();
 
         return width;
-    }
+    };
 
     HitTestPoint = {
         isInside : isInside,

@@ -501,10 +501,14 @@ KISSY.add("canvax/animation/Animation" , function(S){
         },
         setContextStyle : function( ctx , style ){
             // 简单判断不做严格类型检测
-            for (p in style.$model){
+            for (p in style){
+                //text的textBaseline 不使用系统自带的，而是采用自己来计算，所以抛弃
+                if( p == "textBaseline" ){
+                    continue;
+                }
                 if( p in ctx ){
-                    if ( style.$model[p] || _.isNumber( style.$model[p] ) ) {
-                        ctx[p] = style.$model[p];
+                    if ( style[p] || _.isNumber( style[p] ) ) {
+                        ctx[p] = style[p];
                     }
                 }
             }
@@ -1006,7 +1010,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 globalAlpha   : 1,
                 font          : null,
                 textAlign     : "left",
-                textBaseline  : "top",
+                textBaseline  : "top", 
                 arcScaleX_    : null,
                 arcScaleY_    : null,
                 lineScale_    : null,
@@ -1339,6 +1343,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
             }
             ctx.save();
             this._transformHander( ctx );
+
+            //文本有自己的设置样式方式
+            if( this.type != "text" ) {
+                Base.setContextStyle( ctx , this.context.$model );
+            }
+
             this.render( ctx );
             ctx.restore();
         },
@@ -1930,9 +1940,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
          var style = self.context;
          var ctx = self.getStage().context2D;
 
-         if (style){
-           Base.setContextStyle( ctx , style );
-         }
+         //if( style ){
+         //   Base.setContextStyle( ctx , this.context );
+         //}
          
          if (self.context.type == "shape"){
              //type == shape的时候，自定义绘画
@@ -1941,11 +1951,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
          } else {
              //这个时候，说明该shape是调用已经绘制好的 shape 模块，这些模块全部在../shape目录下面
              if( self.draw ){
-                 //fill stroke 之前， 就应该要closepath 否则线条转角口会有缺口。
-                 //drawTypeOnly 由继承shape的具体绘制类提供
-                 //if ( self.drawTypeOnly != "stroke" ){
-                     ctx.beginPath();
-                 //}
+                 ctx.beginPath();
                  self.draw( ctx , style );
                  self.drawEnd( ctx );
              }
@@ -5460,7 +5466,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         _context.save();
         _context.beginPath();
-        Base.setContextStyle(_context , context);
+        Base.setContextStyle( _context , context.$model );
        
         _context.transform.apply( _context , shape.getConcatenatedMatrix().toArray() );
 
@@ -5485,10 +5491,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
             x = originPos[0];
             y = originPos[1];
         }
-        
 
         return _isPainted(_context, x , y);
-    }
+    };
 
     /**
      * 坐标像素值，判断坐标是否被作色
@@ -5523,14 +5528,14 @@ KISSY.add("canvax/animation/Animation" , function(S){
         }
 
         return false;
-    }
+    };
 
     /**
      * !isInside
      */
     function isOutside(shape, x, y) {
         return !isInside(shape, x, y);
-    }
+    };
 
     /**
      * 线段包含判断
@@ -5554,7 +5559,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         var _s = (_a * x - y + _b) * (_a * x - y + _b) / (_a * _a + 1);
         return  _s <= _l / 2 * _l / 2;
-    }
+    };
 
     function _isInsideBrokenLine(shape, x, y) {
         var context   = shape.context;
@@ -5592,7 +5597,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             }
         }
         return insideCatch;
-    }
+    };
 
     function _isInsideRing(shape , x, y) {
         var context = shape.context;
@@ -5607,7 +5612,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                return true;
            }
         return false;
-    }
+    };
 
     /**
      * 矩形包含判断
@@ -5622,7 +5627,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                return true;
            }
         return false;
-    }
+    };
 
     /**
      * 圆形包含判断
@@ -5631,7 +5636,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
         var context = shape.context;
         !r && ( r = context.r );
         return (x * x + y * y) < r * r;
-    }
+    };
 
     /**
      * 扇形包含判断
@@ -5667,7 +5672,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             var inAngleReg = angle > regAngle[0] && angle < regAngle[1];
             return (inAngleReg && regIn) || (!inAngleReg && !regIn);
         }
-    }
+    };
 
     /*
      *椭圆包含判断
@@ -5698,7 +5703,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
         iRes = YRadius * p.x + XRadius * p.y - XRadius * YRadius;
 
         return (iRes < 0);
-    }
+    };
 
     /**
      * 多边形包含判断
@@ -5768,7 +5773,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             }
         }
         return inside;
-    }
+    };
 
     /**
      * 路径包含判断，依赖多边形判断
@@ -5786,7 +5791,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             }
         }
         return insideCatch;
-    }
+    };
 
     /**
      * 测算单行文本欢度
@@ -5802,7 +5807,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
         Base._pixelCtx.restore();
 
         return width;
-    }
+    };
 
     HitTestPoint = {
         isInside : isInside,

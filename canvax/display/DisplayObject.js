@@ -92,7 +92,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 globalAlpha   : 1,
                 font          : null,
                 textAlign     : "left",
-                textBaseline  : "top",
+                textBaseline  : "top", 
                 arcScaleX_    : null,
                 arcScaleY_    : null,
                 lineScale_    : null,
@@ -425,6 +425,12 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             }
             ctx.save();
             this._transformHander( ctx );
+
+            //文本有自己的设置样式方式
+            if( this.type != "text" ) {
+                Base.setContextStyle( ctx , this.context.$model );
+            }
+
             this.render( ctx );
             ctx.restore();
         },

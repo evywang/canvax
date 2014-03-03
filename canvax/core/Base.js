@@ -55,10 +55,14 @@ KISSY.add("canvax/core/Base" , function(S){
         },
         setContextStyle : function( ctx , style ){
             // 简单判断不做严格类型检测
-            for (p in style.$model){
+            for (p in style){
+                //text的textBaseline 不使用系统自带的，而是采用自己来计算，所以抛弃
+                if( p == "textBaseline" ){
+                    continue;
+                }
                 if( p in ctx ){
-                    if ( style.$model[p] || _.isNumber( style.$model[p] ) ) {
-                        ctx[p] = style.$model[p];
+                    if ( style[p] || _.isNumber( style[p] ) ) {
+                        ctx[p] = style[p];
                     }
                 }
             }
