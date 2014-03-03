@@ -13,7 +13,7 @@ KISSY.add("canvax/core/Base" , function(S){
     });
 
     var Base = {
-        mainFrameRate   : 40,//默认主帧率
+        mainFrameRate   : 60,//默认主帧率
         now : 0,
         /*像素检测专用*/
         _pixelCtx   : null,
@@ -56,8 +56,8 @@ KISSY.add("canvax/core/Base" , function(S){
         setContextStyle : function( ctx , style ){
             // 简单判断不做严格类型检测
             for (p in style.$model){
-                if(p in ctx){
-                    if (style.$model[p]) {
+                if( p in ctx ){
+                    if ( style.$model[p] || _.isNumber( style.$model[p] ) ) {
                         ctx[p] = style.$model[p];
                     }
                 }
@@ -77,7 +77,6 @@ KISSY.add("canvax/core/Base" , function(S){
             if (px) {
                 _.extend(rp, px);
             }
-
             return r;
         },
         debugMode : false,
@@ -135,10 +134,23 @@ KISSY.add("canvax/core/Base" , function(S){
             return typeof obj === "object" || typeof obj === "function" ?
                 classTypes[Object.prototype.toString.call(obj)] || "object" :
                 typeof obj
+        },
+        /**
+         * 简单的浅复制对象。
+         * @param strict  当为true时只覆盖已有属性
+         */
+        copy: function(target, source, strict){ 
+            if ( _.isEmpty(source) ){
+                return target;
+            }
+            for(var key in source){
+                if(!strict || target.hasOwnProperty(key) || target[key] !== undefined){
+                    target[key] = source[key];
+                }
+            }
+            return target;
         }
-
-    }
-
+    };
     return Base
 
 },{

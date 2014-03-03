@@ -517,11 +517,7 @@ KISSY.add("canvax/index" ,
        __startEnter : function(){
           var self = this;
           if( !self.requestAid ){
-              //self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
-              self.requestAid = requestAnimationFrame( function(){
-                 self.__enterFrame();
-              } );
-
+              self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
           }
        },
        __enterFrame : function(){
@@ -544,9 +540,11 @@ KISSY.add("canvax/index" ,
                //开始渲染的事件
                self.fire("beginRender");
 
+               
                _.each(_.values( self.convertStages ) , function(convertStage){
-                  convertStage.stage._render(convertStage.stage.context2D);
+                  convertStage.stage._render( convertStage.stage.context2D );
                });
+               
            
                self._heartBeat = false;
                //debugger;

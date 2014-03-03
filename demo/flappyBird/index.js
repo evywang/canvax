@@ -162,8 +162,6 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
            //创建树
            this.stage.addChild( this.initTrees() );
 
-
-
            this.stage.addChild( this.ground );
 
            this.stage.addChild( $ready );
@@ -213,7 +211,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
            new Canvax.Animation.Tween( {a : 1} )
                .to( { a : 0 }, 500 )
                .onUpdate( function () {
-                   self.stage.getChildById("ready").context.alpha = this.a;
+                   self.stage.getChildById("ready").context.globalAlpha = this.a;
                } ).start();
 
            this.readyState = false;
@@ -221,8 +219,8 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax){
            this.fly1.stop();
            this.fly2.stop();
         },
-        $readyShow : function( alpha ){
-           this.stage.getChildById("ready").context.alpha = 1;
+        $readyShow : function(  ){
+           this.stage.getChildById("ready").context.globalAlpha = 1;
            this.readyState = true;
            this.$readyFly();
            animate();

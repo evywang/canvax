@@ -45,6 +45,7 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base )
 
        },
        render : function(context){
+           
            this.stageRending = true;
            if(!context) context = this.context2D;
            this.clear();

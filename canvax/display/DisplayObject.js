@@ -22,10 +22,8 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         //相对父级元素的矩阵
         self._transform      = null;
 
-
         //心跳次数
         self._heartBeatNum   = 0;
-
 
         //元素对应的stage元素
         self.stage           = null;
@@ -62,51 +60,44 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             self.context = null;
 
             //提供给Coer.propertyFactory() 来 给 self.context 设置 propertys
-            var _contextATTRS = {
-                width         : opt.context.width         || 0,
-                height        : opt.context.height        || 0,
-                x             : opt.context.x             || 0,
-                y             : opt.context.y             || 0,
-                alpha         : opt.context.alpha         || 1,
-                scaleX        : opt.context.scaleX        || 1,
-                scaleY        : opt.context.scaleY        || 1,
-                scaleOrigin   : opt.context.scaleOrigin   || {
-                  x : 0,
-                  y : 0
+            var _contextATTRS = Base.copy( {
+                width         : 0,
+                height        : 0,
+                x             : 0,
+                y             : 0,
+                scaleX        : 1,
+                scaleY        : 1,
+                scaleOrigin   : {
+                    x : 0,
+                    y : 0
                 },
-                rotation      : opt.context.rotation      || 0,
-                rotateOrigin  : opt.context.rotateOrigin  ||  {
-                  x:0,
-                  y:0
+                rotation      : 0,
+                rotateOrigin  :  {
+                    x : 0,
+                    y : 0
                 },
-                visible       : opt.context.visible       || true,
-                cursor        : opt.context.cursor        || "default"
-            };
-
-
-            var _context2D_context = {
+                visible       : true,
+                cursor        : "default",
                 //canvas context 2d 的 系统样式。目前就知道这么多
-                fillStyle     : opt.context.fillStyle      || null,
-                lineCap       : opt.context.lineCap        || null,
-                lineJoin      : opt.context.lineJoin       || null,
-                lineWidth     : opt.context.lineWidth      || null,
-                miterLimit    : opt.context.miterLimit     || null,
-                shadowBlur    : opt.context.shadowBlur     || null,
-                shadowColor   : opt.context.shadowColor    || null,
-                shadowOffsetX : opt.context.shadowOffsetX  || null,
-                shadowOffsetY : opt.context.shadowOffsetY  || null,
-                strokeStyle   : opt.context.strokeStyle    || null,
-                //globalAlpha   : opt.context.globalAlpha    || null,
-                font          : opt.context.font           || null,
-                textAlign     : opt.context.textAlign      || "left",
-                textBaseline  : opt.context.textBaseline   || "top",
-                arcScaleX_    : opt.context.arcScaleX_     || null,
-                arcScaleY_    : opt.context.arcScaleY_     || null,
-                lineScale_    : opt.context.lineScale_     || null,
-                globalCompositeOperation : opt.context.globalCompositeOperation || "source-over"
-            };
-
-            _contextATTRS = _.extend( _contextATTRS , _context2D_context );
+                fillStyle     : null,
+                lineCap       : null,
+                lineJoin      : null,
+                lineWidth     : null,
+                miterLimit    : null,
+                shadowBlur    : null,
+                shadowColor   : null,
+                shadowOffsetX : null,
+                shadowOffsetY : null,
+                strokeStyle   : null,
+                globalAlpha   : 1,
+                font          : null,
+                textAlign     : "left",
+                textBaseline  : "top",
+                arcScaleX_    : null,
+                arcScaleY_    : null,
+                lineScale_    : null,
+                globalCompositeOperation : null
+            } , opt.context , true );            
 
             //然后看继承者是否有提供_context 对象 需要 我 merge到_context2D_context中去的
             if (self._context) {
@@ -146,7 +137,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
             //执行init之前，应该就根据参数，把context组织好线
             self.context = propertyFactory( _contextATTRS );
-
         },
         /* @myself 是否生成自己的镜像 
          * 克隆又两种，一种是镜像，另外一种是绝对意义上面的新个体
@@ -205,7 +195,6 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             //一直回溯到顶层object， 即是stage， stage的parent为null
             this.stage = p;
             return p;
-            
         },
         localToGlobal : function( point ){
             !point && ( point = new Point( 0 , 0 ) );
@@ -312,18 +301,13 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
            }
            this.parent.addChildAt( me , toIndex-1 );
         },
-        _transformHander : function(context, toGlobal){
-
+        _transformHander : function( ctx ){
             var transForm = this._transform;
             if( !transForm ) {
                 transForm = this._updateTransform();
             }
-
             //运用矩阵开始变形
-            context.transform.apply( context , transForm.toArray() );
- 
-            //设置透明度
-            context.globalAlpha *= this.context.alpha;
+            ctx.transform.apply( ctx , transForm.toArray() );
         },
         _updateTransform : function() {
         
@@ -430,18 +414,16 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             return result;
 
         },
-        _render : function(context, noTransform, globalTransform){	
-            if(!this.context.visible || this.context.alpha <= 0){
+        _render : function( ctx ){	
+            if( !this.context.visible || this.context.globalAlpha <= 0 ){
                 return;
             }
-            context.save();
-            if(!noTransform) {
-                this._transformHander(context, globalTransform);
-            }
-            this.render( context );
-            context.restore();
+            ctx.save();
+            this._transformHander( ctx );
+            this.render( ctx );
+            ctx.restore();
         },
-        render : function(context) {
+        render : function( ctx ) {
             //基类不提供render的具体实现，由后续具体的派生类各自实现
         },
         //从树中删除
@@ -451,7 +433,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             }
         },
         //元素的自我销毁
-        destroy : function(){
+        destroy : function(){ 
             this.remove();
             //把自己从父节点中删除了后做自我清除，释放内存
             this.context = null;

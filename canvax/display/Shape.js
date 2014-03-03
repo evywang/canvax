@@ -47,11 +47,11 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
       },
   
       drawEnd : function(ctx){
+          
           if(this._hasFillAndStroke){
               //如果在子shape类里面已经实现stroke fill 等操作， 就不需要统一的d
               return;
           }
-
 
           //style 要从diaplayObject的 context上面去取
           var style = this.context;
@@ -76,10 +76,10 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
       render : function(){
          var self = this;
          var style = self.context;
-         var context = self.getStage().context2D;
+         var ctx = self.getStage().context2D;
 
          if (style){
-           Base.setContextStyle( context , style );
+           Base.setContextStyle( ctx , style );
          }
          
          if (self.context.type == "shape"){
@@ -88,11 +88,15 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
              self.draw.apply( self );
          } else {
              //这个时候，说明该shape是调用已经绘制好的 shape 模块，这些模块全部在../shape目录下面
-             if(self.draw){
-                 context.beginPath();
-                 self.draw( context , style );
-                 self.drawEnd(context);
-             }        
+             if( self.draw ){
+                 //fill stroke 之前， 就应该要closepath 否则线条转角口会有缺口。
+                 //drawTypeOnly 由继承shape的具体绘制类提供
+                 if ( this.drawTypeOnly != "stroke" ){
+                     ctx.beginPath();
+                 }
+                 self.draw( ctx , style );
+                 self.drawEnd( ctx );
+             }
          }
       }
       ,

@@ -459,7 +459,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
     });
 
     var Base = {
-        mainFrameRate   : 40,//默认主帧率
+        mainFrameRate   : 60,//默认主帧率
         now : 0,
         /*像素检测专用*/
         _pixelCtx   : null,
@@ -502,8 +502,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
         setContextStyle : function( ctx , style ){
             // 简单判断不做严格类型检测
             for (p in style.$model){
-                if(p in ctx){
-                    if (style.$model[p]) {
+                if( p in ctx ){
+                    if ( style.$model[p] || _.isNumber( style.$model[p] ) ) {
                         ctx[p] = style.$model[p];
                     }
                 }
@@ -523,7 +523,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
             if (px) {
                 _.extend(rp, px);
             }
-
             return r;
         },
         debugMode : false,
@@ -581,10 +580,23 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return typeof obj === "object" || typeof obj === "function" ?
                 classTypes[Object.prototype.toString.call(obj)] || "object" :
                 typeof obj
+        },
+        /**
+         * 简单的浅复制对象。
+         * @param strict  当为true时只覆盖已有属性
+         */
+        copy: function(target, source, strict){ 
+            if ( _.isEmpty(source) ){
+                return target;
+            }
+            for(var key in source){
+                if(!strict || target.hasOwnProperty(key) || target[key] !== undefined){
+                    target[key] = source[key];
+                }
+            }
+            return target;
         }
-
-    }
-
+    };
     return Base
 
 },{
@@ -924,10 +936,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
         //相对父级元素的矩阵
         self._transform      = null;
 
-
         //心跳次数
         self._heartBeatNum   = 0;
-
 
         //元素对应的stage元素
         self.stage           = null;
@@ -964,51 +974,44 @@ KISSY.add("canvax/animation/Animation" , function(S){
             self.context = null;
 
             //提供给Coer.propertyFactory() 来 给 self.context 设置 propertys
-            var _contextATTRS = {
-                width         : opt.context.width         || 0,
-                height        : opt.context.height        || 0,
-                x             : opt.context.x             || 0,
-                y             : opt.context.y             || 0,
-                alpha         : opt.context.alpha         || 1,
-                scaleX        : opt.context.scaleX        || 1,
-                scaleY        : opt.context.scaleY        || 1,
-                scaleOrigin   : opt.context.scaleOrigin   || {
-                  x : 0,
-                  y : 0
+            var _contextATTRS = Base.copy( {
+                width         : 0,
+                height        : 0,
+                x             : 0,
+                y             : 0,
+                scaleX        : 1,
+                scaleY        : 1,
+                scaleOrigin   : {
+                    x : 0,
+                    y : 0
                 },
-                rotation      : opt.context.rotation      || 0,
-                rotateOrigin  : opt.context.rotateOrigin  ||  {
-                  x:0,
-                  y:0
+                rotation      : 0,
+                rotateOrigin  :  {
+                    x : 0,
+                    y : 0
                 },
-                visible       : opt.context.visible       || true,
-                cursor        : opt.context.cursor        || "default"
-            };
-
-
-            var _context2D_context = {
+                visible       : true,
+                cursor        : "default",
                 //canvas context 2d 的 系统样式。目前就知道这么多
-                fillStyle     : opt.context.fillStyle      || null,
-                lineCap       : opt.context.lineCap        || null,
-                lineJoin      : opt.context.lineJoin       || null,
-                lineWidth     : opt.context.lineWidth      || null,
-                miterLimit    : opt.context.miterLimit     || null,
-                shadowBlur    : opt.context.shadowBlur     || null,
-                shadowColor   : opt.context.shadowColor    || null,
-                shadowOffsetX : opt.context.shadowOffsetX  || null,
-                shadowOffsetY : opt.context.shadowOffsetY  || null,
-                strokeStyle   : opt.context.strokeStyle    || null,
-                //globalAlpha   : opt.context.globalAlpha    || null,
-                font          : opt.context.font           || null,
-                textAlign     : opt.context.textAlign      || "left",
-                textBaseline  : opt.context.textBaseline   || "top",
-                arcScaleX_    : opt.context.arcScaleX_     || null,
-                arcScaleY_    : opt.context.arcScaleY_     || null,
-                lineScale_    : opt.context.lineScale_     || null,
-                globalCompositeOperation : opt.context.globalCompositeOperation || "source-over"
-            };
-
-            _contextATTRS = _.extend( _contextATTRS , _context2D_context );
+                fillStyle     : null,
+                lineCap       : null,
+                lineJoin      : null,
+                lineWidth     : null,
+                miterLimit    : null,
+                shadowBlur    : null,
+                shadowColor   : null,
+                shadowOffsetX : null,
+                shadowOffsetY : null,
+                strokeStyle   : null,
+                globalAlpha   : 1,
+                font          : null,
+                textAlign     : "left",
+                textBaseline  : "top",
+                arcScaleX_    : null,
+                arcScaleY_    : null,
+                lineScale_    : null,
+                globalCompositeOperation : null
+            } , opt.context , true );            
 
             //然后看继承者是否有提供_context 对象 需要 我 merge到_context2D_context中去的
             if (self._context) {
@@ -1048,7 +1051,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
             //执行init之前，应该就根据参数，把context组织好线
             self.context = propertyFactory( _contextATTRS );
-
         },
         /* @myself 是否生成自己的镜像 
          * 克隆又两种，一种是镜像，另外一种是绝对意义上面的新个体
@@ -1107,7 +1109,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
             //一直回溯到顶层object， 即是stage， stage的parent为null
             this.stage = p;
             return p;
-            
         },
         localToGlobal : function( point ){
             !point && ( point = new Point( 0 , 0 ) );
@@ -1214,18 +1215,13 @@ KISSY.add("canvax/animation/Animation" , function(S){
            }
            this.parent.addChildAt( me , toIndex-1 );
         },
-        _transformHander : function(context, toGlobal){
-
+        _transformHander : function( ctx ){
             var transForm = this._transform;
             if( !transForm ) {
                 transForm = this._updateTransform();
             }
-
             //运用矩阵开始变形
-            context.transform.apply( context , transForm.toArray() );
- 
-            //设置透明度
-            context.globalAlpha *= this.context.alpha;
+            ctx.transform.apply( ctx , transForm.toArray() );
         },
         _updateTransform : function() {
         
@@ -1332,18 +1328,16 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return result;
 
         },
-        _render : function(context, noTransform, globalTransform){	
-            if(!this.context.visible || this.context.alpha <= 0){
+        _render : function( ctx ){	
+            if( !this.context.visible || this.context.globalAlpha <= 0 ){
                 return;
             }
-            context.save();
-            if(!noTransform) {
-                this._transformHander(context, globalTransform);
-            }
-            this.render( context );
-            context.restore();
+            ctx.save();
+            this._transformHander( ctx );
+            this.render( ctx );
+            ctx.restore();
         },
-        render : function(context) {
+        render : function( ctx ) {
             //基类不提供render的具体实现，由后续具体的派生类各自实现
         },
         //从树中删除
@@ -1353,7 +1347,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             }
         },
         //元素的自我销毁
-        destroy : function(){
+        destroy : function(){ 
             this.remove();
             //把自己从父节点中删除了后做自我清除，释放内存
             this.context = null;
@@ -1575,11 +1569,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
             }
             return result;
         },
-        render : function(context) {
+        render : function( ctx ) {
             
             for(var i = 0, len = this.children.length; i < len; i++) {
                 var child = this.children[i];
-                child._render(context);
+                child._render( ctx );
             }
         }
     });
@@ -1900,11 +1894,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
       },
   
       drawEnd : function(ctx){
+          
           if(this._hasFillAndStroke){
               //如果在子shape类里面已经实现stroke fill 等操作， 就不需要统一的d
               return;
           }
-
 
           //style 要从diaplayObject的 context上面去取
           var style = this.context;
@@ -1929,10 +1923,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
       render : function(){
          var self = this;
          var style = self.context;
-         var context = self.getStage().context2D;
+         var ctx = self.getStage().context2D;
 
          if (style){
-           Base.setContextStyle( context , style );
+           Base.setContextStyle( ctx , style );
          }
          
          if (self.context.type == "shape"){
@@ -1941,11 +1935,15 @@ KISSY.add("canvax/animation/Animation" , function(S){
              self.draw.apply( self );
          } else {
              //这个时候，说明该shape是调用已经绘制好的 shape 模块，这些模块全部在../shape目录下面
-             if(self.draw){
-                 context.beginPath();
-                 self.draw( context , style );
-                 self.drawEnd(context);
-             }        
+             if( self.draw ){
+                 //fill stroke 之前， 就应该要closepath 否则线条转角口会有缺口。
+                 //drawTypeOnly 由继承shape的具体绘制类提供
+                 if ( this.drawTypeOnly != "stroke" ){
+                     ctx.beginPath();
+                 }
+                 self.draw( ctx , style );
+                 self.drawEnd( ctx );
+             }
          }
       }
       ,
@@ -2075,6 +2073,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
        },
        render : function(context){
+           
            this.stageRending = true;
            if(!context) context = this.context2D;
            this.clear();
@@ -3573,11 +3572,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
        __startEnter : function(){
           var self = this;
           if( !self.requestAid ){
-              //self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
-              self.requestAid = requestAnimationFrame( function(){
-                 self.__enterFrame();
-              } );
-
+              self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
           }
        },
        __enterFrame : function(){
@@ -3600,9 +3595,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
                //开始渲染的事件
                self.fire("beginRender");
 
+               
                _.each(_.values( self.convertStages ) , function(convertStage){
-                  convertStage.stage._render(convertStage.stage.context2D);
+                  convertStage.stage._render( convertStage.stage.context2D );
                });
+               
            
                self._heartBeat = false;
                //debugger;
