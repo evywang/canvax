@@ -62,7 +62,11 @@ KISSY.add("canvax/core/Base" , function(S){
                 }
                 if( p in ctx ){
                     if ( style[p] || _.isNumber( style[p] ) ) {
-                        ctx[p] = style[p];
+                        if( p == "gloabAlpha" ){
+                            ctx[p] *= style[p];
+                        } else {
+                            ctx[p] = style[p];
+                        }
                     }
                 }
             }

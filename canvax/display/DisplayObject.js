@@ -312,7 +312,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             ctx.transform.apply( ctx , transForm.toArray() );
  
             //设置透明度
-            ctx.globalAlpha *= this.context.globalAlpha;
+            //ctx.globalAlpha *= this.context.globalAlpha;
         },
         _updateTransform : function() {
         

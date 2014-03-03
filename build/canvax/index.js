@@ -508,7 +508,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 }
                 if( p in ctx ){
                     if ( style[p] || _.isNumber( style[p] ) ) {
-                        ctx[p] = style[p];
+                        if( p == "gloabAlpha" ){
+                            ctx[p] *= style[p];
+                        } else {
+                            ctx[p] = style[p];
+                        }
                     }
                 }
             }
@@ -1230,7 +1234,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             ctx.transform.apply( ctx , transForm.toArray() );
  
             //设置透明度
-            ctx.globalAlpha *= this.context.globalAlpha;
+            //ctx.globalAlpha *= this.context.globalAlpha;
         },
         _updateTransform : function() {
         
