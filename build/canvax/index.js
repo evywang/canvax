@@ -508,7 +508,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 }
                 if( p in ctx ){
                     if ( style[p] || _.isNumber( style[p] ) ) {
-                        if( p == "gloablAlpha" ){
+                        if( p == "globalAlpha" ){
                             ctx[p] *= style[p];
                         } else {
                             ctx[p] = style[p];
