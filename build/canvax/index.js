@@ -1216,12 +1216,17 @@ KISSY.add("canvax/animation/Animation" , function(S){
            this.parent.addChildAt( me , toIndex-1 );
         },
         _transformHander : function( ctx ){
+
             var transForm = this._transform;
             if( !transForm ) {
                 transForm = this._updateTransform();
             }
+
             //运用矩阵开始变形
             ctx.transform.apply( ctx , transForm.toArray() );
+ 
+            //设置透明度
+            ctx.globalAlpha *= this.context.globalAlpha;
         },
         _updateTransform : function() {
         
@@ -1938,9 +1943,9 @@ KISSY.add("canvax/animation/Animation" , function(S){
              if( self.draw ){
                  //fill stroke 之前， 就应该要closepath 否则线条转角口会有缺口。
                  //drawTypeOnly 由继承shape的具体绘制类提供
-                 if ( this.drawTypeOnly != "stroke" ){
+                 //if ( self.drawTypeOnly != "stroke" ){
                      ctx.beginPath();
-                 }
+                 //}
                  self.draw( ctx , style );
                  self.drawEnd( ctx );
              }

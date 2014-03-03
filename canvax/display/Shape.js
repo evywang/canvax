@@ -91,9 +91,9 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
              if( self.draw ){
                  //fill stroke 之前， 就应该要closepath 否则线条转角口会有缺口。
                  //drawTypeOnly 由继承shape的具体绘制类提供
-                 if ( this.drawTypeOnly != "stroke" ){
+                 //if ( self.drawTypeOnly != "stroke" ){
                      ctx.beginPath();
-                 }
+                 //}
                  self.draw( ctx , style );
                  self.drawEnd( ctx );
              }
