@@ -509,6 +509,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 if( p in ctx ){
                     if ( style[p] || _.isNumber( style[p] ) ) {
                         if( p == "globalAlpha" ){
+                            //透明度要从父节点继承
                             ctx[p] *= style[p];
                         } else {
                             ctx[p] = style[p];
