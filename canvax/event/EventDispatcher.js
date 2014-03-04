@@ -55,7 +55,7 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
         if(event.type == "mouseover"){
            //记录dispatchEvent之前的心跳
            var preHeartBeat = this._heartBeatNum;
-           this._dispatchEvent(event);
+           this._dispatchEvent( event );
            if(preHeartBeat != this._heartBeatNum){
                this._hoverClass = true;
                var canvax = this.getStage().parent;
@@ -79,7 +79,7 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
            return;
         }
 
-        this._dispatchEvent(event);
+        this._dispatchEvent( event );
 
         if(event.type == "mouseout"){
             if(this._hoverClass){

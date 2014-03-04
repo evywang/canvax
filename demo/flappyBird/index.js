@@ -1,4 +1,4 @@
-KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready ){
+KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOverUI ){
 
     var animate  = function(){
         timer   = requestAnimationFrame( animate ); 
@@ -72,10 +72,12 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready ){
            //创建ready界面
            this.stage.addChild( Ready.init( this ).sp );
 
+           this.stage.addChild( gameOverUI.init(this) ) 
+
            //把鸟放进来
            this.stage.addChild( this.bird.sp );
            
-           this.canvax.on("tap" , function(){
+           this.canvax.on("tap click" , function(){
                if( !self.bird.fly ) {
                    self.gameStart();
                }
@@ -100,7 +102,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready ){
 
            Ready.show( function(){
                self.readyState = true;
-               self.bird.$readyFly( self.readyState , self.birdReadyY );
+               self.bird.$readyFly( self.birdReadyY );
                animate();
            } );
 
@@ -320,6 +322,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready ){
     requires : [
       "canvax/",
       "demo/flappyBird/bird",
-      "demo/flappyBird/ready"
+      "demo/flappyBird/ready",
+      "demo/flappyBird/gameOverUI"
     ]
 })

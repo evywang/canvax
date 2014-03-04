@@ -27,6 +27,11 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
      * @param {number} y ： 纵坐标
      */
     function isInside(shape , x, y) {
+        if( shape.type == "bitmap" ){
+            //如果是bitmap
+            return true;
+        }
+
         if (!shape || !shape.type) {
             // 无参数或不支持类型
             return false;

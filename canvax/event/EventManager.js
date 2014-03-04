@@ -24,34 +24,30 @@ KISSY.add("canvax/event/EventManager" , function(S){
          */
         _addEventListener : function(type, listener) {
 
-            if(typeof listener != "function"){
+            if( typeof listener != "function" ){
               //listener必须是个function呐亲
               return false;
             }
-           
-            if(type == "mouseover"){
-               this._hoverable = true;
-            }
-            if(type == "click"){
-               this._clickable = true;
-            }
+            var addResult = true;
+            var self      = this;
+            _.each( type.split(" ") , function(type){
+                var map = self._eventMap[type];
+                if(!map){
+                    map = self._eventMap[type] = [];
+                    map.push(listener);
+                    self._eventEnabled = true;
+                    return true;
+                }
 
-            var map = this._eventMap[type];
-            if(!map){
-              map = this._eventMap[type] = [];
-              map.push(listener);
-              this._eventEnabled = true;
-              return true;
-            }
+                if(_.indexOf(map ,listener) == -1) {
+                    map.push(listener);
+                    self._eventEnabled = true;
+                    return true;
+                }
 
-            if(_.indexOf(map ,listener) == -1) {
-              map.push(listener);
-              this._eventEnabled = true;
-              return true;
-            }
-
-            //addEventError
-            return false;
+                addResult = false;
+            });
+            return addResult;
         },
         /**
          * 删除事件侦听器。
@@ -68,15 +64,8 @@ KISSY.add("canvax/event/EventManager" , function(S){
                 var li = map[i];
                 if(li === listener) {
                     map.splice(i, 1);
-                    if(map.length == 0) { 
+                    if(map.length    == 0) { 
                         delete this._eventMap[type];
-                        if(type == "mouseover"){
-                            this._hoverable = false;
-                        }
-                        if(type == "click" ){
-                            this._clickable = false;
-                        }
-
                         //如果这个如果这个时候child没有任何事件侦听
                         if(_.isEmpty(this._eventMap)){
                             //那么该元素不再接受事件的检测
@@ -96,12 +85,7 @@ KISSY.add("canvax/event/EventManager" , function(S){
             var map = this._eventMap[type];
             if(!map) {
                 delete this._eventMap[type];
-                if(type=="mouseover"){
-                  this._hoverable = false;
-                }
-                if(type=="click"){
-                  this._clickable = false;
-                }
+
                 //如果这个如果这个时候child没有任何事件侦听
                 if(_.isEmpty(this._eventMap)){
                     //那么该元素不再接受事件的检测
@@ -117,8 +101,6 @@ KISSY.add("canvax/event/EventManager" , function(S){
          */
         _removeAllEventListeners : function() {	
             this._eventMap = {};
-            this._hoverable = false;
-            this._chickable = false;
             this._eventEnabled = false;
         },
         /**
@@ -126,18 +108,21 @@ KISSY.add("canvax/event/EventManager" , function(S){
         */
         _dispatchEvent : function(event) {
             var map = this._eventMap[event.type];
-            if(!map){
-                return false;
+            if(map){
+                if(!event.target) event.target = this;
+                map = map.slice();
+
+                for(var i = 0; i < map.length; i++) {
+                    var listener = map[i];
+                    if(typeof(listener) == "function") {
+                        listener.call(this, event);
+                    }
+                }
             }
 
-            if(!event.target) event.target = this;
-            map = map.slice();
-
-            for(var i = 0; i < map.length; i++) {
-                var listener = map[i];
-                if(typeof(listener) == "function") {
-                    listener.call(this, event);
-                }
+            //向上冒泡
+            if( this.parent ){
+                this.parent._dispatchEvent( event );
             }
             return true;
         },
