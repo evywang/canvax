@@ -2667,7 +2667,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
         if(event.type == "mouseover"){
            //记录dispatchEvent之前的心跳
            var preHeartBeat = this._heartBeatNum;
-           this._dispatchEvent(event);
+           this._dispatchEvent( event );
            if(preHeartBeat != this._heartBeatNum){
                this._hoverClass = true;
                var canvax = this.getStage().parent;
@@ -2691,7 +2691,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
            return;
         }
 
-        this._dispatchEvent(event);
+        this._dispatchEvent( event );
 
         if(event.type == "mouseout"){
             if(this._hoverClass){
@@ -2750,34 +2750,30 @@ KISSY.add("canvax/animation/Animation" , function(S){
          */
         _addEventListener : function(type, listener) {
 
-            if(typeof listener != "function"){
+            if( typeof listener != "function" ){
               //listener必须是个function呐亲
               return false;
             }
-           
-            if(type == "mouseover"){
-               this._hoverable = true;
-            }
-            if(type == "click"){
-               this._clickable = true;
-            }
+            var addResult = true;
+            var self      = this;
+            _.each( type.split(" ") , function(type){
+                var map = self._eventMap[type];
+                if(!map){
+                    map = self._eventMap[type] = [];
+                    map.push(listener);
+                    self._eventEnabled = true;
+                    return true;
+                }
 
-            var map = this._eventMap[type];
-            if(!map){
-              map = this._eventMap[type] = [];
-              map.push(listener);
-              this._eventEnabled = true;
-              return true;
-            }
+                if(_.indexOf(map ,listener) == -1) {
+                    map.push(listener);
+                    self._eventEnabled = true;
+                    return true;
+                }
 
-            if(_.indexOf(map ,listener) == -1) {
-              map.push(listener);
-              this._eventEnabled = true;
-              return true;
-            }
-
-            //addEventError
-            return false;
+                addResult = false;
+            });
+            return addResult;
         },
         /**
          * 删除事件侦听器。
@@ -2794,15 +2790,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 var li = map[i];
                 if(li === listener) {
                     map.splice(i, 1);
-                    if(map.length == 0) { 
+                    if(map.length    == 0) { 
                         delete this._eventMap[type];
-                        if(type == "mouseover"){
-                            this._hoverable = false;
-                        }
-                        if(type == "click" ){
-                            this._clickable = false;
-                        }
-
                         //如果这个如果这个时候child没有任何事件侦听
                         if(_.isEmpty(this._eventMap)){
                             //那么该元素不再接受事件的检测
@@ -2822,12 +2811,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             var map = this._eventMap[type];
             if(!map) {
                 delete this._eventMap[type];
-                if(type=="mouseover"){
-                  this._hoverable = false;
-                }
-                if(type=="click"){
-                  this._clickable = false;
-                }
+
                 //如果这个如果这个时候child没有任何事件侦听
                 if(_.isEmpty(this._eventMap)){
                     //那么该元素不再接受事件的检测
@@ -2843,8 +2827,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
          */
         _removeAllEventListeners : function() {	
             this._eventMap = {};
-            this._hoverable = false;
-            this._chickable = false;
             this._eventEnabled = false;
         },
         /**
@@ -2852,18 +2834,21 @@ KISSY.add("canvax/animation/Animation" , function(S){
         */
         _dispatchEvent : function(event) {
             var map = this._eventMap[event.type];
-            if(!map){
-                return false;
+            if(map){
+                if(!event.target) event.target = this;
+                map = map.slice();
+
+                for(var i = 0; i < map.length; i++) {
+                    var listener = map[i];
+                    if(typeof(listener) == "function") {
+                        listener.call(this, event);
+                    }
+                }
             }
 
-            if(!event.target) event.target = this;
-            map = map.slice();
-
-            for(var i = 0; i < map.length; i++) {
-                var listener = map[i];
-                if(typeof(listener) == "function") {
-                    listener.call(this, event);
-                }
+            //向上冒泡
+            if( this.parent ){
+                this.parent._dispatchEvent( event );
             }
             return true;
         },
@@ -3250,9 +3235,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                  }
 
                  self.__touchHandler( e );
-                 
-                 //在canvax 上面 出发全局 事件
-                 self.__dispatchEventInChilds( e , [self] )
               } );
           }
 
@@ -3272,14 +3254,15 @@ KISSY.add("canvax/animation/Animation" , function(S){
           }
 
           //touch下的curPointsTarget 从touches中来
-          self.curPoints = self.__getPointInTouchs( e );
-
-          var childs     = self.__getChildInTouchs( self.curPoints );
+          //获取canvax坐标系统里面的坐标
+          self.curPoints = self.__getCanvaxPointInTouchs( e );
 
           if( e.type == "release" ) {
-              self.__dispatchEventInChilds( e , self.curPointsTarget );
+              if(!self.__dispatchEventInChilds( e , self.curPointsTarget )){
+                 //如果当前没有一个target，就把事件派发到canvax上面
+                 self.__dispatchEventInChilds( e , [ self ] );
+              }
           } else {
-
               //drag开始
               if( e.type == "dragstart"){
                   //dragstart的时候touch已经准备好了target，curPointsTarget里面只要有一个是有效的
@@ -3296,7 +3279,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                          return false;
                       }
                   } ) 
-
               }
 
               //dragIng
@@ -3323,11 +3305,15 @@ KISSY.add("canvax/animation/Animation" , function(S){
                   }
               }
 
-              self.__dispatchEventInChilds( e , childs );
-          }
-          
-          if( e.type == "touch" ) {
-            self.curPointsTarget = childs;
+              var childs = self.__getChildInTouchs( self.curPoints );
+              if(self.__dispatchEventInChilds( e , childs )){
+                  if( e.type == "touch" ) {
+                      self.curPointsTarget = childs;
+                  }
+              } else {
+                  //如果当前没有一个target，就把事件派发到canvax上面
+                  self.__dispatchEventInChilds( e , [ self ] );
+              };
           }
        },
        /*
@@ -3335,26 +3321,25 @@ KISSY.add("canvax/animation/Animation" , function(S){
         * */
        __dispatchEventInChilds : function( e , childs ){
            if( !childs && !("length" in childs) ){
-             return;
+             return false;
            }
            var self = this;
+           var hasChild = false;
            _.each( childs , function( child , i){
                if( child ){
+                   hasChild = true;
                    //ce
                    var ce         = _.extend(self._Event , e);
                    ce.target      = ce.currentTarget = child || this;
                    ce.stagePoint  = self.curPoints[i];
                    ce.point       = ce.target.globalToLocal( ce.stagePoint );
-
-
-                   //dispatch e
                    child.dispatchEvent( ce );
                }
-
            } );
+           return hasChild;
        },
        //从touchs中获取到对应touch , 在上面添加上canvax坐标系统的x，y
-       __getPointInTouchs : function( e ){
+       __getCanvaxPointInTouchs : function( e ){
            var self          = this;
            var curTouchs    = [];
            _.each( e.gesture.touches , function( touch ){
@@ -3390,6 +3375,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
            var curMousePoint  = self.curPoints[0]; 
            var curMouseTarget = self.curPointsTarget[0];
 
+           //mousedown的时候 如果 curMouseTarget.dragEnabled 为true。就要开始准备drag了
            if( e.type == "mousedown" ){
               //如果curTarget 的数组为空或者第一个为falsh ，，，
               if( !curMouseTarget ){
@@ -3416,7 +3402,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
            if( e.type == "mouseout" ){
               self.__getcurPointsTarget(e , curMousePoint);
            }
-           if( e.type == "mousemove" || e.type == "mousedown" ){
+           if( e.type == "mousemove" ){  //|| e.type == "mousedown" ){
                //拖动过程中就不在做其他的mouseover检测，drag优先
                if(self._touching && e.type == "mousemove" && curMouseTarget){
                   //说明正在拖动啊
@@ -3443,14 +3429,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
            } else {
                //其他的事件就直接在target上面派发事件
-               if( curMouseTarget ){
-                   //canvaxEvent
-                   var ce        = _.extend( self._Event , e );
-                   ce.target     = ce.currentTarget = curMouseTarget || this;
-                   ce.stagePoint = curMousePoint;
-                   ce.point      = ce.target.globalToLocal( ce.stagePoint );
-                   curMouseTarget.dispatchEvent( ce );
-               }
+               var child = curMouseTarget;
+               if( !child ){
+                   child = self;
+               };
+               self.__dispatchEventInChilds( e , [ child ] );
            }
 
            if( this.preventDefault ) {
@@ -3459,7 +3442,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
        },
        __getcurPointsTarget : function(e , point ) {
-
            var oldObj = this.curPointsTarget[0];
            if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
@@ -3468,13 +3450,14 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
                e.target = e.currentTarget = oldObj;
                e.point  = oldObj.globalToLocal( point );
-               
-               oldObj.dispatchEvent(e);
+               this._mouseEventDispatch( oldObj , e );
+               //oldObj.dispatchEvent(e);
 
                return;
            }
 
            var obj = this.getObjectsUnderPoint( point , 1)[0];
+
            var e = _.extend(this._Event , e);
 
            e.target = e.currentTarget = obj;
@@ -3494,16 +3477,19 @@ KISSY.add("canvax/animation/Animation" , function(S){
                if(!oldObj.context.visible){
                   oldObj.context.visible = true;
                }
-               oldObj.dispatchEvent(e);
+               this._mouseEventDispatch( oldObj , e );
            };
 
-           if(obj && oldObj != obj && obj._hoverable){
+           if( obj && oldObj != obj ){ //&& obj._hoverable 已经 干掉了
                this.curPointsTarget[0] = obj;
                e.type = "mouseover";
                e.target = e.currentTarget = obj;
-               obj.dispatchEvent(e);
+               this._mouseEventDispatch( obj , e );
            };
 
+       },
+       _mouseEventDispatch : function( obj , e ){
+           obj.dispatchEvent( e );
        },
        //克隆一个元素到hover stage中去
        _clone2hoverStage : function( target , i ){
@@ -5348,6 +5334,11 @@ KISSY.add("canvax/animation/Animation" , function(S){
      * @param {number} y ： 纵坐标
      */
     function isInside(shape , x, y) {
+        if( shape.type == "bitmap" ){
+            //如果是bitmap
+            return true;
+        }
+
         if (!shape || !shape.type) {
             // 无参数或不支持类型
             return false;
