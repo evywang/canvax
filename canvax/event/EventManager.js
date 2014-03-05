@@ -106,23 +106,26 @@ KISSY.add("canvax/event/EventManager" , function(S){
         /**
         * 派发事件，调用事件侦听器。
         */
-        _dispatchEvent : function(event) {
-            var map = this._eventMap[event.type];
+        _dispatchEvent : function(e) {
+            var map = this._eventMap[e.type];
             if(map){
-                if(!event.target) event.target = this;
+                if(!e.target) e.target = this;
                 map = map.slice();
 
                 for(var i = 0; i < map.length; i++) {
                     var listener = map[i];
                     if(typeof(listener) == "function") {
-                        listener.call(this, event);
+                        listener.call(this, e);
                     }
                 }
             }
 
-            //向上冒泡
-            if( this.parent ){
-                this.parent._dispatchEvent( event );
+            if( !e._stopPropagation ) {
+                //向上冒泡
+                if( this.parent ){
+                    e.target = this.parent;
+                    this.parent._dispatchEvent( e );
+                }
             }
             return true;
         },

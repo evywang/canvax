@@ -358,7 +358,12 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             return _transform;
         },
         getRect:function(style){
-            return style
+            return {
+               x      : 0,
+               y      : 0,
+               width  : style.width,
+               height : style.height
+            }
         },
         //显示对象的选取检测处理函数
         getChildInPoint : function( point ){

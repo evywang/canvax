@@ -33,7 +33,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
         this.bird.sp.context.y = this.birdReadyY
         //鸟组装完毕
         
-        this.readyState = true;
+        this.state = 0 ; //0 ready状态 ， 1，游戏中 ，2 游戏结束的overui状态
 
         //树
         this.tree = {};
@@ -72,16 +72,11 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
            //创建ready界面
            this.stage.addChild( Ready.init( this ).sp );
 
-           this.stage.addChild( gameOverUI.init(this) ) 
-
            //把鸟放进来
            this.stage.addChild( this.bird.sp );
            
            this.canvax.on("tap click" , function(){
-               if( !self.bird.fly ) {
-                   self.gameStart();
-               }
-               self.resetBirdSpeed();
+               self.gameStart();
            });
 
            S.one(document).on('keydown',function(e){
@@ -91,17 +86,12 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
                        //resetAll();
                        break;
                    case 32:
-                       if(!self.bird.fly) {
-                           self.gameStart();
-                       }
-                       self.resetBirdSpeed();
-                    
+                       self.gameStart();
                        break;
                }
            })
 
            Ready.show( function(){
-               self.readyState = true;
                self.bird.$readyFly( self.birdReadyY );
                animate();
            } );
@@ -114,24 +104,27 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
         creatGround : function(){
            //创建滚动的地板
            var self    = this;
-           this.ground = new Canvax.Display.Sprite({
-              context  : {
-                width  : this.width*2,
-                height : this.groundH,
-                y      : this.height - this.groundH
-              }
-           });
-           for( var i=0 ; i < 2 ; i++ ){
-             this.ground.addChild(new Canvax.Display.Bitmap({
-                 img      : this.files.ground,
-                 context  : {
-                    x     : this.width*i,
-                    width : this.width,
-                    height: this.groundH
-                 }
-             }));
-           };
-           this.stage.addChild( this.ground );
+           if( !this.grount ){
+               this.ground = new Canvax.Display.Sprite({
+                   id       : "grount",
+                   context  : {
+                       width  : this.width*2,
+                   height : this.groundH,
+                   y      : this.height - this.groundH
+                   }
+               });
+               for( var i=0 ; i < 2 ; i++ ){
+                   this.ground.addChild(new Canvax.Display.Bitmap({
+                       img      : this.files.ground,
+                       context  : {
+                           x     : this.width*i,
+                       width : this.width,
+                       height: this.groundH
+                       }
+                   }));
+               };
+               this.stage.addChild( this.ground );
+           }
            new Canvax.Animation.Tween( {x:0} )
                .to( { x : -self.width }, 3000 )
                .repeat( Infinity )
@@ -267,29 +260,48 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
                     dHeight : b2H / this.scale
                 }
             }) );
-
             return s;
-            
         },
-        gameStart  : function(){
+        resetToReady : function(){
             var self = this;
-            Ready.hide( function(){
-                self.readyState = false;
-                self.bird.readyFly.stop();
+            Ready.show( function(){
+               self.bird.$readyFly( self.birdReadyY );
+               gameOverUI.hide();
+               self.tree.Sprite.context.x = self.width;
+               self.creatGround();
+               self.state = 0;
             } );
-            this.treesTween();
-            //this.bird.sp.play();
         },
-        gameOver : function(){
-            clearTimeout( this.bird.fly );
-            //this.bird.sp.context.y = this.height - this.groundH - this.bird.height;
-
+        gameStart    : function(){
+            var self = this;
+            if( self.state == 2 ){
+                //正在结束ui
+                return;
+            }
+            if( !self.bird.fly ) {
+                Ready.hide( function(){
+                    //游戏开始了
+                    self.state = 1;
+                    self.bird.readyFly.stop();
+                } );
+                this.treesTween();
+            }
+            self.resetBirdSpeed();
+        },
+        gameOver    : function(){
             //停止掉所有在跑的tween动画
             Canvax.Animation.removeAll();
-            clearTimeout( this.bird.fly );
-            this.bird.fall = null;
-            this.bird.up   = null;
-            this.bird.sp.stop();
+            this.bird.stop();
+            
+            //加载gameOverui
+            if( this.stage.getChildById() ){
+                gameOverUI.init(this);
+            } else {
+                this.stage.addChild( gameOverUI.init(this) ) 
+            }
+
+            this.state = 2; //游戏结束了
+
         },
         resetBirdSpeed : function(){
             var self = this;

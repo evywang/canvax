@@ -158,6 +158,19 @@ KISSY.add("canvax/core/Base" , function(S){
                 }
             }
             return target;
+        },
+        /**
+         * 把系统event copy到 canvax的event上面
+         * @cavnaxE  canvax的event
+         * @E        系统的event
+         */
+        copyEvent : function( canvaxE , E ){
+            for(var key in E){
+                if( E.hasOwnProperty( key ) ){
+                    canvaxE[ key ] = E[ key ];
+                }
+            }
+            return canvaxE;
         }
     };
     return Base

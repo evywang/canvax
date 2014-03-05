@@ -16,6 +16,8 @@ KISSY.add("canvax/event/EventBase" , function(S,core){
 
         this.bubbles = bubbles != undefined ? bubbles : false; //TODO Not implemented yet.
         this.cancelable = cancelable != undefined ? cancelable : false;	//TODO Not implemented yet.
+
+        this._stopPropagation = false ; //默认不阻止事件冒泡
     }
 
     /**
@@ -23,6 +25,7 @@ KISSY.add("canvax/event/EventBase" , function(S,core){
      */
     EventBase.prototype.stopPropagation = function() {
         //TODO
+        this._stopPropagation = true;
     }
 
     /**

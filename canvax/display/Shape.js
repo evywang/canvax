@@ -42,10 +42,6 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
       draw:function(){
       
       },
-      getRect:function(style){
-          return style
-      },
-  
       drawEnd : function(ctx){
           
           if(this._hasFillAndStroke){

@@ -604,6 +604,19 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 }
             }
             return target;
+        },
+        /**
+         * 把系统event copy到 canvax的event上面
+         * @cavnaxE  canvax的event
+         * @E        系统的event
+         */
+        copyEvent : function( canvaxE , E ){
+            for(var key in E){
+                if( E.hasOwnProperty( key ) ){
+                    canvaxE[ key ] = E[ key ];
+                }
+            }
+            return canvaxE;
         }
     };
     return Base
@@ -1281,7 +1294,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
             return _transform;
         },
         getRect:function(style){
-            return style
+            return {
+               x      : 0,
+               y      : 0,
+               width  : style.width,
+               height : style.height
+            }
         },
         //显示对象的选取检测处理函数
         getChildInPoint : function( point ){
@@ -1563,7 +1581,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             for(var i = this.children.length - 1; i >= 0; i--) {
                 var child = this.children[i];
 
-                if( child == null || !( child._eventEnabled || child.dragEnabled ) ) {
+                if( child == null || !( child._eventEnabled || child.dragEnabled ) || !child.context.visible ) {
                     continue;
                 }
 
@@ -1909,10 +1927,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
       draw:function(){
       
       },
-      getRect:function(style){
-          return style
-      },
-  
       drawEnd : function(ctx){
           
           if(this._hasFillAndStroke){
@@ -2570,6 +2584,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
         this.bubbles = bubbles != undefined ? bubbles : false; //TODO Not implemented yet.
         this.cancelable = cancelable != undefined ? cancelable : false;	//TODO Not implemented yet.
+
+        this._stopPropagation = false ; //默认不阻止事件冒泡
     }
 
     /**
@@ -2577,6 +2593,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
      */
     EventBase.prototype.stopPropagation = function() {
         //TODO
+        this._stopPropagation = true;
     }
 
     /**
@@ -2832,23 +2849,26 @@ KISSY.add("canvax/animation/Animation" , function(S){
         /**
         * 派发事件，调用事件侦听器。
         */
-        _dispatchEvent : function(event) {
-            var map = this._eventMap[event.type];
+        _dispatchEvent : function(e) {
+            var map = this._eventMap[e.type];
             if(map){
-                if(!event.target) event.target = this;
+                if(!e.target) e.target = this;
                 map = map.slice();
 
                 for(var i = 0; i < map.length; i++) {
                     var listener = map[i];
                     if(typeof(listener) == "function") {
-                        listener.call(this, event);
+                        listener.call(this, e);
                     }
                 }
             }
 
-            //向上冒泡
-            if( this.parent ){
-                this.parent._dispatchEvent( event );
+            if( !e._stopPropagation ) {
+                //向上冒泡
+                if( this.parent ){
+                    e.target = this.parent;
+                    this.parent._dispatchEvent( e );
+                }
             }
             return true;
         },
@@ -3109,8 +3129,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
        //比如Movieclip的__enterFrame方法。
        this._taskList = [];
        
-       this._Event = null;
-
        this._hoverStage = null;
        
        //为整个项目提供像素检测的容器
@@ -3198,8 +3216,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
        _initEvent : function(){
           //初始绑定事件，为后续的displayList的事件分发提供入口
           var self = this;
-          self._Event     = new CanvaxEvent();
- 
           var _moveStep = 0; //move的时候的频率设置
 
           if( !(Hammer && Hammer.NO_MOUSEEVENTS) ) {
@@ -3329,7 +3345,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                if( child ){
                    hasChild = true;
                    //ce
-                   var ce         = _.extend(self._Event , e);
+                   var ce         = Base.copyEvent( new CanvaxEvent() , e);
                    ce.target      = ce.currentTarget = child || this;
                    ce.stagePoint  = self.curPoints[i];
                    ce.point       = ce.target.globalToLocal( ce.stagePoint );
@@ -3458,7 +3474,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
            var obj = this.getObjectsUnderPoint( point , 1)[0];
 
-           var e = _.extend(this._Event , e);
+           var e = Base.copyEvent( new CanvaxEvent() , e );
 
            e.target = e.currentTarget = obj;
            e.point  = point;

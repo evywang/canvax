@@ -53,8 +53,6 @@ KISSY.add("canvax/index" ,
        //比如Movieclip的__enterFrame方法。
        this._taskList = [];
        
-       this._Event = null;
-
        this._hoverStage = null;
        
        //为整个项目提供像素检测的容器
@@ -142,8 +140,6 @@ KISSY.add("canvax/index" ,
        _initEvent : function(){
           //初始绑定事件，为后续的displayList的事件分发提供入口
           var self = this;
-          self._Event     = new CanvaxEvent();
- 
           var _moveStep = 0; //move的时候的频率设置
 
           if( !(Hammer && Hammer.NO_MOUSEEVENTS) ) {
@@ -273,7 +269,7 @@ KISSY.add("canvax/index" ,
                if( child ){
                    hasChild = true;
                    //ce
-                   var ce         = _.extend(self._Event , e);
+                   var ce         = Base.copyEvent( new CanvaxEvent() , e);
                    ce.target      = ce.currentTarget = child || this;
                    ce.stagePoint  = self.curPoints[i];
                    ce.point       = ce.target.globalToLocal( ce.stagePoint );
@@ -402,7 +398,7 @@ KISSY.add("canvax/index" ,
 
            var obj = this.getObjectsUnderPoint( point , 1)[0];
 
-           var e = _.extend(this._Event , e);
+           var e = Base.copyEvent( new CanvaxEvent() , e );
 
            e.target = e.currentTarget = obj;
            e.point  = point;

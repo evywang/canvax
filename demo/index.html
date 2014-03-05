@@ -472,7 +472,9 @@
         
 
           sprite.addChild(sector);
-
+          sprite.addChild(sector_rect);
+sprite.addChild(rect);
+          /*
            stage.addChild(rect);
 
 
@@ -484,7 +486,7 @@
 
            stage.addChild(ellipse);
 
-           sprite.addChild(sector_rect);
+           
            
            
            stage.addChild(map1);
@@ -509,15 +511,16 @@
                },1000)
 
 
-           canvax.addChild(stage);   
+             
  
            window.stage1 = new Canvax.Display.Stage({
                id : "chart1"               
            });
            stage1.addChild( text );
-
-
            canvax.addChild( stage1 );
+           */
+
+           canvax.addChild(stage); 
 
            //stage1.toFront();
 

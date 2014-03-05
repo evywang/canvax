@@ -3,7 +3,7 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
     var Bird  =  function( opt){
         this.width    = 83 * opt.scale;
         this.height   = 60 * opt.scale;
-        this.fly      = false;//这个是整个鸟飞行的Interval
+        this.fly      = null;//这个是整个鸟飞行的Interval
         this.readyFly = null; //ready的时候的fly
         
         //下面两个是鸟上升的时候抬头和下降的时候低头的动画tween对象
@@ -56,6 +56,8 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
         },
         $readyFly  : function(  birdReadyY ){
             var self = this;
+            self.sp.play();
+            self.sp.context.rotation = 0 ;
             var p1 = { y : birdReadyY };
             var p2 = { y : birdReadyY - this.sp.context.height / 2 }
             var fly1 = new Canvax.Animation.Tween( p1 )
@@ -88,8 +90,10 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
             var self  = this;
             var now_y = this.sp.context.y;
             
-            if(!!this.fly )
+            if(!!this.fly ) {
                 clearInterval( this.fly );
+                this.fly = null;
+            }
             if(!!self.fall ) {
                //如果这个时候正在旋转向下
                self.fall.stop();
@@ -132,6 +136,13 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
                                 
             } , 30 );
 
+        },
+        stop : function(){
+           clearInterval( this.fly );
+           this.fly  = null;
+           this.fall = null;
+           this.up   = null;
+           this.sp.stop();
         }
     }
 
