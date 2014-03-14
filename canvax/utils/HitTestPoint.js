@@ -138,7 +138,7 @@ KISSY.add("canvax/utils/HitTestPoint" , function(S , Base , myMath){
     }
 
     /**
-     * 通过像素值来判断，三个方法中最慢，但是支持广,不足之处是excanvas不支持像素处理
+     * 通过像素值来判断，三个方法中最慢，但是支持广,不足之处是excanvas不支持像素处理,flashCanvas支持还好
      *
      * @param {Object} shapeClazz ： shape类
      * @param {Object} context ：目标区域

@@ -67,6 +67,7 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
                 } ).onComplete( function(){
                     p1.y = birdReadyY;
                     self.readyFly = fly2;
+                    //console.log("ready")
                 } );
 
             var fly2 = new Canvax.Animation.Tween( p2 )
@@ -143,6 +144,9 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
            this.fall = null;
            this.up   = null;
            this.sp.stop();
+
+           //回到8fps的休闲状态
+           this.sp.setFrameRate( 8 );
         }
     }
 

@@ -10,99 +10,101 @@ KISSY.add("demo/flappyBird/gameOverUI" , function( S , Canvax ){
           viewWidth = 580 * own.scale;
           viewHeight= viewWidth * 1.1;
 
-          if( !this.sp ) {
-              this.sp  = new Canvax.Display.Sprite({
-                  context : {
-                      width : viewWidth,
+          this.sp  = new Canvax.Display.Sprite({
+              context : {
+                  width : viewWidth,
                   height: viewHeight,
                   x     : (own.width - viewWidth) / 2 ,
-                  y     : (own.height - viewHeight) / 2
-                  }
-              });
-              this.sp.addChild( new Canvax.Display.Bitmap({
-                  id      : "top",
-                  img     : own.files.flappyPacker,
-                  context : {
-                      width : 499 * own.scale ,
-                      height: 118 * own.scale ,
-                      dx    : 8,
-                      dy    : 320,
-                      dWidth: 499,
-                      dHeight: 118,
-                      x     : ( viewWidth - 499 * own.scale ) / 2,
-                      y     : -10
-                  }
-              }) );
+                  y     : (own.height - viewHeight) / 2,
+                  visible:false
+              }
+          });
+          this.sp.addChild( new Canvax.Display.Bitmap({
+              id      : "top",
+              img     : own.files.flappyPacker,
+              context : {
+                  width : 499 * own.scale ,
+                  height: 118 * own.scale ,
+                  dx    : 8,
+                  dy    : 320,
+                  dWidth: 499,
+                  dHeight: 118,
+                  x     : ( viewWidth - 499 * own.scale ) / 2,
+                  y     : -10
+              }
+          }) );
 
+          this.sp.addChild( new Canvax.Display.Sprite({
+              id      : "middle",
+              context : {
+                  y     : this.sp.getChildById("top").context.height,
+                  height: 298 * own.scale 
+              }
+          }) );
+          this.sp.getChildById("middle").addChild( new Canvax.Display.Bitmap({
+              id      : "middle-bg",
+              img     : own.files.flappyPacker,
+              context : {
+                  width : 580 * own.scale ,
+                  height: 298 * own.scale ,
+                  dx    : 8,
+                  dy    : 1,
+                  dWidth: 580,
+                  dHeight: 298
+              }
+          }) );
+
+          var middleContext = this.sp.getChildById("middle").context
               this.sp.addChild( new Canvax.Display.Sprite({
-                  id      : "middle",
+                  id      : "bottom",
                   context : {
-                      y     : this.sp.getChildById("top").context.height,
-                      height: 298 * own.scale 
+                      width : viewWidth ,
+                      y     : middleContext.y + middleContext.height + 20,
+                      visible : false
                   }
               }) );
-              this.sp.getChildById("middle").addChild( new Canvax.Display.Bitmap({
-                  id      : "middle-bg",
-                  img     : own.files.flappyPacker,
-                  context : {
-                      width : 580 * own.scale ,
-                      height: 298 * own.scale ,
-                      dx    : 8,
-                      dy    : 1,
-                      dWidth: 580,
-                      dHeight: 298
-                  }
-              }) );
+          var replayBtn = new Canvax.Display.Bitmap({
+              id      : "replay",
+              img     : own.files.flappyPacker,
+              context : {
+                  width   : 272 * own.scale,
+                  height  : 153 * own.scale,
+                  dx      : 459,
+                  dy      : 461,
+                  dWidth  : 272,
+                  dHeight : 153
+              }
+          }) ;
+          replayBtn.on("click tap" , function( e ){
+              self.own.resetToReady();
+              e.stopPropagation()
+              //console.log("replay")
+          });
+          this.sp.getChildById("bottom").addChild( replayBtn );
 
-              var middleContext = this.sp.getChildById("middle").context
-                  this.sp.addChild( new Canvax.Display.Sprite({
-                      id      : "bottom",
-                      context : {
-                          width : viewWidth ,
-                          y     : middleContext.y + middleContext.height + 20,
-                          visible : false
-                      }
-                  }) );
-              var replayBtn = new Canvax.Display.Bitmap({
-                  id      : "replay",
-                  img     : own.files.flappyPacker,
-                  context : {
-                      width : 272 * own.scale,
-                      height: 153 * own.scale,
-                      dx    : 459,
-                      dy    : 461,
-                      dWidth: 272,
-                      dHeight: 153
-                  }
-              }) ;
-              replayBtn.on("click tap" , function( e ){
-                  self.own.resetToReady();
-                  e.stopPropagation()
-                  //console.log("replay")
-              });
-              this.sp.getChildById("bottom").addChild( replayBtn );
-
-              var rankBtn = new Canvax.Display.Bitmap({
-                  id      : "rankBtn",
-                  img     : own.files.flappyPacker,
-                  context : {
-                      width : 264 * own.scale,
-                      height: 146 * own.scale,
-                      dx    : 1570,
-                      dy    : 7,
-                      dWidth: 264,
-                      dHeight: 146,
-                      x     : replayBtn.context.width + 15,
-                      y     : 2
-                  }
-              }) ;
-              rankBtn.on("click tap" , function( e ){
-                  console.log("rankBtn")
-                  e.stopPropagation();
-              });
-              this.sp.getChildById("bottom").addChild( rankBtn );
-          }
-
+          var rankBtn = new Canvax.Display.Bitmap({
+              id      : "rankBtn",
+              img     : own.files.flappyPacker,
+              context : {
+                  width : 264 * own.scale,
+                  height: 146 * own.scale,
+                  dx    : 1570,
+                  dy    : 7,
+                  dWidth: 264,
+                  dHeight: 146,
+                  x     : replayBtn.context.width + 15,
+                  y     : 2
+              }
+          }) ;
+          rankBtn.on("click tap" , function( e ){
+              console.log("rankBtn")
+              e.stopPropagation();
+          });
+          this.sp.getChildById("bottom").addChild( rankBtn );
+          return this.sp;
+       },
+       show : function(){
+          var self = this;
           this.sp.context.visible = true;
 
           //ui全部准备完毕
@@ -123,7 +125,7 @@ KISSY.add("demo/flappyBird/gameOverUI" , function( S , Canvax ){
 
           var middleS       = this.sp.getChildById("middle").context;
           var middleY       = middleS.y;
-          middleS.y = middleY + own.height - middleS.$owner.localToGlobal( {x:0 , y:0} ).y;
+          middleS.y = middleY + this.own.height - middleS.$owner.localToGlobal( {x:0 , y:0} ).y;
           var tweenMiddle = new Canvax.Animation.Tween( {y : middleS.y } )
               .to( { y : middleY }, 400 )
               .onUpdate( function () {
@@ -136,7 +138,6 @@ KISSY.add("demo/flappyBird/gameOverUI" , function( S , Canvax ){
           tweenTop1.start();
           //overui的出场动画over
 
-          return this.sp;
        },
        hide : function(){
           this.sp.context.visible = false;

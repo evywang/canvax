@@ -383,6 +383,25 @@ KISSY.add("canvax/index" ,
        },
        __getcurPointsTarget : function(e , point ) {
            var oldObj = this.curPointsTarget[0];
+
+           /*
+           if ( oldObj ){
+               var visibleCheckObj = oldObj;
+               var visiHide        = true; //false为隐藏
+               while( visibleCheckObj.parent ){
+                   visibleCheckObj = visibleCheckObj.parent;
+                   if( visibleCheckObj.context && visibleCheckObj.context.$model.visible == false ) {
+                      visiHide = false;
+                      break;
+                   }
+               }
+               //也许oldObj可能隐藏掉了
+               if( !visiHide ) {
+                   oldObj = null;
+               }
+           }
+           */
+
            if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
