@@ -3189,27 +3189,26 @@ KISSY.add("canvax/animation/Animation" , function(S){
            }
            Base._pixelCtx = _pixelCanvas.getContext('2d');
        },
-       _eventHand : null , //该处理函数在_initEvent中初始化
        _initEvent : function(){
           //初始绑定事件，为后续的displayList的事件分发提供入口
           var self = this;
           var _moveStep = 0; //move的时候的频率设置
 
           if( !(Hammer && Hammer.NO_MOUSEEVENTS) ) {
-              var _eventHand = self._eventHand = function( e ){
-                  //如果发现是mousemove的话，要做mousemove的频率控制
-                  if( e.type == "mousemove" ){
-                      if(_moveStep<1){
-                          _moveStep++;
-                          return;
-                      }
-                      _moveStep = 0;
-                  }
-                  self.__mouseHandler( e );
-              }
               //依次添加上浏览器的自带事件侦听
               _.each( CanvaxEvent.EVENTS , function( type ){
-                  CanvaxEvent.addEvent( self.el , type , self._eventHand ); 
+                  CanvaxEvent.addEvent( self.el , type , function( e ){
+                      //如果发现是mousemove的话，要做mousemove的频率控制
+                      if( e.type == "mousemove" ){
+                          if(_moveStep<1){
+                              _moveStep++;
+                              return;
+                          }
+                          _moveStep = 0;
+                      }
+                      //if( e.type = "" )
+                      self.__mouseHandler( e );
+                  } ); 
               } );
           } 
 
@@ -3218,13 +3217,20 @@ KISSY.add("canvax/animation/Animation" , function(S){
               var el = self.el[0]
               self._hammer = Hammer( el ).on( Hammer.EventsTypes , function( e ){
                  //console.log(e.type)
-                 //同样的，如果是drag事件，则要左频率控制
+                 //同样的，如果是drag事件，则要频率控制
                  if( e.type == "drag" ){
                       if(_moveStep<1){
                           _moveStep++;
                           return;
                       }
                       _moveStep = 0;
+                 }
+
+                 if( e.type == "touch" ){
+                     //再移动端，每次touch的时候重新计算rootOffset
+                     //无奈之举，因为宿主rootOffset不是一直再那个位置。
+                     //经常再一些业务场景下面。会被移动了position
+                     self.rootOffset = self.el.offset();
                  }
 
                  self.__touchHandler( e );
@@ -3809,11 +3815,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
     ]
 });
-;KISSY.add("canvax/shape/Beziercurve" , function( S , Shape , Base ){
+;KISSY.add("canvax/shape/Beziercurve" , function( S , Shape , Base , Point ){
   var Beziercurve = function(opt){
-      var self=this;
-      self.type = "beziercurve";
+      var self          = this;
+      self.type         = "beziercurve";
       self.drawTypeOnly = "stroke";//线条只能描边，填充的画出了问题别怪我没提醒
+      self.length       = undefined;
 
 
       //在diaplayobject组织context的之前就要把 这个 shape 需要的 style 字段 提供出来
@@ -3829,8 +3836,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
            xEnd   : opt.context.xEnd    || 0 , //       : {number},  // 必须，终点横坐标
            yEnd   : opt.context.yEnd    || 0   //       : {number},  // 必须，终点纵坐标
       }
-
-      
       arguments.callee.superclass.constructor.apply(this , arguments);
   };
 
@@ -3877,6 +3882,114 @@ KISSY.add("canvax/animation/Animation" , function(S){
               width : _maxX - _minX + lineWidth,
               height : _maxY - _minY + lineWidth
         };
+    },
+    //下面为Beziercurve匀速曲线运动相关，来自@墨川的 天猫欢乐城
+    /**
+     * @param  {number} -- t {0, 1}
+     * @return {number} -- length of the bezier arc from 0 to t
+     */
+    getLength: function(t) {
+        var TOTAL_SIMPSON_STEP = 100;
+        if(t==undefined){
+           t = 1;
+        }
+        var stepCounts = parseInt(TOTAL_SIMPSON_STEP * t),
+        i;
+
+        if (stepCounts & 1) stepCounts++;
+        if (stepCounts == 0) return 0.0;
+
+        var halfCounts = stepCounts >> 1;
+        var sum1 = 0,
+            sum2 = 0;
+        var dStep = t / stepCounts;
+
+        for (i = 0; i < halfCounts; i++) {
+            sum1 += this._getSpeedLength((2 * i + 1) * dStep);
+        }
+        for (i = 1; i < halfCounts; i++) {
+            sum2 += this._getSpeedLength((2 * i) * dStep);
+        }
+
+        return (this._getSpeedLength(0) + this._getSpeedLength(1) + 2 * sum2 + 4 * sum1) * dStep / 3;
+    },
+    /**
+     * @param  {number} -- t {0, 1}
+     * @return {Point}  -- return point at the given time in the bezier arc 
+     */
+    getPointByTime: function(t) {
+        var it = 1 - t,
+        it2 = it * it,
+        it3 = it2 * it;
+        var t2 = t * t,
+            t3 = t2 * t;
+        var context = this.context.$model;
+        return new Point(it3 * context.xStart + 3 * it2 * t * context.cpX1 + 3 * it * t2 * context.cpX2 + t3 * context.xEnd,
+                it3 * context.yStart + 3 * it2 * t * context.cpY1 + 3 * it * t2 * context.cpY2 + t3 * context.yEnd
+                );
+    },
+    /**
+     * @param  {number} -- len
+     * @return {Point}  -- point at the given length
+     */
+    getPointByLen: function(len) {
+        if( this._length == undefined ){
+           this._length = this.getLength();
+        }
+        if (len > this._length) {
+            return { x : this.context.$model.xEnd , y : this.context.$model.yEnd };
+        }
+
+        var t1 = len / this._length,
+            t2;
+        do {
+            t2 = t1 - (this.getLength(t1) - len) / this._getSpeedLength(t1);
+            if (Math.abs(t1 - t2) < 0.01) break;
+
+            t1 = t2;
+
+        } while (true);
+        return this.getPointByTime(t2);
+    },
+    getPointsByStep: function(step) {
+        step = step || 1;
+        var len = this.getLength();
+        var i = 0;
+        var points = [];
+        while (i < len) {
+            points.push(this.getPointByLen(i));
+            i += step;
+        }
+        points.push(this.getPointByLen(len))
+            return points;
+    },
+    /**
+     * @param  {number} -- step = (1/pointsSize);
+     * @return {Array}  -- points in the arc stepd by 'step' param
+     */
+    getPointsByTime: function(step) {
+        step = step || .01;
+        var t = 0;
+        var points = [];
+        while (t < 1) {
+            points.push(this.getPointByTime(t));
+            t += step;
+        }
+        points.push(this.getPointByTime(1));
+        return points;
+    },
+    /**
+     * @inner func
+     */
+    _getSpeedLength: function(t) {
+        var it = 1 - t,
+        it2 = it * it,
+        t2 = t * t;
+        var context = this.context.$model;
+        var x = -3 * context.xStart * it2 + 3 * context.cpX1 * it2 - 6 * context.cpX1 * it * t + 6 * context.cpX2 * it * t - 3 * context.cpX2 * t2 + 3 * context.xEnd * t2;
+        var y = -3 * context.yEnd * it2 + 3 * context.cpY1 * it2 - 6 * context.cpY1 * it * t + 6 * context.cpY2 * it * t - 3 * context.cpY2 * t2 + 3 * context.yEnd * t2;
+
+        return Math.sqrt(x * x + y * y);
     }
   });
 
@@ -3886,7 +3999,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
 } , {
   requires : [
     "canvax/display/Shape",
-    "canvax/core/Base"
+    "canvax/core/Base",
+    "canvax/display/Point"
   ]
 });
 ;KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Base){

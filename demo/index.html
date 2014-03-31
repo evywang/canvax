@@ -146,7 +146,7 @@
 
 
            // 贝塞尔曲线
-           var bezier = new Canvax.Shapes.Beziercurve(
+           window.bezier = new Canvax.Shapes.Beziercurve(
                {
                    id :'beziercurve',
                    context : {
@@ -473,9 +473,9 @@
 
           sprite.addChild(sector);
           sprite.addChild(sector_rect);
-sprite.addChild(rect);
-          /*
-           stage.addChild(rect);
+          sprite.addChild(rect);
+
+           //stage.addChild(rect);
 
 
            stage.addChild(circle2);
@@ -518,24 +518,59 @@ sprite.addChild(rect);
            });
            stage1.addChild( text );
            canvax.addChild( stage1 );
-           */
+           
 
            canvax.addChild(stage); 
 
-           //stage1.toFront();
+           stage1.toFront();
 
            
 
+           //按照贝塞尔曲线平滑运动的circle
+           var bezierCircle = new Canvax.Shapes.Circle({
+               context : {                   
+                   x : bezier.context.$model.xStart,
+                   y : bezier.context.$model.yStart,
+                   r : 10,
+                   fillStyle   : color.getColor(colorInd++)          // rgba supported
+               }
+           });
+           stage.addChild(bezierCircle);
 
 
+
+
+           window.bezierAnima = function(){
+               var bezierT = new Canvax.Animation.Tween( {t:0} )
+               .to( { t : 10000 }, 10000 )
+               .repeat( Infinity )
+               .onUpdate( function (  ) {
+                   var bp = bezier.getPointByTime( this.t / 10000 );
+                   bezierCircle.context.x = bp.x;
+                   bezierCircle.context.y = bp.y;
+               } ).start();
+           };
+
+           function animate(){
+               timer    = requestAnimationFrame( animate ); 
+               Canvax.Animation.update();
+           };
+
+           animate();
+
+           bezierAnima();
 
 
        })
-   }) 
+       }) ;
+
+       
+
    </script>
 
 
 
-   <div id="canvasTest" style='background:#f3f5f4;width:800px;height:800px;'></div>
+   <div id="canvasTest" style='background:#f3f5f4;width:800px;height:500px;'></div>
+   <input type="button" value="平滑贝塞尔曲线运动" />
 </body>
 </html>

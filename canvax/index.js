@@ -136,27 +136,26 @@ KISSY.add("canvax/index" ,
            }
            Base._pixelCtx = _pixelCanvas.getContext('2d');
        },
-       _eventHand : null , //该处理函数在_initEvent中初始化
        _initEvent : function(){
           //初始绑定事件，为后续的displayList的事件分发提供入口
           var self = this;
           var _moveStep = 0; //move的时候的频率设置
 
           if( !(Hammer && Hammer.NO_MOUSEEVENTS) ) {
-              var _eventHand = self._eventHand = function( e ){
-                  //如果发现是mousemove的话，要做mousemove的频率控制
-                  if( e.type == "mousemove" ){
-                      if(_moveStep<1){
-                          _moveStep++;
-                          return;
-                      }
-                      _moveStep = 0;
-                  }
-                  self.__mouseHandler( e );
-              }
               //依次添加上浏览器的自带事件侦听
               _.each( CanvaxEvent.EVENTS , function( type ){
-                  CanvaxEvent.addEvent( self.el , type , self._eventHand ); 
+                  CanvaxEvent.addEvent( self.el , type , function( e ){
+                      //如果发现是mousemove的话，要做mousemove的频率控制
+                      if( e.type == "mousemove" ){
+                          if(_moveStep<1){
+                              _moveStep++;
+                              return;
+                          }
+                          _moveStep = 0;
+                      }
+                      //if( e.type = "" )
+                      self.__mouseHandler( e );
+                  } ); 
               } );
           } 
 
@@ -165,13 +164,20 @@ KISSY.add("canvax/index" ,
               var el = self.el[0]
               self._hammer = Hammer( el ).on( Hammer.EventsTypes , function( e ){
                  //console.log(e.type)
-                 //同样的，如果是drag事件，则要左频率控制
+                 //同样的，如果是drag事件，则要频率控制
                  if( e.type == "drag" ){
                       if(_moveStep<1){
                           _moveStep++;
                           return;
                       }
                       _moveStep = 0;
+                 }
+
+                 if( e.type == "touch" ){
+                     //再移动端，每次touch的时候重新计算rootOffset
+                     //无奈之举，因为宿主rootOffset不是一直再那个位置。
+                     //经常再一些业务场景下面。会被移动了position
+                     self.rootOffset = self.el.offset();
                  }
 
                  self.__touchHandler( e );
