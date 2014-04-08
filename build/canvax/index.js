@@ -636,7 +636,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
         "$model"     : 3,
         "$accessor"  : 4,
         "$owner"     : 5,
-        "path"       : 6 //这个应该是唯一一个不用watch的不带$的成员了吧，因为地图等的path是在太大
+        "path"       : 6, //这个应该是唯一一个不用watch的不带$的成员了吧，因为地图等的path是在太大
+        "$parent"    : 7  //用于建立数据的关系链
     }
 
     function propertyFactory(scope, model, watchMore) {
@@ -731,14 +732,23 @@ KISSY.add("canvax/animation/Animation" , function(S){
                                     //那么也要把对应的valueType修改为对应的neoType
                                     valueType = neoType;
                                 }
+
+                                var hasWatchModel = pmodel;
                                 
                                 //所有的赋值都要触发watch的监听事件
-                                pmodel.$watch && pmodel.$watch.call(pmodel , name, value, preValue)
+                                if ( !pmodel.$watch ) {
+                                  while( hasWatchModel.$parent ){
+                                     hasWatchModel = hasWatchModel.$parent;
+                                  }
+                                } 
+                                hasWatchModel.$watch && hasWatchModel.$watch.call(hasWatchModel , name, value, preValue);
 
                             }
                         } else {
 
                             if ((valueType === "array" || valueType === "object") && !value.$model) {
+                                //建立和父数据节点的关系
+                                value.$parent = pmodel;
                                 value = propertyFactory(value , value);
                                 accessor.value = value;
                             }
@@ -3615,11 +3625,13 @@ KISSY.add("canvax/animation/Animation" , function(S){
                //开始渲染的事件
                self.fire("beginRender");
 
-               self._heartBeat = false;
-               
+                              
                _.each(_.values( self.convertStages ) , function(convertStage){
                   convertStage.stage._render( convertStage.stage.context2D );
                });
+
+               self._heartBeat = false;
+
                
                //debugger;
                self.convertStages = {};
