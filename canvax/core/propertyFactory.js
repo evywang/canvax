@@ -114,17 +114,24 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Base){
                                     //那么也要把对应的valueType修改为对应的neoType
                                     valueType = neoType;
                                 }
+
+                                var hasWatchModel = pmodel;
                                 
                                 //所有的赋值都要触发watch的监听事件
-                                pmodel.$watch && pmodel.$watch.call(pmodel , name, value, preValue)
+                                if ( !pmodel.$watch ) {
+                                  while( hasWatchModel.$parent ){
+                                     hasWatchModel = hasWatchModel.$parent;
+                                  }
+                                } 
+                                hasWatchModel.$watch && hasWatchModel.$watch.call(hasWatchModel , name, value, preValue);
 
                             }
                         } else {
 
                             if ((valueType === "array" || valueType === "object") && !value.$model) {
                                 //建立和父数据节点的关系
-                                value = propertyFactory(value , value);
                                 value.$parent = pmodel;
+                                value = propertyFactory(value , value);
                                 accessor.value = value;
                             }
                             return value;
