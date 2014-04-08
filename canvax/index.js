@@ -562,13 +562,12 @@ KISSY.add("canvax/index" ,
                //开始渲染的事件
                self.fire("beginRender");
 
+               self._heartBeat = false;
                
                _.each(_.values( self.convertStages ) , function(convertStage){
                   convertStage.stage._render( convertStage.stage.context2D );
                });
                
-           
-               self._heartBeat = false;
                //debugger;
                self.convertStages = {};
 
