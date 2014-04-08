@@ -18,7 +18,8 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Base){
         "$model"     : 3,
         "$accessor"  : 4,
         "$owner"     : 5,
-        "path"       : 6 //这个应该是唯一一个不用watch的不带$的成员了吧，因为地图等的path是在太大
+        "path"       : 6, //这个应该是唯一一个不用watch的不带$的成员了吧，因为地图等的path是在太大
+        "$parent"    : 7  //用于建立数据的关系链
     }
 
     function propertyFactory(scope, model, watchMore) {
@@ -121,7 +122,9 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Base){
                         } else {
 
                             if ((valueType === "array" || valueType === "object") && !value.$model) {
+                                //建立和父数据节点的关系
                                 value = propertyFactory(value , value);
+                                value.$parent = pmodel;
                                 accessor.value = value;
                             }
                             return value;
