@@ -1329,6 +1329,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
 
                 point.x = originPosStage[0] ;
                 point.y = originPosStage[1] ;
+                console.log( "stage:"+point.x+"||"+point.y )
+
 
             }
             

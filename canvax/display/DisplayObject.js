@@ -384,6 +384,8 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
 
                 point.x = originPosStage[0] ;
                 point.y = originPosStage[1] ;
+                console.log( "stage:"+point.x+"||"+point.y )
+
 
             }
             
