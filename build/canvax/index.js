@@ -1280,6 +1280,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 };
             };
 
+
             var rotation = this.context.rotation;
             if( rotation ){
                 //如果有旋转

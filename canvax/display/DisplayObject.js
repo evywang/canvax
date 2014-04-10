@@ -335,6 +335,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 };
             };
 
+
             var rotation = this.context.rotation;
             if( rotation ){
                 //如果有旋转
