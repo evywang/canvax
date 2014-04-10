@@ -371,6 +371,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             var result; //检测的结果
             
             //先把鼠标转换到stage下面来
+            /*
             if( this.getStage()._transform ){
                 var inverseMatrixStage = this.getStage()._transform.clone();
                 inverseMatrixStage.a   = 1;
@@ -384,6 +385,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 point.y = originPosStage[1];
 
             }
+            */
 
             //第一步，吧glob的point转换到对应的obj的层级内的坐标系统
             if( this.type != "stage" && this.parent && this.parent.type != "stage" ) {
