@@ -1319,7 +1319,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             //先把鼠标转换到stage下面来
             var stage = this.getStage();
             if( stage._transform ){
-
+                console.log( "dom:"+point.x+"||"+pointy.y )
                 var inverseMatrixStage = stage._transform.clone();
                 inverseMatrixStage.scale( 1 / stage.context.$model.scaleX , 1 / stage.context.$model.scaleY );
 
