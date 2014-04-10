@@ -376,11 +376,11 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             if( stage._transform ){
 
                 var inverseMatrixStage = stage._transform.clone();
-                inverseMatrixStage.scale( 1 / stage.context.$model.scaleX , 1 / stage.context.$model.scaleY );
+                //inverseMatrixStage.scale( 1 / stage.context.$model.scaleX , 1 / stage.context.$model.scaleY );
 
                 inverseMatrixStage     = inverseMatrixStage.invert();
-                var originPosStage = [point.x, point.y];
-                inverseMatrixStage.mulVector( originPosStage , [ point.x , point.y , 1 ] );
+                var originPosStage     = [ point.x , point.y ];
+                inverseMatrixStage.mulVector( originPosStage , [ point.x , point.y ] );
 
                 point.x = originPosStage[0];
                 point.y = originPosStage[1];
