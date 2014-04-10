@@ -116,18 +116,17 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Base){
                                 }
 
                                 var hasWatchModel = pmodel;
-                                
                                 //所有的赋值都要触发watch的监听事件
                                 if ( !pmodel.$watch ) {
                                   while( hasWatchModel.$parent ){
                                      hasWatchModel = hasWatchModel.$parent;
                                   }
-                                } 
-                                hasWatchModel.$watch && hasWatchModel.$watch.call(hasWatchModel , name, value, preValue);
-
+                                }
+                                if ( hasWatchModel.$watch ) {
+                                  hasWatchModel.$watch.call(hasWatchModel , name, value, preValue);
+                                }
                             }
                         } else {
-
                             if ((valueType === "array" || valueType === "object") && !value.$model) {
                                 //建立和父数据节点的关系
                                 value.$parent = pmodel;

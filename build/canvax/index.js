@@ -734,18 +734,17 @@ KISSY.add("canvax/animation/Animation" , function(S){
                                 }
 
                                 var hasWatchModel = pmodel;
-                                
                                 //所有的赋值都要触发watch的监听事件
                                 if ( !pmodel.$watch ) {
                                   while( hasWatchModel.$parent ){
                                      hasWatchModel = hasWatchModel.$parent;
                                   }
-                                } 
-                                hasWatchModel.$watch && hasWatchModel.$watch.call(hasWatchModel , name, value, preValue);
-
+                                }
+                                if ( hasWatchModel.$watch ) {
+                                  hasWatchModel.$watch.call(hasWatchModel , name, value, preValue);
+                                }
                             }
                         } else {
-
                             if ((valueType === "array" || valueType === "object") && !value.$model) {
                                 //建立和父数据节点的关系
                                 value.$parent = pmodel;
@@ -1166,11 +1165,12 @@ KISSY.add("canvax/animation/Animation" , function(S){
             var p = localToGlobal( point );
             return target.globalToLocal( p );
         },
-        getConcatenatedMatrix : function(){
+        getConcatenatedMatrix : function( container ){
             var cm = new Matrix();
             for (var o = this; o != null; o = o.parent) {
                 cm.concat( o._transform );
                 if( !o.parent || ( o.parent && o.parent.type=="stage" ) ) {
+                //if( o.type == "stage" || (o.parent && container && o.parent.type == container.type ) ) {
                     break;
                 }
             }
@@ -1314,6 +1314,21 @@ KISSY.add("canvax/animation/Animation" , function(S){
         //显示对象的选取检测处理函数
         getChildInPoint : function( point ){
             var result; //检测的结果
+            
+            //先把鼠标转换到stage下面来
+            if( this.getStage()._transform ){
+                var inverseMatrixStage = this.getStage()._transform.clone();
+                inverseMatrixStage.a   = 1;
+                inverseMatrixStage.d   = 1;
+
+                inverseMatrixStage     = inverseMatrixStage.invert();
+                var originPosStage = [point.x, point.y];
+                inverseMatrixStage.mulVector( originPosStage , [ point.x , point.y , 1 ] );
+
+                point.x = originPosStage[0];
+                point.y = originPosStage[1];
+
+            }
 
             //第一步，吧glob的point转换到对应的obj的层级内的坐标系统
             if( this.type != "stage" && this.parent && this.parent.type != "stage" ) {
@@ -1334,7 +1349,6 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 var originPos = [x, y];
                 inverseMatrix.mulVector( originPos , [ x , y , 1 ] );
 
-               
                 x = originPos[0];
                 y = originPos[1];
             }
@@ -2685,9 +2699,10 @@ KISSY.add("canvax/animation/Animation" , function(S){
                    delete canvax.convertStages[ this.getStage().id ];
                    this._heart = false;
                }
-
+ 
                //然后clone一份obj，添加到_hoverStage 中
                var activShape = this.clone(true);
+               
                activShape._transform = this.getConcatenatedMatrix();
                canvax._hoverStage.addChild( activShape );
                
