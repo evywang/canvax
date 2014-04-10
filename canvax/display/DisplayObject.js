@@ -371,19 +371,20 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         getChildInPoint : function( point ){
             var result; //检测的结果
             
+            //debugger;
             //先把鼠标转换到stage下面来
             var stage = this.getStage();
             if( stage._transform ){
                 console.log( "dom:"+point.x+"||"+point.y )
                 var inverseMatrixStage = stage._transform.clone();
-                inverseMatrixStage.scale( 1 / stage.context.$model.scaleX , 1 / stage.context.$model.scaleY );
+                //inverseMatrixStage.scale( 1 / stage.context.$model.scaleX , 1 / stage.context.$model.scaleY );
 
                 inverseMatrixStage     = inverseMatrixStage.invert();
                 var originPosStage     = [ point.x , point.y ];
                 inverseMatrixStage.mulVector( originPosStage , [ point.x , point.y ] );
 
-                point.x = originPosStage[0];
-                point.y = originPosStage[1];
+                point.x = originPosStage[0] * stage.context.$model.scaleX;
+                point.y = originPosStage[1] * stage.context.$model.scaleY;
 
             }
             
@@ -405,7 +406,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
                 var inverseMatrix = this._transform.clone().invert();
 
                 var originPos = [x, y];
-                inverseMatrix.mulVector( originPos , [ x , y , 1 ] );
+                inverseMatrix.mulVector( originPos , [ x , y ] );
 
                 x = originPos[0];
                 y = originPos[1];

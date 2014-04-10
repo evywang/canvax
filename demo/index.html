@@ -59,7 +59,20 @@
                   x    : 10,
                   y    : 10,
                   width : 300,
-                  height: 300
+                  height: 300,
+
+                  rotation : 15,
+                  scaleX : 1.3,
+                  scaleOrigin:{
+                      x:50,
+                      y:50
+                  },
+                  rotateOrigin : {
+                      x:150,
+                      y:150
+                  }
+
+
                }
            });
 
@@ -402,7 +415,7 @@
               y  :100,
               width : 100,
               height:100,
-              //rotation : 45,
+              rotation : 45,
               scaleX : 2,
               scaleOrigin:{
                 x:50,
@@ -428,11 +441,10 @@
             }
           });
           rect.on("mouseover" , function(e){
-              this.context.rotation = -90;
-              debugger;
+              this.context.rotation = 50;
           })
           rect.on("mouseout" , function(){
-              this.context.rotation = 0;
+              this.context.rotation = 45;
           })
 
 
@@ -574,7 +586,7 @@
 
 
 
-   <div id="canvasTest" style='background:#f3f5f4;width:800px;height:500px;'></div>
+   <div id="canvasTest" style='background:#f3f5f4;width:1200px;height:800px;'></div>
    <input type="button" value="平滑贝塞尔曲线运动" />
 </body>
 </html>
