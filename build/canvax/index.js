@@ -1318,6 +1318,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             
             //debugger;
             //先把鼠标转换到stage下面来
+            /*
             var stage = this.getStage();
             if( stage._transform ){
                 console.log( "dom:"+point.x+"||"+point.y )
@@ -1330,9 +1331,8 @@ KISSY.add("canvax/animation/Animation" , function(S){
                 point.x = originPosStage[0] ;
                 point.y = originPosStage[1] ;
                 console.log( "stage:"+point.x+"||"+point.y )
-
-
             }
+            */
             
 
             //第一步，吧glob的point转换到对应的obj的层级内的坐标系统
