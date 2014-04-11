@@ -126,7 +126,7 @@ KISSY.add("canvax/event/EventManager" , function(S){
                     e.currentTarget = this.parent;
                     this.parent._dispatchEvent( e );
                 }
-            }
+            } 
             return true;
         },
         /**
