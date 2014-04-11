@@ -198,7 +198,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
         },
         localToGlobal : function( point ){
             !point && ( point = new Point( 0 , 0 ) );
-            var cm = this.getConcatenatedMatrix();
+            var cm = this.getConcatenatedMatrix( this );
 
             if (cm == null) return Point( 0 , 0 );
             var m = new Matrix(1, 0, 0, 1, point.x , point.y);
@@ -224,7 +224,7 @@ KISSY.add("canvax/display/DisplayObject" , function(S , EventDispatcher , Matrix
             var cm = new Matrix();
             for (var o = this; o != null; o = o.parent) {
                 cm.concat( o._transform );
-                if( !o.parent || ( o.parent && o.parent.type=="stage" ) ) {
+                if( !o.parent || ( container && o.parent && o.parent.type == container.type ) || ( o.parent && o.parent.type=="stage" ) ) {
                 //if( o.type == "stage" || (o.parent && container && o.parent.type == container.type ) ) {
                     break;
                 }
