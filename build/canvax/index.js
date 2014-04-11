@@ -1141,19 +1141,19 @@ KISSY.add("canvax/animation/Animation" , function(S){
             this.stage = p;
             return p;
         },
-        localToGlobal : function( point ){
+        localToGlobal : function( point , container ){
             !point && ( point = new Point( 0 , 0 ) );
-            var cm = this.getConcatenatedMatrix( this );
+            var cm = this.getConcatenatedMatrix( container );
 
             if (cm == null) return Point( 0 , 0 );
             var m = new Matrix(1, 0, 0, 1, point.x , point.y);
             m.concat(cm);
             return new Point( m.tx , m.ty ); //{x:m.tx, y:m.ty};
         },
-        globalToLocal : function( point ) {
+        globalToLocal : function( point , container) {
             !point && ( point = new Point( 0 , 0 ) );
 
-            var cm = this.getConcatenatedMatrix();
+            var cm = this.getConcatenatedMatrix( container );
 
             if (cm == null) return new Point( 0 , 0 ); //{x:0, y:0};
             cm.invert();
