@@ -123,7 +123,7 @@ KISSY.add("canvax/event/EventManager" , function(S){
             if( !e._stopPropagation ) {
                 //向上冒泡
                 if( this.parent ){
-                    e.target = this.parent;
+                    e.currentTarget = this.parent;
                     this.parent._dispatchEvent( e );
                 }
             }
