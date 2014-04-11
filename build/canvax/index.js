@@ -1169,7 +1169,7 @@ KISSY.add("canvax/animation/Animation" , function(S){
             var cm = new Matrix();
             for (var o = this; o != null; o = o.parent) {
                 cm.concat( o._transform );
-                if( !o.parent || ( container && o.parent && o.parent.type == container.type ) || ( o.parent && o.parent.type=="stage" ) ) {
+                if( !o.parent || ( container && o.parent && o.parent == container ) || ( o.parent && o.parent.type=="stage" ) ) {
                 //if( o.type == "stage" || (o.parent && container && o.parent.type == container.type ) ) {
                     break;
                 }
