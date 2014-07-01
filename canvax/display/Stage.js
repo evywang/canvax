@@ -16,7 +16,7 @@ KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base )
        self.type = "stage";
        self.context2D = null;
        //stage正在渲染中
-       self.stageRending=false;
+       self.stageRending = false;
        self._isReady = false;
        arguments.callee.superclass.constructor.apply(this, arguments);
    };

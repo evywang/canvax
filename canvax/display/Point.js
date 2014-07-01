@@ -17,19 +17,12 @@ KISSY.add("canvax/display/Point" , function(S){
                  i++;
              }
           }
-
           return;
-
        }
-
-
        x || (x=0);
        y || (y=0);
        this.x = x*1;
        this.y = y*1;
    };
-
    return Point;
-},{requires:[
-  
-]})
+});

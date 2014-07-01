@@ -275,10 +275,6 @@ KISSY.add("canvax/core/propertyFactory" , function(S,Base){
 
     return propertyFactory;
 
-
-
-
-
 } , {
    requires : [
      "canvax/core/Base" 
