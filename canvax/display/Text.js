@@ -7,9 +7,8 @@
  **/
 
 
-KISSY.add("canvax/display/Text" ,
-    function(S , DisplayObject , Base) {
-        var Text = function(text , opt) {
+KISSY.add(function(S , DisplayObject , Base) {
+        var Text = function( text , opt ) {
             var self = this;
             self.type = "text";
             self._reNewline = /\r?\n/;
@@ -40,6 +39,8 @@ KISSY.add("canvax/display/Text" ,
             arguments.callee.superclass.constructor.apply(this, [opt]);
 
         };
+        
+
         Base.creatClass(Text , DisplayObject , {
             $watch : function( name , value , preValue ){
                  //context属性有变化的监听函数
@@ -342,7 +343,6 @@ KISSY.add("canvax/display/Text" ,
 
             
         });
-
         return Text;
     },
     {

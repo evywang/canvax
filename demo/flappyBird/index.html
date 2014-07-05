@@ -36,7 +36,7 @@
 
        var files = [ "bg.png" , "flappy_packer.png" , "ground.png" ];
 
-       KISSY.use("canvax/ , canvax/library/stats , demo/flappyBird/ , node" , function( S , Canvax , Stats , GameApp ){
+       KISSY.use("canvax/ , canvax/utils/ImagesLoader , canvax/library/stats , demo/flappyBird/ , node" , function( S , Canvax , ImagesLoader , Stats , GameApp ){
            var stats = new Stats();
            stats.setMode( 0 ); // 0: fps, 1: ms
 
@@ -47,7 +47,7 @@
 
            document.body.appendChild( stats.domElement );
 
-           var fileloader = new Canvax.Utils.ImagesLoader( files );
+           var fileloader = new ImagesLoader( files );
            fileloader.on("success" , function( e ) {
                window.app = new GameApp( S.all("#flappyBird") , e.images );
                app.canvax.on("beginRender" , function(){

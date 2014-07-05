@@ -7,7 +7,7 @@
  */
 
 
-KISSY.add("canvax/display/Sprite" , function(S , DisplayObjectContainer,Base){
+KISSY.add(function(S , DisplayObjectContainer , Base){
   var Sprite = function(){
       var self = this;
       self.type = "sprite";

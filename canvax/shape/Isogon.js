@@ -14,7 +14,7 @@
  */
 
 
-KISSY.add("canvax/shape/Isogon" , function(S , Shape , math , Base){
+KISSY.add(function(S , Shape , Base){
 
   var Isogon = function(opt){
       var self = this;
@@ -33,8 +33,8 @@ KISSY.add("canvax/shape/Isogon" , function(S , Shape , math , Base){
   };
 
 
-  var sin = math.sin;
-  var cos = math.cos;
+  var sin = Math.sin;
+  var cos = Math.cos;
   var PI = Math.PI;
 
   Base.creatClass(Isogon , Shape , {
@@ -104,7 +104,6 @@ KISSY.add("canvax/shape/Isogon" , function(S , Shape , math , Base){
 }, {
   requires : [
     "canvax/display/Shape",
-    "canvax/utils/Math",
     "canvax/core/Base"
   ] 
 });

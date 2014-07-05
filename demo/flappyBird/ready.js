@@ -1,4 +1,4 @@
-KISSY.add("demo/flappyBird/ready" , function( S , Canvax ){
+KISSY.add("demo/flappyBird/ready" , function( S , Canvax , Tween ){
 
    var Ready = {
        sp    : null,
@@ -47,7 +47,7 @@ KISSY.add("demo/flappyBird/ready" , function( S , Canvax ){
        },
        hide : function( callback ){
            var self = this;
-           new Canvax.Animation.Tween( {a : 1} )
+           new Tween.Tween( {a : 1} )
                .to( { a : 0 }, 500 )
                .onUpdate( function () {
                    self.sp.context.globalAlpha = this.a;
@@ -65,6 +65,7 @@ KISSY.add("demo/flappyBird/ready" , function( S , Canvax ){
 
 } , {
    requires : [
-     "canvax/" 
+     "canvax/",
+     "canvax/animation/Tween"
    ]
 })

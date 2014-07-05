@@ -8,7 +8,7 @@
 
 
 
-KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
+KISSY.add(function( S , DisplayObject , Base  ){
 
    var Shape = function(opt){
        
@@ -98,6 +98,7 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
       dashedLineTo:function(ctx, x1, y1, x2, y2, dashLength) {
             dashLength = typeof dashLength == 'undefined'
                          ? 5 : dashLength;
+            dashLength = Math.max( dashLength , this.context.lineWidth );
             var deltaX = x2 - x1;
             var deltaY = y2 - y1;
             var numDashes = Math.floor(
@@ -157,7 +158,6 @@ KISSY.add("canvax/display/Shape" , function( S , DisplayObject , vec2 , Base  ){
 },{
   requires:[
     "canvax/display/DisplayObject",
-    "canvax/geom/Vector",
     "canvax/core/Base"
   ]
 })

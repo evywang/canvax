@@ -12,7 +12,7 @@
  * @vr 心形纵高（内尖到外尖距离）
  */
 
-KISSY.add("canvax/shape/Heart" , function(S , Shape , Base){
+KISSY.add(function(S , Shape , Base){
 
    var Heart = function(opt){
        var self = this;

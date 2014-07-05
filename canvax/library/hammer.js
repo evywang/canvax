@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
  * Licensed under the MIT license */
-KISSY.add("canvax/library/hammer" , function(){
+KISSY.add(function(){
 
 return (function(window, undefined) {
   'use strict';

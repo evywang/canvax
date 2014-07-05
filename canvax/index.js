@@ -11,13 +11,18 @@
  *
  **/
 
-KISSY.add("canvax/index" ,
-   function( S , DisplayObjectContainer , Stage , Base , CanvaxEvent , EventDispatcher ,propertyFactory , Sprite , Text , Shape , Movieclip , Bitmap , Point , Shapes , Animation , ImagesLoader , Hammer ){
+KISSY.add(function( 
+       S ,
+       Base , CanvaxEvent , 
+       DisplayObjectContainer , 
+       Stage , Sprite , Shape , Point , Bitmap , Text , Movieclip , 
+       Hammer
+   ) {
        
-   var Canvax=function(opt){
+   var Canvax = function( opt ){
        this.type = "canvax";
        
-       this.el = opt.el || null;
+       this.el   = opt.el || null;
 
        //是否阻止浏览器默认事件的执行
        this.preventDefault = true;
@@ -137,6 +142,7 @@ KISSY.add("canvax/index" ,
            Base._pixelCtx = _pixelCanvas.getContext('2d');
        },
        _initEvent : function(){
+    
           //初始绑定事件，为后续的displayList的事件分发提供入口
           var self = this;
           var _moveStep = 0; //move的时候的频率设置
@@ -153,7 +159,6 @@ KISSY.add("canvax/index" ,
                           }
                           _moveStep = 0;
                       }
-                      //if( e.type = "" )
                       self.__mouseHandler( e );
                   } ); 
               } );
@@ -163,6 +168,7 @@ KISSY.add("canvax/index" ,
           if( Hammer && Hammer.HAS_TOUCHEVENTS ){
               var el = self.el[0]
               self._hammer = Hammer( el ).on( Hammer.EventsTypes , function( e ){
+                 
                  //console.log(e.type)
                  //同样的，如果是drag事件，则要频率控制
                  if( e.type == "drag" ){
@@ -190,7 +196,7 @@ KISSY.add("canvax/index" ,
         *触屏事件处理函数
         * */
        __touchHandler : function( e ) {
-          var self          = this;
+          var self = this;
 
           //用hamer的方式来阻止执行浏览器默认事件
           if( this.preventDefault ) {
@@ -348,6 +354,7 @@ KISSY.add("canvax/index" ,
            if( e.type == "mouseout" ){
               self.__getcurPointsTarget(e , curMousePoint);
            }
+
            if( e.type == "mousemove" ){  //|| e.type == "mousedown" ){
                //拖动过程中就不在做其他的mouseover检测，drag优先
                if(self._touching && e.type == "mousemove" && curMouseTarget){
@@ -379,6 +386,7 @@ KISSY.add("canvax/index" ,
                if( !child ){
                    child = self;
                };
+
                self.__dispatchEventInChilds( e , [ child ] );
            }
 
@@ -543,6 +551,7 @@ KISSY.add("canvax/index" ,
           }
        },
        __enterFrame : function(){
+           
            var self = this;
            //不管怎么样，__enterFrame执行了就要把
            //requestAid null 掉
@@ -562,7 +571,6 @@ KISSY.add("canvax/index" ,
                //开始渲染的事件
                self.fire("beginRender");
 
-                              
                _.each(_.values( self.convertStages ) , function(convertStage){
                   convertStage.stage._render( convertStage.stage.context2D );
                });
@@ -703,58 +711,38 @@ KISSY.add("canvax/index" ,
               //否则智慧继续确认心跳
               self._heartBeat = true;
            }
-                
        }
-       
    } );
 
-   Canvax.propertyFactory = propertyFactory;
 
-   //给Canvax 添加静态对象，指向stage ,shape,text,sprite等类
-   Canvax.Display ={
-      Stage     : Stage,
-      Sprite    : Sprite,
-      Text      : Text,
-      Shape     : Shape,
-      Movieclip : Movieclip,
-      Bitmap    : Bitmap,
-      Point     : Point
-   }
-   //所有自定义shape的集合，可以直接再这个上面获取不必强制引入use('canvax/shape/Circle')这样
-   Canvax.Shapes    = Shapes;
-
-   Canvax.Utils     = {
-       ImagesLoader : ImagesLoader
-   };
-   
-   Canvax.Animation = Animation;
-   Canvax.Base      = Base;
-
-   Canvax.Event     = {
-      EventDispatcher : EventDispatcher
+   Canvax.Display = {
+       Stage  : Stage,
+       Sprite : Sprite,
+       Shape  : Shape,
+       Point  : Point,
+       Bitmap : Bitmap,
+       Text   : Text,
+       Movieclip : Movieclip
    }
 
    return Canvax;
+
 } , {
    requires : [
-    "canvax/display/DisplayObjectContainer" ,
-    "canvax/display/Stage", 
     "canvax/core/Base",
     "canvax/event/CanvaxEvent",
-    "canvax/event/EventDispatcher",
-    "canvax/core/propertyFactory",
-    
+
+    "canvax/display/DisplayObjectContainer" ,
+    "canvax/display/Stage",
     "canvax/display/Sprite",
-    "canvax/display/Text",
     "canvax/display/Shape",
-    "canvax/display/Movieclip",
-    "canvax/display/Bitmap",
     "canvax/display/Point",
+    "canvax/display/Bitmap",
+    "canvax/display/Text",
+    "canvax/display/Movieclip",
 
-    "canvax/shape/Shapes", //所有自定义shape的集合
+    "canvax/animation/AnimationFrame",
 
-    "canvax/animation/Animation",
-    "canvax/utils/ImagesLoader",
 
     ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
   

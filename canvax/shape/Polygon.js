@@ -12,7 +12,7 @@
  **/
 
 
-KISSY.add("canvax/shape/Polygon" , function(S , Shape , Base){
+KISSY.add(function(S , Shape , Base){
 
    var Polygon=function(opt){
        var self = this;

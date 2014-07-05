@@ -7,7 +7,7 @@
  */
 
 
-KISSY.add("canvax/display/DisplayObjectContainer" , function(S ,Base, DisplayObject , Point){
+KISSY.add(function(S , Base , DisplayObject , Point){
 
     DisplayObjectContainer = function(opt){
        var self = this;

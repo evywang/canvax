@@ -7,7 +7,7 @@
  */
 
 
-KISSY.add("canvax/event/EventBase" , function(S,core){
+KISSY.add(function(S,core){
     var EventBase = function(type, bubbles, cancelable) {
         this.type = type;
         this.target = null;

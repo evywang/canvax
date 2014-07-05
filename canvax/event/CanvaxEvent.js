@@ -7,7 +7,7 @@
  */
 
 
-KISSY.add("canvax/event/CanvaxEvent" , function(S,EventBase,Base){
+KISSY.add(function(S,EventBase,Base){
     var CanvaxEvent = function(type, bubbles, cancelable) {
         EventBase.call(this, type, bubbles, cancelable);
 
@@ -15,7 +15,7 @@ KISSY.add("canvax/event/CanvaxEvent" , function(S,EventBase,Base){
         this.mouseY = 0;
     }
 
-    Base.creatClass(CanvaxEvent , EventBase , {
+    Base.creatClass( CanvaxEvent , EventBase , {
         toString : function() {
         return "[CanvaxEvent type=" + this.type + ", mouseX=" + this.mouseX + ", mouseY=" + this.mouseY + "]";
     }

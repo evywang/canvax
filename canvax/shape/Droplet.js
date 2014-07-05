@@ -10,7 +10,7 @@
  * @vr 水滴纵高（中心到尖端距离）
  **/
 
-KISSY.add("canvax/shape/Droplet" , function(S,Shape,Base){
+KISSY.add(function(S,Shape,Base){
 
   var Droplet = function(opt){
       var self = this;

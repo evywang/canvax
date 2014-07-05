@@ -1,4 +1,4 @@
-KISSY.add("canvax/display/Point" , function(S){
+KISSY.add(function(S){
    var Point = function(x,y){
        if(arguments.length==1 && typeof arguments[0] == 'object' ){
           var arg=arguments[0]

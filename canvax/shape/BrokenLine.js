@@ -9,7 +9,7 @@
  * @pointList 各个顶角坐标
  **/
  
-KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Base){
+KISSY.add(function(S , Shape , Base , SmoothSpline){
    var BrokenLine = function(opt){
        var self = this;
        self.type = "brokenLine";
@@ -17,9 +17,10 @@ KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Base){
 
        opt = Base.checkOpt( opt );
        self._context = {
+           lineType   : opt.context.lineType  || null,
+           smooth     : opt.context.smooth    || false,
            pointList  : opt.context.pointList || [] //{Array}  // 必须，各个顶角坐标
        }
-       
        
        arguments.callee.superclass.constructor.apply(this, arguments);
    }
@@ -31,51 +32,35 @@ KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Base){
                // 少于2个点就不画了~
                return;
            }
-           if (!context.lineType || context.lineType == 'solid') {
+
+           var len = pointList.length;
+
+
+           if( context.smooth ) {
+               pointList = SmoothSpline( pointList );
+               len = pointList.length;
+           }
+
+
+           if (!context.lineType || context.lineType == 'solid' || context.smooth) {
                //默认为实线
+               //TODO:目前如果 有设置smooth 的情况下是不支持虚线的
                ctx.moveTo(pointList[0][0],pointList[0][1]);
                for (var i = 1, l = pointList.length; i < l; i++) {
                    ctx.lineTo(pointList[i][0],pointList[i][1]);
                }
            } else if (context.lineType == 'dashed' || context.lineType == 'dotted') {
-               //画虚线的方法  by loutongbing@baidu.com
-               var lineWidth = context.lineWidth || 1;
-               var dashPattern = [ lineWidth * (context.lineType == 'dashed' ? 6 : 1), lineWidth * 4 ];
+               //画虚线的方法  
                ctx.moveTo(pointList[0][0],pointList[0][1]);
                for (var i = 1, l = pointList.length; i < l; i++) {
                    var fromX = pointList[i - 1][0];
                    var toX = pointList[i][0];
                    var fromY = pointList[i - 1][1];
                    var toY = pointList[i][1];
-                   var dx = toX - fromX;
-                   var dy = toY - fromY;
-                   var angle = Math.atan2(dy, dx);
-                   var x = fromX;
-                   var y = fromY;
-                   var idx = 0;
-                   var draw = true;
-                   var dashLength;
-                   var nx;
-                   var ny;
 
-                   while (!((dx < 0 ? x <= toX : x >= toX) && (dy < 0 ? y <= toY : y >= toY))) {
-                       dashLength = dashPattern[
-                           idx++ % dashPattern.length
-                           ];
-                       nx = x + (Math.cos(angle) * dashLength);
-                       x = dx < 0 ? Math.max(toX, nx) : Math.min(toX, nx);
-                       ny = y + (Math.sin(angle) * dashLength);
-                       y = dy < 0 ? Math.max(toY, ny) : Math.min(toY, ny);
-                       if (draw) {
-                           ctx.lineTo(x, y);
-                       } else {
-                           ctx.moveTo(x, y);
-                       }
-                       draw = !draw;
-                   }
+                   this.dashedLineTo( ctx , fromX , fromY , toX , toY , 5 );
                }
            }
-
 
            return;
        },
@@ -93,6 +78,7 @@ KISSY.add("canvax/shape/BrokenLine" , function(S , Shape , Base){
 } , {
    requires:[
      "canvax/display/Shape",
-     "canvax/core/Base"
+     "canvax/core/Base",
+     "canvax/geom/SmoothSpline"
    ]
 });

@@ -14,7 +14,7 @@
  * @yEnd      必须，终点纵坐标
  **/
 
-KISSY.add("canvax/shape/Line" , function(S,Shape,Base){
+KISSY.add(function(S,Shape,Base){
   var Line = function(opt){
       var self = this;
       this.type = "line";
@@ -25,7 +25,8 @@ KISSY.add("canvax/shape/Line" , function(S,Shape,Base){
            xStart        : opt.context.xStart || 0 ,//{number},  // 必须，起点横坐标
            yStart        : opt.context.yStart || 0 ,//{number},  // 必须，起点纵坐标
            xEnd          : opt.context.xEnd   || 0 ,//{number},  // 必须，终点横坐标
-           yEnd          : opt.context.yEnd   || 0 //{number},  // 必须，终点纵坐标
+           yEnd          : opt.context.yEnd   || 0 ,//{number},  // 必须，终点纵坐标
+           dashLength    : opt.context.dashLength  || 5
       }
       arguments.callee.superclass.constructor.apply(this, arguments);
   };
@@ -43,12 +44,11 @@ KISSY.add("canvax/shape/Line" , function(S,Shape,Base){
               ctx.moveTo(style.xStart, style.yStart);
               ctx.lineTo(style.xEnd, style.yEnd);
           } else if (style.lineType == 'dashed' || style.lineType == 'dotted') {
-              var dashLength =(style.lineWidth || 1) * (style.lineType == 'dashed' ? 5 : 1);
               this.dashedLineTo(
                   ctx,
                   style.xStart, style.yStart,
                   style.xEnd, style.yEnd,
-                  dashLength
+                  style.dashLength
               );
           }
       },

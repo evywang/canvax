@@ -13,7 +13,7 @@
  */
 
 
-KISSY.add("canvax/shape/Ellipse" , function(S,Shape,Base){
+KISSY.add(function(S,Shape,Base){
 
    var Ellipse = function(opt){
        var self = this;

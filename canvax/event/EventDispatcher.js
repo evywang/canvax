@@ -7,7 +7,7 @@
  */
 
 
-KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
+KISSY.add(function(S , Base ,EventManager){
 
   var EventDispatcher = function(){
 
@@ -56,7 +56,8 @@ KISSY.add("canvax/event/EventDispatcher" , function(S , Base ,EventManager){
            //记录dispatchEvent之前的心跳
            var preHeartBeat = this._heartBeatNum;
            this._dispatchEvent( event );
-           if(preHeartBeat != this._heartBeatNum){
+
+           if( preHeartBeat != this._heartBeatNum ){
                this._hoverClass = true;
                var canvax = this.getStage().parent;
  

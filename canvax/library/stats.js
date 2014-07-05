@@ -2,7 +2,7 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-KISSY.add("canvax/library/stats" , function( S , CanvaxEvent ){
+KISSY.add(function( S , CanvaxEvent ){
 
 
 var Stats = function () {

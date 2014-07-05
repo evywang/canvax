@@ -1,4 +1,4 @@
-KISSY.add("canvax/utils/ImagesLoader" , function( S , Base , EventDispatcher ){
+KISSY.add(function( S , Base , EventDispatcher ){
    var ImagesLoader = function( urls ){
        arguments.callee.superclass.constructor.apply(this, arguments);
        this.urls  = urls || [];   //要加载的images

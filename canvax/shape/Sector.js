@@ -15,7 +15,7 @@
  **/
 
 
-KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
+KISSY.add(function(S , Shape , myMath , Base){
  
    var Sector = function(opt){
        var self  = this;
@@ -148,7 +148,7 @@ KISSY.add("canvax/shape/Sector" , function(S , Shape , myMath , Base){
 },{
    requires:[
      "canvax/display/Shape",
-     "canvax/utils/Math",
+     "canvax/geom/Math",
      "canvax/core/Base"
    ]
 });

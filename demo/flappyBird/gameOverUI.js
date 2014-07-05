@@ -1,4 +1,4 @@
-KISSY.add("demo/flappyBird/gameOverUI" , function( S , Canvax ){
+KISSY.add("demo/flappyBird/gameOverUI" , function( S , Canvax , Tween ){
 
    var gameOver = {
        own      : null, //指向游戏
@@ -111,13 +111,13 @@ KISSY.add("demo/flappyBird/gameOverUI" , function( S , Canvax ){
           //overui的出场动画begin
           var topS  = this.sp.getChildById("top").context;
           var topY  = topS.y;
-          var tweenTop1 = new Canvax.Animation.Tween( {y : topY} )
+          var tweenTop1 = new Tween.Tween( {y : topY} )
               .to( { y : topY - 10 }, 100 )
               .onUpdate( function () {
                   topS.y = this.y;
               } );
 
-          var tweenTop2 = new Canvax.Animation.Tween( { y : topY - 10 } )
+          var tweenTop2 = new Tween.Tween( { y : topY - 10 } )
               .to( { y : topY }, 100 )
               .onUpdate( function () {
                   topS.y = this.y;
@@ -126,7 +126,7 @@ KISSY.add("demo/flappyBird/gameOverUI" , function( S , Canvax ){
           var middleS       = this.sp.getChildById("middle").context;
           var middleY       = middleS.y;
           middleS.y = middleY + this.own.height - middleS.$owner.localToGlobal( {x:0 , y:0} ).y;
-          var tweenMiddle = new Canvax.Animation.Tween( {y : middleS.y } )
+          var tweenMiddle = new Tween.Tween( {y : middleS.y } )
               .to( { y : middleY }, 400 )
               .onUpdate( function () {
                   middleS.y = this.y;
@@ -149,7 +149,8 @@ KISSY.add("demo/flappyBird/gameOverUI" , function( S , Canvax ){
 
 } , {
    requires : [
-     "canvax/" 
+     "canvax/",
+     "canvax/animation/Tween"
    ]
 })
 

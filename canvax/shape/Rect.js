@@ -13,7 +13,7 @@
  **/
 
 
-KISSY.add("canvax/shape/Rect" , function( S , Shape , Base){
+KISSY.add(function( S , Shape , Base){
   var Rect = function(opt){
       var self = this;
       self.type = "rect";

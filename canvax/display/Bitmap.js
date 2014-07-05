@@ -7,7 +7,7 @@
  */
 
 
-KISSY.add("canvax/display/Bitmap" , function(S , Shape , Base){
+KISSY.add(function(S , Shape , Base){
   var Bitmap = function(opt){
       var self = this;
       self.type = "bitmap";

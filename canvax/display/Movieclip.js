@@ -7,7 +7,7 @@
  */
 
 
-KISSY.add("canvax/display/Movieclip" , function(S , DisplayObjectContainer,Base){
+KISSY.add(function(S , DisplayObjectContainer , Base){
   var Movieclip = function( opt ){
 
       var self = this;

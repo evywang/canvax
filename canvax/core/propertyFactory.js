@@ -8,7 +8,7 @@
  */
 
 
-KISSY.add("canvax/core/propertyFactory" , function(S,Base){
+KISSY.add(function(S,Base){
     //定义封装好的兼容大部分浏览器的defineProperties 的 属性工厂
 
     unwatchOne = {

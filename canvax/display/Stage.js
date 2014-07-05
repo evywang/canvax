@@ -9,7 +9,7 @@
  */
 
 
-KISSY.add("canvax/display/Stage" , function( S , DisplayObjectContainer , Base ){
+KISSY.add(function( S , DisplayObjectContainer , Base ){
   
    var Stage = function( ){
        var self = this;

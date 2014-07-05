@@ -11,7 +11,7 @@
  **/
 
 
-KISSY.add("canvax/shape/Path" , function( S , Shape , Base){
+KISSY.add(function( S , Shape , Base){
 
    var Path=function(opt){
        var self = this;

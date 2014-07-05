@@ -1,9 +1,9 @@
-KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOverUI ){
+KISSY.add("demo/flappyBird/index" , function( S , Canvax , Tween , Bird , Ready , gameOverUI ){
 
     var timer    = null;
     var animate  = function(){
         timer    = requestAnimationFrame( animate ); 
-        Canvax.Animation.update();
+        Tween.update();
     };
 
     var flappyBird = function( el , files ){
@@ -134,7 +134,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
                };
                this.stage.addChild( this.ground );
            }
-           new Canvax.Animation.Tween( {x:0} )
+           new Tween.Tween( {x:0} )
                .to( { x : -self.width }, 3000 )
                .repeat( Infinity )
                .onUpdate( function () {
@@ -210,16 +210,18 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
             return s;
         },
         treesTween : function(){
+            
             var self = this;
+            
             self.tree.Sprite.addChild( self.creatTree() );
-            var t1 = new Canvax.Animation.Tween( { x : self.width } )
+            var t1 = new Tween.Tween( { x : self.width } )
                .to( { x : 0 }, 5000 )
                .onUpdate( function () {
                    !self.checkPosition( ) && ( self.tree.Sprite.context.x = this.x );
                } );
 
             var p = { x : 0 }
-            var t2 = new Canvax.Animation.Tween( p )
+            var t2 = new Tween.Tween( p )
                .to( { x : -self.width }, 5000 )
                .onUpdate( function () {
                    !self.checkPosition( ) && ( self.tree.Sprite.context.x = this.x );
@@ -248,6 +250,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
                 this.tree.Sprite.addChild( this.creatTree() );
             }
 
+   
             _.each( this.tree.Sprite.children , function( tree ){
                 var treeG = tree.localToGlobal();
 
@@ -269,7 +272,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
                     if( self.bird.sp.context.y < ( treeG.y + tree.children[0].context.height )
                         || self.bird.sp.context.y > ( treeG.y + tree.children[1].context.y - self.bird.sp.context.height )
                         ) {
-                           // return
+                          //return
                           //肯定撞上了
                           self.gameOver();
                           hitState = true;
@@ -298,6 +301,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
         },
         //开始游戏
         gameStart    : function(){
+
             var self = this;
             if( self.state == 2 ){
                 //正在结束ui
@@ -324,7 +328,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
         //结束游戏
         gameOver    : function(){
             //停止掉所有在跑的tween动画
-            Canvax.Animation.removeAll();
+            Tween.removeAll();
             this.bird.stop();
             
             gameOverUI.show();
@@ -354,6 +358,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Bird , Ready , gameOv
 } , {
     requires : [
       "canvax/",
+      "canvax/animation/Tween",
       "demo/flappyBird/bird",
       "demo/flappyBird/ready",
       "demo/flappyBird/gameOverUI"

@@ -7,7 +7,7 @@
  */
 
 
-KISSY.add("canvax/event/EventManager" , function(S){
+KISSY.add(function(S){
     /**
      * 构造函数.
      * @name EventDispatcher
@@ -108,7 +108,8 @@ KISSY.add("canvax/event/EventManager" , function(S){
         */
         _dispatchEvent : function(e) {
             var map = this._eventMap[e.type];
-            if(map){
+            
+            if( map ){
                 if(!e.target) e.target = this;
                 map = map.slice();
 

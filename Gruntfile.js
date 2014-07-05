@@ -1,5 +1,6 @@
 module.exports = function(grunt) {
   //配置参数
+  var buildPath = "build"
   grunt.initConfig({
      concat: {
          options: {
@@ -8,10 +9,15 @@ module.exports = function(grunt) {
          },
          dist: {
              src: [
-                 "canvax/**/*.js",
-                 "!canvax/library/**/*.js"
+                 buildPath + "/canvax/**/*.js",
+                 "!"+ buildPath +"/canvax/library/**/*.js",
+                 "!"+ buildPath +"/canvax/animation/Tween.js",
+                 "!"+ buildPath +"/canvax/shape/**/*.js",
+                 "!"+ buildPath +"/canvax/utils/**/*.js",
+                 "!"+ buildPath +"/canvax/geom/SmoothSpline.js",
+                 "!"+ buildPath +"/canvax/geom/Vector.js"
              ],
-             dest: "build/canvax/index.js"
+             dest: buildPath + "/canvax/index.js"
          }
      },
      uglify: {
@@ -20,30 +26,44 @@ module.exports = function(grunt) {
          },
          dist: {
              files: [
-               {'build/canvax/index-min.js': 'build/canvax/index.js'},
-               {'build/canvax/library/underscore-min.js': 'build/canvax/library/underscore.js'},
-               {'build/canvax/library/hammer-min.js': 'build/canvax/library/hammer.js'},
-               {'build/canvax/library/excanvas-min.js'  : 'build/canvax/library/excanvas.js'},
-               {'build/canvax/library/flashCanvas/flashcanvas-min.js'  : 'build/canvax/library/flashCanvas/flashcanvas.js'}
+               {
+                   expand: true,
+                   cwd: buildPath,
+                   ext: '-min.js',
+                   src: ['**/*.js', '!**/*-min.js'],
+                   dest: buildPath 
+               }
              ]
          }
      },
      copy: {
          main: {
              files: [
-             {
-                 expand: true, cwd: 'canvax/library', src: ['**'], dest: 'build/canvax/library'}
+               { expand: true , cwd: "canvax/" , src:"**/*" , dest: buildPath + "/canvax/" }
              ]
          }
+      },
+      autoname: {
+         build: {
+             // targetDir,要执行的目标目录，一般为打包的build目录
+             targetDir : "./"+buildPath
+         }
+      },
+      clean: { 
+          build : {
+             src : buildPath
+          }
       }
   });
  
   //载入concat和uglify插件，分别对于合并和压缩
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-auto-kissy-module-name');
  
   //注册任务
-  grunt.registerTask('default', ['concat', 'uglify' , 'copy']);
+  grunt.registerTask( 'default' , [ 'clean' , 'copy' , 'autoname' , 'concat' , 'uglify' ] );
 }
 

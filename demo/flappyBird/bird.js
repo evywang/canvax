@@ -1,4 +1,4 @@
-KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
+KISSY.add("demo/flappyBird/bird" , function( S , Canvax , Tween ){
     
     var Bird  =  function( opt){
         this.width    = 83 * opt.scale;
@@ -60,7 +60,7 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
             self.sp.context.rotation = 0 ;
             var p1 = { y : birdReadyY };
             var p2 = { y : birdReadyY - this.sp.context.height / 2 }
-            var fly1 = new Canvax.Animation.Tween( p1 )
+            var fly1 = new Tween.Tween( p1 )
                 .to( { y : (birdReadyY - this.sp.context.height / 2) }, 500 )
                 .onUpdate( function () {
                     self.sp.context.y = this.y;
@@ -70,7 +70,7 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
                     //console.log("ready")
                 } );
 
-            var fly2 = new Canvax.Animation.Tween( p2 )
+            var fly2 = new Tween.Tween( p2 )
                 .to( { y : birdReadyY }, 500 )
                 .onUpdate( function () {
                     self.sp.context.y = this.y;
@@ -104,7 +104,7 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
             if( !self.up && self.sp.context.rotation != -20 ){
                 //上升阶段，并且角度不为 -30
                 var rUp = { r : self.sp.context.rotation };
-                self.up   = new Canvax.Animation.Tween( rUp )
+                self.up   = new Tween.Tween( rUp )
                     .to( { r : -20 }, 200 )
                     .onUpdate( function () {
                         self.sp.context.rotation = this.r;
@@ -126,7 +126,7 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
                 if( now_y < y && bird_t > 0 && !self.fall) {
                     //下降阶段
                     var r = { r : self.sp.context.rotation }
-                    self.fall = new Canvax.Animation.Tween( r )
+                    self.fall = new Tween.Tween( r )
                         .to( { r : 90 }, 350 )
                         .onUpdate( function () {
                            self.sp.context.rotation = this.r;
@@ -154,6 +154,7 @@ KISSY.add("demo/flappyBird/bird" , function( S , Canvax ){
 
 } , {
    requires : [
-     "canvax/" 
+     "canvax/",
+     "canvax/animation/Tween"
    ]
 });

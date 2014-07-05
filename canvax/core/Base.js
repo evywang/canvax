@@ -5,7 +5,7 @@
  */
 
 
-KISSY.add("canvax/core/Base" , function(S){
+KISSY.add(function(S){
 
     var classTypes = {};
     "Boolean Number String Function Array Date RegExp Object Error".replace(/[^, ]+/g, function(name) {
@@ -41,7 +41,7 @@ KISSY.add("canvax/core/Base" , function(S){
         canvasSupport : function() {
             return !!document.createElement('canvas').getContext;
         },
-        createObject : function(proto, constructor) {
+        createObject : function( proto , constructor ) {
             var newProto;
             var ObjectCreate = Object.create;
             if (ObjectCreate) {
