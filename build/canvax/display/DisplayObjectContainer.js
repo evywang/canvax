@@ -191,8 +191,7 @@ KISSY.add('canvax/display/DisplayObjectContainer', function (S, Base, DisplayObj
         },
         render: function (ctx) {
             for (var i = 0, len = this.children.length; i < len; i++) {
-                var child = this.children[i];
-                child._render(ctx);
+                this.children[i]._render(ctx);
             }
         }
     });

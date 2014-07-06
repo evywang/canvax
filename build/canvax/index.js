@@ -194,7 +194,13 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
             }
         };
     return Base;
-}, { requires: [!window._ ? 'canvax/library/underscore' : ''] });;KISSY.add('canvax/core/propertyFactory', function (S, Base) {
+}, {
+    requires: [
+        'canvax/animation/AnimationFrame',
+        'ontouchstart' in window ? 'canvax/library/hammer' : '',
+        !window._ ? 'canvax/library/underscore' : ''
+    ]
+});;KISSY.add('canvax/core/propertyFactory', function (S, Base) {
     //定义封装好的兼容大部分浏览器的defineProperties 的 属性工厂
     unwatchOne = {
         '$skipArray': 0,
@@ -1172,8 +1178,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
         },
         render: function (ctx) {
             for (var i = 0, len = this.children.length; i < len; i++) {
-                var child = this.children[i];
-                child._render(ctx);
+                this.children[i]._render(ctx);
             }
         }
     });
@@ -3022,7 +3027,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
         }
         return ret;
     };
-}, { requires: ['canvax/geom/Vector'] });;KISSY.add('canvax/index', function (S, Base, CanvaxEvent, DisplayObjectContainer, Stage, Sprite, Shape, Point, Bitmap, Text, Movieclip, Hammer) {
+}, { requires: ['canvax/geom/Vector'] });;KISSY.add('canvax/index', function (S, Base, CanvaxEvent, DisplayObjectContainer, Stage, Sprite, Shape, Point, Bitmap, Text, Movieclip) {
     var Canvax = function (opt) {
         this.type = 'canvax';
         this.el = opt.el || null;    //是否阻止浏览器默认事件的执行
@@ -3137,7 +3142,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
             var self = this;
             var _moveStep = 0;    //move的时候的频率设置
             //move的时候的频率设置
-            if (!(Hammer && Hammer.NO_MOUSEEVENTS)) {
+            if (!(window.Hammer && Hammer.NO_MOUSEEVENTS)) {
                 //依次添加上浏览器的自带事件侦听
                 _.each(CanvaxEvent.EVENTS, function (type) {
                     CanvaxEvent.addEvent(self.el, type, function (e) {
@@ -3154,7 +3159,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
                 });
             }    //触屏系统则引入Hammer
             //触屏系统则引入Hammer
-            if (Hammer && Hammer.HAS_TOUCHEVENTS) {
+            if (window.Hammer && Hammer.HAS_TOUCHEVENTS) {
                 var el = self.el[0];
                 self._hammer = Hammer(el).on(Hammer.EventsTypes, function (e) {
                     //console.log(e.type)
@@ -3689,10 +3694,6 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
         'canvax/display/Point',
         'canvax/display/Bitmap',
         'canvax/display/Text',
-        'canvax/display/Movieclip',
-        'canvax/animation/AnimationFrame',
-        'ontouchstart' in window ? 'canvax/library/hammer' : '',
-        //如果用户没有加载underscore，作为被选方案，自己加载一个进来
-        !window._ ? 'canvax/library/underscore' : ''
+        'canvax/display/Movieclip'
     ]
 });

@@ -168,4 +168,10 @@ KISSY.add('canvax/core/Base', function (S) {
             }
         };
     return Base;
-}, { requires: [!window._ ? 'canvax/library/underscore' : ''] });
+}, {
+    requires: [
+        'canvax/animation/AnimationFrame',
+        'ontouchstart' in window ? 'canvax/library/hammer' : '',
+        !window._ ? 'canvax/library/underscore' : ''
+    ]
+});

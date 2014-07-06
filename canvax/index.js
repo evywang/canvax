@@ -15,8 +15,7 @@ KISSY.add(function(
        S ,
        Base , CanvaxEvent , 
        DisplayObjectContainer , 
-       Stage , Sprite , Shape , Point , Bitmap , Text , Movieclip , 
-       Hammer
+       Stage , Sprite , Shape , Point , Bitmap , Text , Movieclip  
    ) {
        
    var Canvax = function( opt ){
@@ -142,12 +141,11 @@ KISSY.add(function(
            Base._pixelCtx = _pixelCanvas.getContext('2d');
        },
        _initEvent : function(){
-    
           //初始绑定事件，为后续的displayList的事件分发提供入口
           var self = this;
           var _moveStep = 0; //move的时候的频率设置
 
-          if( !(Hammer && Hammer.NO_MOUSEEVENTS) ) {
+          if( !(window.Hammer && Hammer.NO_MOUSEEVENTS) ) {
               //依次添加上浏览器的自带事件侦听
               _.each( CanvaxEvent.EVENTS , function( type ){
                   CanvaxEvent.addEvent( self.el , type , function( e ){
@@ -165,7 +163,7 @@ KISSY.add(function(
           } 
 
           //触屏系统则引入Hammer
-          if( Hammer && Hammer.HAS_TOUCHEVENTS ){
+          if( window.Hammer && Hammer.HAS_TOUCHEVENTS ){
               var el = self.el[0]
               self._hammer = Hammer( el ).on( Hammer.EventsTypes , function( e ){
                  
@@ -739,15 +737,7 @@ KISSY.add(function(
     "canvax/display/Point",
     "canvax/display/Bitmap",
     "canvax/display/Text",
-    "canvax/display/Movieclip",
-
-    "canvax/animation/AnimationFrame",
-
-
-    ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
-  
-    //如果用户没有加载underscore，作为被选方案，自己加载一个进来
-    !window._ ? "canvax/library/underscore" : "",
+    "canvax/display/Movieclip"
 
     ]
 });

@@ -16,6 +16,12 @@ KISSY.add(function(S , Shape , Base , SmoothSpline){
        self.drawTypeOnly = "stroke";
 
        opt = Base.checkOpt( opt );
+
+       if( opt.context.smooth ){
+           opt.context.pointList = SmoothSpline( opt.context.pointList );
+           self.pointsLen = opt.context.pointList.length;
+       }
+
        self._context = {
            lineType   : opt.context.lineType  || null,
            smooth     : opt.context.smooth    || false,
@@ -32,15 +38,6 @@ KISSY.add(function(S , Shape , Base , SmoothSpline){
                // 少于2个点就不画了~
                return;
            }
-
-           var len = pointList.length;
-
-
-           if( context.smooth ) {
-               pointList = SmoothSpline( pointList );
-               len = pointList.length;
-           }
-
 
            if (!context.lineType || context.lineType == 'solid' || context.smooth) {
                //默认为实线
@@ -67,6 +64,9 @@ KISSY.add(function(S , Shape , Base , SmoothSpline){
        getRect :  function(context) {
            var context = context ? context : this.context;
            return this.getRectFormPointList( context );
+       },
+       getPointList : function(){
+           return this.context.$model.pointList;
        }
 
 

@@ -177,6 +177,8 @@ KISSY.add(function(S){
 
 },{
     requires : [
+      "canvax/animation/AnimationFrame",
+      ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
       !window._ ? "canvax/library/underscore" : "", 
     ]
 })

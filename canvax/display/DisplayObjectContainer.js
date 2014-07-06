@@ -200,10 +200,8 @@ KISSY.add(function(S , Base , DisplayObject , Point){
             return result;
         },
         render : function( ctx ) {
-            
             for(var i = 0, len = this.children.length; i < len; i++) {
-                var child = this.children[i];
-                child._render( ctx );
+                this.children[i]._render( ctx );
             }
         }
     });
