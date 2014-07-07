@@ -19,8 +19,8 @@ KISSY.add(function(S , Shape , Base , SmoothSpline){
 
        if( opt.context.smooth ){
            opt.context.pointList = SmoothSpline( opt.context.pointList );
-           self.pointsLen = opt.context.pointList.length;
        }
+       self.pointsLen = opt.context.pointList.length;
 
        self._context = {
            lineType   : opt.context.lineType  || null,
