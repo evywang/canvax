@@ -19,7 +19,7 @@ KISSY.add( function( S , Vector ){
     }
 
     /**
-     * 多线段平滑曲线 Catmull-Rom spline
+     * 多线段平滑曲线 
      */
     return function (points, isLoop) {
         var len = points.length;

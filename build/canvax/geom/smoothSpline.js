@@ -14,10 +14,10 @@ KISSY.add('canvax/geom/smoothSpline', function (S, Vector) {
         var v1 = (p3 - p1) * 0.5;
         return (2 * (p1 - p2) + v0 + v1) * t3 + (-3 * (p1 - p2) - 2 * v0 - v1) * t2 + v0 * t + p1;
     }    /**
-     * 多线段平滑曲线 Catmull-Rom spline
+     * 多线段平滑曲线 
      */
     /**
-     * 多线段平滑曲线 Catmull-Rom spline
+     * 多线段平滑曲线 
      */
     return function (points, isLoop) {
         var len = points.length;
