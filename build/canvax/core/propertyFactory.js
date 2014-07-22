@@ -6,7 +6,7 @@
  * 属性工厂，ie下面用VBS提供支持
  * 来给整个引擎提供心跳包的触发机制
  */
-KISSY.add('canvax/core/propertyFactory', function (S, Base) {
+KISSY.add('canvax/core/PropertyFactory', function (S, Base) {
     //定义封装好的兼容大部分浏览器的defineProperties 的 属性工厂
     unwatchOne = {
         '$skipArray': 0,
@@ -21,7 +21,7 @@ KISSY.add('canvax/core/propertyFactory', function (S, Base) {
         '$parent': 7    //用于建立数据的关系链
     };
     //用于建立数据的关系链
-    function propertyFactory(scope, model, watchMore) {
+    function PropertyFactory(scope, model, watchMore) {
         var stopRepeatAssign = true;
         var skipArray = scope.$skipArray,
             //要忽略监控的属性名列表
@@ -99,7 +99,7 @@ KISSY.add('canvax/core/propertyFactory', function (S, Base) {
                                 //阻止重复赋值
                                 if (value !== neo) {
                                     if (neoType === 'array' || neoType === 'object') {
-                                        value = neo.$model ? neo : propertyFactory(neo, neo);
+                                        value = neo.$model ? neo : PropertyFactory(neo, neo);
                                         complexValue = value.$model;
                                     } else {
                                         //如果是其他数据类型
@@ -131,7 +131,7 @@ KISSY.add('canvax/core/propertyFactory', function (S, Base) {
                                 if ((valueType === 'array' || valueType === 'object') && !value.$model) {
                                     //建立和父数据节点的关系
                                     value.$parent = pmodel;
-                                    value = propertyFactory(value, value);
+                                    value = PropertyFactory(value, value);
                                     accessor.value = value;
                                 }
                                 return value;
@@ -259,5 +259,5 @@ KISSY.add('canvax/core/propertyFactory', function (S, Base) {
         };
     }
     //得到其产品
-    return propertyFactory;
+    return PropertyFactory;
 }, { requires: ['canvax/core/Base'] });

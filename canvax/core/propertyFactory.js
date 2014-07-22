@@ -22,7 +22,7 @@ KISSY.add(function(S,Base){
         "$parent"    : 7  //用于建立数据的关系链
     }
 
-    function propertyFactory(scope, model, watchMore) {
+    function PropertyFactory(scope, model, watchMore) {
 
         var stopRepeatAssign=true;
 
@@ -96,7 +96,7 @@ KISSY.add(function(S,Base){
 
                                 if( neoType === "array" || neoType === "object" ){
 
-                                    value = neo.$model ? neo : propertyFactory(neo , neo);
+                                    value = neo.$model ? neo : PropertyFactory(neo , neo);
 
                                     complexValue = value.$model;
 
@@ -130,7 +130,7 @@ KISSY.add(function(S,Base){
                             if ((valueType === "array" || valueType === "object") && !value.$model) {
                                 //建立和父数据节点的关系
                                 value.$parent = pmodel;
-                                value = propertyFactory(value , value);
+                                value = PropertyFactory(value , value);
                                 accessor.value = value;
                             }
                             return value;
@@ -273,7 +273,7 @@ KISSY.add(function(S,Base){
         }
     }
 
-    return propertyFactory;
+    return PropertyFactory;
 
 } , {
    requires : [

@@ -5,7 +5,7 @@
  *
  * 处理为平滑线条
  */
-KISSY.add('canvax/geom/smoothSpline', function (S, Vector) {
+KISSY.add('canvax/geom/SmoothSpline', function (S, Vector) {
     /**
      * @inner
      */

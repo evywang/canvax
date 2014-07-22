@@ -5,7 +5,7 @@
  *
  * 模拟as3 DisplayList 的 现实对象基类
  */
-KISSY.add('canvax/display/DisplayObject', function (S, EventDispatcher, Matrix, Point, Base, HitTestPoint, propertyFactory) {
+KISSY.add('canvax/display/DisplayObject', function (S, EventDispatcher, Matrix, Point, Base, HitTestPoint, PropertyFactory) {
     var DisplayObject = function (opt) {
         arguments.callee.superclass.constructor.apply(this, arguments);
         var self = this;    //如果用户没有传入context设置，就默认为空的对象
@@ -43,12 +43,12 @@ KISSY.add('canvax/display/DisplayObject', function (S, EventDispatcher, Matrix, 
         _createContext: function (opt) {
             var self = this;    //所有显示对象，都有一个类似canvas.context类似的 context属性
                                 //用来存取改显示对象所有和显示有关的属性，坐标，样式等。
-                                //该对象为Coer.propertyFactory()工厂函数生成
+                                //该对象为Coer.PropertyFactory()工厂函数生成
             //所有显示对象，都有一个类似canvas.context类似的 context属性
             //用来存取改显示对象所有和显示有关的属性，坐标，样式等。
-            //该对象为Coer.propertyFactory()工厂函数生成
-            self.context = null;    //提供给Coer.propertyFactory() 来 给 self.context 设置 propertys
-            //提供给Coer.propertyFactory() 来 给 self.context 设置 propertys
+            //该对象为Coer.PropertyFactory()工厂函数生成
+            self.context = null;    //提供给Coer.PropertyFactory() 来 给 self.context 设置 propertys
+            //提供给Coer.PropertyFactory() 来 给 self.context 设置 propertys
             var _contextATTRS = Base.copy({
                     width: 0,
                     height: 0,
@@ -124,7 +124,7 @@ KISSY.add('canvax/display/DisplayObject', function (S, EventDispatcher, Matrix, 
                 });
             };    //执行init之前，应该就根据参数，把context组织好线
             //执行init之前，应该就根据参数，把context组织好线
-            self.context = propertyFactory(_contextATTRS);
+            self.context = PropertyFactory(_contextATTRS);
         },
         /* @myself 是否生成自己的镜像 
          * 克隆又两种，一种是镜像，另外一种是绝对意义上面的新个体
@@ -492,6 +492,6 @@ KISSY.add('canvax/display/DisplayObject', function (S, EventDispatcher, Matrix, 
         'canvax/display/Point',
         'canvax/core/Base',
         'canvax/geom/HitTestPoint',
-        'canvax/core/propertyFactory'
+        'canvax/core/PropertyFactory'
     ]
 });
