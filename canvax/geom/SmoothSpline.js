@@ -16,14 +16,12 @@ KISSY.add( function( S , Vector ){
                + (- 3 * (p1 - p2) - 2 * v0 - v1) * t2
                + v0 * t + p1;
     }
-
     /**
      * 多线段平滑曲线 
      */
     return function (points, isLoop) {
         var len = points.length;
         var ret = [];
-
         var distance  = 0;
         var preVertor = new Vector( points[0] );
         var iVtor     = null
@@ -32,6 +30,7 @@ KISSY.add( function( S , Vector ){
             distance += preVertor.distance( iVtor );
             preVertor = iVtor;
         }
+
         preVertor = null;
         iVtor     = null;
 
