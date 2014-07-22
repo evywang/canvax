@@ -10,7 +10,6 @@
  * 然后 默认有实现了shape的 mouseover  mouseout  drag 事件
  *
  **/
-
 KISSY.add(function( 
        S ,
        Base , CanvaxEvent , 
