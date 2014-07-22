@@ -5,7 +5,6 @@
  *
  * 处理为平滑线条
  */
-
 KISSY.add( function( S , Vector ){
     /**
      * @inner
@@ -17,7 +16,6 @@ KISSY.add( function( S , Vector ){
                + (- 3 * (p1 - p2) - 2 * v0 - v1) * t2
                + v0 * t + p1;
     }
-
     /**
      * 多线段平滑曲线 
      */
