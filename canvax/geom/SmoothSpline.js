@@ -17,7 +17,6 @@ KISSY.add( function( S , Vector ){
                + v0 * t + p1;
     }
 
-
     /**
      * 多线段平滑曲线 
      */

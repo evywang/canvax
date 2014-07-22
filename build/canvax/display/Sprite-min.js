@@ -1,1 +1,0 @@
-KISSY.add("canvax/display/Sprite",function(a,b,c){var d=function(){var a=this;a.type="sprite",arguments.callee.superclass.constructor.apply(this,arguments)};return c.creatClass(d,b,{init:function(){}}),d},{requires:["canvax/display/DisplayObjectContainer","canvax/core/Base"]});
