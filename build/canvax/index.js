@@ -2972,7 +2972,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
         }
     });
     return Matrix;
-}, { requires: ['canvax/core/Base'] });;KISSY.add('canvax/index', function (S, Base, CanvaxEvent, DisplayObjectContainer, Stage, Sprite, Shape, Point, Bitmap, Text, Movieclip) {
+}, { requires: ['canvax/core/Base'] });;KISSY.add('canvax/index', function (S, Base, CanvaxEvent, EventBase, EventDispatcher, EventManager, DisplayObjectContainer, Stage, Sprite, Shape, Point, Bitmap, Text, Movieclip) {
     var Canvax = function (opt) {
         this.type = 'canvax';
         this.el = opt.el || null;    //是否阻止浏览器默认事件的执行
@@ -3627,11 +3627,20 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
         Text: Text,
         Movieclip: Movieclip
     };
+    Canvax.Event = {
+        CanvaxEvent: CanvaxEvent,
+        EventBase: EventBase,
+        EventDispatcher: EventDispatcher,
+        EventManager: EventManager
+    };
     return Canvax;
 }, {
     requires: [
         'canvax/core/Base',
         'canvax/event/CanvaxEvent',
+        'canvax/event/EventBase',
+        'canvax/event/EventDispatcher',
+        'canvax/event/EventManager',
         'canvax/display/DisplayObjectContainer',
         'canvax/display/Stage',
         'canvax/display/Sprite',

@@ -192,7 +192,7 @@
                id : "brokenline",
                context : {
                    pointList : [[10, 10], [60, 100], [148, 130], [250, 40], [446, 100]],
-                   strokeStyle : color.getColor(colorInd++),
+                   strokeStyle : "red",//color.getColor(colorInd++),
                    lineWidth : 1,
                    smooth    : true ,
                    lineType  : "dashed"
@@ -489,7 +489,7 @@
         
 
           //stage.addChild(rect);
-          
+          /*
           sprite.addChild(sector);
 
           sprite.addChild(sector_rect);
@@ -502,8 +502,10 @@
 
            stage.addChild(circle3);
            stage.addChild(bezier);
-           stage.addChild(brokenLine);
+*/
 
+           stage.addChild(brokenLine);
+/*
            stage.addChild(ellipse);
 
            
@@ -539,11 +541,11 @@
            
            stage1.addChild( text );
            canvax.addChild( stage1 );
-           
+*/
 
            canvax.addChild(stage); 
 
-           stage1.toFront();
+           //stage1.toFront();
 
            
 

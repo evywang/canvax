@@ -21,6 +21,9 @@ KISSY.add('canvax/geom/SmoothSpline', function (S, Vector) {
      */
     return function (points, isLoop) {
         var len = points.length;
+        if (len == 1) {
+            return points;
+        }
         var ret = [];
         var distance = 0;
         var preVertor = new Vector(points[0]);
@@ -31,7 +34,8 @@ KISSY.add('canvax/geom/SmoothSpline', function (S, Vector) {
             preVertor = iVtor;
         }
         preVertor = null;
-        iVtor = null;
+        iVtor = null;    //基本上等于曲率
+        //基本上等于曲率
         var segs = distance / 5;
         segs = segs < len ? len : segs;
         for (var i = 0; i < segs; i++) {

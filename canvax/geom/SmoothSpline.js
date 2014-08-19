@@ -21,6 +21,9 @@ KISSY.add( function( S , Vector ){
      */
     return function (points, isLoop) {
         var len = points.length;
+        if( len == 1 ){
+            return points;
+        }
         var ret = [];
         var distance  = 0;
         var preVertor = new Vector( points[0] );
@@ -34,7 +37,10 @@ KISSY.add( function( S , Vector ){
         preVertor = null;
         iVtor     = null;
 
+
+        //基本上等于曲率
         var segs = distance / 5;
+
         segs = segs < len ? len : segs;
         for (var i = 0; i < segs; i++) {
             var pos = i / (segs-1) * (isLoop ? len : len - 1);

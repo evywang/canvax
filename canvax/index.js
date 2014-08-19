@@ -12,7 +12,7 @@
  **/
 KISSY.add(function( 
        S ,
-       Base , CanvaxEvent , 
+       Base , CanvaxEvent , EventBase , EventDispatcher , EventManager , 
        DisplayObjectContainer , 
        Stage , Sprite , Shape , Point , Bitmap , Text , Movieclip  
    ) {
@@ -722,12 +722,23 @@ KISSY.add(function(
        Movieclip : Movieclip
    }
 
+   Canvax.Event = {
+       CanvaxEvent : CanvaxEvent,
+       EventBase   : EventBase,
+       EventDispatcher : EventDispatcher,
+       EventManager : EventManager
+   }
+
+
    return Canvax;
 
 } , {
    requires : [
     "canvax/core/Base",
     "canvax/event/CanvaxEvent",
+    "canvax/event/EventBase",
+    "canvax/event/EventDispatcher",
+    "canvax/event/EventManager",
 
     "canvax/display/DisplayObjectContainer" ,
     "canvax/display/Stage",
