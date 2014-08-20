@@ -474,10 +474,10 @@
               this.context.lineWidth = 2;
           });
 
-          window.text = new Canvax.Display.Text("世间安得双全法" , {
+          window.text = new Canvax.Display.Text("世<span>间</span>安得双全法\n不负如来不负卿" , {
               context : {
                   x :300,
-                  y :200,
+                  y :400,
                   fillStyle : "red",
                   fontSize  : 20,
                   textBackgroundColor : "blue",
@@ -489,7 +489,6 @@
         
 
           //stage.addChild(rect);
-          /*
           sprite.addChild(sector);
 
           sprite.addChild(sector_rect);
@@ -502,10 +501,8 @@
 
            stage.addChild(circle3);
            stage.addChild(bezier);
-*/
 
            stage.addChild(brokenLine);
-/*
            stage.addChild(ellipse);
 
            
@@ -541,7 +538,6 @@
            
            stage1.addChild( text );
            canvax.addChild( stage1 );
-*/
 
            canvax.addChild(stage); 
 
