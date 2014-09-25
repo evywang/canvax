@@ -53,11 +53,14 @@ KISSY.add(function(S , Shape , myMath , Base){
 
            startAngle = myMath.degreeToRadian(startAngle);
            endAngle   = myMath.degreeToRadian(endAngle);
-
            
            ctx.arc( 0 , 0 , r, startAngle, endAngle, this.context.clockwise);
            if (r0 !== 0) {
                ctx.arc( 0 , 0 , r0, endAngle , startAngle, !this.context.clockwise);
+           } else {
+               //TODO:在r0为0的时候，如果不加lineTo(0,0)来把路径闭合，会出现有搞笑的一个bug
+               //整个圆会出现一个以每个扇形两端为节点的镂空，我可能描述不清楚，反正这个加上就好了
+               ctx.lineTo(0,0);
            }
         },
         getRegAngle : function(){

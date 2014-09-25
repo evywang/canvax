@@ -32,7 +32,7 @@ KISSY.add(function(
        //那么要先清除这个el的所有内容。
        //默认的el是一个自己创建的div，因为要在这个div上面注册n多个事件 来 在整个canvax系统里面进行事件分发。
        //所以不能直接用配置传进来的el对象。因为可能会重复添加很多的事件在上面。导致很多内容无法释放。
-       this.el.html("<div class='' style='width:" + this.el.width() + "px;height:" + this.el.height() + "px'></div>");
+       this.el.html("<div class='' style='width:" + this.el.width() + "px;height:" + this.el.height() + "px;'></div>");
        this.el = this.el.all("div");
 
        this.rootOffset      = this.el.offset();
@@ -97,6 +97,9 @@ KISSY.add(function(
        reSet : function(){
           //重新设置坐标系统 高宽 等。
           this.rootOffset      = this.el.offset();
+          this.context.width  = this.el.width();
+          this.context.height = this.el.height();
+
        },
        _creatHoverStage : function(){
           //TODO:创建stage的时候一定要传入width height  两个参数
@@ -177,10 +180,10 @@ KISSY.add(function(
                  }
 
                  if( e.type == "touch" ){
-                     //再移动端，每次touch的时候重新计算rootOffset
-                     //无奈之举，因为宿主rootOffset不是一直再那个位置。
-                     //经常再一些业务场景下面。会被移动了position
-                     self.rootOffset = self.el.offset();
+                      //再移动端，每次touch的时候重新计算rootOffset
+                      //无奈之举，因为宿主rootOffset不是一直再那个位置。
+                      //经常再一些业务场景下面。会被移动了position
+                      self.rootOffset = self.el.offset();
                  }
 
                  self.__touchHandler( e );

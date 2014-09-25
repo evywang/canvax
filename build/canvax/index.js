@@ -210,8 +210,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
         '$model': 3,
         '$accessor': 4,
         '$owner': 5,
-        'path': 6,
-        //这个应该是唯一一个不用watch的不带$的成员了吧，因为地图等的path是在太大
+        //"path"       : 6, //这个应该是唯一一个不用watch的不带$的成员了吧，因为地图等的path是在太大
         '$parent': 7    //用于建立数据的关系链
     };
     //用于建立数据的关系链
@@ -567,6 +566,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
                     cursor: 'default',
                     //canvas context 2d 的 系统样式。目前就知道这么多
                     fillStyle: null,
+                    //"#000000",
                     lineCap: null,
                     lineJoin: null,
                     lineWidth: null,
@@ -575,7 +575,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
                     shadowColor: null,
                     shadowOffsetX: null,
                     shadowOffsetY: null,
-                    strokeStyle: null,
+                    strokeStyle: '#000000',
                     globalAlpha: 1,
                     font: null,
                     textAlign: 'left',
@@ -2988,7 +2988,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
         //那么要先清除这个el的所有内容。
         //默认的el是一个自己创建的div，因为要在这个div上面注册n多个事件 来 在整个canvax系统里面进行事件分发。
         //所以不能直接用配置传进来的el对象。因为可能会重复添加很多的事件在上面。导致很多内容无法释放。
-        this.el.html('<div class=\'\' style=\'width:' + this.el.width() + 'px;height:' + this.el.height() + 'px\'></div>');
+        this.el.html('<div class=\'\' style=\'width:' + this.el.width() + 'px;height:' + this.el.height() + 'px;\'></div>');
         this.el = this.el.all('div');
         this.rootOffset = this.el.offset();
         this.curPoints = [new Point(0, 0)]    //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
@@ -3044,6 +3044,8 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
         reSet: function () {
             //重新设置坐标系统 高宽 等。
             this.rootOffset = this.el.offset();
+            this.context.width = this.el.width();
+            this.context.height = this.el.height();
         },
         _creatHoverStage: function () {
             //TODO:创建stage的时候一定要传入width height  两个参数

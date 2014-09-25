@@ -14,6 +14,9 @@ KISSY.add('canvax/shape/Path', function (S, Shape, Base) {
         var self = this;
         self.type = 'path';
         opt = Base.checkOpt(opt);
+        if ('drawTypeOnly' in opt) {
+            self.drawTypeOnly = opt.drawTypeOnly;
+        }
         self._context = {
             $pointList: [],
             //从下面的path中计算得到的边界点的集合

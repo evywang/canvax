@@ -43,7 +43,6 @@ KISSY.add(function( S , DisplayObject , Base  ){
       
       },
       drawEnd : function(ctx){
-          
           if(this._hasFillAndStroke){
               //如果在子shape类里面已经实现stroke fill 等操作， 就不需要统一的d
               return;
