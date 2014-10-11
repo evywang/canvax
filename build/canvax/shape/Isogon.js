@@ -18,7 +18,7 @@ KISSY.add('canvax/shape/Isogon', function (S, Shape, Base) {
         this.type = 'isogon';
         opt = Base.checkOpt(opt);
         self._context = {
-            pointList: [],
+            $pointList: [],
             //从下面的r和n计算得到的边界值的集合
             //x             : 0,//{number},  // 必须，正n边形外接圆心横坐标
             //y             : 0,//{number},  // 必须，正n边形外接圆心纵坐标
@@ -28,6 +28,7 @@ KISSY.add('canvax/shape/Isogon', function (S, Shape, Base) {
         };
         //{number},  // 必须，指明正几边形
         arguments.callee.superclass.constructor.apply(this, arguments);
+        self.setPointList(self.context);
     };
     var sin = Math.sin;
     var cos = Math.cos;
@@ -39,6 +40,18 @@ KISSY.add('canvax/shape/Isogon', function (S, Shape, Base) {
        * @param {Object} style 样式
        */
         draw: function (ctx, style) {
+            var pointList = this.context.$pointList;
+            if (pointList.length == 0) {
+                return;
+            }    // 绘制
+            // 绘制
+            ctx.moveTo(pointList[0][0], pointList[0][1]);
+            for (var i = 0; i < pointList.length; i++) {
+                ctx.lineTo(pointList[i][0], pointList[i][1]);
+            }
+            return;
+        },
+        setPointList: function (style) {
             var n = style.n;
             if (!n || n < 2) {
                 return;
@@ -47,33 +60,22 @@ KISSY.add('canvax/shape/Isogon', function (S, Shape, Base) {
             var y = 0;
             var r = style.r;
             var dStep = 2 * PI / n;
-            var deg = -PI / 2;
-            var xStart = x + r * cos(deg);
-            var yStart = y + r * sin(deg);
-            deg += dStep;    // 记录边界点，用于判断insight
+            var beginDeg = -PI / 2;
+            var deg = beginDeg;    // 记录边界点，用于判断insight
             // 记录边界点，用于判断insight
-            var pointList = style.pointList = [];
-            pointList.push([
-                xStart,
-                yStart
-            ]);
-            for (var i = 0, end = n - 1; i < end; i++) {
+            var pointList = style.$pointList = [];
+            for (var i = 0, end = n; i < end; i++) {
                 pointList.push([
                     x + r * cos(deg),
                     y + r * sin(deg)
                 ]);
                 deg += dStep;
             }
+            deg = beginDeg;
             pointList.push([
-                xStart,
-                yStart
-            ]);    // 绘制
-            // 绘制
-            ctx.moveTo(pointList[0][0], pointList[0][1]);
-            for (var i = 0; i < pointList.length; i++) {
-                ctx.lineTo(pointList[i][0], pointList[i][1]);
-            }
-            return;
+                x + r * cos(deg),
+                x + r * sin(deg)
+            ]);
         },
         /**
        * 返回矩形区域，用于局部刷新和文字定位

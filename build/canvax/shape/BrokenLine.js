@@ -21,14 +21,14 @@ KISSY.add('canvax/shape/BrokenLine', function (S, Shape, Base, SmoothSpline) {
         self._context = {
             lineType: opt.context.lineType || null,
             smooth: opt.context.smooth || false,
-            pointList: opt.context.pointList || []    //{Array}  // 必须，各个顶角坐标
+            $pointList: opt.context.pointList || []    //{Array}  // 必须，各个顶角坐标
         };
         //{Array}  // 必须，各个顶角坐标
         arguments.callee.superclass.constructor.apply(this, arguments);
     };
     Base.creatClass(BrokenLine, Shape, {
         draw: function (ctx, context) {
-            var pointList = context.pointList.$model;
+            var pointList = context.$pointList.$model;
             if (pointList.length < 2) {
                 // 少于2个点就不画了~
                 return;
@@ -56,9 +56,6 @@ KISSY.add('canvax/shape/BrokenLine', function (S, Shape, Base, SmoothSpline) {
         getRect: function (context) {
             var context = context ? context : this.context;
             return this.getRectFormPointList(context);
-        },
-        getPointList: function () {
-            return this.context.$model.pointList;
         }
     });
     return BrokenLine;

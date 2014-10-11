@@ -22,7 +22,7 @@ KISSY.add(function(S , Shape , Base){
 
       opt = Base.checkOpt( opt );
       self._context = {
-           pointList : [],//从下面的r和n计算得到的边界值的集合
+           $pointList : [],//从下面的r和n计算得到的边界值的集合
            //x             : 0,//{number},  // 必须，正n边形外接圆心横坐标
            //y             : 0,//{number},  // 必须，正n边形外接圆心纵坐标
            r :opt.context.r  || 0,//{number},  // 必须，正n边形外接圆半径
@@ -30,6 +30,8 @@ KISSY.add(function(S , Shape , Base){
       }
 
       arguments.callee.superclass.constructor.apply(this, arguments);
+
+      self.setPointList( self.context );
   };
 
 
@@ -44,6 +46,19 @@ KISSY.add(function(S , Shape , Base){
        * @param {Object} style 样式
        */
       draw : function(ctx, style) {
+          var pointList = this.context.$pointList;
+          if( pointList.length == 0 ) {
+              return;
+          }
+          // 绘制
+          ctx.moveTo(pointList[0][0], pointList[0][1]);
+          for (var i = 0; i < pointList.length; i ++) {
+              ctx.lineTo(pointList[i][0], pointList[i][1]);
+          }
+          return;
+      },
+
+      setPointList : function( style ){
           var n = style.n;
           if (!n || n < 2) { return; }
 
@@ -51,28 +66,21 @@ KISSY.add(function(S , Shape , Base){
           var y = 0;
           var r = style.r;
 
-          var dStep = 2 * PI / n;
-          var deg = -PI / 2;
-          var xStart = x + r * cos(deg);
-          var yStart = y + r * sin(deg);
-          deg += dStep;
-
+          var dStep    = 2 * PI / n;
+          var beginDeg = -PI / 2;
+          var deg      = beginDeg;
+    
           // 记录边界点，用于判断insight
-          var pointList = style.pointList = [];
-          pointList.push([xStart, yStart]);
-          for (var i = 0, end = n - 1; i < end; i ++) {
+          var pointList = style.$pointList = [];
+          for (var i = 0, end = n; i < end; i ++) {
               pointList.push([x + r * cos(deg), y + r * sin(deg)]);
               deg += dStep;
           }
-          pointList.push([xStart, yStart]);
-
-          // 绘制
-          ctx.moveTo(pointList[0][0], pointList[0][1]);
-          for (var i = 0; i < pointList.length; i ++) {
-              ctx.lineTo(pointList[i][0], pointList[i][1]);
-          }
-
-          return;
+          deg = beginDeg
+          pointList.push([
+              x + r * cos(deg),
+              x + r * sin(deg)
+          ]);
       },
 
       /**
@@ -95,7 +103,6 @@ KISSY.add(function(S , Shape , Base){
               height : style.r * 2 + lineWidth
           };
       }
-
   });
 
   return Isogon;
