@@ -116,7 +116,6 @@ KISSY.add('canvax/library/flashCanvas/flashcanvas', function (S) {
                 return k.documentMode >= 8 ? a.src : a.getAttribute('src', 4);
             }().replace(/[^\/]+$/, ''), t = j.swfPath || J;
         t += parseInt(n) > 9 ? 'flash10canvas.swf' : 'flash9canvas.swf';
-        alert(t)
         var y = '4', s = {}, u = {}, aa = {}, K = {}, p = {}, ba = {}, v = {}, m = {}, z = {}, J = 'autoinit' in j ? j.autoinit : 1, L = 'turbo' in j ? j.turbo : 1, M = j.delay || 0, ca = j.disableContextMenu || 0, da = j.imageCacheSize || 100, N = j.usePolicyFile || 0, ea = j.proxy || 'proxy.php', fa = j.save || 'save.php';
         n === '10.1.53.64' && (L = 0, M = 30);
         A.prototype = {
