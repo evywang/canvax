@@ -17,23 +17,24 @@ KISSY.add(function(S , Shape , Base , SmoothSpline){
 
        opt = Base.checkOpt( opt );
 
-       if( opt.context.smooth ){
+       if( opt.context.smooth && opt.context.pointList ){
            opt.context.pointList = SmoothSpline( opt.context.pointList );
        }
-       self.pointsLen = opt.context.pointList.length;
-
+       
        self._context = {
            lineType   : opt.context.lineType  || null,
            smooth     : opt.context.smooth    || false,
            $pointList : opt.context.pointList || [] //{Array}  // 必须，各个顶角坐标
        }
+
+       self.pointsLen = self._context.$pointList.length;
        
        arguments.callee.superclass.constructor.apply(this, arguments);
    }
 
    Base.creatClass(BrokenLine , Shape , {
        draw : function(ctx, context) {
-           var pointList = context.$pointList.$model;
+           var pointList = context.$pointList;
            if (pointList.length < 2) {
                // 少于2个点就不画了~
                return;
@@ -51,14 +52,13 @@ KISSY.add(function(S , Shape , Base , SmoothSpline){
                ctx.moveTo(pointList[0][0],pointList[0][1]);
                for (var i = 1, l = pointList.length; i < l; i++) {
                    var fromX = pointList[i - 1][0];
-                   var toX = pointList[i][0];
+                   var toX   = pointList[i][0];
                    var fromY = pointList[i - 1][1];
-                   var toY = pointList[i][1];
+                   var toY   = pointList[i][1];
 
                    this.dashedLineTo( ctx , fromX , fromY , toX , toY , 5 );
                }
            }
-
            return;
        },
        getRect :  function(context) {

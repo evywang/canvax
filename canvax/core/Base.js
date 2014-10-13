@@ -165,6 +165,7 @@ KISSY.add(function(S){
          * @E        系统的event
          */
         copyEvent : function( canvaxE , E ){
+            !E.hasOwnProperty && ( E.hasOwnProperty = Object.prototype.hasOwnProperty ) ;
             for(var key in E){
                 if( E.hasOwnProperty( key ) ){
                     canvaxE[ key ] = E[ key ];
@@ -179,7 +180,7 @@ KISSY.add(function(S){
     requires : [
       "canvax/animation/AnimationFrame",
       ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
-      !window._ ? "canvax/library/underscore" : "",
-      !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : ""
+      !window._ ? "canvax/library/underscore" : ""
+      //!document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : ""
     ]
-})
+});

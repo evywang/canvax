@@ -19,7 +19,7 @@ KISSY.add('canvax/shape/Sector', function (S, Shape, myMath, Base) {
         self.type = 'sector';
         opt = Base.checkOpt(opt);
         self._context = {
-            pointList: [],
+            $pointList: [],
             //边界点的集合,私有，从下面的属性计算的来
             r0: opt.context.r0 || 0,
             // 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
@@ -159,7 +159,7 @@ KISSY.add('canvax/shape/Sector', function (S, Shape, myMath, Base) {
                     myMath.sin(endAngle) * r0
                 ]);
             }
-            context.pointList = pointList;
+            context.$pointList = pointList;
             return this.getRectFormPointList(context);
         }
     });

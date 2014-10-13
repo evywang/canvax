@@ -185,6 +185,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
          * @E        系统的event
          */
             copyEvent: function (canvaxE, E) {
+                !E.hasOwnProperty && (E.hasOwnProperty = Object.prototype.hasOwnProperty);
                 for (var key in E) {
                     if (E.hasOwnProperty(key)) {
                         canvaxE[key] = E[key];
@@ -198,8 +199,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
     requires: [
         'canvax/animation/AnimationFrame',
         'ontouchstart' in window ? 'canvax/library/hammer' : '',
-        !window._ ? 'canvax/library/underscore' : '',
-        !document.createElement('canvas').getContext ? 'canvax/library/flashCanvas/flashcanvas' : ''
+        !window._ ? 'canvax/library/underscore' : ''    //!document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : ""
     ]
 });;KISSY.add('canvax/core/PropertyFactory', function (S, Base) {
     //定义封装好的兼容大部分浏览器的defineProperties 的 属性工厂
@@ -1524,7 +1524,8 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
             var maxX = Number.MIN_VALUE;
             var minY = Number.MAX_VALUE;
             var maxY = Number.MIN_VALUE;
-            var pointList = context.pointList.$model;
+            var pointList = context.$pointList;    //this.getPointList();
+            //this.getPointList();
             for (var i = 0, l = pointList.length; i < l; i++) {
                 if (pointList[i][0] < minX) {
                     minX = pointList[i][0];
@@ -2538,7 +2539,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
     ;
     function _isInsideBrokenLine(shape, x, y) {
         var context = shape.context;
-        var pointList = context.pointList.$model;
+        var pointList = context.$pointList;
         var lineArea;
         var insideCatch = false;
         for (var i = 0, l = pointList.length - 1; i < l; i++) {
@@ -2678,7 +2679,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
          * 要么有两个交点，要么没有交点，要么有与多边形边界线重叠。
          */
         var context = shape.context ? shape.context : shape;
-        var polygon = context.pointList.$model || context.pointList;
+        var polygon = context.$pointList;
         var i;
         var j;
         var N = polygon.length;
@@ -2734,10 +2735,10 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
      */
     function _isInsidePath(shape, x, y) {
         var context = shape.context;
-        var pointList = context.$pointList || context.pointList.$model;
+        var pointList = context.$pointList;
         var insideCatch = false;
         for (var i = 0, l = pointList.length; i < l; i++) {
-            insideCatch = _isInsidePolygon({ pointList: pointList[i] }, x, y);
+            insideCatch = _isInsidePolygon({ $pointList: pointList[i] }, x, y);
             if (insideCatch) {
                 break;
             }
@@ -3248,7 +3249,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
         * */
         __mouseHandler: function (e) {
             var self = this;
-            self.curPoints = [new Point(e.pageX - self.rootOffset.left, e.pageY - self.rootOffset.top)];
+            self.curPoints = [new Point((e.pageX || e.x) - self.rootOffset.left, (e.pageY || e.y) - self.rootOffset.top)];
             var curMousePoint = self.curPoints[0];
             var curMouseTarget = self.curPointsTarget[0];    //mousedown的时候 如果 curMouseTarget.dragEnabled 为true。就要开始准备drag了
             //mousedown的时候 如果 curMouseTarget.dragEnabled 为true。就要开始准备drag了

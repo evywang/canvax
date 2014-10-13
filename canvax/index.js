@@ -320,8 +320,8 @@ KISSY.add(function(
        __mouseHandler : function(e) {
            var self = this;
            self.curPoints = [ new Point( 
-                   e.pageX - self.rootOffset.left , 
-                   e.pageY - self.rootOffset.top
+                   ( e.pageX || e.x ) - self.rootOffset.left , 
+                   ( e.pageY || e.y ) - self.rootOffset.top
                    )];
 
            var curMousePoint  = self.curPoints[0]; 

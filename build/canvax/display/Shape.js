@@ -98,7 +98,8 @@ KISSY.add('canvax/display/Shape', function (S, DisplayObject, Base) {
             var maxX = Number.MIN_VALUE;
             var minY = Number.MAX_VALUE;
             var maxY = Number.MIN_VALUE;
-            var pointList = context.pointList.$model;
+            var pointList = context.$pointList;    //this.getPointList();
+            //this.getPointList();
             for (var i = 0, l = pointList.length; i < l; i++) {
                 if (pointList[i][0] < minX) {
                     minX = pointList[i][0];

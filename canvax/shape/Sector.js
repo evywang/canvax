@@ -23,7 +23,7 @@ KISSY.add(function(S , Shape , myMath , Base){
 
        opt = Base.checkOpt( opt );
        self._context  = {
-           pointList  : [],//边界点的集合,私有，从下面的属性计算的来
+           $pointList  : [],//边界点的集合,私有，从下面的属性计算的来
            r0         : opt.context.r0         || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
            r          : opt.context.r          || 0,//{number},  // 必须，外圆半径
            startAngle : myMath.degreeTo360( opt.context.startAngle ) || 0,//{number},  // 必须，起始角度[0, 360)
@@ -140,7 +140,7 @@ KISSY.add(function(S , Shape , myMath , Base){
                         ]);
             }
 
-            context.pointList = pointList;
+            context.$pointList = pointList;
             return this.getRectFormPointList( context );
         }
 

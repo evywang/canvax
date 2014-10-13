@@ -21,7 +21,7 @@ KISSY.add(function(S , Shape , Base){
        opt = Base.checkOpt( opt );
        self._context = {
            lineType      : opt.context.lineType  || null,
-           pointList     : opt.context.pointList || []  //{Array},   // 必须，多边形各个顶角坐标
+           $pointList    : opt.context.pointList || []  //{Array},   // 必须，多边形各个顶角坐标
        }
        arguments.callee.superclass.constructor.apply(this, arguments);
 
@@ -46,9 +46,9 @@ KISSY.add(function(S , Shape , Base){
                       this.buildPath(
                           ctx, 
                           {
-                           lineType:  "solid",
-                           lineWidth: style.lineWidth,
-                           pointList: style.pointList
+                           lineType  :  "solid",
+                           lineWidth : style.lineWidth,
+                           $pointList : style.$pointList
                           }
                           );
                       ctx.closePath();
@@ -62,7 +62,7 @@ KISSY.add(function(S , Shape , Base){
     
        },
        buildPath : function(ctx, style) {
-           var pointList = style.pointList.$model;
+           var pointList = style.$pointList;
            // 开始点和结束点重复
            var start = pointList[0];
            var end = pointList[pointList.length-1];

@@ -14,21 +14,21 @@ KISSY.add('canvax/shape/BrokenLine', function (S, Shape, Base, SmoothSpline) {
         self.type = 'brokenLine';
         self.drawTypeOnly = 'stroke';
         opt = Base.checkOpt(opt);
-        if (opt.context.smooth) {
+        if (opt.context.smooth && opt.context.pointList) {
             opt.context.pointList = SmoothSpline(opt.context.pointList);
         }
-        self.pointsLen = opt.context.pointList.length;
         self._context = {
             lineType: opt.context.lineType || null,
             smooth: opt.context.smooth || false,
             $pointList: opt.context.pointList || []    //{Array}  // 必须，各个顶角坐标
         };
         //{Array}  // 必须，各个顶角坐标
+        self.pointsLen = self._context.$pointList.length;
         arguments.callee.superclass.constructor.apply(this, arguments);
     };
     Base.creatClass(BrokenLine, Shape, {
         draw: function (ctx, context) {
-            var pointList = context.$pointList.$model;
+            var pointList = context.$pointList;
             if (pointList.length < 2) {
                 // 少于2个点就不画了~
                 return;
