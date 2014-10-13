@@ -29,7 +29,8 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
             clearTimeout(id);
         };
     }
-});;KISSY.add('canvax/core/Base', function (S) {
+});;window.FlashCanvasOptions = { swfPath: 'http://g.tbcdn.cn/thx/canvax/1.0.0/canvax/library/flashCanvas/' };
+KISSY.add('canvax/core/Base', function (S) {
     var classTypes = {};
     'Boolean Number String Function Array Date RegExp Object Error'.replace(/[^, ]+/g, function (name) {
         classTypes['[object ' + name + ']'] = name.toLowerCase();
@@ -199,7 +200,8 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
     requires: [
         'canvax/animation/AnimationFrame',
         'ontouchstart' in window ? 'canvax/library/hammer' : '',
-        !window._ ? 'canvax/library/underscore' : ''
+        !window._ ? 'canvax/library/underscore' : '',
+        !document.createElement('canvas').getContext ? 'canvax/library/flashCanvas/flashcanvas' : ''
     ]
 });;KISSY.add('canvax/core/PropertyFactory', function (S, Base) {
     //定义封装好的兼容大部分浏览器的defineProperties 的 属性工厂

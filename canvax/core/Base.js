@@ -4,6 +4,9 @@
  * @author 释剑 (李涛, litao.lt@alibaba-inc.com)
  */
 
+window.FlashCanvasOptions = {
+    swfPath: "http://g.tbcdn.cn/thx/canvax/1.0.0/canvax/library/flashCanvas/"
+};
 
 KISSY.add(function(S){
 
@@ -180,6 +183,7 @@ KISSY.add(function(S){
     requires : [
       "canvax/animation/AnimationFrame",
       ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
-      !window._ ? "canvax/library/underscore" : ""
+      !window._ ? "canvax/library/underscore" : "",
+      !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : ""
     ]
 });
