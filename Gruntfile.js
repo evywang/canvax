@@ -30,7 +30,7 @@ module.exports = function(grunt) {
                    expand: true,
                    cwd: buildPath,
                    ext: '-min.js',
-                   src: ['**/*.js', '!**/*-min.js'],
+                   src: ['**/*.js', '!**/*-min.js', '!**/flashcanvas.js'],
                    dest: buildPath 
                }
              ]
