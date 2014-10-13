@@ -44,16 +44,19 @@ KISSY.add('canvax/shape/Sector', function (S, Shape, myMath, Base) {
             // 起始角度[0,360)
             var endAngle = context.endAngle;    // 结束角度(0,360]
             // 结束角度(0,360]
-            if (startAngle == endAngle && startAngle * endAngle != 0) {
-                //如果两个角度相等，那么就认为是个圆环了，那么就改写角度为从0-360
-                startAngle = 0;
-                endAngle = 360;
+            var isRing = false;    //是否为圆环
+            //是否为圆环
+            if (startAngle != endAngle && Math.abs(startAngle - endAngle) % 360 == 0) {
+                //如果两个角度相等，那么就认为是个圆环了
+                isRing = true;
             }
             startAngle = myMath.degreeToRadian(startAngle);
             endAngle = myMath.degreeToRadian(endAngle);
             ctx.arc(0, 0, r, startAngle, endAngle, this.context.clockwise);
             if (r0 !== 0) {
-                ctx.moveTo(r0, 0);
+                if (isRing) {
+                    ctx.moveTo(r0, 0);
+                }
                 ctx.arc(0, 0, r0, endAngle, startAngle, !this.context.clockwise);
             } else {
                 //TODO:在r0为0的时候，如果不加lineTo(0,0)来把路径闭合，会出现有搞笑的一个bug
