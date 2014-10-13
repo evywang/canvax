@@ -752,7 +752,5 @@ KISSY.add(function(
     "canvax/display/Bitmap",
     "canvax/display/Text",
     "canvax/display/Movieclip"
-
-
     ]
 });

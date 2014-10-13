@@ -104,7 +104,6 @@ KISSY.add('canvax/core/Base', function (S) {
             },
             initElement: function (canvas) {
                 if (typeof FlashCanvas != 'undefined' && FlashCanvas.initElement) {
-                    FlashCanvas.setOptions({ swfPath: 'http://g.tbcdn.cn/thx/canvax/1.0.0/canvax/library/flashCanvas/flashcanvas.swf' });
                     FlashCanvas.initElement(canvas);
                 }
             },
@@ -174,7 +173,6 @@ KISSY.add('canvax/core/Base', function (S) {
     requires: [
         'canvax/animation/AnimationFrame',
         'ontouchstart' in window ? 'canvax/library/hammer' : '',
-        !window._ ? 'canvax/library/underscore' : '',
-        !document.createElement('canvas').getContext ? 'canvax/library/flashCanvas/flashcanvas' : ''
+        !window._ ? 'canvax/library/underscore' : ''
     ]
 });
