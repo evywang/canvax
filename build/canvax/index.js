@@ -130,7 +130,7 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
             },
             initElement: function (canvas) {
                 if (typeof FlashCanvas != 'undefined' && FlashCanvas.initElement) {
-                    FlashCanvas.setOptions({ swfPath: 'http://g.tbcdn.cn/thx/canvax/1.0.0/canvax/library/flashCanvas/' });
+                    window.FlashCanvasOptions = { swfPath: 'http://g.tbcdn.cn/thx/canvax/1.0.0/canvax/library/flashCanvas/' };
                     FlashCanvas.initElement(canvas);
                 }
             },
