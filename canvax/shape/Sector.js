@@ -58,6 +58,8 @@ KISSY.add(function(S , Shape , myMath , Base){
            ctx.arc( 0 , 0 , r, startAngle, endAngle, this.context.clockwise);
            if (r0 !== 0) {
                if( isRing ){
+                   //加上这个isRing的逻辑是为了兼容flashcanvas下绘制圆环的的问题
+                   //不加这个逻辑flashcanvas会绘制一个大圆 ， 而不是圆环
                    ctx.moveTo( r0 , 0 );
                    ctx.arc( 0 , 0 , r0 , startAngle , endAngle , !this.context.clockwise);
                } else {
