@@ -608,6 +608,7 @@ KISSY.add(function(
        _afterAddChild : function( stage , index ){
            var canvas;
            var contextInit = true;
+
            if(!stage.context2D){
                contextInit = false;
                canvas = Base._createCanvas( stage.id , this.context.width , this.context.height );
@@ -750,9 +751,8 @@ KISSY.add(function(
     "canvax/display/Point",
     "canvax/display/Bitmap",
     "canvax/display/Text",
-    "canvax/display/Movieclip",
+    "canvax/display/Movieclip"
 
-    !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : ""
 
     ]
 });
