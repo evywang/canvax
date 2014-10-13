@@ -130,9 +130,9 @@ KISSY.add('canvax/animation/AnimationFrame', function () {
             },
             initElement: function (canvas) {
                 if (typeof FlashCanvas != 'undefined' && FlashCanvas.initElement) {
+                    FlashCanvas.setOptions({ swfPath: 'http://g.tbcdn.cn/thx/canvax/1.0.0/canvax/library/flashCanvas/flashcanvas.swf' });
                     FlashCanvas.initElement(canvas);
                 }
-                FlashCanvas.setOptions({ swfPath: 'http://g.tbcdn.cn/thx/canvax/1.0.0/canvax/library/flashCanvas/flashcanvas.swf' });
             },
             //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
             checkOpt: function (opt) {
