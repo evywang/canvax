@@ -41,7 +41,7 @@ KISSY.add(function(S , Shape , myMath , Base){
            
            // 形内半径[0,r)
            var r0 = typeof context.r0 == 'undefined' ? 0 : context.r0;
-           var r = context.r;                            // 扇形外半径(0,r]
+           var r  = context.r;                            // 扇形外半径(0,r]
            var startAngle = context.startAngle;          // 起始角度[0,360)
            var endAngle   = context.endAngle;              // 结束角度(0,360]
 
@@ -56,6 +56,7 @@ KISSY.add(function(S , Shape , myMath , Base){
            
            ctx.arc( 0 , 0 , r, startAngle, endAngle, this.context.clockwise);
            if (r0 !== 0) {
+               ctx.moveTo( r0 , 0 );
                ctx.arc( 0 , 0 , r0, endAngle , startAngle, !this.context.clockwise);
            } else {
                //TODO:在r0为0的时候，如果不加lineTo(0,0)来把路径闭合，会出现有搞笑的一个bug

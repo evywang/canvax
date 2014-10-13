@@ -53,6 +53,7 @@ KISSY.add('canvax/shape/Sector', function (S, Shape, myMath, Base) {
             endAngle = myMath.degreeToRadian(endAngle);
             ctx.arc(0, 0, r, startAngle, endAngle, this.context.clockwise);
             if (r0 !== 0) {
+                ctx.moveTo(r0, 0);
                 ctx.arc(0, 0, r0, endAngle, startAngle, !this.context.clockwise);
             } else {
                 //TODO:在r0为0的时候，如果不加lineTo(0,0)来把路径闭合，会出现有搞笑的一个bug
