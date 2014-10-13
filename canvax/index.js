@@ -750,7 +750,9 @@ KISSY.add(function(
     "canvax/display/Point",
     "canvax/display/Bitmap",
     "canvax/display/Text",
-    "canvax/display/Movieclip"
+    "canvax/display/Movieclip",
+
+    !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : ""
 
     ]
 });

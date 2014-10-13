@@ -173,7 +173,6 @@ KISSY.add('canvax/core/Base', function (S) {
     requires: [
         'canvax/animation/AnimationFrame',
         'ontouchstart' in window ? 'canvax/library/hammer' : '',
-        !window._ ? 'canvax/library/underscore' : '',
-        !document.createElement('canvas').getContext ? 'canvax/library/flashCanvas/flashcanvas' : ''
+        !window._ ? 'canvax/library/underscore' : ''    //!document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : ""
     ]
 });
