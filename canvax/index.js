@@ -416,6 +416,8 @@ KISSY.add(function(
            }
            */
 
+           var e = Base.copyEvent( new CanvaxEvent() , e );
+
            if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
@@ -431,7 +433,7 @@ KISSY.add(function(
 
            var obj = this.getObjectsUnderPoint( point , 1)[0];
 
-           var e = Base.copyEvent( new CanvaxEvent() , e );
+           
 
            e.target = e.currentTarget = obj;
            e.point  = point;

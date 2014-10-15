@@ -28,7 +28,7 @@ KISSY.add('canvax/core/PropertyFactory', function (S, Base) {
             //要返回的对象
             accessores = {},
             //内部用于转换的对象
-            callSetters = [], callGetters = [], VBPublics = _.keys(unwatchOne);    //用于IE6-8
+            VBPublics = _.keys(unwatchOne);    //用于IE6-8
         //用于IE6-8
         model = model || {};    //这是pmodel上的$model属性
         //这是pmodel上的$model属性
@@ -52,94 +52,62 @@ KISSY.add('canvax/core/PropertyFactory', function (S, Base) {
                     if (_.indexOf(skipArray, name) !== -1 || name.charAt(0) === '$' && !watchMore[name]) {
                         return VBPublics.push(name);
                     }
-                    var accessor, oldArgs;
-                    if (valueType === 'object' && typeof val.get === 'function' && _.keys(val).length <= 2) {
-                        var setter = val.set;
-                        var getter = val.get;
-                        accessor = function (neo) {
-                            //创建计算属性，因变量，基本上由其他监控属性触发其改变
-                            var value = accessor.value, preValue = value;
-                            if (arguments.length) {
-                                //走的setter
-                                if (stopRepeatAssign) {
-                                    return;    //阻止重复赋值
+                    var accessor = function (neo) {
+                        //创建监控属性或数组，自变量，由用户触发其改变
+                        var value = accessor.value, preValue = value, complexValue;
+                        if (arguments.length) {
+                            //写操作
+                            //set 的 值的 类型
+                            var neoType = Base.getType(neo);
+                            if (stopRepeatAssign) {
+                                return;    //阻止重复赋值
+                            }
+                            //阻止重复赋值
+                            if (value !== neo) {
+                                if (neoType === 'object') {
+                                    value = neo.$model ? neo : PropertyFactory(neo, neo);
+                                    complexValue = value.$model;
+                                } else {
+                                    //如果是其他数据类型
+                                    value = neo;
                                 }
-                                //阻止重复赋值
-                                if (typeof setter === 'function') {
-                                    setter.call(pmodel, neo);
-                                }
-                                if (oldArgs !== neo) {
-                                    //只检测用户的传参是否与上次是否一致
-                                    oldArgs = neo;
-                                    value = accessor.value = model[name] = neo;
+                                accessor.value = value;
+                                model[name] = complexValue ? complexValue : value;    //更新$model中的值
+                                //更新$model中的值
+                                if (!complexValue) {
                                     pmodel.$fire && pmodel.$fire(name, value, preValue);
                                 }
-                            } else {
-                                //走的getter
-                                neo = accessor.value = model[name] = getter.call(pmodel);
-                                if (value !== neo) {
-                                    oldArgs = void 0;
-                                    pmodel.$fire && pmodel.$fire(name, neo, value);
+                                if (valueType != neoType) {
+                                    //如果set的值类型已经改变，
+                                    //那么也要把对应的valueType修改为对应的neoType
+                                    valueType = neoType;
                                 }
-                                return neo;
+                                var hasWatchModel = pmodel;    //所有的赋值都要触发watch的监听事件
+                                //所有的赋值都要触发watch的监听事件
+                                if (!pmodel.$watch) {
+                                    while (hasWatchModel.$parent) {
+                                        hasWatchModel = hasWatchModel.$parent;
+                                    }
+                                }
+                                if (hasWatchModel.$watch) {
+                                    hasWatchModel.$watch.call(hasWatchModel, name, value, preValue);
+                                }
                             }
-                        };
-                        callGetters.push(accessor);
-                    } else {
-                        accessor = function (neo) {
-                            //创建监控属性或数组，自变量，由用户触发其改变
-                            var value = accessor.value, preValue = value, complexValue;
-                            if (arguments.length) {
-                                //set 的 值的 类型
-                                var neoType = Base.getType(neo);
-                                if (stopRepeatAssign) {
-                                    return;    //阻止重复赋值
-                                }
-                                //阻止重复赋值
-                                if (value !== neo) {
-                                    if (neoType === 'array' || neoType === 'object') {
-                                        value = neo.$model ? neo : PropertyFactory(neo, neo);
-                                        complexValue = value.$model;
-                                    } else {
-                                        //如果是其他数据类型
-                                        value = neo;
-                                    }
-                                    accessor.value = value;
-                                    model[name] = complexValue ? complexValue : value;    //更新$model中的值
-                                    //更新$model中的值
-                                    if (!complexValue) {
-                                        pmodel.$fire && pmodel.$fire(name, value, preValue);
-                                    }
-                                    if (valueType != neoType) {
-                                        //如果set的值类型已经改变，
-                                        //那么也要把对应的valueType修改为对应的neoType
-                                        valueType = neoType;
-                                    }
-                                    var hasWatchModel = pmodel;    //所有的赋值都要触发watch的监听事件
-                                    //所有的赋值都要触发watch的监听事件
-                                    if (!pmodel.$watch) {
-                                        while (hasWatchModel.$parent) {
-                                            hasWatchModel = hasWatchModel.$parent;
-                                        }
-                                    }
-                                    if (hasWatchModel.$watch) {
-                                        hasWatchModel.$watch.call(hasWatchModel, name, value, preValue);
-                                    }
-                                }
-                            } else {
-                                if ((valueType === 'array' || valueType === 'object') && !value.$model) {
-                                    //建立和父数据节点的关系
-                                    value.$parent = pmodel;
-                                    value = PropertyFactory(value, value);
-                                    accessor.value = value;
-                                }
-                                return value;
+                        } else {
+                            //读操作
+                            //读的时候，发现value是个obj，而且还没有defineProperty
+                            //那么就临时defineProperty一次
+                            if (valueType === 'object' && !value.$model) {
+                                //建立和父数据节点的关系
+                                value.$parent = pmodel;
+                                value = PropertyFactory(value, value);    //accessor.value 重新复制为defineProperty过后的对象
+                                //accessor.value 重新复制为defineProperty过后的对象
+                                accessor.value = value;
                             }
-                        };
-                        accessor.value = val;
-                        callSetters.push(name);
-                    }
-                    ;
+                            return value;
+                        }
+                    };
+                    accessor.value = val;
                     accessores[name] = {
                         set: accessor,
                         get: accessor,
@@ -258,5 +226,6 @@ KISSY.add('canvax/core/PropertyFactory', function (S, Base) {
         };
     }
     //得到其产品
+    window.PropertyFactory = PropertyFactory;
     return PropertyFactory;
 }, { requires: ['canvax/core/Base'] });

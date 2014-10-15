@@ -252,7 +252,7 @@ KISSY.add(function(S , Base , myMath){
 
     function _isInsideBrokenLine(shape, x, y) {
         var context   = shape.context;
-        var pointList = context.$pointList;
+        var pointList = context.pointList;
         var lineArea;
         var insideCatch = false;
         for (var i = 0, l = pointList.length - 1; i < l; i++) {
@@ -406,7 +406,7 @@ KISSY.add(function(S , Base , myMath){
          * 要么有两个交点，要么没有交点，要么有与多边形边界线重叠。
          */
         var context = shape.context ? shape.context : shape;
-        var polygon = context.$pointList ;
+        var polygon = context.pointList ;
         var i;
         var j;
         var N = polygon.length;
@@ -469,11 +469,11 @@ KISSY.add(function(S , Base , myMath){
      */
     function _isInsidePath(shape, x, y) {
         var context = shape.context;
-        var pointList = context.$pointList;
+        var pointList = context.pointList;
         var insideCatch = false;
         for (var i = 0, l = pointList.length; i < l; i++) {
             insideCatch = _isInsidePolygon(
-                    { $pointList : pointList[i] }, x, y
+                    { pointList : pointList[i] }, x, y
                     );
             if (insideCatch) {
                 break;

@@ -111,7 +111,7 @@ KISSY.add(function( S , DisplayObject , Base  ){
             }
       },
       /*
-       *从pointList节点中获取到4个方向的边界节点
+       *从cpl节点中获取到4个方向的边界节点
        *@param  context 
        *
        **/
@@ -121,19 +121,19 @@ KISSY.add(function( S , DisplayObject , Base  ){
           var minY =  Number.MAX_VALUE;
           var maxY =  Number.MIN_VALUE;
  
-          var pointList = context.$pointList; //this.getPointList();
-          for(var i = 0, l = pointList.length; i < l; i++) {
-              if (pointList[i][0] < minX) {
-                  minX = pointList[i][0];
+          var cpl = context.pointList; //this.getcpl();
+          for(var i = 0, l = cpl.length; i < l; i++) {
+              if (cpl[i][0] < minX) {
+                  minX = cpl[i][0];
               }
-              if (pointList[i][0] > maxX) {
-                  maxX = pointList[i][0];
+              if (cpl[i][0] > maxX) {
+                  maxX = cpl[i][0];
               }
-              if (pointList[i][1] < minY) {
-                  minY = pointList[i][1];
+              if (cpl[i][1] < minY) {
+                  minY = cpl[i][1];
               }
-              if (pointList[i][1] > maxY) {
-                  maxY = pointList[i][1];
+              if (cpl[i][1] > maxY) {
+                  maxY = cpl[i][1];
               }
           }
 

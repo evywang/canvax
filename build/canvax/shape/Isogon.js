@@ -18,7 +18,7 @@ KISSY.add('canvax/shape/Isogon', function (S, Shape, Base) {
         this.type = 'isogon';
         opt = Base.checkOpt(opt);
         self._context = {
-            $pointList: [],
+            pointList: [],
             //从下面的r和n计算得到的边界值的集合
             //x             : 0,//{number},  // 必须，正n边形外接圆心横坐标
             //y             : 0,//{number},  // 必须，正n边形外接圆心纵坐标
@@ -40,7 +40,7 @@ KISSY.add('canvax/shape/Isogon', function (S, Shape, Base) {
        * @param {Object} style 样式
        */
         draw: function (ctx, style) {
-            var pointList = this.context.$pointList;
+            var pointList = this.context.pointList;
             if (pointList.length == 0) {
                 return;
             }    // 绘制
@@ -63,7 +63,7 @@ KISSY.add('canvax/shape/Isogon', function (S, Shape, Base) {
             var beginDeg = -PI / 2;
             var deg = beginDeg;    // 记录边界点，用于判断insight
             // 记录边界点，用于判断insight
-            var pointList = style.$pointList = [];
+            var pointList = style.pointList = [];
             for (var i = 0, end = n; i < end; i++) {
                 pointList.push([
                     x + r * cos(deg),

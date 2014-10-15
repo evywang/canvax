@@ -23,7 +23,7 @@ KISSY.add(function(S , Shape , myMath , Base){
 
        opt = Base.checkOpt( opt );
        self._context  = {
-           $pointList  : [],//边界点的集合,私有，从下面的属性计算的来
+           pointList  : [],//边界点的集合,私有，从下面的属性计算的来
            r0         : opt.context.r0         || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
            r          : opt.context.r          || 0,//{number},  // 必须，外圆半径
            startAngle : myMath.degreeTo360( opt.context.startAngle ) || 0,//{number},  // 必须，起始角度[0, 360)
@@ -90,20 +90,7 @@ KISSY.add(function(S , Shape , myMath , Base){
             var r = context.r;                            // 扇形外半径(0,r]
             
             this.getRegAngle();
-            /*
-            var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
-            var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
 
-            var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
-            if ( (startAngle > endAngle && !this.context.clockwise ) || (startAngle < endAngle && this.context.clockwise ) ) {
-                regIn      = false; //out
-            }
-            //度的范围，从小到大
-            var regAngle   = [ 
-                Math.min( startAngle , endAngle ) , 
-                Math.max( startAngle , endAngle ) 
-            ];
-            */ 
 
             var isCircle = false;
             if( Math.abs( this.context.startAngle - this.context.endAngle ) == 360 
@@ -148,7 +135,7 @@ KISSY.add(function(S , Shape , myMath , Base){
                         ]);
             }
 
-            context.$pointList = pointList;
+            context.pointList = pointList;
             return this.getRectFormPointList( context );
         }
 

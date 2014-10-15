@@ -19,7 +19,7 @@ KISSY.add('canvax/shape/Sector', function (S, Shape, myMath, Base) {
         self.type = 'sector';
         opt = Base.checkOpt(opt);
         self._context = {
-            $pointList: [],
+            pointList: [],
             //边界点的集合,私有，从下面的属性计算的来
             r0: opt.context.r0 || 0,
             // 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
@@ -90,34 +90,7 @@ KISSY.add('canvax/shape/Sector', function (S, Shape, myMath, Base) {
                 0 : context.r0;
             var r = context.r;    // 扇形外半径(0,r]
             // 扇形外半径(0,r]
-            this.getRegAngle();    /*
-            var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
-            var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
-
-            var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
-            if ( (startAngle > endAngle && !this.context.clockwise ) || (startAngle < endAngle && this.context.clockwise ) ) {
-                regIn      = false; //out
-            }
-            //度的范围，从小到大
-            var regAngle   = [ 
-                Math.min( startAngle , endAngle ) , 
-                Math.max( startAngle , endAngle ) 
-            ];
-            */
-            /*
-            var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
-            var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
-
-            var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
-            if ( (startAngle > endAngle && !this.context.clockwise ) || (startAngle < endAngle && this.context.clockwise ) ) {
-                regIn      = false; //out
-            }
-            //度的范围，从小到大
-            var regAngle   = [ 
-                Math.min( startAngle , endAngle ) , 
-                Math.max( startAngle , endAngle ) 
-            ];
-            */
+            this.getRegAngle();
             var isCircle = false;
             if (Math.abs(this.context.startAngle - this.context.endAngle) == 360 || this.context.startAngle == this.context.endAngle && this.context.startAngle * this.context.endAngle != 0) {
                 isCircle = true;
@@ -167,7 +140,7 @@ KISSY.add('canvax/shape/Sector', function (S, Shape, myMath, Base) {
                     myMath.sin(endAngle) * r0
                 ]);
             }
-            context.$pointList = pointList;
+            context.pointList = pointList;
             return this.getRectFormPointList(context);
         }
     });
