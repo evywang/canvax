@@ -69,24 +69,18 @@ KISSY.add(function( S , DisplayObject , Base  ){
 
 
       render : function(){
-         var self = this;
-         var style = self.context;
-         var ctx = self.getStage().context2D;
-
-         //if( style ){
-         //   Base.setContextStyle( ctx , this.context );
-         //}
+         var ctx  = this.getStage().context2D;
          
-         if (self.context.type == "shape"){
+         if (this.context.type == "shape"){
              //type == shape的时候，自定义绘画
              //这个时候就可以使用self.graphics绘图接口了，该接口模拟的是as3的接口
-             self.draw.apply( self );
+             this.draw.apply( this );
          } else {
              //这个时候，说明该shape是调用已经绘制好的 shape 模块，这些模块全部在../shape目录下面
-             if( self.draw ){
+             if( this.draw ){
                  ctx.beginPath();
-                 self.draw( ctx , style );
-                 self.drawEnd( ctx );
+                 this.draw( ctx , this.context );
+                 this.drawEnd( ctx );
              }
          }
       }
@@ -105,8 +99,8 @@ KISSY.add(function( S , DisplayObject , Base  ){
             );
             for (var i = 0; i < numDashes; ++i) {
                 ctx[i % 2 === 0 ? 'moveTo' : 'lineTo'](
-                    x1 + (deltaX / numDashes) * i,
-                    y1 + (deltaY / numDashes) * i
+                    parseInt(x1 + (deltaX / numDashes) * i),
+                    parseInt(y1 + (deltaY / numDashes) * i)
                 );
             }
       },

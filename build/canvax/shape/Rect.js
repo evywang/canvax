@@ -70,14 +70,14 @@ KISSY.add('canvax/shape/Rect', function (S, Shape, Base) {
             } else {
                 r1 = r2 = r3 = r4 = 0;
             }
-            ctx.moveTo(x + r1, y);
-            ctx.lineTo(x + width - r2, y);
+            ctx.moveTo(parseInt(x + r1), parseInt(y));
+            ctx.lineTo(parseInt(x + width - r2), parseInt(y));
             r2 !== 0 && ctx.quadraticCurveTo(x + width, y, x + width, y + r2);
-            ctx.lineTo(x + width, y + height - r3);
+            ctx.lineTo(parseInt(x + width), parseInt(y + height - r3));
             r3 !== 0 && ctx.quadraticCurveTo(x + width, y + height, x + width - r3, y + height);
-            ctx.lineTo(x + r4, y + height);
+            ctx.lineTo(parseInt(x + r4), parseInt(y + height));
             r4 !== 0 && ctx.quadraticCurveTo(x, y + height, x, y + height - r4);
-            ctx.lineTo(x, y + r1);
+            ctx.lineTo(parseInt(x), parseInt(y + r1));
             r1 !== 0 && ctx.quadraticCurveTo(x, y, x + r1, y);
         },
         /**
@@ -87,32 +87,15 @@ KISSY.add('canvax/shape/Rect', function (S, Shape, Base) {
        */
         draw: function (ctx, style) {
             if (!style.$model.radius.length) {
-                var x = 0;
-                var y = 0;    //ctx.moveTo(x, y);
-                              /*
-              ctx.lineTo(x + this.context.width, y);
-              ctx.lineTo(x + this.context.width, y + this.context.height);
-              ctx.lineTo(x, y + this.context.height);
-              ctx.lineTo(x, y);
-              */
-                //ctx.moveTo(x, y);
-                /*
-              ctx.lineTo(x + this.context.width, y);
-              ctx.lineTo(x + this.context.width, y + this.context.height);
-              ctx.lineTo(x, y + this.context.height);
-              ctx.lineTo(x, y);
-              */
                 if (!!style.fillStyle) {
-                    ctx.fillRect(x, y, this.context.width, this.context.height);
+                    ctx.fillRect(0, 0, this.context.width, this.context.height);
                 }
                 if (!!style.lineWidth) {
-                    ctx.strokeRect(x, y, this.context.width, this.context.height);
-                }    //ctx.rect(x, y, this.get("width"), this.get("height"));
-            } else
-                //ctx.rect(x, y, this.get("width"), this.get("height"));
-                {
-                    this._buildRadiusPath(ctx, style);
+                    ctx.strokeRect(0, 0, this.context.width, this.context.height);
                 }
+            } else {
+                this._buildRadiusPath(ctx, style);
+            }
             return;
         },
         /**

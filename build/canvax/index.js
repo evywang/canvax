@@ -573,7 +573,7 @@ KISSY.add('canvax/core/Base', function (S) {
                         'scaleY',
                         'rotation',
                         'scaleOrigin',
-                        'rotateOrigin'
+                        'rotateOrigin, lineWidth'
                     ];
                 if (_.indexOf(transFormProps, name) >= 0) {
                     this.$owner._updateTransform();
@@ -804,10 +804,16 @@ KISSY.add('canvax/core/Base', function (S) {
                     _transform.translate(origin.x, origin.y);
                 }
             }
-            ;
-            if (this.context.x != 0 || this.context.y != 0) {
-                //如果有位移
-                _transform.translate(this.context.x, this.context.y);
+            ;    //如果有位移
+            //如果有位移
+            var x = Math.round(this.context.x);
+            var y = Math.round(this.context.y);
+            if (parseInt(this.context.lineWidth) % 2 == 1 && this.context.strokeStyle) {
+                x += 0.5;
+                y += 0.5;
+            }
+            if (x != 0 || y != 0) {
+                _transform.translate(x, y);
             }
             this._transform = _transform;
             return _transform;
@@ -939,19 +945,6 @@ KISSY.add('canvax/core/Base', function (S) {
             //把自己从父节点中删除了后做自我清除，释放内存
             this.context = null;
             delete this.context;
-        },
-        toString: function () {
-            var result;
-            if (!this.parent) {
-                return this.id + '(stage)';
-            }
-            for (var o = this; o != null; o = o.parent) {
-                var s = o.id + '(' + o.type + ')';
-                result = result == null ? s : s + '-->' + result;
-                if (o == o.parent || !o.parent)
-                    break;
-            }
-            return result;
         }
     });
     return DisplayObject;
@@ -1451,24 +1444,17 @@ KISSY.add('canvax/core/Base', function (S) {
             }
         },
         render: function () {
-            var self = this;
-            var style = self.context;
-            var ctx = self.getStage().context2D;    //if( style ){
-                                                    //   Base.setContextStyle( ctx , this.context );
-                                                    //}
-            //if( style ){
-            //   Base.setContextStyle( ctx , this.context );
-            //}
-            if (self.context.type == 'shape') {
+            var ctx = this.getStage().context2D;
+            if (this.context.type == 'shape') {
                 //type == shape的时候，自定义绘画
                 //这个时候就可以使用self.graphics绘图接口了，该接口模拟的是as3的接口
-                self.draw.apply(self);
+                this.draw.apply(this);
             } else {
                 //这个时候，说明该shape是调用已经绘制好的 shape 模块，这些模块全部在../shape目录下面
-                if (self.draw) {
+                if (this.draw) {
                     ctx.beginPath();
-                    self.draw(ctx, style);
-                    self.drawEnd(ctx);
+                    this.draw(ctx, this.context);
+                    this.drawEnd(ctx);
                 }
             }
         },
@@ -1482,7 +1468,7 @@ KISSY.add('canvax/core/Base', function (S) {
             var deltaY = y2 - y1;
             var numDashes = Math.floor(Math.sqrt(deltaX * deltaX + deltaY * deltaY) / dashLength);
             for (var i = 0; i < numDashes; ++i) {
-                ctx[i % 2 === 0 ? 'moveTo' : 'lineTo'](x1 + deltaX / numDashes * i, y1 + deltaY / numDashes * i);
+                ctx[i % 2 === 0 ? 'moveTo' : 'lineTo'](parseInt(x1 + deltaX / numDashes * i), parseInt(y1 + deltaY / numDashes * i));
             }
         },
         /*
@@ -1632,9 +1618,6 @@ KISSY.add('canvax/core/Base', function (S) {
             textDecoration: opt.context.textDecoration,
             fillStyle: opt.context.fontColor || opt.context.fillStyle || 'blank',
             lineHeight: opt.context.lineHeight || 1.3,
-            //下面两个在displayObject中有
-            //textAlign    : opt.context.textAlign      || 'left',
-            //textBaseline : opt.context.textBaseline   || 'top',
             backgroundColor: opt.context.backgroundColor,
             textBackgroundColor: opt.context.textBackgroundColor
         };
@@ -1662,14 +1645,13 @@ KISSY.add('canvax/core/Base', function (S) {
             for (p in this.context.$model) {
                 if (p in ctx) {
                     if (p != 'textBaseline' && this.context.$model[p]) {
+                        debugger;
                         ctx[p] = this.context.$model[p];
                     }
                 }
             }
-            this.clipTo && this.clipContext(this, ctx);
             this._renderTextBackground(ctx, textLines);
             this._renderText(ctx, textLines);
-            this.clipTo && ctx.restore();
         },
         resetText: function (text) {
             this.text = text.toString();
@@ -1709,11 +1691,6 @@ KISSY.add('canvax/core/Base', function (S) {
             });
             return fontArr.join(' ');
         },
-        /**
-             * @private
-             * @param {CanvasRenderingContext2D} ctx Context to render on
-             * @param {Array} textLines Array of all text lines
-             */
         _renderTextFill: function (ctx, textLines) {
             if (!this.context.fillStyle)
                 return;
@@ -1726,18 +1703,12 @@ KISSY.add('canvax/core/Base', function (S) {
                 this._getTopOffset() + lineHeights, i);
             }
         },
-        /**
-             * @private
-             * @param {CanvasRenderingContext2D} ctx Context to render on
-             * @param {Array} textLines Array of all text lines
-             */
         _renderTextStroke: function (ctx, textLines) {
             if (!this.context.strokeStyle && !this._skipFillStrokeCheck)
                 return;
             var lineHeights = 0;
             ctx.save();
             if (this.strokeDashArray) {
-                // Spec requires the concatenation of two copies the dash list when the number of elements is odd
                 if (1 & this.strokeDashArray.length) {
                     this.strokeDashArray.push.apply(this.strokeDashArray, this.strokeDashArray);
                 }
@@ -1754,9 +1725,7 @@ KISSY.add('canvax/core/Base', function (S) {
             ctx.restore();
         },
         _renderTextLine: function (method, ctx, line, left, top, lineIndex) {
-            // lift the line by quarter of fontSize
-            top -= this.context.fontSize / 4;    // short-circuit
-            // short-circuit
+            top -= this.context.fontSize / 4;
             if (this.context.textAlign !== 'justify') {
                 this._renderChars(method, ctx, line, left, top, lineIndex);
                 return;
@@ -1764,7 +1733,6 @@ KISSY.add('canvax/core/Base', function (S) {
             var lineWidth = ctx.measureText(line).width;
             var totalWidth = this.context.width;
             if (totalWidth > lineWidth) {
-                // stretch the line
                 var words = line.split(/\s+/);
                 var wordsWidth = ctx.measureText(line.replace(/\s+/g, '')).width;
                 var widthDiff = totalWidth - wordsWidth;
@@ -1809,12 +1777,6 @@ KISSY.add('canvax/core/Base', function (S) {
         },
         _getTextHeight: function (ctx, textLines) {
             return this.context.fontSize * textLines.length * this.context.lineHeight;
-        },
-        clipContext: function (receiver, ctx) {
-            ctx.save();
-            ctx.beginPath();
-            receiver.clipTo(ctx);
-            ctx.clip();
         },
         _renderTextBackground: function (ctx, textLines) {
             this._renderTextBoxBackground(ctx);

@@ -111,7 +111,7 @@ KISSY.add(function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , 
             _contextATTRS.$watch = function(name , value , preValue){
 
                 //下面的这些属性变化，都会需要重新组织矩阵属性_transform 
-                var transFormProps = [ "x" , "y" , "scaleX" , "scaleY" , "rotation" , "scaleOrigin" , "rotateOrigin" ];
+                var transFormProps = [ "x" , "y" , "scaleX" , "scaleY" , "rotation" , "scaleOrigin" , "rotateOrigin, lineWidth" ];
 
                 if( _.indexOf( transFormProps , name ) >= 0 ) {
                     this.$owner._updateTransform();
@@ -246,35 +246,34 @@ KISSY.add(function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , 
          *查询自己在parent的队列中的位置
          */
         getIndex   : function(){
-           if(!this.parent) {
-             return;
-           };
-           return _.indexOf(this.parent.children , this)
-
+            if(!this.parent) {
+              return;
+            };
+            return _.indexOf(this.parent.children , this)
         },
         /*
          *元素在z轴方向向下移动
          *@num 移动的层级
          */
         toBack : function( num ){
-           if(!this.parent) {
-             return;
-           }
-           var fromIndex = this.getIndex();
-           var toIndex = 0;
-           
-           if(_.isNumber( num )){
-             if( num == 0 ){
-                //原地不动
-                return;
-             };
-             toIndex = fromIndex - num;
-           }
-           var me = this.parent.children.splice( fromIndex , 1 )[0];
-           if( toIndex < 0 ){
-               toIndex = 0;
-           };
-           this.parent.addChildAt( me , toIndex );
+            if(!this.parent) {
+              return;
+            }
+            var fromIndex = this.getIndex();
+            var toIndex = 0;
+            
+            if(_.isNumber( num )){
+              if( num == 0 ){
+                 //原地不动
+                 return;
+              };
+              toIndex = fromIndex - num;
+            }
+            var me = this.parent.children.splice( fromIndex , 1 )[0];
+            if( toIndex < 0 ){
+                toIndex = 0;
+            };
+            this.parent.addChildAt( me , toIndex );
         },
         /*
          *元素在z轴方向向上移动
@@ -282,25 +281,25 @@ KISSY.add(function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , 
          */
         toFront : function( num ){
 
-           if(!this.parent) {
-             return;
-           }
-           var fromIndex = this.getIndex();
-           var pcl = this.parent.children.length;
-           var toIndex = pcl;
-           
-           if(_.isNumber( num )){
-             if( num == 0 ){
-                //原地不动
-                return;
-             }
-             toIndex = fromIndex + num + 1;
-           }
-           var me = this.parent.children.splice( fromIndex , 1 )[0];
-           if(toIndex > pcl){
-               toIndex = pcl;
-           }
-           this.parent.addChildAt( me , toIndex-1 );
+            if(!this.parent) {
+              return;
+            }
+            var fromIndex = this.getIndex();
+            var pcl = this.parent.children.length;
+            var toIndex = pcl;
+            
+            if(_.isNumber( num )){
+              if( num == 0 ){
+                 //原地不动
+                 return;
+              }
+              toIndex = fromIndex + num + 1;
+            }
+            var me = this.parent.children.splice( fromIndex , 1 )[0];
+            if(toIndex > pcl){
+                toIndex = pcl;
+            }
+            this.parent.addChildAt( me , toIndex-1 );
         },
         _transformHander : function( ctx ){
 
@@ -322,7 +321,7 @@ KISSY.add(function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , 
             _transform.identity();
 
             //是否需要Transform
-            if(this.context.scaleX !== 1 || this.context.scaleY!==1){
+            if(this.context.scaleX !== 1 || this.context.scaleY !==1 ){
                 //如果有缩放
                 //缩放的原点坐标
                 var origin = new Point(this.context.scaleOrigin);
@@ -349,12 +348,19 @@ KISSY.add(function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , 
                     _transform.translate( origin.x , origin.y );
                 }
             };
-            
-            if(this.context.x!=0 || this.context.y!=0){
-               //如果有位移
-               _transform.translate( this.context.x , this.context.y );
+
+            //如果有位移
+            var x = Math.round(this.context.x);
+            var y = Math.round(this.context.y);
+
+            if( parseInt(this.context.lineWidth) % 2 == 1 && this.context.strokeStyle ){
+                x += 0.5;
+                y += 0.5;
             }
 
+            if( x != 0 || y != 0 ){
+                _transform.translate( x , y );
+            }
             this._transform = _transform;
 
             return _transform;
@@ -474,18 +480,6 @@ KISSY.add(function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , 
             //把自己从父节点中删除了后做自我清除，释放内存
             this.context = null;
             delete this.context;
-        },
-        toString : function(){
-            var result;
-            if (!this.parent) {
-              return this.id+"(stage)";
-            }
-            for(var o = this ; o != null; o = o.parent) {		
-                var s = o.id+"("+ o.type +")";
-                result = result == null ? s : (s + "-->" + result);
-                if (o == o.parent || !o.parent) break;
-            }
-            return result; 
         }
     } );
     return DisplayObject;

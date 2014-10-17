@@ -104,7 +104,7 @@ KISSY.add('canvax/display/DisplayObject', function (S, EventDispatcher, Matrix, 
                         'scaleY',
                         'rotation',
                         'scaleOrigin',
-                        'rotateOrigin'
+                        'rotateOrigin, lineWidth'
                     ];
                 if (_.indexOf(transFormProps, name) >= 0) {
                     this.$owner._updateTransform();
@@ -335,10 +335,16 @@ KISSY.add('canvax/display/DisplayObject', function (S, EventDispatcher, Matrix, 
                     _transform.translate(origin.x, origin.y);
                 }
             }
-            ;
-            if (this.context.x != 0 || this.context.y != 0) {
-                //如果有位移
-                _transform.translate(this.context.x, this.context.y);
+            ;    //如果有位移
+            //如果有位移
+            var x = Math.round(this.context.x);
+            var y = Math.round(this.context.y);
+            if (parseInt(this.context.lineWidth) % 2 == 1 && this.context.strokeStyle) {
+                x += 0.5;
+                y += 0.5;
+            }
+            if (x != 0 || y != 0) {
+                _transform.translate(x, y);
             }
             this._transform = _transform;
             return _transform;
@@ -470,19 +476,6 @@ KISSY.add('canvax/display/DisplayObject', function (S, EventDispatcher, Matrix, 
             //把自己从父节点中删除了后做自我清除，释放内存
             this.context = null;
             delete this.context;
-        },
-        toString: function () {
-            var result;
-            if (!this.parent) {
-                return this.id + '(stage)';
-            }
-            for (var o = this; o != null; o = o.parent) {
-                var s = o.id + '(' + o.type + ')';
-                result = result == null ? s : s + '-->' + result;
-                if (o == o.parent || !o.parent)
-                    break;
-            }
-            return result;
         }
     });
     return DisplayObject;

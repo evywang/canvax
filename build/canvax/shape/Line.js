@@ -43,8 +43,8 @@ KISSY.add('canvax/shape/Line', function (S, Shape, Base) {
         draw: function (ctx, style) {
             if (!style.lineType || style.lineType == 'solid') {
                 //默认为实线
-                ctx.moveTo(style.xStart, style.yStart);
-                ctx.lineTo(style.xEnd, style.yEnd);
+                ctx.moveTo(parseInt(style.xStart), parseInt(style.yStart));
+                ctx.lineTo(parseInt(style.xEnd), parseInt(style.yEnd));
             } else if (style.lineType == 'dashed' || style.lineType == 'dotted') {
                 this.dashedLineTo(ctx, style.xStart, style.yStart, style.xEnd, style.yEnd, style.dashLength);
             }

@@ -27,9 +27,6 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
             textDecoration: opt.context.textDecoration,
             fillStyle: opt.context.fontColor || opt.context.fillStyle || 'blank',
             lineHeight: opt.context.lineHeight || 1.3,
-            //下面两个在displayObject中有
-            //textAlign    : opt.context.textAlign      || 'left',
-            //textBaseline : opt.context.textBaseline   || 'top',
             backgroundColor: opt.context.backgroundColor,
             textBackgroundColor: opt.context.textBackgroundColor
         };
@@ -57,14 +54,13 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
             for (p in this.context.$model) {
                 if (p in ctx) {
                     if (p != 'textBaseline' && this.context.$model[p]) {
+                        debugger;
                         ctx[p] = this.context.$model[p];
                     }
                 }
             }
-            this.clipTo && this.clipContext(this, ctx);
             this._renderTextBackground(ctx, textLines);
             this._renderText(ctx, textLines);
-            this.clipTo && ctx.restore();
         },
         resetText: function (text) {
             this.text = text.toString();
@@ -104,11 +100,6 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
             });
             return fontArr.join(' ');
         },
-        /**
-             * @private
-             * @param {CanvasRenderingContext2D} ctx Context to render on
-             * @param {Array} textLines Array of all text lines
-             */
         _renderTextFill: function (ctx, textLines) {
             if (!this.context.fillStyle)
                 return;
@@ -121,18 +112,12 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
                 this._getTopOffset() + lineHeights, i);
             }
         },
-        /**
-             * @private
-             * @param {CanvasRenderingContext2D} ctx Context to render on
-             * @param {Array} textLines Array of all text lines
-             */
         _renderTextStroke: function (ctx, textLines) {
             if (!this.context.strokeStyle && !this._skipFillStrokeCheck)
                 return;
             var lineHeights = 0;
             ctx.save();
             if (this.strokeDashArray) {
-                // Spec requires the concatenation of two copies the dash list when the number of elements is odd
                 if (1 & this.strokeDashArray.length) {
                     this.strokeDashArray.push.apply(this.strokeDashArray, this.strokeDashArray);
                 }
@@ -149,9 +134,7 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
             ctx.restore();
         },
         _renderTextLine: function (method, ctx, line, left, top, lineIndex) {
-            // lift the line by quarter of fontSize
-            top -= this.context.fontSize / 4;    // short-circuit
-            // short-circuit
+            top -= this.context.fontSize / 4;
             if (this.context.textAlign !== 'justify') {
                 this._renderChars(method, ctx, line, left, top, lineIndex);
                 return;
@@ -159,7 +142,6 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
             var lineWidth = ctx.measureText(line).width;
             var totalWidth = this.context.width;
             if (totalWidth > lineWidth) {
-                // stretch the line
                 var words = line.split(/\s+/);
                 var wordsWidth = ctx.measureText(line.replace(/\s+/g, '')).width;
                 var widthDiff = totalWidth - wordsWidth;
@@ -204,12 +186,6 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
         },
         _getTextHeight: function (ctx, textLines) {
             return this.context.fontSize * textLines.length * this.context.lineHeight;
-        },
-        clipContext: function (receiver, ctx) {
-            ctx.save();
-            ctx.beginPath();
-            receiver.clipTo(ctx);
-            ctx.clip();
         },
         _renderTextBackground: function (ctx, textLines) {
             this._renderTextBoxBackground(ctx);
