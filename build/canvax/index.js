@@ -1645,7 +1645,6 @@ KISSY.add('canvax/core/Base', function (S) {
             for (p in this.context.$model) {
                 if (p in ctx) {
                     if (p != 'textBaseline' && this.context.$model[p]) {
-                        debugger;
                         ctx[p] = this.context.$model[p];
                     }
                 }
@@ -2029,19 +2028,33 @@ KISSY.add('canvax/core/Base', function (S) {
                 this._dispatchEvent(event);
                 if (preHeartBeat != this._heartBeatNum) {
                     this._hoverClass = true;
-                    var canvax = this.getStage().parent;    //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
-                                                            //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
-                                                            //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
-                    //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
-                    //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
-                    //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
-                    if (_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1) {
-                    } else
-                        //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
-                        {
-                            delete canvax.convertStages[this.getStage().id];
-                            this._heart = false;
-                        }    //然后clone一份obj，添加到_hoverStage 中
+                    var canvax = this.getStage().parent;    /*
+
+               //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
+               //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
+               //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
+               if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
+                   //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
+               } else {
+                   delete canvax.convertStages[ this.getStage().id ];
+                   this._heart = false;
+               }
+
+               */
+                                                            //然后clone一份obj，添加到_hoverStage 中
+                    /*
+
+               //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
+               //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
+               //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
+               if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
+                   //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
+               } else {
+                   delete canvax.convertStages[ this.getStage().id ];
+                   this._heart = false;
+               }
+
+               */
                     //然后clone一份obj，添加到_hoverStage 中
                     var activShape = this.clone(true);
                     activShape._transform = this.getConcatenatedMatrix();
@@ -3247,40 +3260,7 @@ KISSY.add('canvax/core/Base', function (S) {
             }
         },
         __getcurPointsTarget: function (e, point) {
-            var oldObj = this.curPointsTarget[0];    /*
-           if ( oldObj ){
-               var visibleCheckObj = oldObj;
-               var visiHide        = true; //false为隐藏
-               while( visibleCheckObj.parent ){
-                   visibleCheckObj = visibleCheckObj.parent;
-                   if( visibleCheckObj.context && visibleCheckObj.context.$model.visible == false ) {
-                      visiHide = false;
-                      break;
-                   }
-               }
-               //也许oldObj可能隐藏掉了
-               if( !visiHide ) {
-                   oldObj = null;
-               }
-           }
-           */
-            /*
-           if ( oldObj ){
-               var visibleCheckObj = oldObj;
-               var visiHide        = true; //false为隐藏
-               while( visibleCheckObj.parent ){
-                   visibleCheckObj = visibleCheckObj.parent;
-                   if( visibleCheckObj.context && visibleCheckObj.context.$model.visible == false ) {
-                      visiHide = false;
-                      break;
-                   }
-               }
-               //也许oldObj可能隐藏掉了
-               if( !visiHide ) {
-                   oldObj = null;
-               }
-           }
-           */
+            var oldObj = this.curPointsTarget[0];
             var e = Base.copyEvent(new CanvaxEvent(), e);
             if (e.type == 'mousemove' && oldObj && oldObj.getChildInPoint(point)) {
                 //小优化,鼠标move的时候。计算频率太大，所以。做此优化
@@ -3288,8 +3268,7 @@ KISSY.add('canvax/core/Base', function (S) {
                 //开发派发常规mousemove事件
                 e.target = e.currentTarget = oldObj;
                 e.point = oldObj.globalToLocal(point);
-                this._mouseEventDispatch(oldObj, e);    //oldObj.dispatchEvent(e);
-                //oldObj.dispatchEvent(e);
+                this._mouseEventDispatch(oldObj, e);
                 return;
             }
             var obj = this.getObjectsUnderPoint(point, 1)[0];
@@ -3511,7 +3490,7 @@ KISSY.add('canvax/core/Base', function (S) {
                     if (!self.convertStages[stage.id].convertShapes[shape.id]) {
                         self.convertStages[stage.id].convertShapes[shape.id] = {
                             shape: shape,
-                            convertType: null
+                            convertType: opt.convertType
                         };
                     } else {
                         //如果已经上报了该shape的心跳。

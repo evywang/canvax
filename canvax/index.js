@@ -398,24 +398,6 @@ KISSY.add(function(
        __getcurPointsTarget : function(e , point ) {
            var oldObj = this.curPointsTarget[0];
 
-           /*
-           if ( oldObj ){
-               var visibleCheckObj = oldObj;
-               var visiHide        = true; //false为隐藏
-               while( visibleCheckObj.parent ){
-                   visibleCheckObj = visibleCheckObj.parent;
-                   if( visibleCheckObj.context && visibleCheckObj.context.$model.visible == false ) {
-                      visiHide = false;
-                      break;
-                   }
-               }
-               //也许oldObj可能隐藏掉了
-               if( !visiHide ) {
-                   oldObj = null;
-               }
-           }
-           */
-
            var e = Base.copyEvent( new CanvaxEvent() , e );
 
            if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
@@ -426,14 +408,10 @@ KISSY.add(function(
                e.target = e.currentTarget = oldObj;
                e.point  = oldObj.globalToLocal( point );
                this._mouseEventDispatch( oldObj , e );
-               //oldObj.dispatchEvent(e);
-
                return;
            }
 
            var obj = this.getObjectsUnderPoint( point , 1)[0];
-
-           
 
            e.target = e.currentTarget = obj;
            e.point  = point;
@@ -669,7 +647,7 @@ KISSY.add(function(
                    if (!self.convertStages[ stage.id ].convertShapes[ shape.id ]){
                        self.convertStages[ stage.id ].convertShapes[ shape.id ]={
                            shape : shape,
-                           convertType : null
+                           convertType : opt.convertType
                        }
                    } else {
                        //如果已经上报了该shape的心跳。

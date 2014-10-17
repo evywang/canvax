@@ -54,7 +54,6 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
             for (p in this.context.$model) {
                 if (p in ctx) {
                     if (p != 'textBaseline' && this.context.$model[p]) {
-                        debugger;
                         ctx[p] = this.context.$model[p];
                     }
                 }
