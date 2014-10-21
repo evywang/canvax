@@ -16,6 +16,7 @@ KISSY.add(function(
        DisplayObjectContainer , 
        Stage , Sprite , Shape , Point , Bitmap , Text , Movieclip  
    ) {
+
        
    var Canvax = function( opt ){
        this.type = "canvax";
@@ -32,7 +33,7 @@ KISSY.add(function(
        //那么要先清除这个el的所有内容。
        //默认的el是一个自己创建的div，因为要在这个div上面注册n多个事件 来 在整个canvax系统里面进行事件分发。
        //所以不能直接用配置传进来的el对象。因为可能会重复添加很多的事件在上面。导致很多内容无法释放。
-       this.el.html("<div class='canvax-c' style='position:relative;width:" + this.el.width() + "px;height:" + this.el.height()+"px;'><div class='canvax-tips' style='position:absolute;width:" + this.el.width() + "px;height:" + this.el.height()+"px;z-index:999'></div></div>");
+       this.el.html("<div class='canvax-c' style='position:relative;width:" + this.el.width() + "px;height:" + this.el.height()+"px;'><div class='canvax-tips' style='position:absolute;width:" + this.el.width() + "px;height:" + this.el.height()+"px;'></div></div>");
 
        this.el = this.el.all("div.canvax-c");
 
@@ -596,7 +597,8 @@ KISSY.add(function(
                canvas = stage.context2D.canvas;
            }
            if(this.children.length == 1){
-               this.el.append( canvas );
+               //this.el.append( canvas );
+               this.el[0].insertBefore( canvas , this.el.all("div.canvax-tips")[0] );
            } else if(this.children.length>1) {
                if( index == undefined ) {
                    //如果没有指定位置，那么就放到_hoverStage的下面。
@@ -604,7 +606,8 @@ KISSY.add(function(
                } else {
                    //如果有指定的位置，那么就指定的位置来
                    if( index >= this.children.length-1 ){
-                      this.el.append( canvas );
+                      //this.el.append( canvas );
+                      this.el[0].insertBefore( canvas , this.el.all("div.canvax-tips")[0] );
                    } else {
                       this.el[0].insertBefore( canvas , this.children[ index ].context2D.canvas );
                    }
