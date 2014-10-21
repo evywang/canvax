@@ -54,8 +54,10 @@ KISSY.add('canvax/core/Base', function (S) {
                 var newDom = document.createElement('canvas');
                 newDom.style.position = 'absolute';
                 newDom.style.width = _width + 'px';
-                newDom.style.height = _height + 'px';    //newDom.setAttribute('width', _width );
-                                                         //newDom.setAttribute('height', _height );
+                newDom.style.height = _height + 'px';
+                newDom.style.left = 0;
+                newDom.style.top = 0;    //newDom.setAttribute('width', _width );
+                                         //newDom.setAttribute('height', _height );
                 //newDom.setAttribute('width', _width );
                 //newDom.setAttribute('height', _height );
                 newDom.setAttribute('width', _width * this._devicePixelRatio);
@@ -547,7 +549,7 @@ KISSY.add('canvax/core/Base', function (S) {
                     shadowColor: null,
                     shadowOffsetX: null,
                     shadowOffsetY: null,
-                    strokeStyle: '#000000',
+                    strokeStyle: null,
                     globalAlpha: 1,
                     font: null,
                     textAlign: 'left',
@@ -1625,7 +1627,7 @@ KISSY.add('canvax/core/Base', function (S) {
         self.text = text.toString();
         arguments.callee.superclass.constructor.apply(this, [opt]);
     };
-    Base.creatClass(Text, DisplayObject, {
+    Base.creatClass(Text, DisplayObjectContainer, {
         $watch: function (name, value, preValue) {
             //context属性有变化的监听函数
             if (name in this.fontProperts) {
@@ -1639,6 +1641,7 @@ KISSY.add('canvax/core/Base', function (S) {
             var self = this;
         },
         render: function (ctx) {
+            debugger;
             var textLines = this._getTextLines();
             this.context.width = this._getTextWidth(ctx, textLines);
             this.context.height = this._getTextHeight(ctx, textLines);
@@ -1672,10 +1675,8 @@ KISSY.add('canvax/core/Base', function (S) {
         },
         _renderText: function (ctx, textLines) {
             ctx.save();
-            this._setShadow(ctx);
             this._renderTextFill(ctx, textLines);
             this._renderTextStroke(ctx, textLines);
-            this._removeShadow(ctx);
             ctx.restore();
         },
         _getFontDeclaration: function () {
@@ -1703,7 +1704,7 @@ KISSY.add('canvax/core/Base', function (S) {
             }
         },
         _renderTextStroke: function (ctx, textLines) {
-            if (!this.context.strokeStyle && !this._skipFillStrokeCheck)
+            if ((!this.context.strokeStyle || !this.context.lineWidth) && !this._skipFillStrokeCheck)
                 return;
             var lineHeights = 0;
             ctx.save();
@@ -1748,18 +1749,6 @@ KISSY.add('canvax/core/Base', function (S) {
         },
         _renderChars: function (method, ctx, chars, left, top) {
             ctx[method](chars, 0, top);
-        },
-        _setShadow: function (ctx) {
-            if (!this.shadow)
-                return;
-            ctx.shadowColor = 'red';
-            ctx.shadowBlur = 1;
-            ctx.shadowOffsetX = 1;
-            ctx.shadowOffsetY = 1;
-        },
-        _removeShadow: function (ctx) {
-            ctx.shadowColor = '';
-            ctx.shadowBlur = ctx.shadowOffsetX = ctx.shadowOffsetY = 0;
         },
         _getHeightOfLine: function () {
             return this.context.fontSize * this.context.lineHeight;
@@ -2936,8 +2925,8 @@ KISSY.add('canvax/core/Base', function (S) {
         //那么要先清除这个el的所有内容。
         //默认的el是一个自己创建的div，因为要在这个div上面注册n多个事件 来 在整个canvax系统里面进行事件分发。
         //所以不能直接用配置传进来的el对象。因为可能会重复添加很多的事件在上面。导致很多内容无法释放。
-        this.el.html('<div class=\'\' style=\'width:' + this.el.width() + 'px;height:' + this.el.height() + 'px;\'></div>');
-        this.el = this.el.all('div');
+        this.el.html('<div class=\'canvax-c\' style=\'position:relative;width:' + this.el.width() + 'px;height:' + this.el.height() + 'px;\'><div class=\'canvax-tips\' style=\'position:absolute;width:' + this.el.width() + 'px;height:' + this.el.height() + 'px;z-index:999\'></div></div>');
+        this.el = this.el.all('div.canvax-c');
         this.rootOffset = this.el.offset();
         this.curPoints = [new Point(0, 0)]    //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
                                               //当前激活的点对应的obj，在touch下可以是个数组,和上面的curPoints对应
@@ -3272,8 +3261,6 @@ KISSY.add('canvax/core/Base', function (S) {
                 return;
             }
             var obj = this.getObjectsUnderPoint(point, 1)[0];
-            e.target = e.currentTarget = obj;
-            e.point = point;
             this._cursorHander(obj, oldObj);
             if (oldObj && oldObj != obj || e.type == 'mouseout') {
                 if (!oldObj) {
@@ -3296,6 +3283,7 @@ KISSY.add('canvax/core/Base', function (S) {
                 this.curPointsTarget[0] = obj;
                 e.type = 'mouseover';
                 e.target = e.currentTarget = obj;
+                e.point = obj.globalToLocal(point);
                 this._mouseEventDispatch(obj, e);
             }
             ;

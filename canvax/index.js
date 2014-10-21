@@ -32,8 +32,9 @@ KISSY.add(function(
        //那么要先清除这个el的所有内容。
        //默认的el是一个自己创建的div，因为要在这个div上面注册n多个事件 来 在整个canvax系统里面进行事件分发。
        //所以不能直接用配置传进来的el对象。因为可能会重复添加很多的事件在上面。导致很多内容无法释放。
-       this.el.html("<div class='' style='width:" + this.el.width() + "px;height:" + this.el.height() + "px;'></div>");
-       this.el = this.el.all("div");
+       this.el.html("<div class='canvax-c' style='position:relative;width:" + this.el.width() + "px;height:" + this.el.height()+"px;'><div class='canvax-tips' style='position:absolute;width:" + this.el.width() + "px;height:" + this.el.height()+"px;z-index:999'></div></div>");
+
+       this.el = this.el.all("div.canvax-c");
 
        this.rootOffset      = this.el.offset();
 
@@ -413,8 +414,7 @@ KISSY.add(function(
 
            var obj = this.getObjectsUnderPoint( point , 1)[0];
 
-           e.target = e.currentTarget = obj;
-           e.point  = point;
+           
 
            this._cursorHander( obj , oldObj );
 
@@ -437,6 +437,8 @@ KISSY.add(function(
                this.curPointsTarget[0] = obj;
                e.type = "mouseover";
                e.target = e.currentTarget = obj;
+               e.point  = obj.globalToLocal( point );
+
                this._mouseEventDispatch( obj , e );
            };
 
@@ -546,7 +548,6 @@ KISSY.add(function(
                    self.__startEnter();
                    return;
                }
-               
 
                //开始渲染的事件
                self.fire("beginRender");
@@ -556,7 +557,6 @@ KISSY.add(function(
                });
 
                self._heartBeat = false;
-
                
                //debugger;
                self.convertStages = {};

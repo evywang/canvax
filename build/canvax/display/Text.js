@@ -34,7 +34,7 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
         self.text = text.toString();
         arguments.callee.superclass.constructor.apply(this, [opt]);
     };
-    Base.creatClass(Text, DisplayObject, {
+    Base.creatClass(Text, DisplayObjectContainer, {
         $watch: function (name, value, preValue) {
             //context属性有变化的监听函数
             if (name in this.fontProperts) {
@@ -48,6 +48,7 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
             var self = this;
         },
         render: function (ctx) {
+            debugger;
             var textLines = this._getTextLines();
             this.context.width = this._getTextWidth(ctx, textLines);
             this.context.height = this._getTextHeight(ctx, textLines);
@@ -81,10 +82,8 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
         },
         _renderText: function (ctx, textLines) {
             ctx.save();
-            this._setShadow(ctx);
             this._renderTextFill(ctx, textLines);
             this._renderTextStroke(ctx, textLines);
-            this._removeShadow(ctx);
             ctx.restore();
         },
         _getFontDeclaration: function () {
@@ -112,7 +111,7 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
             }
         },
         _renderTextStroke: function (ctx, textLines) {
-            if (!this.context.strokeStyle && !this._skipFillStrokeCheck)
+            if ((!this.context.strokeStyle || !this.context.lineWidth) && !this._skipFillStrokeCheck)
                 return;
             var lineHeights = 0;
             ctx.save();
@@ -157,18 +156,6 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
         },
         _renderChars: function (method, ctx, chars, left, top) {
             ctx[method](chars, 0, top);
-        },
-        _setShadow: function (ctx) {
-            if (!this.shadow)
-                return;
-            ctx.shadowColor = 'red';
-            ctx.shadowBlur = 1;
-            ctx.shadowOffsetX = 1;
-            ctx.shadowOffsetY = 1;
-        },
-        _removeShadow: function (ctx) {
-            ctx.shadowColor = '';
-            ctx.shadowBlur = ctx.shadowOffsetX = ctx.shadowOffsetY = 0;
         },
         _getHeightOfLine: function () {
             return this.context.fontSize * this.context.lineHeight;

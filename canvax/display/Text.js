@@ -38,7 +38,7 @@ KISSY.add(function(S , DisplayObject , Base) {
         };
         
 
-        Base.creatClass(Text , DisplayObject , {
+        Base.creatClass(Text , DisplayObjectContainer , {
             $watch : function( name , value , preValue ){
                  //context属性有变化的监听函数
                  if( name in  this.fontProperts){
@@ -52,6 +52,7 @@ KISSY.add(function(S , DisplayObject , Base) {
                var self = this;
             },
             render : function( ctx ){
+            debugger
                var textLines = this._getTextLines();
 
                this.context.width  = this._getTextWidth( ctx, textLines);
@@ -89,10 +90,8 @@ KISSY.add(function(S , DisplayObject , Base) {
             },
             _renderText: function(ctx, textLines) {
                 ctx.save();
-                this._setShadow(ctx);
                 this._renderTextFill(ctx, textLines);
                 this._renderTextStroke(ctx, textLines);
-                this._removeShadow(ctx);
                 ctx.restore();
             },
             _getFontDeclaration: function() {
@@ -131,7 +130,7 @@ KISSY.add(function(S , DisplayObject , Base) {
                 }
             },
             _renderTextStroke: function(ctx, textLines) {
-                if (!this.context.strokeStyle && !this._skipFillStrokeCheck) return;
+                if ( (!this.context.strokeStyle || !this.context.lineWidth ) && !this._skipFillStrokeCheck) return;
 
                 var lineHeights = 0;
 
@@ -191,19 +190,6 @@ KISSY.add(function(S , DisplayObject , Base) {
             _renderChars: function(method, ctx, chars, left, top) {
                 ctx[method]( chars , 0 , top );
             },
-            _setShadow: function(ctx) {
-                if (!this.shadow) return;
-
-                ctx.shadowColor = "red";
-                ctx.shadowBlur = 1;
-                ctx.shadowOffsetX = 1;
-                ctx.shadowOffsetY = 1;
-            },
-            _removeShadow: function(ctx) {
-                ctx.shadowColor = '';
-                ctx.shadowBlur = ctx.shadowOffsetX = ctx.shadowOffsetY = 0;
-            },
-
             _getHeightOfLine: function() {
                 return this.context.fontSize * this.context.lineHeight;
             },
@@ -232,33 +218,27 @@ KISSY.add(function(S , DisplayObject , Base) {
                 ctx.save();
                 ctx.fillStyle = this.context.backgroundColor;
                 ctx.fillRect(
-                        this._getLeftOffset(),
-                        this._getTopOffset(),
-                        this.context.width,
-                        this.context.height
-                        );
-
+                    this._getLeftOffset(),
+                    this._getTopOffset(),
+                    this.context.width,
+                    this.context.height
+                    );
                 ctx.restore();
             },
             _renderTextLinesBackground: function(ctx, textLines) {
                 if (!this.context.textBackgroundColor) return;
-
                 ctx.save();
                 ctx.fillStyle = this.context.textBackgroundColor;
-
                 for (var i = 0, len = textLines.length; i < len; i++) {
-
                     if (textLines[i] !== '') {
-
                         var lineWidth      = this._getLineWidth(ctx, textLines[i]);
                         var lineLeftOffset = this._getLineLeftOffset(lineWidth);
-
                         ctx.fillRect(
-                                this._getLeftOffset() + lineLeftOffset,
-                                this._getTopOffset() + (i * this.context.fontSize * this.context.lineHeight),
-                                lineWidth,
-                                this.context.fontSize * this.context.lineHeight
-                                );
+                            this._getLeftOffset() + lineLeftOffset,
+                            this._getTopOffset() + (i * this.context.fontSize * this.context.lineHeight),
+                            lineWidth,
+                            this.context.fontSize * this.context.lineHeight
+                            );
                     }
                 }
                 ctx.restore();
@@ -312,8 +292,6 @@ KISSY.add(function(S , DisplayObject , Base) {
                 }
                 return t;
             }
-
-            
         });
         return Text;
     },

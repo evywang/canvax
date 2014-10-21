@@ -32,8 +32,10 @@ KISSY.add(function(S){
             var newDom = document.createElement("canvas");
 
             newDom.style.position = 'absolute';
-            newDom.style.width = _width + 'px';
+            newDom.style.width  = _width + 'px';
             newDom.style.height = _height + 'px';
+            newDom.style.left   = 0;
+            newDom.style.top    = 0;
             //newDom.setAttribute('width', _width );
             //newDom.setAttribute('height', _height );
             newDom.setAttribute('width', _width * this._devicePixelRatio);
