@@ -52,7 +52,6 @@ KISSY.add(function(S , DisplayObject , Base) {
                var self = this;
             },
             render : function( ctx ){
-            debugger
                var textLines = this._getTextLines();
 
                this.context.width  = this._getTextWidth( ctx, textLines);

@@ -78,7 +78,12 @@ KISSY.add('canvax/display/Shape', function (S, DisplayObject, Base) {
             var deltaY = y2 - y1;
             var numDashes = Math.floor(Math.sqrt(deltaX * deltaX + deltaY * deltaY) / dashLength);
             for (var i = 0; i < numDashes; ++i) {
-                ctx[i % 2 === 0 ? 'moveTo' : 'lineTo'](parseInt(x1 + deltaX / numDashes * i), parseInt(y1 + deltaY / numDashes * i));
+                var x = parseInt(x1 + deltaX / numDashes * i);
+                var y = parseInt(y1 + deltaY / numDashes * i);
+                ctx[i % 2 === 0 ? 'moveTo' : 'lineTo'](x, y);
+                if (i == numDashes - 1 && i % 2 === 0) {
+                    ctx.lineTo(x2, y2);
+                }
             }
         },
         /*

@@ -48,7 +48,6 @@ KISSY.add('canvax/display/Text', function (S, DisplayObject, Base) {
             var self = this;
         },
         render: function (ctx) {
-            debugger;
             var textLines = this._getTextLines();
             this.context.width = this._getTextWidth(ctx, textLines);
             this.context.height = this._getTextHeight(ctx, textLines);
