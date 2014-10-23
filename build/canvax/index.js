@@ -195,6 +195,42 @@ KISSY.add('canvax/core/Base', function (S) {
                     }
                 }
                 return canvaxE;
+            },
+            /**
+         * 按照css的顺序，返回一个[上,右,下,左]
+         */
+            getCssOrderArr: function (r) {
+                var r1;
+                var r2;
+                var r3;
+                var r4;
+                if (typeof r === 'number') {
+                    r1 = r2 = r3 = r4 = r;
+                } else if (r instanceof Array) {
+                    if (r.length === 1) {
+                        r1 = r2 = r3 = r4 = r[0];
+                    } else if (r.length === 2) {
+                        r1 = r3 = r[0];
+                        r2 = r4 = r[1];
+                    } else if (r.length === 3) {
+                        r1 = r[0];
+                        r2 = r4 = r[1];
+                        r3 = r[2];
+                    } else {
+                        r1 = r[0];
+                        r2 = r[1];
+                        r3 = r[2];
+                        r4 = r[3];
+                    }
+                } else {
+                    r1 = r2 = r3 = r4 = 0;
+                }
+                return [
+                    r1,
+                    r2,
+                    r3,
+                    r4
+                ];
             }
         };
     return Base;
@@ -3215,8 +3251,7 @@ KISSY.add('canvax/core/Base', function (S) {
             }
             if (e.type == 'mouseout') {
                 self.__getcurPointsTarget(e, curMousePoint);
-            }
-            if (e.type == 'mousemove') {
+            } else if (e.type == 'mousemove') {
                 //|| e.type == "mousedown" ){
                 //拖动过程中就不在做其他的mouseover检测，drag优先
                 if (self._touching && e.type == 'mousemove' && curMouseTarget) {

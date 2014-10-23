@@ -45,51 +45,23 @@ KISSY.add(function( S , Shape , Base){
           var y = 0;
           var width = this.context.width;
           var height = this.context.height;
-          var r = style.radius.$model;
-          var r1; 
-          var r2; 
-          var r3; 
-          var r4;
-
-          if(typeof r === 'number') {
-              r1 = r2 = r3 = r4 = r;
-          }
-          else if(r instanceof Array) {
-              if (r.length === 1) {
-                  r1 = r2 = r3 = r4 = r[0];
-              }
-              else if(r.length === 2) {
-                  r1 = r3 = r[0];
-                  r2 = r4 = r[1];
-              }
-              else if(r.length === 3) {
-                  r1 = r[0];
-                  r2 = r4 = r[1];
-                  r3 = r[2];
-              } else {
-                  r1 = r[0];
-                  r2 = r[1];
-                  r3 = r[2];
-                  r4 = r[3];
-              }
-          } else {
-              r1 = r2 = r3 = r4 = 0;
-          }
-          ctx.moveTo( parseInt(x + r1), parseInt(y));
-          ctx.lineTo( parseInt(x + width - r2), parseInt(y));
-          r2 !== 0 && ctx.quadraticCurveTo(
-                  x + width, y, x + width, y + r2
+          var r = Base.getCssOrderArr(style.radius);
+        
+          ctx.moveTo( parseInt(x + r[0]), parseInt(y));
+          ctx.lineTo( parseInt(x + width - r[1]), parseInt(y));
+          r[1] !== 0 && ctx.quadraticCurveTo(
+                  x + width, y, x + width, y + r[1]
                   );
-          ctx.lineTo( parseInt(x + width), parseInt(y + height - r3));
-          r3 !== 0 && ctx.quadraticCurveTo(
-                  x + width, y + height, x + width - r3, y + height
+          ctx.lineTo( parseInt(x + width), parseInt(y + height - r[2]));
+          r[2] !== 0 && ctx.quadraticCurveTo(
+                  x + width, y + height, x + width - r[2], y + height
                   );
-          ctx.lineTo( parseInt(x + r4), parseInt(y + height));
-          r4 !== 0 && ctx.quadraticCurveTo(
-                  x, y + height, x, y + height - r4
+          ctx.lineTo( parseInt(x + r[3]), parseInt(y + height));
+          r[3] !== 0 && ctx.quadraticCurveTo(
+                  x, y + height, x, y + height - r[3]
                   );
-          ctx.lineTo( parseInt(x), parseInt(y + r1));
-          r1 !== 0 && ctx.quadraticCurveTo(x, y, x + r1, y);
+          ctx.lineTo( parseInt(x), parseInt(y + r[0]));
+          r[0] !== 0 && ctx.quadraticCurveTo(x, y, x + r[0], y);
       },
 
       /**

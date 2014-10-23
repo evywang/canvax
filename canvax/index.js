@@ -148,7 +148,6 @@ KISSY.add(function(
           //初始绑定事件，为后续的displayList的事件分发提供入口
           var self = this;
           var _moveStep = 0; //move的时候的频率设置
-
           if( !(window.Hammer && Hammer.NO_MOUSEEVENTS) ) {
               //依次添加上浏览器的自带事件侦听
               _.each( CanvaxEvent.EVENTS , function( type ){
@@ -355,9 +354,7 @@ KISSY.add(function(
 
            if( e.type == "mouseout" ){
               self.__getcurPointsTarget(e , curMousePoint);
-           }
-
-           if( e.type == "mousemove" ){  //|| e.type == "mousedown" ){
+           } else if( e.type == "mousemove" ){  //|| e.type == "mousedown" ){
                //拖动过程中就不在做其他的mouseover检测，drag优先
                if(self._touching && e.type == "mousemove" && curMouseTarget){
                   //说明正在拖动啊
