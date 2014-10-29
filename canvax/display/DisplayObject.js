@@ -320,26 +320,28 @@ KISSY.add(function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , 
 
             _transform.identity();
 
+            var ctx = this.context;
+
             //是否需要Transform
-            if(this.context.scaleX !== 1 || this.context.scaleY !==1 ){
+            if(ctx.scaleX !== 1 || ctx.scaleY !==1 ){
                 //如果有缩放
                 //缩放的原点坐标
-                var origin = new Point(this.context.scaleOrigin);
+                var origin = new Point(ctx.scaleOrigin);
                 if( origin.x || origin.y ){
                     _transform.translate( -origin.x , -origin.y );
                 }
-                _transform.scale( this.context.scaleX , this.context.scaleY );
+                _transform.scale( ctx.scaleX , ctx.scaleY );
                 if( origin.x || origin.y ){
                     _transform.translate( origin.x , origin.y );
                 };
             };
 
 
-            var rotation = this.context.rotation;
+            var rotation = ctx.rotation;
             if( rotation ){
                 //如果有旋转
                 //旋转的原点坐标
-                var origin = new Point(this.context.rotateOrigin);
+                var origin = new Point(ctx.rotateOrigin);
                 if( origin.x || origin.y ){
                     _transform.translate( -origin.x , -origin.y );
                 }
@@ -350,10 +352,10 @@ KISSY.add(function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , 
             };
 
             //如果有位移
-            var x = Math.round(this.context.x);
-            var y = Math.round(this.context.y);
+            var x = Math.round(ctx.x);
+            var y = Math.round(ctx.y);
 
-            if( parseInt(this.context.lineWidth) % 2 == 1 && this.context.strokeStyle ){
+            if( parseInt(ctx.lineWidth , 10) % 2 == 1 && ctx.strokeStyle ){
                 x += 0.5;
                 y += 0.5;
             }

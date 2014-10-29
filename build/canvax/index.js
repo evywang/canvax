@@ -813,27 +813,28 @@ KISSY.add('canvax/core/Base', function (S) {
         //ctx.globalAlpha *= this.context.globalAlpha;
         _updateTransform: function () {
             var _transform = new Matrix();
-            _transform.identity();    //是否需要Transform
+            _transform.identity();
+            var ctx = this.context;    //是否需要Transform
             //是否需要Transform
-            if (this.context.scaleX !== 1 || this.context.scaleY !== 1) {
+            if (ctx.scaleX !== 1 || ctx.scaleY !== 1) {
                 //如果有缩放
                 //缩放的原点坐标
-                var origin = new Point(this.context.scaleOrigin);
+                var origin = new Point(ctx.scaleOrigin);
                 if (origin.x || origin.y) {
                     _transform.translate(-origin.x, -origin.y);
                 }
-                _transform.scale(this.context.scaleX, this.context.scaleY);
+                _transform.scale(ctx.scaleX, ctx.scaleY);
                 if (origin.x || origin.y) {
                     _transform.translate(origin.x, origin.y);
                 }
                 ;
             }
             ;
-            var rotation = this.context.rotation;
+            var rotation = ctx.rotation;
             if (rotation) {
                 //如果有旋转
                 //旋转的原点坐标
-                var origin = new Point(this.context.rotateOrigin);
+                var origin = new Point(ctx.rotateOrigin);
                 if (origin.x || origin.y) {
                     _transform.translate(-origin.x, -origin.y);
                 }
@@ -844,9 +845,9 @@ KISSY.add('canvax/core/Base', function (S) {
             }
             ;    //如果有位移
             //如果有位移
-            var x = Math.round(this.context.x);
-            var y = Math.round(this.context.y);
-            if (parseInt(this.context.lineWidth) % 2 == 1 && this.context.strokeStyle) {
+            var x = Math.round(ctx.x);
+            var y = Math.round(ctx.y);
+            if (parseInt(ctx.lineWidth, 10) % 2 == 1 && ctx.strokeStyle) {
                 x += 0.5;
                 y += 0.5;
             }
@@ -2965,7 +2966,7 @@ KISSY.add('canvax/core/Base', function (S) {
         //那么要先清除这个el的所有内容。
         //默认的el是一个自己创建的div，因为要在这个div上面注册n多个事件 来 在整个canvax系统里面进行事件分发。
         //所以不能直接用配置传进来的el对象。因为可能会重复添加很多的事件在上面。导致很多内容无法释放。
-        this.el.html('<div class=\'canvax-c\' style=\'position:relative;width:' + this.el.width() + 'px;height:' + this.el.height() + 'px;\'><div class=\'canvax-tips\' style=\'position:absolute;width:' + this.el.width() + 'px;height:' + this.el.height() + 'px;\'></div></div>');
+        this.el.html('<div class=\'canvax-c\' style=\'position:relative;width:' + this.el.width() + 'px;height:' + this.el.height() + 'px;\'><div class=\'canvax-dom-container\' style=\'position:absolute;width:' + this.el.width() + 'px;height:' + this.el.height() + 'px;\'></div></div>');
         this.el = this.el.all('div.canvax-c');
         this.rootOffset = this.el.offset();
         this.curPoints = [new Point(0, 0)]    //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
@@ -3015,7 +3016,7 @@ KISSY.add('canvax/core/Base', function (S) {
             //初始化事件委托到root元素上面
             this._initEvent();    //创建一个如果要用像素检测的时候的容器
             //创建一个如果要用像素检测的时候的容器
-            this.createPixelContext();
+            this._createPixelContext();
             this._isReady = true;
         },
         reSet: function () {
@@ -3039,7 +3040,7 @@ KISSY.add('canvax/core/Base', function (S) {
         * 获取像素拾取专用的上下文
         * @return {Object} 上下文
        */
-        createPixelContext: function () {
+        _createPixelContext: function () {
             var _pixelCanvas = null;
             if (S.all('#_pixelCanvas').length == 0) {
                 _pixelCanvas = Base._createCanvas('_pixelCanvas', this.context.width, this.context.height);
@@ -3241,7 +3242,12 @@ KISSY.add('canvax/core/Base', function (S) {
                     self._touching = true;
                 }
             }
-            if (e.type == 'mouseup' || e.type == 'mouseout') {
+            var contains = document.compareDocumentPosition ? function (parent, child) {
+                    return !!(parent.compareDocumentPosition(child) & 16);
+                } : function (parent, child) {
+                    return child !== child && (parent.contains ? parent.contains(child) : true);
+                };
+            if (e.type == 'mouseup' || e.type == 'mouseout' && !contains(self.el[0], e.toElement || e.relatedTarget)) {
                 if (self._draging == true) {
                     //说明刚刚在拖动
                     self._dragEnd(e, curMouseTarget, 0);
@@ -3250,7 +3256,9 @@ KISSY.add('canvax/core/Base', function (S) {
                 self._touching = false;
             }
             if (e.type == 'mouseout') {
-                self.__getcurPointsTarget(e, curMousePoint);
+                if (!contains(self.el[0], e.toElement || e.relatedTarget)) {
+                    self.__getcurPointsTarget(e, curMousePoint);
+                }
             } else if (e.type == 'mousemove') {
                 //|| e.type == "mousedown" ){
                 //拖动过程中就不在做其他的mouseover检测，drag优先
@@ -3468,7 +3476,7 @@ KISSY.add('canvax/core/Base', function (S) {
             }
             if (this.children.length == 1) {
                 //this.el.append( canvas );
-                this.el[0].insertBefore(canvas, this.el.all('div.canvax-tips')[0]);
+                this.el[0].insertBefore(canvas, this.el.all('div.canvax-dom-container')[0]);
             } else if (this.children.length > 1) {
                 if (index == undefined) {
                     //如果没有指定位置，那么就放到_hoverStage的下面。
@@ -3477,7 +3485,7 @@ KISSY.add('canvax/core/Base', function (S) {
                     //如果有指定的位置，那么就指定的位置来
                     if (index >= this.children.length - 1) {
                         //this.el.append( canvas );
-                        this.el[0].insertBefore(canvas, this.el.all('div.canvax-tips')[0]);
+                        this.el[0].insertBefore(canvas, this.el.all('div.canvax-dom-container')[0]);
                     } else {
                         this.el[0].insertBefore(canvas, this.children[index].context2D.canvas);
                     }
