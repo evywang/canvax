@@ -407,7 +407,10 @@ KISSY.add(function(
 
            var e = Base.copyEvent( new CanvaxEvent() , e );
 
+           /*
+            *TODO:这个优化过早，后续发现实际开发中会出现一些问题。
            if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
+               
                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
                //开发派发常规mousemove事件
@@ -417,10 +420,9 @@ KISSY.add(function(
                this._mouseEventDispatch( oldObj , e );
                return;
            }
+           */
 
            var obj = this.getObjectsUnderPoint( point , 1)[0];
-
-           
 
            this._cursorHander( obj , oldObj );
 
@@ -431,6 +433,7 @@ KISSY.add(function(
                this.curPointsTarget[0] = null;
                e.type = "mouseout";
                e.target = e.currentTarget = oldObj;
+               e.point  = oldObj.globalToLocal( point );
                //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
                //会有修改visible的意愿
                if(!oldObj.context.visible){
@@ -446,6 +449,12 @@ KISSY.add(function(
                e.point  = obj.globalToLocal( point );
 
                this._mouseEventDispatch( obj , e );
+           };
+
+           if( e.type == "mousemove" && obj ){
+               e.target = e.currentTarget = oldObj;
+               e.point  = oldObj.globalToLocal( point );
+               this._mouseEventDispatch( oldObj , e );
            };
 
        },

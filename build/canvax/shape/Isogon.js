@@ -81,20 +81,9 @@ KISSY.add('canvax/shape/Isogon', function (S, Shape, Base) {
        * 返回矩形区域，用于局部刷新和文字定位
        * @param {Object} style
        */
-        getRect: function (style) {
-            var lineWidth;
-            var style = style ? style : this.context;
-            if (style.strokeStyle || style.fillStyle) {
-                lineWidth = style.lineWidth || 1;
-            } else {
-                lineWidth = 0;
-            }
-            return {
-                x: Math.round(0 - style.r - lineWidth / 2),
-                y: Math.round(0 - style.r - lineWidth / 2),
-                width: style.r * 2 + lineWidth,
-                height: style.r * 2 + lineWidth
-            };
+        getRect: function (context) {
+            var context = context ? context : this.context;
+            return this.getRectFormPointList(context);
         }
     });
     return Isogon;

@@ -441,7 +441,10 @@ KISSY.add('canvax/display/DisplayObject', function (S, EventDispatcher, Matrix, 
             //正式开始第一步的矩形范围判断
             if (x >= _rect.x && x <= _rect.x + _rect.width && y >= _rect.y && y <= _rect.y + _rect.height) {
                 //那么就在这个元素的矩形范围内
-                result = HitTestPoint.isInside(this, x, y);
+                result = HitTestPoint.isInside(this, {
+                    x: x,
+                    y: y
+                });
             } else {
                 //如果连矩形内都不是，那么肯定的，这个不是我们要找的shap
                 result = false;

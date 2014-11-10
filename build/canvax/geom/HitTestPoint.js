@@ -28,7 +28,9 @@ KISSY.add('canvax/geom/HitTestPoint', function (S, Base, myMath) {
      * @param {number} x ： 横坐标
      * @param {number} y ： 纵坐标
      */
-    function isInside(shape, x, y) {
+    function isInside(shape, point) {
+        var x = point.x;
+        var y = point.y;
         if (shape.type == 'bitmap') {
             //如果是bitmap
             return true;

@@ -442,7 +442,10 @@ KISSY.add(function(S , EventDispatcher , Matrix , Point , Base , HitTestPoint , 
                 && y <= (_rect.y + _rect.height)
             ) {
                //那么就在这个元素的矩形范围内
-               result = HitTestPoint.isInside( this , x , y );
+               result = HitTestPoint.isInside( this , {
+                   x : x,
+                   y : y
+               } );
             } else {
                //如果连矩形内都不是，那么肯定的，这个不是我们要找的shap
                result = false;

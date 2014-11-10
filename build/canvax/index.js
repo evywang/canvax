@@ -948,7 +948,10 @@ KISSY.add('canvax/core/Base', function (S) {
             //正式开始第一步的矩形范围判断
             if (x >= _rect.x && x <= _rect.x + _rect.width && y >= _rect.y && y <= _rect.y + _rect.height) {
                 //那么就在这个元素的矩形范围内
-                result = HitTestPoint.isInside(this, x, y);
+                result = HitTestPoint.isInside(this, {
+                    x: x,
+                    y: y
+                });
             } else {
                 //如果连矩形内都不是，那么肯定的，这个不是我们要找的shap
                 result = false;
@@ -2271,7 +2274,9 @@ KISSY.add('canvax/core/Base', function (S) {
      * @param {number} x ： 横坐标
      * @param {number} y ： 纵坐标
      */
-    function isInside(shape, x, y) {
+    function isInside(shape, point) {
+        var x = point.x;
+        var y = point.y;
         if (shape.type == 'bitmap') {
             //如果是bitmap
             return true;
@@ -3297,16 +3302,34 @@ KISSY.add('canvax/core/Base', function (S) {
         },
         __getcurPointsTarget: function (e, point) {
             var oldObj = this.curPointsTarget[0];
-            var e = Base.copyEvent(new CanvaxEvent(), e);
-            if (e.type == 'mousemove' && oldObj && oldObj.getChildInPoint(point)) {
-                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
-                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
-                //开发派发常规mousemove事件
-                e.target = e.currentTarget = oldObj;
-                e.point = oldObj.globalToLocal(point);
-                this._mouseEventDispatch(oldObj, e);
-                return;
-            }
+            var e = Base.copyEvent(new CanvaxEvent(), e);    /*
+            *TODO:这个优化过早，后续发现实际开发中会出现一些问题。
+           if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
+               
+               //小优化,鼠标move的时候。计算频率太大，所以。做此优化
+               //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
+               //开发派发常规mousemove事件
+
+               e.target = e.currentTarget = oldObj;
+               e.point  = oldObj.globalToLocal( point );
+               this._mouseEventDispatch( oldObj , e );
+               return;
+           }
+           */
+            /*
+            *TODO:这个优化过早，后续发现实际开发中会出现一些问题。
+           if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
+               
+               //小优化,鼠标move的时候。计算频率太大，所以。做此优化
+               //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
+               //开发派发常规mousemove事件
+
+               e.target = e.currentTarget = oldObj;
+               e.point  = oldObj.globalToLocal( point );
+               this._mouseEventDispatch( oldObj , e );
+               return;
+           }
+           */
             var obj = this.getObjectsUnderPoint(point, 1)[0];
             this._cursorHander(obj, oldObj);
             if (oldObj && oldObj != obj || e.type == 'mouseout') {
@@ -3315,8 +3338,9 @@ KISSY.add('canvax/core/Base', function (S) {
                 }
                 this.curPointsTarget[0] = null;
                 e.type = 'mouseout';
-                e.target = e.currentTarget = oldObj;    //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
-                                                        //会有修改visible的意愿
+                e.target = e.currentTarget = oldObj;
+                e.point = oldObj.globalToLocal(point);    //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
+                                                          //会有修改visible的意愿
                 //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
                 //会有修改visible的意愿
                 if (!oldObj.context.visible) {
@@ -3332,6 +3356,12 @@ KISSY.add('canvax/core/Base', function (S) {
                 e.target = e.currentTarget = obj;
                 e.point = obj.globalToLocal(point);
                 this._mouseEventDispatch(obj, e);
+            }
+            ;
+            if (e.type == 'mousemove' && obj) {
+                e.target = e.currentTarget = oldObj;
+                e.point = oldObj.globalToLocal(point);
+                this._mouseEventDispatch(oldObj, e);
             }
             ;
         },
