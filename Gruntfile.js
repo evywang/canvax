@@ -43,12 +43,6 @@ module.exports = function(grunt) {
              ]
          }
       },
-      autoname: {
-         build: {
-             // targetDir,要执行的目标目录，一般为打包的build目录
-             targetDir : "./"+buildPath
-         }
-      },
       clean: { 
           build : {
              src : buildPath
@@ -61,9 +55,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-auto-kissy-module-name');
  
   //注册任务
-  grunt.registerTask( 'default' , [ 'clean' , 'copy' , 'autoname' , 'concat' , 'uglify' ] );
+  grunt.registerTask( 'default' , [ 'clean' , 'copy' , 'concat' , 'uglify' ] );
 }
 

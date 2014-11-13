@@ -8,7 +8,10 @@
  **/
 
 
-KISSY.add(function(S){
+define(
+    "canvax/geom/Math",
+    [],
+    function(){
         var _cache = {
             sin : {},     //sin缓存
             cos : {}      //cos缓存
@@ -75,6 +78,5 @@ KISSY.add(function(S){
             degreeTo360    : degreeTo360   
         };
  
-},{
-  requires:[]
-})
+    }
+)

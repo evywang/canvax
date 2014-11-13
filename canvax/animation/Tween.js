@@ -1,4 +1,7 @@
-KISSY.add(function(){
+define(
+    "canvax/animation/Tween",
+    [],
+    function(){
 
 
     /**

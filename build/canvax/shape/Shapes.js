@@ -9,47 +9,54 @@
  * Canvax.Shapes.Circle 这样来引用自定义圓类
  *
  **/
-KISSY.add('canvax/shape/Shapes', function (S, Beziercurve, BrokenLine, Circle, Droplet, Ellipse, Heart, Isogon, Line, Path, Polygon, Sector, Rect) {
+
+define(
+    "canvax/shape/Shapes",
+    [
+        "canvax/shape/Beziercurve",
+        "canvax/shape/BrokenLine",
+        "canvax/shape/Circle",
+        "canvax/shape/Droplet",
+        "canvax/shape/Ellipse",
+        "canvax/shape/Heart",
+        "canvax/shape/Isogon",
+        "canvax/shape/Line",
+        "canvax/shape/Path",
+        "canvax/shape/Polygon",
+        "canvax/shape/Sector",
+        "canvax/shape/Rect"
+    ],
+    function(
+            Beziercurve,
+            BrokenLine,
+            Circle,
+            Droplet,
+            Ellipse,
+            Heart,
+            Isogon,
+            Line,
+            Path,
+            Polygon,
+            Sector,
+            Rect
+){
+
     var Shapes = {
-            Beziercurve: Beziercurve,
-            //贝塞尔曲线
-            BrokenLine: BrokenLine,
-            //折线
-            Circle: Circle,
-            //圆形
-            Droplet: Droplet,
-            //水滴型
-            Ellipse: Ellipse,
-            //椭圆形
-            Heart: Heart,
-            //心形
-            Isogon: Isogon,
-            //正多边形
-            Line: Line,
-            //直线
-            Path: Path,
-            //路径
-            Polygon: Polygon,
-            //非规则多边形
-            Sector: Sector,
-            //扇形
-            Rect: Rect    //矩形
-        };
-    //矩形
+        Beziercurve : Beziercurve, //贝塞尔曲线
+        BrokenLine  : BrokenLine,  //折线
+        Circle      : Circle,      //圆形
+        Droplet     : Droplet,     //水滴型
+        Ellipse     : Ellipse,     //椭圆形
+        Heart       : Heart,       //心形
+        Isogon      : Isogon,      //正多边形
+        Line        : Line,        //直线
+        Path        : Path,        //路径
+        Polygon     : Polygon,     //非规则多边形
+        Sector      : Sector,      //扇形
+        Rect        : Rect         //矩形
+    }
+
     return Shapes;
-}, {
-    requires: [
-        'canvax/shape/Beziercurve',
-        'canvax/shape/BrokenLine',
-        'canvax/shape/Circle',
-        'canvax/shape/Droplet',
-        'canvax/shape/Ellipse',
-        'canvax/shape/Heart',
-        'canvax/shape/Isogon',
-        'canvax/shape/Line',
-        'canvax/shape/Path',
-        'canvax/shape/Polygon',
-        'canvax/shape/Sector',
-        'canvax/shape/Rect'
-    ]
-});
+
+}
+)

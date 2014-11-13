@@ -7,24 +7,26 @@
  */
 
 
-KISSY.add(function(S , DisplayObjectContainer , Base){
-  var Sprite = function(){
-      var self = this;
-      self.type = "sprite";
-      arguments.callee.superclass.constructor.apply(this, arguments);
-  };
-
-  Base.creatClass(Sprite , DisplayObjectContainer , {
-      init : function(){
+define(
+    "canvax/display/Sprite",
+    [
+        "canvax/display/DisplayObjectContainer",
+        "canvax/core/Base"
+    ],
+    function( DisplayObjectContainer , Base){
+        var Sprite = function(){
+            var self = this;
+            self.type = "sprite";
+            arguments.callee.superclass.constructor.apply(this, arguments);
+        };
       
-      }
-  });
-
-  return Sprite;
-
-} , {
-  requires:[
-    "canvax/display/DisplayObjectContainer",
-    "canvax/core/Base"
-  ]
-})
+        Base.creatClass(Sprite , DisplayObjectContainer , {
+            init : function(){
+            
+            }
+        });
+      
+        return Sprite;
+      
+    } 
+)

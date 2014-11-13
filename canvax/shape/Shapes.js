@@ -10,8 +10,23 @@
  *
  **/
 
-KISSY.add(function(
-            S,
+define(
+    "canvax/shape/Shapes",
+    [
+        "canvax/shape/Beziercurve",
+        "canvax/shape/BrokenLine",
+        "canvax/shape/Circle",
+        "canvax/shape/Droplet",
+        "canvax/shape/Ellipse",
+        "canvax/shape/Heart",
+        "canvax/shape/Isogon",
+        "canvax/shape/Line",
+        "canvax/shape/Path",
+        "canvax/shape/Polygon",
+        "canvax/shape/Sector",
+        "canvax/shape/Rect"
+    ],
+    function(
             Beziercurve,
             BrokenLine,
             Circle,
@@ -43,19 +58,5 @@ KISSY.add(function(
 
     return Shapes;
 
-} , {
-    requires:[
-      "canvax/shape/Beziercurve",
-      "canvax/shape/BrokenLine",
-      "canvax/shape/Circle",
-      "canvax/shape/Droplet",
-      "canvax/shape/Ellipse",
-      "canvax/shape/Heart",
-      "canvax/shape/Isogon",
-      "canvax/shape/Line",
-      "canvax/shape/Path",
-      "canvax/shape/Polygon",
-      "canvax/shape/Sector",
-      "canvax/shape/Rect"
-    ]
-})
+}
+)

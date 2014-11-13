@@ -2,7 +2,10 @@
 //     http://underscorejs.org
 //     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
-KISSY.add(function(){
+define(
+    "canvax/library/underscore",
+    [],
+    function(){
 
 (function() {
 
@@ -1276,4 +1279,5 @@ KISSY.add(function(){
 
 }).call(window);
 
-});
+}
+);

@@ -1,1 +1,1 @@
-KISSY.add("canvax/display/Sprite",function(a,b,c){var d=function(){var a=this;a.type="sprite",arguments.callee.superclass.constructor.apply(this,arguments)};return c.creatClass(d,b,{init:function(){}}),d},{requires:["canvax/display/DisplayObjectContainer","canvax/core/Base"]});
+define("canvax/display/Sprite",["canvax/display/DisplayObjectContainer","canvax/core/Base"],function(a,b){var c=function(){var a=this;a.type="sprite",arguments.callee.superclass.constructor.apply(this,arguments)};return b.creatClass(c,a,{init:function(){}}),c});

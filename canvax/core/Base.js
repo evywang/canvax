@@ -8,7 +8,17 @@ window.FlashCanvasOptions = {
     swfPath: "http://g.tbcdn.cn/thx/canvax/1.0.0/canvax/library/flashCanvas/"
 };
 
-KISSY.add(function(S){
+define(
+    "canvax/core/Base",
+    [
+
+    "canvax/animation/AnimationFrame",
+    ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
+    !window._ ? "canvax/library/underscore" : "",
+    !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : ""
+
+    ],
+    function(){
 
     var classTypes = {};
     "Boolean Number String Function Array Date RegExp Object Error".replace(/[^, ]+/g, function(name) {
@@ -18,6 +28,61 @@ KISSY.add(function(S){
     var Base = {
         mainFrameRate   : 60,//默认主帧率
         now : 0,
+        // dom操作相关代码
+        getEl : function(el){
+            if(_.isString(el)){
+               return document.getElementById(el)
+            }
+            if(el.nodeType == 1){
+               //则为一个element本身
+               return el
+            }
+            if(el.length){
+               return el[0]
+            }
+            return null;
+        },
+        getOffset : function(el){
+            var box = el.getBoundingClientRect(), 
+            doc = el.ownerDocument, 
+            body = doc.body, 
+            docElem = doc.documentElement, 
+
+            // for ie  
+            clientTop = docElem.clientTop || body.clientTop || 0, 
+            clientLeft = docElem.clientLeft || body.clientLeft || 0, 
+
+            // In Internet Explorer 7 getBoundingClientRect property is treated as physical, 
+            // while others are logical. Make all logical, like in IE8. 
+
+            zoom = 1; 
+            if (body.getBoundingClientRect) { 
+                var bound = body.getBoundingClientRect(); 
+                zoom = (bound.right - bound.left)/body.clientWidth; 
+            } 
+            if (zoom > 1){ 
+                clientTop = 0; 
+                clientLeft = 0; 
+            } 
+            var top = box.top/zoom + (window.pageYOffset || docElem && docElem.scrollTop/zoom || body.scrollTop/zoom) - clientTop, 
+                left = box.left/zoom + (window.pageXOffset|| docElem && docElem.scrollLeft/zoom || body.scrollLeft/zoom) - clientLeft; 
+
+            return { 
+                top: top, 
+                left: left 
+            }; 
+        },
+        getStyle : function(el , cssName){
+            var len=arguments.length, sty, f, fv;  
+                              
+            'currentStyle' in el ? sty=el.currentStyle : 'getComputedStyle' in window   
+                                 ? sty=window.getComputedStyle(el,null) : null;  
+  
+            sty = (len==2) ? sty[cssName] : sty;                                  
+            return sty;  
+        },
+        //dom相关代码结束
+        
         /*像素检测专用*/
         _pixelCtx   : null,
         __emptyFunc : function(){},
@@ -216,11 +281,4 @@ KISSY.add(function(S){
     };
     return Base
 
-},{
-    requires : [
-      "canvax/animation/AnimationFrame",
-      ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
-      !window._ ? "canvax/library/underscore" : "",
-      !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : ""
-    ]
 });

@@ -5,6 +5,7 @@
  * Released under the MIT License
  * http://flashcanvas.net/
  */
+define("canvax/library/flashCanvas/canvas2png" , [] , function(){
 
 (function(doc) {
 
@@ -45,3 +46,5 @@ window.canvas2png = function(canvas, filename) {
 }
 
 })(document);
+
+})

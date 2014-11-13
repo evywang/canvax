@@ -12,7 +12,13 @@
  **/
 
 
-KISSY.add(function(S , Shape , Base) {
+define(
+    "canvax/shape/Circle",
+    [
+        "canvax/display/Shape",
+        "canvax/core/Base"
+    ],
+    function(Shape , Base) {
         var Circle = function(opt) {
             var self = this;
             self.type = "circle";
@@ -65,11 +71,5 @@ KISSY.add(function(S , Shape , Base) {
         });
 
         return Circle;
-    },
-    {
-        requires : [
-         "canvax/display/Shape",
-         "canvax/core/Base"
-        ]
     }
-);
+)

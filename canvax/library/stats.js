@@ -2,7 +2,10 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-KISSY.add(function( S , CanvaxEvent ){
+define(
+    "canvax/library/stats",
+    ["canvax/event/CanvaxEvent" ],
+    function( CanvaxEvent ){
 
 
 var Stats = function () {
@@ -145,8 +148,5 @@ var Stats = function () {
 
 };
 return Stats;
-} , {
-  requires : [
-    "canvax/event/CanvaxEvent"    
-  ]
-});
+} 
+);

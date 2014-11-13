@@ -8,7 +8,12 @@
  */
 
 
-KISSY.add(function(S,Base){
+define(
+    "canvax/core/PropertyFactory",
+    [
+        "canvax/core/Base" 
+    ],
+    function(Base){
     //定义封装好的兼容大部分浏览器的defineProperties 的 属性工厂
 
     unwatchOne = {
@@ -54,7 +59,6 @@ KISSY.add(function(S,Base){
                     
                     if (arguments.length) {
                         //写操作
-
                         //set 的 值的 类型
                         var neoType = Base.getType(neo);
 
@@ -239,13 +243,9 @@ KISSY.add(function(S,Base){
             return  window[className + "Factory"](description, VBMediator);//得到其产品
         }
     }
-window.PropertyFactory = PropertyFactory;
+    window.PropertyFactory = PropertyFactory;
 
     return PropertyFactory;
 
     
-} , {
-   requires : [
-     "canvax/core/Base" 
-       ]
 });

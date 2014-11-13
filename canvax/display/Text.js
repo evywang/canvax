@@ -7,7 +7,13 @@
  **/
 
 
-KISSY.add(function(S , DisplayObject , Base) {
+define(
+    "canvax/display/Text",
+    [
+        "canvax/display/DisplayObject",
+        "canvax/core/Base"
+    ],
+    function(DisplayObject , Base) {
         var Text = function( text , opt ) {
             var self = this;
             self.type = "text";
@@ -293,11 +299,5 @@ KISSY.add(function(S , DisplayObject , Base) {
             }
         });
         return Text;
-    },
-    {
-        requires : [
-         "canvax/display/DisplayObject",
-         "canvax/core/Base"
-        ]
     }
 );

@@ -10,56 +10,66 @@
  * 对应context的属性有
  * @r 圆半径
  **/
-KISSY.add('canvax/shape/Circle', function (S, Shape, Base) {
-    var Circle = function (opt) {
-        var self = this;
-        self.type = 'circle';
-        opt = Base.checkOpt(opt);
-        self._context = {
-            //x : 0 , // {number},  // 丢弃
-            //y : 0 , //{number},  // 丢弃，圆心xy坐标 都 为原点
-            r: opt.context.r || 0    //{number},  // 必须，圆半径
-        };
-        //{number},  // 必须，圆半径
-        arguments.callee.superclass.constructor.apply(this, arguments);
-    };
-    Base.creatClass(Circle, Shape, {
-        /**
+
+
+define(
+    "canvax/shape/Circle",
+    [
+        "canvax/display/Shape",
+        "canvax/core/Base"
+    ],
+    function(Shape , Base) {
+        var Circle = function(opt) {
+            var self = this;
+            self.type = "circle";
+
+            opt = Base.checkOpt( opt );
+            self._context = {
+                //x : 0 , // {number},  // 丢弃
+                //y : 0 , //{number},  // 丢弃，圆心xy坐标 都 为原点
+                r : opt.context.r || 0   //{number},  // 必须，圆半径
+            }
+
+
+            arguments.callee.superclass.constructor.apply(this, arguments);
+        }
+
+        Base.creatClass(Circle , Shape , {
+           /**
              * 创建圆形路径
              * @param {Context2D} ctx Canvas 2D上下文
              * @param {Object} style 样式
              */
-        draw: function (ctx, style) {
-            if (!style) {
-                return;
-            }    //ctx.arc(this.get("x"), this.get("y"), style.r, 0, Math.PI * 2, true);
-            //ctx.arc(this.get("x"), this.get("y"), style.r, 0, Math.PI * 2, true);
-            ctx.arc(0, 0, style.r, 0, Math.PI * 2, true);
-        },
-        /**
+            draw : function(ctx, style) {
+                if (!style) {
+                  return;
+                }
+                //ctx.arc(this.get("x"), this.get("y"), style.r, 0, Math.PI * 2, true);
+                ctx.arc(0 , 0, style.r, 0, Math.PI * 2, true);
+            },
+
+            /**
              * 返回矩形区域，用于局部刷新和文字定位
              * @param {Object} style
              */
-        getRect: function (style) {
-            var lineWidth;
-            var style = style ? style : this.context;
-            if (style.fillStyle || style.strokeStyle) {
-                lineWidth = style.lineWidth || 1;
-            } else {
-                lineWidth = 0;
+            getRect : function(style) {
+                var lineWidth;
+                var style = style ? style : this.context;
+                if (style.fillStyle || style.strokeStyle ) {
+                    lineWidth = style.lineWidth || 1;
+                } else {
+                    lineWidth = 0;
+                }
+                return {
+                    x : Math.round(0 - style.r - lineWidth / 2),
+                    y : Math.round(0 - style.r - lineWidth / 2),
+                    width : style.r * 2 + lineWidth,
+                    height : style.r * 2 + lineWidth
+                };
             }
-            return {
-                x: Math.round(0 - style.r - lineWidth / 2),
-                y: Math.round(0 - style.r - lineWidth / 2),
-                width: style.r * 2 + lineWidth,
-                height: style.r * 2 + lineWidth
-            };
-        }
-    });
-    return Circle;
-}, {
-    requires: [
-        'canvax/display/Shape',
-        'canvax/core/Base'
-    ]
-});
+
+        });
+
+        return Circle;
+    }
+)
