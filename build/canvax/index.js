@@ -3235,7 +3235,7 @@ define(
     "canvax/display/Sprite",
     "canvax/display/Shape",
     "canvax/display/Point",
-    "canvax/display/Text",
+    "canvax/display/Text"
     ]
     , 
     function( 
@@ -3372,6 +3372,9 @@ define(
             canvaxDOMc.style.width  = this.width  + "px";
             canvaxDOMc.style.height = this.height + "px";
  
+        },
+        getDomContainer  : function(){
+            return Base.getEl("cdc-"+this._cid);
         },
         _creatHoverStage : function(){
             //TODO:创建stage的时候一定要传入width height  两个参数
