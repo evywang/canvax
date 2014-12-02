@@ -41,9 +41,9 @@ define(
             //元素的父元素
             self.parent          = null;
     
-            self._eventEnabled   = false; //是否响应事件交互
+            self._eventEnabled   = false; //是否响应事件交互,在添加了事件侦听后会自动设置为true
     
-            self.dragEnabled     = false;   //是否启用元素的拖拽
+            self.dragEnabled     = true;//false;   //是否启用元素的拖拽
     
             //创建好context
             self._createContext( opt );

@@ -635,9 +635,9 @@ define(
             //元素的父元素
             self.parent          = null;
     
-            self._eventEnabled   = false; //是否响应事件交互
+            self._eventEnabled   = false; //是否响应事件交互,在添加了事件侦听后会自动设置为true
     
-            self.dragEnabled     = false;   //是否启用元素的拖拽
+            self.dragEnabled     = true;//false;   //是否启用元素的拖拽
     
             //创建好context
             self._createContext( opt );
@@ -1264,10 +1264,11 @@ define(
             //获取x,y点上的所有object  num 需要返回的obj数量
             getObjectsUnderPoint : function( point , num) {
                 var result = [];
+                
                 for(var i = this.children.length - 1; i >= 0; i--) {
                     var child = this.children[i];
     
-                    if( child == null || !( child._eventEnabled || child.dragEnabled ) || !child.context.visible ) {
+                    if( child == null || !child._eventEnabled || !child.context.visible ) {
                         continue;
                     }
     
@@ -2254,113 +2255,118 @@ define(
     function( Base ,EventManager){
 
         var EventDispatcher = function(){
-      
             arguments.callee.superclass.constructor.call(this, name);
-      
         };
       
         Base.creatClass(EventDispatcher , EventManager , {
-               
             on : function(type, listener){
-              this._addEventListener( type, listener);
-              return this;
+                this._addEventListener( type, listener);
+                return this;
             },
             addEventListener:function(type, listener){
-              this._addEventListener( type, listener);
-              return this;
+                this._addEventListener( type, listener);
+                return this;
             },
             un : function(type,listener){
-              this._removeEventListener( type, listener);
-              return this;
+                this._removeEventListener( type, listener);
+                return this;
             },
             removeEventListener:function(type,listener){
-              this._removeEventListener( type, listener);
-              return this;
+                this._removeEventListener( type, listener);
+                return this;
             },
             removeEventListenerByType:function(type){
-              this._removeEventListenerByType( type);
-              return this;
+                this._removeEventListenerByType( type);
+                return this;
             },
             removeAllEventListeners:function(){
-              this._removeAllEventListeners();
-              return this;
+                this._removeAllEventListeners();
+                return this;
             },
             fire : function(event){
-              if(_.isString(event)){
-                //如果是str，比如mouseover
-                event = { type : event };
-              } else {
+                if(_.isString(event)){
+                    //如果是str，比如mouseover
+                    event = { type : event };
+                } else {
           
-              }
-              this.dispatchEvent(event);
-              return this;
+                }
+                this.dispatchEvent(event);
+                return this;
             },
             dispatchEvent:function(event){
-              if(event.type == "mouseover"){
-                 //记录dispatchEvent之前的心跳
-                 var preHeartBeat = this._heartBeatNum;
-                 this._dispatchEvent( event );
+                if(event.type == "mouseover"){
+                   //记录dispatchEvent之前的心跳
+                   var preHeartBeat = this._heartBeatNum;
+                   this._dispatchEvent( event );
+                   if( preHeartBeat != this._heartBeatNum ){
+                       this._hoverClass = true;
+
+                       var canvax = this.getStage().parent;
+    
+
+                       /*
+                       //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
+                       //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
+                       //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
+                       if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
+                           //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
+                       } else {
+                           delete canvax.convertStages[ this.getStage().id ];
+                           this._heart = false;
+                       }
+                       */
+
+                       
+
+                       //然后clone一份obj，添加到_hoverStage 中
+                       var activShape = this.clone(true);                     
+                       activShape._transform = this.getConcatenatedMatrix();
+                       canvax._hoverStage.addChildAt( activShape , 0 ); 
+
+                       //然后把自己visible=false隐藏了
+                       //this.context.visible = false;
+                       this._globalAlpha = this.context.globalAlpha;
+                       this.context.globalAlpha = 0
+
+                   }
+                   return;
+                }
       
+                this._dispatchEvent( event );
       
-                 if( preHeartBeat != this._heartBeatNum ){
-                     this._hoverClass = true;
-                     var canvax = this.getStage().parent;
+                if(event.type == "mouseout"){
+                    if(this._hoverClass){
+                        //说明刚刚over的时候有添加样式
+                        var canvax = this.getStage().parent;
+                        this._hoverClass = false;
+                        canvax._hoverStage.removeChildById(this.id);
+                        
+                        //this.context.visible = true;
+                        this.context.globalAlpha = this._globalAlpha;
+                        delete this._globalAlpha;
+
+                    }
+                }
       
-                     /*
-      
-                     //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
-                     //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
-                     //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
-                     if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
-                         //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
-                     } else {
-                         delete canvax.convertStages[ this.getStage().id ];
-                         this._heart = false;
-                     }
-      
-                     */
-       
-                     //然后clone一份obj，添加到_hoverStage 中
-                     var activShape = this.clone(true);
-                     
-                     activShape._transform = this.getConcatenatedMatrix();
-                     canvax._hoverStage.addChild( activShape );
-                     
-                 }
-                 return;
-              }
-      
-              this._dispatchEvent( event );
-      
-              if(event.type == "mouseout"){
-                  if(this._hoverClass){
-                      //说明刚刚over的时候有添加样式
-                      var canvax = this.getStage().parent;
-                      this._hoverClass = false;
-                      canvax._hoverStage.removeChildById(this.id);
-                  }
-              }
-      
-              return this;
-      
+                return this;
             },
             hasEvent:function(type){
-              return this._hasEventListener(type);
+                return this._hasEventListener(type);
             },
             hasEventListener:function(type){
-              return this._hasEventListener(type);
+                return this._hasEventListener(type);
             },
             hover : function( overFun , outFun ){
-              this.on("mouseover" , overFun);
-              this.on("mouseout"  , outFun );
-              return this;
+                this.on("mouseover" , overFun);
+                this.on("mouseout"  , outFun );
+                return this;
             },
             once : function(type, listener){
-              this.on(type , function(){
-                  listener.apply(this , arguments);
-                  this.un(type , arguments.callee);
-              });
-              return this;
+                this.on(type , function(){
+                    listener.apply(this , arguments);
+                    this.un(type , arguments.callee);
+                });
+                return this;
             }
         });
       
@@ -3376,6 +3382,9 @@ define(
         getDomContainer  : function(){
             return Base.getEl("cdc-"+this._cid);
         },
+        getHoverStage : function(){
+            return this._hoverStage;
+        },
         _creatHoverStage : function(){
             //TODO:创建stage的时候一定要传入width height  两个参数
             this._hoverStage = new Stage( {
@@ -3385,6 +3394,8 @@ define(
                     height: this.context.height
                 }
             } );
+            //该stage不参与事件检测
+            this._hoverStage._eventEnabled = false;
             this.addChild( this._hoverStage );
         },
         /**
@@ -3525,7 +3536,6 @@ define(
                         _.each( self.curPointsTarget , function( child , i ){
                             if( child && child.dragEnabled) {
                                 self._dragEnd( e , child , 0 );
-                                child.context.visible = true;
                             }
                         } );
                         self._draging = false;
@@ -3555,7 +3565,6 @@ define(
             _.each( childs , function( child , i){
                 if( child ){
                     hasChild = true;
-                    //ce
                     var ce         = Base.copyEvent( new CanvaxEvent() , e);
                     ce.target      = ce.currentTarget = child || this;
                     ce.stagePoint  = self.curPoints[i];
@@ -3681,20 +3690,16 @@ define(
  
             var e = Base.copyEvent( new CanvaxEvent() , e );
  
-            /*
-             *TODO:这个优化过早，后续发现实际开发中会出现一些问题。
-            if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
-                
+            if( e.type=="mousemove" && oldObj && oldObj._hoverClass && oldObj.getChildInPoint( point ) ){
                 //小优化,鼠标move的时候。计算频率太大，所以。做此优化
-                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
+                //如果有target存在，而且当前元素正在hoverStage中，而且当前鼠标还在target内,就没必要取检测整个displayList了
                 //开发派发常规mousemove事件
- 
                 e.target = e.currentTarget = oldObj;
                 e.point  = oldObj.globalToLocal( point );
                 this._mouseEventDispatch( oldObj , e );
                 return;
             }
-            */
+            
  
             var obj = this.getObjectsUnderPoint( point , 1)[0];
  
@@ -3738,11 +3743,20 @@ define(
         //克隆一个元素到hover stage中去
         _clone2hoverStage : function( target , i ){
             var self = this;
+            
             var _dragDuplicate = self._hoverStage.getChildById( target.id );
             if(!_dragDuplicate){
                 _dragDuplicate             = target.clone(true);
                 _dragDuplicate._transform  = target.getConcatenatedMatrix();
-                self._hoverStage.addChild( _dragDuplicate );
+
+                /**
+                 *TODO: 因为后续可能会有手动添加的 元素到_hoverStage 里面来
+                 *比如tips
+                 *这类手动添加进来的肯定是因为需要显示在最外层的。在hover元素之上。
+                 *所有自动添加的hover元素都默认添加在_hoverStage的最底层
+                 **/
+                
+                self._hoverStage.addChildAt( _dragDuplicate , 0 );
             }
             _dragDuplicate.context.visible = true;
             _dragDuplicate._dragPoint = target.globalToLocal( self.curPoints[ i ] );
@@ -3769,18 +3783,11 @@ define(
         },
         //drag结束的处理函数
         _dragEnd  : function( e , target , i ){
-            var self = this;
- 
-            self.dragEnd && self.dragEnd( e );  
-            //拖动停止， 那么要先把本尊给显示出来先
-            //这里还可以做优化，因为拖动停止了但是还是在hover状态，没必要把本尊显示的。
  
             //_dragDuplicate 复制在_hoverStage 中的副本
-            var _dragDuplicate     = self._hoverStage.getChildById( target.id );
+            var _dragDuplicate     = this._hoverStage.getChildById( target.id );
  
-            //这个时候的target还是隐藏状态呢
-            target.context.visible = false;
-            //target._updateTransform();
+            target.context.visible = true;
             if( e.type == "mouseout" || e.type == "dragend"){
                 _dragDuplicate.destroy();
             }

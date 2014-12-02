@@ -165,6 +165,9 @@ define(
         getDomContainer  : function(){
             return Base.getEl("cdc-"+this._cid);
         },
+        getHoverStage : function(){
+            return this._hoverStage;
+        },
         _creatHoverStage : function(){
             //TODO:创建stage的时候一定要传入width height  两个参数
             this._hoverStage = new Stage( {
@@ -174,6 +177,8 @@ define(
                     height: this.context.height
                 }
             } );
+            //该stage不参与事件检测
+            this._hoverStage._eventEnabled = false;
             this.addChild( this._hoverStage );
         },
         /**
@@ -314,7 +319,6 @@ define(
                         _.each( self.curPointsTarget , function( child , i ){
                             if( child && child.dragEnabled) {
                                 self._dragEnd( e , child , 0 );
-                                child.context.visible = true;
                             }
                         } );
                         self._draging = false;
@@ -344,7 +348,6 @@ define(
             _.each( childs , function( child , i){
                 if( child ){
                     hasChild = true;
-                    //ce
                     var ce         = Base.copyEvent( new CanvaxEvent() , e);
                     ce.target      = ce.currentTarget = child || this;
                     ce.stagePoint  = self.curPoints[i];
@@ -470,20 +473,16 @@ define(
  
             var e = Base.copyEvent( new CanvaxEvent() , e );
  
-            /*
-             *TODO:这个优化过早，后续发现实际开发中会出现一些问题。
-            if( e.type=="mousemove" && oldObj && oldObj.getChildInPoint( point ) ){
-                
+            if( e.type=="mousemove" && oldObj && oldObj._hoverClass && oldObj.getChildInPoint( point ) ){
                 //小优化,鼠标move的时候。计算频率太大，所以。做此优化
-                //如果有target存在，而且当前鼠标还在target内,就没必要取检测整个displayList了
+                //如果有target存在，而且当前元素正在hoverStage中，而且当前鼠标还在target内,就没必要取检测整个displayList了
                 //开发派发常规mousemove事件
- 
                 e.target = e.currentTarget = oldObj;
                 e.point  = oldObj.globalToLocal( point );
                 this._mouseEventDispatch( oldObj , e );
                 return;
             }
-            */
+            
  
             var obj = this.getObjectsUnderPoint( point , 1)[0];
  
@@ -527,11 +526,20 @@ define(
         //克隆一个元素到hover stage中去
         _clone2hoverStage : function( target , i ){
             var self = this;
+            
             var _dragDuplicate = self._hoverStage.getChildById( target.id );
             if(!_dragDuplicate){
                 _dragDuplicate             = target.clone(true);
                 _dragDuplicate._transform  = target.getConcatenatedMatrix();
-                self._hoverStage.addChild( _dragDuplicate );
+
+                /**
+                 *TODO: 因为后续可能会有手动添加的 元素到_hoverStage 里面来
+                 *比如tips
+                 *这类手动添加进来的肯定是因为需要显示在最外层的。在hover元素之上。
+                 *所有自动添加的hover元素都默认添加在_hoverStage的最底层
+                 **/
+                
+                self._hoverStage.addChildAt( _dragDuplicate , 0 );
             }
             _dragDuplicate.context.visible = true;
             _dragDuplicate._dragPoint = target.globalToLocal( self.curPoints[ i ] );
@@ -558,18 +566,11 @@ define(
         },
         //drag结束的处理函数
         _dragEnd  : function( e , target , i ){
-            var self = this;
- 
-            self.dragEnd && self.dragEnd( e );  
-            //拖动停止， 那么要先把本尊给显示出来先
-            //这里还可以做优化，因为拖动停止了但是还是在hover状态，没必要把本尊显示的。
  
             //_dragDuplicate 复制在_hoverStage 中的副本
-            var _dragDuplicate     = self._hoverStage.getChildById( target.id );
+            var _dragDuplicate     = this._hoverStage.getChildById( target.id );
  
-            //这个时候的target还是隐藏状态呢
-            target.context.visible = false;
-            //target._updateTransform();
+            target.context.visible = true;
             if( e.type == "mouseout" || e.type == "dragend"){
                 _dragDuplicate.destroy();
             }

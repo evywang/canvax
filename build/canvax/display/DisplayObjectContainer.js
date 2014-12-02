@@ -177,10 +177,11 @@ define(
             //获取x,y点上的所有object  num 需要返回的obj数量
             getObjectsUnderPoint : function( point , num) {
                 var result = [];
+                
                 for(var i = this.children.length - 1; i >= 0; i--) {
                     var child = this.children[i];
     
-                    if( child == null || !( child._eventEnabled || child.dragEnabled ) || !child.context.visible ) {
+                    if( child == null || !child._eventEnabled || !child.context.visible ) {
                         continue;
                     }
     
