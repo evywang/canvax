@@ -156,11 +156,9 @@ define(
          */
         function _pixelMethod(shape, x, y) {
             var context  = shape.context;
-    
-            var _context = Base._pixelCtx;
-    
             
-    
+            var _context = Base._pixelCtx;
+                
             _context.save();
             _context.beginPath();
             Base.setContextStyle( _context , context.$model );
@@ -173,6 +171,9 @@ define(
     
     
             shape.draw( _context,  context );
+
+            _context.globalAlpha = 1;
+
             shape.drawEnd(_context);
             _context.closePath();
             _context.restore();

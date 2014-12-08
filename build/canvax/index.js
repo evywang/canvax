@@ -2659,11 +2659,9 @@ define(
          */
         function _pixelMethod(shape, x, y) {
             var context  = shape.context;
-    
-            var _context = Base._pixelCtx;
-    
             
-    
+            var _context = Base._pixelCtx;
+                
             _context.save();
             _context.beginPath();
             Base.setContextStyle( _context , context.$model );
@@ -2676,6 +2674,9 @@ define(
     
     
             shape.draw( _context,  context );
+
+            _context.globalAlpha = 1;
+
             shape.drawEnd(_context);
             _context.closePath();
             _context.restore();
@@ -3920,6 +3921,11 @@ define(
         _afterDelChild : function(stage){
             this.el.removeChild( stage.context2D.canvas );
         },
+        _convertCanvax : function(opt){
+            _.each( this.children , function(stage){
+                stage.context[opt.name] = opt.value; 
+            } );  
+        },
         heartBeat : function( opt ){
             //displayList中某个属性改变了
             var self = this;
@@ -3937,22 +3943,26 @@ define(
                     return;
                 }
  
-                if(!self.convertStages[stage.id]){
-                    self.convertStages[stage.id]={
-                        stage : stage,
-                        convertShapes : {}
-                    }
-                };
- 
-                if(shape){
-                    if (!self.convertStages[ stage.id ].convertShapes[ shape.id ]){
-                        self.convertStages[ stage.id ].convertShapes[ shape.id ]={
-                            shape : shape,
-                            convertType : opt.convertType
+                if( shape.type == "canvax" ){
+                    self._convertCanvax(opt)
+                } else {
+                    if(!self.convertStages[stage.id]){
+                        self.convertStages[stage.id]={
+                            stage : stage,
+                            convertShapes : {}
                         }
-                    } else {
-                        //如果已经上报了该shape的心跳。
-                        return;
+                    };
+ 
+                    if(shape){
+                        if (!self.convertStages[ stage.id ].convertShapes[ shape.id ]){
+                            self.convertStages[ stage.id ].convertShapes[ shape.id ]={
+                                shape : shape,
+                                convertType : opt.convertType
+                            }
+                        } else {
+                            //如果已经上报了该shape的心跳。
+                            return;
+                        }
                     }
                 }
             }
