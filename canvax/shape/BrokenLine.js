@@ -50,13 +50,13 @@ define(
                 if (!context.lineType || context.lineType == 'solid' || context.smooth) {
                     //默认为实线
                     //TODO:目前如果 有设置smooth 的情况下是不支持虚线的
-                    ctx.moveTo( parseInt(pointList[0][0]) , parseInt(pointList[0][1]) );
+                    ctx.moveTo( pointList[0][0] , pointList[0][1] );
                     for (var i = 1, l = pointList.length; i < l; i++) {
-                        ctx.lineTo( parseInt(pointList[i][0]) , parseInt(pointList[i][1]) );
+                        ctx.lineTo( pointList[i][0] , pointList[i][1] );
                     }
                 } else if (context.lineType == 'dashed' || context.lineType == 'dotted') {
                     //画虚线的方法  
-                    ctx.moveTo( parseInt(pointList[0][0]) , parseInt(pointList[0][1]) );
+                    ctx.moveTo( pointList[0][0] , pointList[0][1] );
                     for (var i = 1, l = pointList.length; i < l; i++) {
                         var fromX = pointList[i - 1][0];
                         var toX   = pointList[i][0];

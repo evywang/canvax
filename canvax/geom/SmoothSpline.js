@@ -44,7 +44,7 @@ define(
     
     
             //基本上等于曲率
-            var segs = distance / 5;
+            var segs = distance / 6;
     
             segs = segs < len ? len : segs;
             for (var i = 0; i < segs; i++) {
