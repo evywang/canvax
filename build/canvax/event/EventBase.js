@@ -56,15 +56,7 @@ define(
             delete this.currentTarget;
             delete this.params;
         }
-    
-        /**
-         * Returns a string of the Event object.
-         */
-        EventBase.prototype.toString = function() {
-            return "[EventBase type=" + this.type + "]";
-        }
-    
-    
+
         return EventBase;
     
     
