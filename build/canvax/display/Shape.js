@@ -56,18 +56,18 @@ define(
      
                //style 要从diaplayObject的 context上面去取
                var style = this.context;
-             
+         
                //fill stroke 之前， 就应该要closepath 否则线条转角口会有缺口。
                //drawTypeOnly 由继承shape的具体绘制类提供
-               if ( this.drawTypeOnly != "stroke" ){
-                  ctx.closePath();
+               if ( this._drawTypeOnly != "stroke" && this.type != "path"){
+                   ctx.closePath();
                }
      
                if ( style.strokeStyle && style.lineWidth ){
                    ctx.stroke();
                }
                //比如贝塞尔曲线画的线,drawTypeOnly==stroke，是不能使用fill的，后果很严重
-               if (style.fillStyle && this.drawTypeOnly!="stroke"){
+               if (style.fillStyle && this._drawTypeOnly!="stroke"){
                    ctx.fill();
                }
                

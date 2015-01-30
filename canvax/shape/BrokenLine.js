@@ -19,8 +19,8 @@ define(
     function(Shape , Base , SmoothSpline){
         var BrokenLine = function(opt){
             var self = this;
-            self.type = "brokenLine";
-            self.drawTypeOnly = "stroke";
+            self.type = "brokenline";
+            self._drawTypeOnly = "stroke";
      
             opt = Base.checkOpt( opt );
      

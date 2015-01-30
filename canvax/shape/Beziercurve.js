@@ -25,10 +25,10 @@ define(
     ],
     function( Shape , Base , Point ){
         var Beziercurve = function(opt){
-            var self          = this;
-            self.type         = "beziercurve";
-            self.drawTypeOnly = "stroke";//线条只能描边，填充的画出了问题别怪我没提醒
-            self.length       = undefined;
+            var self           = this;
+            self.type          = "beziercurve";
+            self._drawTypeOnly = "stroke";//线条只能描边，填充的画出了问题别怪我没提醒
+            self.length        = undefined;
       
       
             //在diaplayobject组织context的之前就要把 这个 shape 需要的 style 字段 提供出来
