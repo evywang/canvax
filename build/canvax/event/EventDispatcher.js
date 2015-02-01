@@ -44,14 +44,14 @@ define(
                 this._removeAllEventListeners();
                 return this;
             },
-            fire : function(event){
-                if(_.isString(event)){
-                    //如果是str，比如mouseover
-                    event = { type : event };
+            fire : function(eventType , event){
+                if( !event ){
+                    event = { type : eventType };
                 } else {
-          
+                    //如果有传递event过来
+                    event.type = eventType;
                 }
-                this.dispatchEvent(event);
+                this.dispatchEvent( event );
                 return this;
             },
             dispatchEvent:function(event){
