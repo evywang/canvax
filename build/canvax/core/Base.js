@@ -54,7 +54,6 @@ define(
 
             // In Internet Explorer 7 getBoundingClientRect property is treated as physical, 
             // while others are logical. Make all logical, like in IE8. 
-
             zoom = 1; 
             if (body.getBoundingClientRect) { 
                 var bound = body.getBoundingClientRect(); 
@@ -71,15 +70,6 @@ define(
                 top: top, 
                 left: left 
             }; 
-        },
-        getStyle : function(el , cssName){
-            var len=arguments.length, sty, f, fv;  
-                              
-            'currentStyle' in el ? sty=el.currentStyle : 'getComputedStyle' in window   
-                                 ? sty=window.getComputedStyle(el,null) : null;  
-  
-            sty = (len==2) ? sty[cssName] : sty;                                  
-            return sty;  
         },
         //dom相关代码结束
         

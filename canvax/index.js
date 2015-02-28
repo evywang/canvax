@@ -38,8 +38,8 @@ define(
         this._cid = new Date().getTime() + "_" + Math.floor(Math.random()*100); 
         
         this._rootDom   = Base.getEl(opt.el);
-        this.width      = parseInt("width"  in opt || Base.getStyle(this._rootDom , "width")  , 10); 
-        this.height     = parseInt("height" in opt || Base.getStyle(this._rootDom , "height") , 10); 
+        this.width      = parseInt("width"  in opt || this._rootDom.offsetWidth  , 10); 
+        this.height     = parseInt("height" in opt || this._rootDom.offsetHeight , 10); 
 
         //是否阻止浏览器默认事件的执行
         this.preventDefault = true;
@@ -123,8 +123,8 @@ define(
         },
         resize : function(){
             //重新设置坐标系统 高宽 等。
-            this.width    = parseInt(Base.getStyle(this._rootDom , "width" ));
-            this.height   = parseInt(Base.getStyle(this._rootDom , "height"));
+            this.width    = parseInt( this._rootDom.offsetWidth  );
+            this.height   = parseInt( this._rootDom.offsetHeight );
  
             this.el.style.width  = this.width +"px";
             this.el.style.height = this.height+"px";
@@ -148,7 +148,6 @@ define(
                     ctx.resize(me.width , me.height);
                 }
             }; 
- 
             _.each(this.children , function(s , i){
                 s._notWatch     = true;
                 s.context.width = me.width;
@@ -160,6 +159,8 @@ define(
             var canvaxDOMc = Base.getEl("cdc-"+this._cid);
             canvaxDOMc.style.width  = this.width  + "px";
             canvaxDOMc.style.height = this.height + "px";
+
+            this.heartBeat();
  
         },
         getDomContainer  : function(){
@@ -612,7 +613,7 @@ define(
            }
         },
         __enterFrame : function(){
-            
+        
             var self = this;
             //不管怎么样，__enterFrame执行了就要把
             //requestAid null 掉
@@ -711,51 +712,64 @@ define(
         heartBeat : function( opt ){
             //displayList中某个属性改变了
             var self = this;
-            //心跳包有两种，一种是某元素的可视属性改变了。一种是children有变动
-            //分别对应convertType  为 context  and children
-            if (opt.convertType == "context"){
-                var stage   = opt.stage;
-                var shape   = opt.shape;
-                var name    = opt.name;
-                var value   = opt.value;
-                var preValue=opt.preValue;
+            if( opt ){
+                //心跳包有两种，一种是某元素的可视属性改变了。一种是children有变动
+                //分别对应convertType  为 context  and children
+                if (opt.convertType == "context"){
+                    var stage   = opt.stage;
+                    var shape   = opt.shape;
+                    var name    = opt.name;
+                    var value   = opt.value;
+                    var preValue=opt.preValue;
  
-                if (!self._isReady) {
-                    //在还没初始化完毕的情况下，无需做任何处理
-                    return;
-                }
+                    if (!self._isReady) {
+                        //在还没初始化完毕的情况下，无需做任何处理
+                        return;
+                    }
  
-                if( shape.type == "canvax" ){
-                    self._convertCanvax(opt)
-                } else {
-                    if(!self.convertStages[stage.id]){
-                        self.convertStages[stage.id]={
-                            stage : stage,
-                            convertShapes : {}
-                        }
-                    };
- 
-                    if(shape){
-                        if (!self.convertStages[ stage.id ].convertShapes[ shape.id ]){
-                            self.convertStages[ stage.id ].convertShapes[ shape.id ]={
-                                shape : shape,
-                                convertType : opt.convertType
+                    if( shape.type == "canvax" ){
+                        self._convertCanvax(opt)
+                    } else {
+                        if(!self.convertStages[stage.id]){
+                            self.convertStages[stage.id]={
+                                stage : stage,
+                                convertShapes : {}
                             }
-                        } else {
-                            //如果已经上报了该shape的心跳。
-                            return;
+                        };
+ 
+                        if(shape){
+                            if (!self.convertStages[ stage.id ].convertShapes[ shape.id ]){
+                                self.convertStages[ stage.id ].convertShapes[ shape.id ]={
+                                    shape : shape,
+                                    convertType : opt.convertType
+                                }
+                            } else {
+                                //如果已经上报了该shape的心跳。
+                                return;
+                            }
                         }
                     }
                 }
-            }
  
-            if (opt.convertType == "children"){
-                //元素结构变化，比如addchild removeChild等
-                var target = opt.target;
-                var stage = opt.src.getStage();
-                if( stage || (target.type=="stage") ){
-                    //如果操作的目标元素是Stage
-                    stage = stage || target;
+                if (opt.convertType == "children"){
+                    //元素结构变化，比如addchild removeChild等
+                    var target = opt.target;
+                    var stage = opt.src.getStage();
+                    if( stage || (target.type=="stage") ){
+                        //如果操作的目标元素是Stage
+                        stage = stage || target;
+                        if(!self.convertStages[stage.id]) {
+                            self.convertStages[stage.id]={
+                                stage : stage ,
+                                convertShapes : {}
+                            }
+                        }
+                    }
+                }
+ 
+                if(!opt.convertType){
+                    //无条件要求刷新
+                    var stage = opt.stage;
                     if(!self.convertStages[stage.id]) {
                         self.convertStages[stage.id]={
                             stage : stage ,
@@ -763,19 +777,16 @@ define(
                         }
                     }
                 }
-            }
- 
-            if(!opt.convertType){
-                //无条件要求刷新
-                var stage = opt.stage;
-                if(!self.convertStages[stage.id]) {
-                    self.convertStages[stage.id]={
-                        stage : stage ,
+            } else {
+                //无条件要求全部刷新，一般用在resize等。
+                _.each( self.children , function( stage , i ){
+                    self.convertStages[ stage.id ] = {
+                        stage : stage,
                         convertShapes : {}
                     }
-                }
-            }
- 
+                } );
+            } 
+            
             if (!self._heartBeat){
                //如果发现引擎在静默状态，那么就唤醒引擎
                self._heartBeat = true;
