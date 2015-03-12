@@ -25,7 +25,15 @@ define(
             opt = Base.checkOpt( opt );
      
             if( opt.context.smooth && opt.context.pointList ){
-                opt.context.pointList = SmoothSpline( opt.context.pointList );
+                //smoothFilter -- 比如在折线图中。会传一个smoothFilter过来做point的纠正。
+                //让y不能超过底部的原点
+                var obj = {
+                    points : opt.context.pointList
+                }
+                if( _.isFunction( opt.smoothFilter ) ){
+                    obj.smoothFilter = opt.smoothFilter;
+                }
+                opt.context.pointList = SmoothSpline( obj );
             }
             
             self._context = {
