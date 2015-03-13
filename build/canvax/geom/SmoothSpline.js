@@ -23,8 +23,13 @@ define(
         }
         /**
          * 多线段平滑曲线 
+         * opt ==> points , isLoop
          */
-        return function (points, isLoop) {
+        return function ( opt ) {
+            var points = opt.points;
+            var isLoop = opt.isLoop;
+            var smoothFilter = opt.smoothFilter;
+
             var len = points.length;
             if( len == 1 ){
                 return points;
@@ -69,11 +74,15 @@ define(
     
                 var w2 = w * w;
                 var w3 = w * w2;
-    
-                ret.push([
+
+                var rp = [
                         interpolate(p0[0], p1[0], p2[0], p3[0], w, w2, w3),
                         interpolate(p0[1], p1[1], p2[1], p3[1], w, w2, w3)
-                        ]);
+                        ];
+
+                _.isFunction(smoothFilter) && smoothFilter( rp );
+    
+                ret.push( rp );
             }
             return ret;
         };
