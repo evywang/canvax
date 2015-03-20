@@ -101,11 +101,16 @@ define(
                             }
                             if (value !== neo) {
 
+                                
                                 if( neoType === "object" ){
                                     value = neo.$model ? neo : PropertyFactory(neo , neo);
                                     complexValue = value.$model;
                                 } else {//如果是其他数据类型
-                                    value = neo
+                                    //if( neoType === "array" ){
+                                    //    value = _.clone(neo);
+                                    //} else {
+                                        value = neo
+                                    //}
                                 }
                                 accessor.value = value;
                                 model[name] = complexValue ? complexValue : value;//更新$model中的值
