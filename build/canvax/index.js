@@ -37,14 +37,12 @@ define(
 define(
     "canvax/core/Base",
     [
-
+        !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : "",
         "canvax/animation/AnimationFrame",
         ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
-        !window._ ? "canvax/library/underscore" : "",
-        !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : ""
-
+        !window._ ? "canvax/library/underscore" : ""
     ],
-    function(){
+    function( FlashCanvas ){
 
         var classTypes = {};
         "Boolean Number String Function Array Date RegExp Object Error".replace(/[^, ]+/g, function(name) {

@@ -35,4 +35,7 @@ case "disableContextMenu":ca=c;var d=void 0;for(d in m){var e=m[d],f=c?"attachEv
 c);d.attachEvent(V,R);s[a]=1;typeof d.onload==="function"&&setTimeout(function(){d.onload()},0)}else if(f=v[a][b])e=f[0],c=f[1+c],delete v[a][b],typeof c==="function"&&c.call(e)}};k.createElement(r);k.createStyleSheet().cssText=r+"{display:inline-block;overflow:hidden;width:300px;height:150px}";J&&(k.readyState==="complete"?B():k.attachEvent(P,B));l.attachEvent(T,S);t.indexOf(location.protocol+"//"+location.host+"/")===0&&(n=new ActiveXObject("Microsoft.XMLHTTP"),n.open("GET",t,!1),n.send(g));l[W]=
 A;l[X]=o;l[Y]=x;l[H]=C;l[Z]={init:function(){},init_:function(){},initElement:C.initElement}}(window,document);
 
+var Canvax_FlashCanvas = FlashCanvas;
+
+return Canvax_FlashCanvas;
 });
