@@ -190,7 +190,7 @@ define(
                 return self;
             },
             initElement : function( canvas ){
-                if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
+                if( FlashCanvas && FlashCanvas.initElement){
                     FlashCanvas.initElement( canvas );
                 }
             },
@@ -1814,7 +1814,7 @@ define(
             */
            dashedLineTo:function(ctx, x1, y1, x2, y2, dashLength) {
                  dashLength = typeof dashLength == 'undefined'
-                              ? 5 : dashLength;
+                              ? 3 : dashLength;
                  dashLength = Math.max( dashLength , this.context.lineWidth );
                  var deltaX = x2 - x1;
                  var deltaY = y2 - y1;
@@ -2028,7 +2028,6 @@ define(
                    }
                }
 
-               this._renderTextBackground(ctx, textLines);
                this._renderText(ctx, textLines);
               
             },
@@ -2169,70 +2168,6 @@ define(
             },
             _getTextHeight: function(ctx, textLines) {
                 return this.context.fontSize * textLines.length * this.context.lineHeight;
-            },
-            _renderTextBackground: function(ctx, textLines) {
-                this._renderTextBoxBackground(ctx);
-                this._renderTextLinesBackground(ctx, textLines);
-            },
-            _renderTextBoxBackground: function(ctx) {
-                if (!this.context.backgroundColor) return;
-
-                ctx.save();
-                ctx.fillStyle = this.context.backgroundColor;
-                ctx.fillRect(
-                    this._getLeftOffset(),
-                    this._getTopOffset(),
-                    this.context.width,
-                    this.context.height
-                    );
-                ctx.restore();
-            },
-            _renderTextLinesBackground: function(ctx, textLines) {
-                if (!this.context.textBackgroundColor) return;
-                ctx.save();
-                ctx.fillStyle = this.context.textBackgroundColor;
-                for (var i = 0, len = textLines.length; i < len; i++) {
-                    if (textLines[i] !== '') {
-                        var lineWidth      = this._getLineWidth(ctx, textLines[i]);
-                        var lineLeftOffset = this._getLineLeftOffset(lineWidth);
-                        ctx.fillRect(
-                            this._getLeftOffset() + lineLeftOffset,
-                            this._getTopOffset() + (i * this.context.fontSize * this.context.lineHeight),
-                            lineWidth,
-                            this.context.fontSize * this.context.lineHeight
-                            );
-                    }
-                }
-                ctx.restore();
-            },
-            _getLineWidth: function(ctx, line) {
-                return this.context.textAlign === 'justify'
-                    ? this.context.width
-                    : ctx.measureText(line).width;
-            },
-            _getLineLeftOffset: function(lineWidth) {
-                if (this.context.textAlign === 'center') {
-                    return (this.context.width - lineWidth) / 2;
-                }
-                if (this.context.textAlign === 'right') {
-                    return this.context.width - lineWidth;
-                }
-                return 0;
-            },
-            _getLeftOffset: function() {
-                var l = 0;
-                switch(this.context.textAlign){
-                    case "left":
-                         l = 0;
-                         break; 
-                    case "center":
-                         l = -this.context.width / 2;
-                         break;
-                    case "right":
-                         l = -this.context.width;
-                         break;
-                }
-                return l;
             },
 
             /**

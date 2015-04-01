@@ -56,10 +56,16 @@ define(
                         obj.smoothFilter = myC.smoothFilter;
                     }
                     this._notWatch = true; //本次转换不出发心跳
-                    myC.pointList  = SmoothSpline( obj );
+                    var currL      = SmoothSpline( obj );
+
+                    if( value ){
+                        currL[currL.length-1][0] = value[value.length-1][0];
+                    }
+                    myC.pointList  = currL;
                     this._notWatch = false;
                 };
                 this.originPointList = myC.pointList;
+                
             },
             draw : function(ctx, context) {
                 var pointList = context.pointList;

@@ -96,7 +96,7 @@ define(
             */
            dashedLineTo:function(ctx, x1, y1, x2, y2, dashLength) {
                  dashLength = typeof dashLength == 'undefined'
-                              ? 5 : dashLength;
+                              ? 3 : dashLength;
                  dashLength = Math.max( dashLength , this.context.lineWidth );
                  var deltaX = x2 - x1;
                  var deltaY = y2 - y1;

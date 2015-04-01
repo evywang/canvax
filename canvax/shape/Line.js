@@ -28,11 +28,11 @@ define(
             opt = Base.checkOpt( opt );
             self._context = {
                  lineType      : opt.context.lineType || null, //可选 虚线 实现 的 类型
-                 xStart        : opt.context.xStart || 0 ,//{number},  // 必须，起点横坐标
-                 yStart        : opt.context.yStart || 0 ,//{number},  // 必须，起点纵坐标
-                 xEnd          : opt.context.xEnd   || 0 ,//{number},  // 必须，终点横坐标
-                 yEnd          : opt.context.yEnd   || 0 ,//{number},  // 必须，终点纵坐标
-                 dashLength    : opt.context.dashLength  || 5
+                 xStart        : opt.context.xStart   || 0 ,//{number},  // 必须，起点横坐标
+                 yStart        : opt.context.yStart   || 0 ,//{number},  // 必须，起点纵坐标
+                 xEnd          : opt.context.xEnd     || 0 ,//{number},  // 必须，终点横坐标
+                 yEnd          : opt.context.yEnd     || 0 ,//{number},  // 必须，终点纵坐标
+                 dashLength    : opt.context.dashLength
             }
             arguments.callee.superclass.constructor.apply(this, arguments);
         };

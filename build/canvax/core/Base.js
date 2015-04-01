@@ -164,7 +164,7 @@ define(
                 return self;
             },
             initElement : function( canvas ){
-                if(typeof FlashCanvas != "undefined" && FlashCanvas.initElement){
+                if( FlashCanvas && FlashCanvas.initElement){
                     FlashCanvas.initElement( canvas );
                 }
             },

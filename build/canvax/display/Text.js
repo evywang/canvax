@@ -6,7 +6,6 @@
  * 文本 类
  **/
 
-
 define(
     "canvax/display/Text",
     [
@@ -71,7 +70,6 @@ define(
                    }
                }
 
-               this._renderTextBackground(ctx, textLines);
                this._renderText(ctx, textLines);
               
             },
@@ -212,70 +210,6 @@ define(
             },
             _getTextHeight: function(ctx, textLines) {
                 return this.context.fontSize * textLines.length * this.context.lineHeight;
-            },
-            _renderTextBackground: function(ctx, textLines) {
-                this._renderTextBoxBackground(ctx);
-                this._renderTextLinesBackground(ctx, textLines);
-            },
-            _renderTextBoxBackground: function(ctx) {
-                if (!this.context.backgroundColor) return;
-
-                ctx.save();
-                ctx.fillStyle = this.context.backgroundColor;
-                ctx.fillRect(
-                    this._getLeftOffset(),
-                    this._getTopOffset(),
-                    this.context.width,
-                    this.context.height
-                    );
-                ctx.restore();
-            },
-            _renderTextLinesBackground: function(ctx, textLines) {
-                if (!this.context.textBackgroundColor) return;
-                ctx.save();
-                ctx.fillStyle = this.context.textBackgroundColor;
-                for (var i = 0, len = textLines.length; i < len; i++) {
-                    if (textLines[i] !== '') {
-                        var lineWidth      = this._getLineWidth(ctx, textLines[i]);
-                        var lineLeftOffset = this._getLineLeftOffset(lineWidth);
-                        ctx.fillRect(
-                            this._getLeftOffset() + lineLeftOffset,
-                            this._getTopOffset() + (i * this.context.fontSize * this.context.lineHeight),
-                            lineWidth,
-                            this.context.fontSize * this.context.lineHeight
-                            );
-                    }
-                }
-                ctx.restore();
-            },
-            _getLineWidth: function(ctx, line) {
-                return this.context.textAlign === 'justify'
-                    ? this.context.width
-                    : ctx.measureText(line).width;
-            },
-            _getLineLeftOffset: function(lineWidth) {
-                if (this.context.textAlign === 'center') {
-                    return (this.context.width - lineWidth) / 2;
-                }
-                if (this.context.textAlign === 'right') {
-                    return this.context.width - lineWidth;
-                }
-                return 0;
-            },
-            _getLeftOffset: function() {
-                var l = 0;
-                switch(this.context.textAlign){
-                    case "left":
-                         l = 0;
-                         break; 
-                    case "center":
-                         l = -this.context.width / 2;
-                         break;
-                    case "right":
-                         l = -this.context.width;
-                         break;
-                }
-                return l;
             },
 
             /**
