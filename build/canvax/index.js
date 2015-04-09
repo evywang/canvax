@@ -743,6 +743,8 @@ define(
     ],
     function(EventDispatcher , Matrix , Point , Base , HitTestPoint , PropertyFactory){
 
+        PropertyFactory || (PropertyFactory = window.PropertyFactory);
+
         var DisplayObject = function(opt){
             arguments.callee.superclass.constructor.apply(this, arguments);
             var self = this;
