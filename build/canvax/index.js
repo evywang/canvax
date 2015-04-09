@@ -739,7 +739,7 @@ define(
         "canvax/display/Point",
         "canvax/core/Base",
         "canvax/geom/HitTestPoint",
-        "canvax/core/PropertyFactory"
+        !window.PropertyFactory ? "canvax/core/PropertyFactory" : ""
     ],
     function(EventDispatcher , Matrix , Point , Base , HitTestPoint , PropertyFactory){
 
