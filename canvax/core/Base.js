@@ -17,12 +17,6 @@ define(
         !window._ ? "canvax/library/underscore" : ""
     ],
     function( FlashCanvas ){
-
-        var classTypes = {};
-        "Boolean Number String Function Array Date RegExp Object Error".replace(/[^, ]+/g, function(name) {
-            classTypes["[object " + name + "]"] = name.toLowerCase()
-        });
-    
         var Base = {
             mainFrameRate   : 60,//默认主帧率
             now : 0,
@@ -146,23 +140,6 @@ define(
                 }
                 return r;
             },
-            debugMode : false,
-            log : function() {
-                var self = this;
-                if (!self.debugMode) {
-                    return;
-                } else if ( "Error" in window ) {
-                    for (var k in arguments) {
-                        throw new Error(arguments[k]);
-                    }
-                } else if ("console" in window && console.log) {
-                    for (var k in arguments) {
-                        console.log(arguments[k]);
-                    }
-                }
-    
-                return self;
-            },
             initElement : function( canvas ){
                 if( FlashCanvas && FlashCanvas.initElement){
                     FlashCanvas.initElement( canvas );
@@ -192,15 +169,6 @@ define(
                 var charCode = name.charCodeAt(name.length - 1);
                 if (charCode >= 48 && charCode <= 57) name += "_";
                 return name + Base.getUID();
-            },
-            getType : function(obj) { //取得类型
-                if (obj == null) {
-                    return String(obj)
-                }
-                // 早期的webkit内核浏览器实现了已废弃的ecma262v4标准，可以将正则字面量当作函数使用，因此typeof在判定正则时会返回function
-                return typeof obj === "object" || typeof obj === "function" ?
-                    classTypes[Object.prototype.toString.call(obj)] || "object" :
-                    typeof obj
             },
             /**
              * 简单的浅复制对象。
@@ -388,9 +356,6 @@ define(
         }).call( window );
 
         /*deep-extend END*/
-
-
-
 
         return Base
 

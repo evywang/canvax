@@ -487,7 +487,7 @@ define(
  
             var obj = this.getObjectsUnderPoint( point , 1)[0];
  
-            this._cursorHander( obj , oldObj );
+            
  
             if(oldObj && oldObj != obj || e.type=="mouseout") {
                 if(!oldObj){
@@ -519,6 +519,8 @@ define(
                 e.point  = oldObj.globalToLocal( point );
                 this._mouseEventDispatch( oldObj , e );
             };
+
+            this._cursorHander( obj , oldObj );
  
         },
         _mouseEventDispatch : function( obj , e ){
@@ -613,7 +615,8 @@ define(
            }
         },
         __enterFrame : function(){
-        
+            
+            console.log("enterFrame!");
             var self = this;
             //不管怎么样，__enterFrame执行了就要把
             //requestAid null 掉
