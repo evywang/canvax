@@ -2267,32 +2267,19 @@ define(
     
             this._stopPropagation = false ; //默认不阻止事件冒泡
         }
-    
-        /**
-         * @private Not implemented yet.
-         */
+
         EventBase.prototype.stopPropagation = function() {
-            //TODO
             this._stopPropagation = true;
         }
     
-        /**
-         * @private Not implemented yet.
-         */
         EventBase.prototype.preventDefault = function() {
             //TODO
         }
     
-        /**
-         * Duplicates an instance of the Event object.
-         */
         EventBase.prototype.clone = function() {
             return Base.copy(this);
         }
     
-        /**
-         * Deletes all properties of the Event object.
-         */
         EventBase.prototype.dispose = function() {
             delete this.type;
             delete this.target;
@@ -2343,13 +2330,19 @@ define(
                 return this;
             },
             fire : function(eventType , event){
+                var preEventType = null;
                 if( !event ){
                     event = { type : eventType };
                 } else {
+                    //把原有的event.type暂存起来
+                    preEventType = event.type;
                     //如果有传递event过来
                     event.type = eventType;
                 }
                 this.dispatchEvent( event );
+                if( preEventType ){
+                    event.type = preEventType;
+                }
                 return this;
             },
             dispatchEvent:function(event){
@@ -2400,10 +2393,8 @@ define(
                         this._hoverClass = false;
                         canvax._hoverStage.removeChildById(this.id);
                         
-                        //this.context.visible = true;
                         this.context.globalAlpha = this._globalAlpha;
                         delete this._globalAlpha;
-
                     }
                 }
       

@@ -24,32 +24,19 @@ define(
     
             this._stopPropagation = false ; //默认不阻止事件冒泡
         }
-    
-        /**
-         * @private Not implemented yet.
-         */
+
         EventBase.prototype.stopPropagation = function() {
-            //TODO
             this._stopPropagation = true;
         }
     
-        /**
-         * @private Not implemented yet.
-         */
         EventBase.prototype.preventDefault = function() {
             //TODO
         }
     
-        /**
-         * Duplicates an instance of the Event object.
-         */
         EventBase.prototype.clone = function() {
             return Base.copy(this);
         }
     
-        /**
-         * Deletes all properties of the Event object.
-         */
         EventBase.prototype.dispose = function() {
             delete this.type;
             delete this.target;
