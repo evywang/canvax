@@ -387,11 +387,13 @@ define(
          * */
         __mouseHandler : function(e) {
             var self = this;
+            alert("left:"+ self.rootOffset.left +",top:"+self.rootOffset.top);
             self.curPoints = [ new Point( 
                     ( e.pageX || e.x ) - self.rootOffset.left , 
                     ( e.pageY || e.y ) - self.rootOffset.top
                     )];
  
+            alert(self.curPoints[0]+"|"+self.curPoints[1])
             var curMousePoint  = self.curPoints[0]; 
             var curMouseTarget = self.curPointsTarget[0];
  

@@ -61,6 +61,7 @@ define(
                 return null;
             },
             getOffset : function(el){
+                debugger;
                 var box = el.getBoundingClientRect(), 
                 doc = el.ownerDocument, 
                 body = doc.body, 
@@ -767,9 +768,11 @@ define(
             //元素的父元素
             self.parent          = null;
     
-            self._eventEnabled   = false; //是否响应事件交互,在添加了事件侦听后会自动设置为true
+            self._eventEnabled   = false;   //是否响应事件交互,在添加了事件侦听后会自动设置为true
     
             self.dragEnabled     = false;   //是否启用元素的拖拽
+
+            self.hoverClone      = true;    //是否开启在hover的时候clone一份到active stage 中 
     
             //创建好context
             self._createContext( opt );
@@ -2353,9 +2356,6 @@ define(
                    if( preHeartBeat != this._heartBeatNum ){
                        this._hoverClass = true;
 
-                       var canvax = this.getStage().parent;
-    
-
                        /*
                        //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
                        //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
@@ -2368,17 +2368,19 @@ define(
                        }
                        */
 
-                       
+                    
+                       if( this.hoverClone ){
+                           var canvax = this.getStage().parent;
+                           //然后clone一份obj，添加到_hoverStage 中
+                           var activShape = this.clone(true);                     
+                           activShape._transform = this.getConcatenatedMatrix();
+                           canvax._hoverStage.addChildAt( activShape , 0 ); 
 
-                       //然后clone一份obj，添加到_hoverStage 中
-                       var activShape = this.clone(true);                     
-                       activShape._transform = this.getConcatenatedMatrix();
-                       canvax._hoverStage.addChildAt( activShape , 0 ); 
-
-                       //然后把自己visible=false隐藏了
-                       //this.context.visible = false;
-                       this._globalAlpha = this.context.globalAlpha;
-                       this.context.globalAlpha = 0
+                           //然后把自己visible=false隐藏了
+                           //this.context.visible = false;
+                           this._globalAlpha = this.context.globalAlpha;
+                           this.context.globalAlpha = 0;
+                       }
 
                    }
                    return;
@@ -3332,7 +3334,7 @@ define(
         this._rootDom.innerHTML = htmlStr;
  
         this.el = Base.getEl("cc-"+this._cid);
- 
+        
         this.rootOffset      = Base.getOffset(this.el); //this.el.offset();
  
         this.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
@@ -3655,11 +3657,13 @@ define(
          * */
         __mouseHandler : function(e) {
             var self = this;
+            alert("left:"+ self.rootOffset.left +",top:"+self.rootOffset.top);
             self.curPoints = [ new Point( 
                     ( e.pageX || e.x ) - self.rootOffset.left , 
                     ( e.pageY || e.y ) - self.rootOffset.top
                     )];
  
+            alert(self.curPoints[0]+"|"+self.curPoints[1])
             var curMousePoint  = self.curPoints[0]; 
             var curMouseTarget = self.curPointsTarget[0];
  
