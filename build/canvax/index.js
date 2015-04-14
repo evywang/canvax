@@ -61,7 +61,6 @@ define(
                 return null;
             },
             getOffset : function(el){
-                debugger;
                 var box = el.getBoundingClientRect(), 
                 doc = el.ownerDocument, 
                 body = doc.body, 
@@ -3657,10 +3656,9 @@ define(
          * */
         __mouseHandler : function(e) {
             var self = this;
-            debugger
             self.curPoints = [ new Point( 
-                    ( e.pageX || e.ClientX ) - self.rootOffset.left , 
-                    ( e.pageY || e.ClientY ) - self.rootOffset.top
+                    ( e.pageX || e.clientX ) - self.rootOffset.left , 
+                    ( e.pageY || e.clientY ) - self.rootOffset.top
                     )];
  
             var curMousePoint  = self.curPoints[0]; 
@@ -3912,7 +3910,6 @@ define(
  
                 self._heartBeat = false;
                 
-                //debugger;
                 self.convertStages = {};
  
                 //渲染完了，打上最新时间挫
