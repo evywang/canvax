@@ -43,9 +43,11 @@ define(
             //元素的父元素
             self.parent          = null;
     
-            self._eventEnabled   = false; //是否响应事件交互,在添加了事件侦听后会自动设置为true
+            self._eventEnabled   = false;   //是否响应事件交互,在添加了事件侦听后会自动设置为true
     
             self.dragEnabled     = false;   //是否启用元素的拖拽
+
+            self.hoverClone      = true;    //是否开启在hover的时候clone一份到active stage 中 
     
             //创建好context
             self._createContext( opt );

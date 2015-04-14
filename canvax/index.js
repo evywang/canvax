@@ -64,7 +64,7 @@ define(
         this._rootDom.innerHTML = htmlStr;
  
         this.el = Base.getEl("cc-"+this._cid);
- 
+        
         this.rootOffset      = Base.getOffset(this.el); //this.el.offset();
  
         this.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y

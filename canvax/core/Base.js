@@ -35,6 +35,7 @@ define(
                 return null;
             },
             getOffset : function(el){
+                debugger;
                 var box = el.getBoundingClientRect(), 
                 doc = el.ownerDocument, 
                 body = doc.body, 

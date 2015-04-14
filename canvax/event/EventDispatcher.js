@@ -68,9 +68,6 @@ define(
                    if( preHeartBeat != this._heartBeatNum ){
                        this._hoverClass = true;
 
-                       var canvax = this.getStage().parent;
-    
-
                        /*
                        //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
                        //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
@@ -83,17 +80,19 @@ define(
                        }
                        */
 
-                       
+                    
+                       if( this.hoverClone ){
+                           var canvax = this.getStage().parent;
+                           //然后clone一份obj，添加到_hoverStage 中
+                           var activShape = this.clone(true);                     
+                           activShape._transform = this.getConcatenatedMatrix();
+                           canvax._hoverStage.addChildAt( activShape , 0 ); 
 
-                       //然后clone一份obj，添加到_hoverStage 中
-                       var activShape = this.clone(true);                     
-                       activShape._transform = this.getConcatenatedMatrix();
-                       canvax._hoverStage.addChildAt( activShape , 0 ); 
-
-                       //然后把自己visible=false隐藏了
-                       //this.context.visible = false;
-                       this._globalAlpha = this.context.globalAlpha;
-                       this.context.globalAlpha = 0
+                           //然后把自己visible=false隐藏了
+                           //this.context.visible = false;
+                           this._globalAlpha = this.context.globalAlpha;
+                           this.context.globalAlpha = 0;
+                       }
 
                    }
                    return;
