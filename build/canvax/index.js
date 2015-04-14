@@ -133,10 +133,9 @@ define(
             },
             setContextStyle : function( ctx , style ){
                 // 简单判断不做严格类型检测
-                for (p in style){
-                    //text的textBaseline 不使用系统自带的，而是采用自己来计算，所以抛弃
+                for(p in style){
                     if( p == "textBaseline" ){
-                        //continue;
+
                     } else if( p in ctx ){
                         if ( style[p] || _.isNumber( style[p] ) ) {
                             if( p == "globalAlpha" ){
