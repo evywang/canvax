@@ -108,9 +108,7 @@ define(
             setContextStyle : function( ctx , style ){
                 // 简单判断不做严格类型检测
                 for(p in style){
-                    if( p == "textBaseline" ){
-
-                    } else if( p in ctx ){
+                    if( p != "textBaseline" && ( p in ctx ) ){
                         if ( style[p] || _.isNumber( style[p] ) ) {
                             if( p == "globalAlpha" ){
                                 //透明度要从父节点继承
@@ -120,7 +118,7 @@ define(
                             }
                         }
                     }
-                }
+                };
                 return;
             },
             creatClass : function(r, s, px){
