@@ -389,8 +389,8 @@ define(
             var self = this;
             alert("left:"+ self.rootOffset.left +",top:"+self.rootOffset.top);
             self.curPoints = [ new Point( 
-                    ( e.pageX || e.x ) - self.rootOffset.left , 
-                    ( e.pageY || e.y ) - self.rootOffset.top
+                    ( e.pageX || e.ClientX ) - self.rootOffset.left , 
+                    ( e.pageY || e.ClientY ) - self.rootOffset.top
                     )];
  
             alert(self.curPoints[0]+"|"+self.curPoints[1])
