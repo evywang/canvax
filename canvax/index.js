@@ -13,18 +13,18 @@
 define(
     "canvax/index",
     [
-    "canvax/core/Base",
-    "canvax/event/CanvaxEvent",
-    "canvax/event/EventBase",
-    "canvax/event/EventDispatcher",
-    "canvax/event/EventManager",
+        "canvax/core/Base",
+        "canvax/event/CanvaxEvent",
+        "canvax/event/EventBase",
+        "canvax/event/EventDispatcher",
+        "canvax/event/EventManager",
 
-    "canvax/display/DisplayObjectContainer",
-    "canvax/display/Stage",
-    "canvax/display/Sprite",
-    "canvax/display/Shape",
-    "canvax/display/Point",
-    "canvax/display/Text"
+        "canvax/display/DisplayObjectContainer",
+        "canvax/display/Stage",
+        "canvax/display/Sprite",
+        "canvax/display/Shape",
+        "canvax/display/Point",
+        "canvax/display/Text"
     ]
     , 
     function( 

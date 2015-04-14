@@ -110,9 +110,8 @@ define(
                 for (p in style){
                     //text的textBaseline 不使用系统自带的，而是采用自己来计算，所以抛弃
                     if( p == "textBaseline" ){
-                        continue;
-                    }
-                    if( p in ctx ){
+                        //continue;
+                    } else if( p in ctx ){
                         if ( style[p] || _.isNumber( style[p] ) ) {
                             if( p == "globalAlpha" ){
                                 //透明度要从父节点继承
