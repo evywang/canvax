@@ -27,9 +27,10 @@ define(
             self._initPointList( opt.context );
 
             self._context = {
-                lineType   : opt.context.lineType  || null,
-                smooth     : opt.context.smooth    || false,
-                pointList  : opt.context.pointList || [] //{Array}  // 必须，各个顶角坐标
+                lineType     : opt.context.lineType  || null,
+                smooth       : opt.context.smooth    || false,
+                pointList    : opt.context.pointList || [], //{Array}  // 必须，各个顶角坐标
+                smoothFilter : opt.context.smoothFilter || null
             }
      
             //self.pointsLen = self._context.pointList.length;去掉该属性，直接自己pointList.length
