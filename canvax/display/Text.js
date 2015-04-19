@@ -12,7 +12,7 @@ define(
         "canvax/display/DisplayObject",
         "canvax/core/Base"
     ],
-    function(DisplayObject , Base) {
+    function( DisplayObject , Base ) {
         var Text = function( text , opt ) {
             var self = this;
             self.type = "text";
@@ -24,12 +24,12 @@ define(
             opt = Base.checkOpt( opt );
             
             self._context = {
-                fontSize       : opt.context.fontSize       || 13 , //字体大小默认13
-                fontWeight     : opt.context.fontWeight     || "normal",
-                fontFamily     : opt.context.fontFamily     || "微软雅黑",
-                textDecoration : opt.context.textDecoration,  
-                fillStyle      : opt.context.fontColor      || opt.context.fillStyle   || 'blank',
-                lineHeight     : opt.context.lineHeight     || 1.3,
+                fontSize            : opt.context.fontSize       || 13 , //字体大小默认13
+                fontWeight          : opt.context.fontWeight     || "normal",
+                fontFamily          : opt.context.fontFamily     || "微软雅黑",
+                textDecoration      : opt.context.textDecoration,  
+                fillStyle           : opt.context.fontColor      || opt.context.fillStyle   || 'blank',
+                lineHeight          : opt.context.lineHeight     || 1.3,
                 backgroundColor     : opt.context.backgroundColor ,
                 textBackgroundColor : opt.context.textBackgroundColor
             };
@@ -41,9 +41,8 @@ define(
             arguments.callee.superclass.constructor.apply(this, [opt]);
 
         };
-        
 
-        Base.creatClass(Text , DisplayObjectContainer , {
+        Base.creatClass(Text , DisplayObject , {
             $watch : function( name , value , preValue ){
                  //context属性有变化的监听函数
                  if( name in  this.fontProperts){
@@ -55,13 +54,12 @@ define(
             },
             init : function(text , opt){
                var self = this;
+               var c = this.context;
+               c.width  = this.getTextWidth();
+               c.height = this.getTextHeight();
+
             },
             render : function( ctx ){
-               var textLines = this._getTextLines();
-
-               this.context.width  = this._getTextWidth( ctx, textLines);
-               this.context.height = this._getTextHeight(ctx, textLines);
-
                for (p in this.context.$model){
                    if(p in ctx){
                        if ( p != "textBaseline" && this.context.$model[p] ) {
@@ -69,9 +67,7 @@ define(
                        }
                    }
                }
-
-               this._renderText(ctx, textLines);
-              
+               this._renderText(ctx, this._getTextLines());
             },
             resetText     : function( text ){
                this.text  = text.toString();
@@ -230,6 +226,31 @@ define(
                          break;
                 }
                 return t;
+            },
+            getRect : function(){
+                var c = this.context;
+                var x = c.x;
+                var y = c.y;
+                //更具textAlign 和 textBaseline 重新矫正 xy
+                if( c.textAlign == "center" ){
+                    x -= c.width / 2;
+                };
+                if( c.textAlign == "right" ){
+                    x -= c.width;
+                };
+                if( c.textBaseline == "middle" ){
+                    y -= c.height / 2;
+                };
+                if( c.textBaseline == "bottom" ){
+                    y -= c.height;
+                };
+
+                return {
+                    x     : x,
+                    y     : y,
+                    width : c.width,
+                    height: c.height
+                }
             }
         });
         return Text;
