@@ -184,7 +184,6 @@ define(
                     if( child == null || !child._eventEnabled || !child.context.visible ) {
                         continue;
                     }
-    
                     if( child instanceof DisplayObjectContainer ) {
                         //是集合
                         if (child.mouseChildren && child.getNumChildren() > 0){
