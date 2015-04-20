@@ -124,7 +124,7 @@
                 window.stage=null;
                 var S = KISSY;
                 KISSY.use("node" , function(S){
-                    seajs.use(["canvax/index"  ] , function( Canvax ){
+                    seajs.use(["canvax/index" , "canvax/shape/Rect" ] , function( Canvax , Rect ){
                         S.all("#ready").html("ready")
 
 
@@ -146,6 +146,14 @@
 
                             }
                         });
+                        var sp = new Canvax.Display.Sprite({
+                            context : {
+                               x : 10,
+                               y : 10
+                            }
+                        });
+                        stage.addChild(sp);
+
                         window.text = new Canvax.Display.Text("世间安得双全法\n不负如来不负卿" , {
                             context : {
                                 x :100,
@@ -159,11 +167,18 @@
                             }
                         });
 
-                        text.on("click" , function(){
-                            console.log("text")
+                        text.hover(function(){
+                            debugger;
+                            this.context.fillStyle = "#999999"
+                        } , function(){
+                            this.context.fillStyle = "red"
                         });
+                        
 
-                        stage.addChild(text);
+                        sp.addChild(text);
+
+
+                        stage.addChild(sp);
                         canvax.addChild(stage);
                 });
             });

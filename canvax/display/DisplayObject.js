@@ -411,10 +411,9 @@ define(
                 }
                 */
                 
-                var _mustConvert = this.type != "stage" && this.parent && this.parent.type != "stage"
     
                 //第一步，吧glob的point转换到对应的obj的层级内的坐标系统
-                if( _mustConvert ) {
+                if( this.type != "stage" && this.parent && this.parent.type != "stage" ) {
                     point = this.parent.globalToLocal( point );
                 }
     
@@ -426,7 +425,7 @@ define(
                 this._notWatch = true;
             
                 //对鼠标的坐标也做相同的变换
-                if( this._transform && _mustConvert ){
+                if( this._transform ){
                     var inverseMatrix = this._transform.clone().invert();
     
                     var originPos = [x, y];

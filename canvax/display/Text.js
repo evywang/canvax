@@ -229,20 +229,20 @@ define(
             },
             getRect : function(){
                 var c = this.context;
-                var x = c.x;
-                var y = c.y;
+                var x = 0;
+                var y = 0;
                 //更具textAlign 和 textBaseline 重新矫正 xy
                 if( c.textAlign == "center" ){
-                    x -= c.width / 2;
+                    x = -c.width / 2;
                 };
                 if( c.textAlign == "right" ){
-                    x -= c.width;
+                    x =  -c.width;
                 };
                 if( c.textBaseline == "middle" ){
-                    y -= c.height / 2;
+                    y = -c.height / 2;
                 };
                 if( c.textBaseline == "bottom" ){
-                    y -= c.height;
+                    y = -c.height;
                 };
 
                 return {

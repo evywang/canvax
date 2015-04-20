@@ -45,7 +45,6 @@ define(
      
         Base.creatClass(Sector , Shape , {
             draw : function(ctx, context) {
-                
                 // 形内半径[0,r)
                 var r0 = typeof context.r0 == 'undefined' ? 0 : context.r0;
                 var r  = context.r;                            // 扇形外半径(0,r]
@@ -53,10 +52,13 @@ define(
                 var endAngle   = context.endAngle;              // 结束角度(0,360]
      
                 var isRing     = false;                       //是否为圆环
-     
-                if( startAngle != endAngle && Math.abs(startAngle - endAngle) % 360 == 0 ) {
+
+                //if( startAngle != endAngle && Math.abs(startAngle - endAngle) % 360 == 0 ) {
+                if( startAngle == endAngle  ) {
                     //如果两个角度相等，那么就认为是个圆环了
                     isRing     = true;
+                    startAngle = 0 ;
+                    endAngle   = 360;
                 }
      
                 startAngle = myMath.degreeToRadian(startAngle);

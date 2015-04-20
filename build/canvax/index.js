@@ -1131,10 +1131,9 @@ define(
                 }
                 */
                 
-                var _mustConvert = this.type != "stage" && this.parent && this.parent.type != "stage"
     
                 //第一步，吧glob的point转换到对应的obj的层级内的坐标系统
-                if( _mustConvert ) {
+                if( this.type != "stage" && this.parent && this.parent.type != "stage" ) {
                     point = this.parent.globalToLocal( point );
                 }
     
@@ -1146,7 +1145,7 @@ define(
                 this._notWatch = true;
             
                 //对鼠标的坐标也做相同的变换
-                if( this._transform && _mustConvert ){
+                if( this._transform ){
                     var inverseMatrix = this._transform.clone().invert();
     
                     var originPos = [x, y];
@@ -2163,20 +2162,20 @@ define(
             },
             getRect : function(){
                 var c = this.context;
-                var x = c.x;
-                var y = c.y;
+                var x = 0;
+                var y = 0;
                 //更具textAlign 和 textBaseline 重新矫正 xy
                 if( c.textAlign == "center" ){
-                    x -= c.width / 2;
+                    x = -c.width / 2;
                 };
                 if( c.textAlign == "right" ){
-                    x -= c.width;
+                    x =  -c.width;
                 };
                 if( c.textBaseline == "middle" ){
-                    y -= c.height / 2;
+                    y = -c.height / 2;
                 };
                 if( c.textBaseline == "bottom" ){
-                    y -= c.height;
+                    y = -c.height;
                 };
 
                 return {
@@ -3142,7 +3141,7 @@ define(
          * @param {angle} number
          */
         function degreeTo360( angle ) {
-            var reAng = Math.abs(360 + Math.ceil( angle ) % 360) % 360;
+            var reAng = (360 + Math.ceil( angle ) % 360) % 360;//Math.abs(360 + Math.ceil( angle ) % 360) % 360;
             if( reAng == 0 && angle !== 0 ){
                 reAng = 360
             }
