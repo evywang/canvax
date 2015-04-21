@@ -2348,57 +2348,65 @@ define(
                 return this;
             },
             fire : function(eventType , event){
-                var preEventType = null;
-                if( !event ){
-                    event = { type : eventType };
-                } else {
-                    //把原有的event.type暂存起来
-                    preEventType = event.type;
-                    //如果有传递event过来
-                    event.type = eventType;
-                }
-                this.dispatchEvent( event );
-                if( preEventType ){
-                    event.type = preEventType;
-                }
+                //因为需要在event上面冒泡传递信息，所以还是不用clone了
+                var e       = event;//_.clone( event );
+                var me      = this;
+                var preCurr = e ? e.currentTarget : null;
+                _.each( eventType.split(" ") , function(evt){
+                    var preEventType = null;
+                    if( !e ){
+                        e = { type : evt };
+                    } else {
+                        //把原有的e.type暂存起来
+                        preEventType = e.type;
+                        //如果有传递e过来
+                        e.type = evt;
+                    };
+                    e.currentTarget = me;
+                    me.dispatchEvent( e );
+                    if( preEventType ){
+                        e.type = preEventType;
+                    }
+                } );
+                e.currentTarget = preCurr;
                 return this;
             },
             dispatchEvent:function(event){
                 if(event.type == "mouseover"){
-                   //记录dispatchEvent之前的心跳
-                   var preHeartBeat = this._heartBeatNum;
-                   this._dispatchEvent( event );
-                   if( preHeartBeat != this._heartBeatNum ){
-                       this._hoverClass = true;
+                    //记录dispatchEvent之前的心跳
+                    var preHeartBeat = this._heartBeatNum;
+                    this._dispatchEvent( event );
+                    if( preHeartBeat != this._heartBeatNum ){
+                        this._hoverClass = true;
 
-                       /*
-                       //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
-                       //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
-                       //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
-                       if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
-                           //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
-                       } else {
-                           delete canvax.convertStages[ this.getStage().id ];
-                           this._heart = false;
-                       }
-                       */
+                        /*
+                        //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
+                        //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
+                        //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
+                        if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
+                            //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
+                        } else {
+                            delete canvax.convertStages[ this.getStage().id ];
+                            this._heart = false;
+                        }
+                        */
 
-                    
-                       if( this.hoverClone ){
-                           var canvax = this.getStage().parent;
-                           //然后clone一份obj，添加到_hoverStage 中
-                           var activShape = this.clone(true);                     
-                           activShape._transform = this.getConcatenatedMatrix();
-                           canvax._hoverStage.addChildAt( activShape , 0 ); 
+                     
+                        if( this.hoverClone ){
+                            var canvax = this.getStage().parent;
+                            //然后clone一份obj，添加到_hoverStage 中
+                            var activShape = this.clone(true);                     
+                            activShape._transform = this.getConcatenatedMatrix();
+                            canvax._hoverStage.addChildAt( activShape , 0 ); 
 
-                           //然后把自己visible=false隐藏了
-                           //this.context.visible = false;
-                           this._globalAlpha = this.context.globalAlpha;
-                           this.context.globalAlpha = 0;
-                       }
+                            //然后把自己visible=false隐藏了
+                            //this.context.visible = false;
+                            this._globalAlpha = this.context.globalAlpha;
+                            this.context.globalAlpha = 0;
+                        }
 
-                   }
-                   return;
+                    }
+                    return;
                 }
       
                 this._dispatchEvent( event );
@@ -3767,21 +3775,19 @@ define(
                 e.point  = oldObj.globalToLocal( point );
                 this._mouseEventDispatch( oldObj , e );
                 return;
-            }
-            
- 
+            };
+
             var obj = this.getObjectsUnderPoint( point , 1)[0];
- 
-            
  
             if(oldObj && oldObj != obj || e.type=="mouseout") {
                 if(!oldObj){
                    return;
                 }
                 this.curPointsTarget[0] = null;
-                e.type = "mouseout";
-                e.target = e.currentTarget = oldObj;
-                e.point  = oldObj.globalToLocal( point );
+                e.type     = "mouseout";
+                e.toTarget = obj; 
+                e.target   = e.currentTarget = oldObj;
+                e.point    = oldObj.globalToLocal( point );
                 //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
                 //会有修改visible的意愿
                 if(!oldObj.context.visible){
@@ -3792,9 +3798,10 @@ define(
  
             if( obj && oldObj != obj ){ //&& obj._hoverable 已经 干掉了
                 this.curPointsTarget[0] = obj;
-                e.type = "mouseover";
-                e.target = e.currentTarget = obj;
-                e.point  = obj.globalToLocal( point );
+                e.type       = "mouseover";
+                e.fromTarget = oldObj;
+                e.target     = e.currentTarget = obj;
+                e.point      = obj.globalToLocal( point );
  
                 this._mouseEventDispatch( obj , e );
             };
