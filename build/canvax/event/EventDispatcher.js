@@ -70,6 +70,7 @@ define(
             },
             dispatchEvent:function(event){
                 if(event.type == "mouseover"){
+                    
                     //记录dispatchEvent之前的心跳
                     var preHeartBeat = this._heartBeatNum;
                     this._dispatchEvent( event );
@@ -88,7 +89,6 @@ define(
                         }
                         */
 
-                     
                         if( this.hoverClone ){
                             var canvax = this.getStage().parent;
                             //然后clone一份obj，添加到_hoverStage 中

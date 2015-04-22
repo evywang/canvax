@@ -767,7 +767,6 @@ define(
     
             self.dragEnabled     = false;   //是否启用元素的拖拽
 
-            self.hoverClone      = true;    //是否开启在hover的时候clone一份到active stage 中 
     
             //创建好context
             self._createContext( opt );
@@ -1713,11 +1712,12 @@ define(
             
             var self = this;
             //元素是否有hover事件 和 chick事件，由addEvenetLister和remiveEventLister来触发修改
-            self._hoverable = false;
-            self._clickable = false;
+            self._hoverable  = false;
+            self._clickable  = false;
      
             //over的时候如果有修改样式，就为true
             self._hoverClass = false;
+            self.hoverClone  = true;    //是否开启在hover的时候clone一份到active stage 中 
      
             //拖拽drag的时候显示在activShape的副本
             self._dragDuplicate = null;
@@ -1727,12 +1727,23 @@ define(
      
             self.type = self.type || "shape" ;
             opt.draw && (self.draw=opt.draw);
+            
+            //处理所有的图形一些共有的属性配置
+            self.initCompProperty(opt);
+
             arguments.callee.superclass.constructor.apply(this , arguments);
             self._rect = null;
         };
      
         Base.creatClass(Shape , DisplayObject , {
            init : function(){
+           },
+           initCompProperty : function( opt ){
+               for( var i in opt ){
+                   if( i != "id" && i != "context"){
+                       this[i] = opt[i];
+                   }
+               }
            },
            /*
             *下面两个方法为提供给 具体的 图形类覆盖实现，本shape类不提供具体实现
@@ -2373,6 +2384,7 @@ define(
             },
             dispatchEvent:function(event){
                 if(event.type == "mouseover"){
+                    
                     //记录dispatchEvent之前的心跳
                     var preHeartBeat = this._heartBeatNum;
                     this._dispatchEvent( event );
@@ -2391,7 +2403,6 @@ define(
                         }
                         */
 
-                     
                         if( this.hoverClone ){
                             var canvax = this.getStage().parent;
                             //然后clone一份obj，添加到_hoverStage 中

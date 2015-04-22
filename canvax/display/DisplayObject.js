@@ -47,7 +47,6 @@ define(
     
             self.dragEnabled     = false;   //是否启用元素的拖拽
 
-            self.hoverClone      = true;    //是否开启在hover的时候clone一份到active stage 中 
     
             //创建好context
             self._createContext( opt );
