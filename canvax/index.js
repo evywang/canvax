@@ -411,8 +411,14 @@ define(
             }
  
             var contains = document.compareDocumentPosition ? function (parent, child) {
+                if( !child ){
+                    return false;
+                }
                 return !!(parent.compareDocumentPosition(child) & 16);
             } : function (parent, child) {
+                if( !child ){
+                    return false;
+                }
                 return child !== child && (parent.contains ? parent.contains(child) : true);
             }
  
