@@ -394,10 +394,10 @@ var pageload = function(){
 
                //clockwise : true,//逆时针
                r : 100,
-               r0:20, 
-               startAngle : 0,
+               r0: 20, 
+               startAngle : 359.2,
                
-               endAngle : 170,
+               endAngle : 360,
                fillStyle:color.getColor(colorInd++),
                strokeStyle:color.getColor(colorInd++),
                lineWidth : 0
@@ -605,7 +605,7 @@ var pageload = function(){
           //stage.addChild(rect);
           sprite.addChild(sector);
 
-          sprite.addChild(sector_rect);
+          //sprite.addChild(sector_rect);
           sprite.addChild(rect);
         
 

@@ -3160,7 +3160,7 @@ define(
          * @param {angle} number
          */
         function degreeTo360( angle ) {
-            var reAng = (360 + Math.ceil( angle ) % 360) % 360;//Math.abs(360 + Math.ceil( angle ) % 360) % 360;
+            var reAng = (360 +  angle  % 360) % 360;//Math.abs(360 + Math.ceil( angle ) % 360) % 360;
             if( reAng == 0 && angle !== 0 ){
                 reAng = 360
             }

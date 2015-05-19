@@ -63,7 +63,7 @@ define(
      
                 startAngle = myMath.degreeToRadian(startAngle);
                 endAngle   = myMath.degreeToRadian(endAngle);
-                
+             
                 ctx.arc( 0 , 0 , r, startAngle, endAngle, this.context.clockwise);
                 if (r0 !== 0) {
                     if( isRing ){
