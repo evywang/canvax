@@ -27,20 +27,19 @@ define(
         var Sector = function(opt){
             var self  = this;
             self.type = "sector";
+            self.regAngle  = [];
+            self.isRing    = false;//是否为一个圆环
      
             opt = Base.checkOpt( opt );
             self._context  = {
                 pointList  : [],//边界点的集合,私有，从下面的属性计算的来
                 r0         : opt.context.r0         || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
                 r          : opt.context.r          || 0,//{number},  // 必须，外圆半径
-                startAngle : myMath.degreeTo360( opt.context.startAngle ) || 0,//{number},  // 必须，起始角度[0, 360)
-                endAngle   : myMath.degreeTo360( opt.context.endAngle )   || 0, //{number},  // 必须，结束角度(0, 360]
+                startAngle : opt.context.startAngle || 0,//{number},  // 必须，起始角度[0, 360)
+                endAngle   : opt.context.endAngle   || 0, //{number},  // 必须，结束角度(0, 360]
                 clockwise  : opt.context.clockwise  || false //是否顺时针，默认为false(顺时针)
             }
             arguments.callee.superclass.constructor.apply(this , arguments);
-            
-            
-     
         };
      
         Base.creatClass(Sector , Shape , {
@@ -48,15 +47,15 @@ define(
                 // 形内半径[0,r)
                 var r0 = typeof context.r0 == 'undefined' ? 0 : context.r0;
                 var r  = context.r;                            // 扇形外半径(0,r]
-                var startAngle = context.startAngle;          // 起始角度[0,360)
-                var endAngle   = context.endAngle;              // 结束角度(0,360]
+                var startAngle = myMath.degreeTo360(context.startAngle);          // 起始角度[0,360)
+                var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
      
-                var isRing     = false;                       //是否为圆环
+                //var isRing     = false;                       //是否为圆环
 
                 //if( startAngle != endAngle && Math.abs(startAngle - endAngle) % 360 == 0 ) {
-                if( startAngle == endAngle  ) {
+                if( startAngle == endAngle && context.startAngle != context.endAngle ) {
                     //如果两个角度相等，那么就认为是个圆环了
-                    isRing     = true;
+                    this.isRing     = true;
                     startAngle = 0 ;
                     endAngle   = 360;
                 }
@@ -66,7 +65,7 @@ define(
              
                 ctx.arc( 0 , 0 , r, startAngle, endAngle, this.context.clockwise);
                 if (r0 !== 0) {
-                    if( isRing ){
+                    if( this.isRing ){
                         //加上这个isRing的逻辑是为了兼容flashcanvas下绘制圆环的的问题
                         //不加这个逻辑flashcanvas会绘制一个大圆 ， 而不是圆环
                         ctx.moveTo( r0 , 0 );
@@ -83,13 +82,16 @@ define(
              getRegAngle : function(){
                  this.regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
                  var c           = this.context;
-                 if ( ( c.startAngle > c.endAngle && !c.clockwise ) || (c.startAngle < c.endAngle && c.clockwise ) ) {
+                 var startAngle = myMath.degreeTo360(c.startAngle);          // 起始角度[0,360)
+                 var endAngle   = myMath.degreeTo360(c.endAngle);            // 结束角度(0,360]
+
+                 if ( ( startAngle > endAngle && !c.clockwise ) || ( startAngle < endAngle && c.clockwise ) ) {
                      this.regIn  = false; //out
                  };
                  //度的范围，从小到大
                  this.regAngle   = [ 
-                     Math.min( c.startAngle , c.endAngle ) , 
-                     Math.max( c.startAngle , c.endAngle ) 
+                     Math.min( startAngle , endAngle ) , 
+                     Math.max( startAngle , endAngle ) 
                  ];
              },
              getRect : function(context){
@@ -99,13 +101,17 @@ define(
                  var r = context.r;                            // 扇形外半径(0,r]
                  
                  this.getRegAngle();
-     
-     
+
+                 var startAngle = myMath.degreeTo360(context.startAngle);          // 起始角度[0,360)
+                 var endAngle   = myMath.degreeTo360(context.endAngle);            // 结束角度(0,360]
+
+                 /*
                  var isCircle = false;
-                 if( Math.abs( this.context.startAngle - this.context.endAngle ) == 360 
-                         || ( this.context.startAngle == this.context.endAngle && this.context.startAngle * this.context.endAngle != 0 ) ){
+                 if( Math.abs( startAngle - endAngle ) == 360 
+                         || ( startAngle == endAngle && startAngle * endAngle != 0 ) ){
                      isCircle = true;
                  }
+                 */
      
                  var pointList  = [];
      
@@ -118,14 +124,14 @@ define(
      
                  for ( var d in p4Direction ){
                      var inAngleReg = parseInt(d) > this.regAngle[0] && parseInt(d) < this.regAngle[1];
-                     if( isCircle || (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
+                     if( this.isRing || (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
                          pointList.push( p4Direction[ d ] );
                      }
                  }
      
-                 if( !isCircle ) {
-                     startAngle = myMath.degreeToRadian( this.context.startAngle );
-                     endAngle   = myMath.degreeToRadian( this.context.endAngle   );
+                 if( !this.isRing ) {
+                     startAngle = myMath.degreeToRadian( startAngle );
+                     endAngle   = myMath.degreeToRadian( endAngle   );
      
                      pointList.push([
                              myMath.cos(startAngle) * r0 , myMath.sin(startAngle) * r0
