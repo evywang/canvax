@@ -70,9 +70,7 @@ define(
                 }
             }
         });
-
         return Stage;
-
     }
 );
          

@@ -1946,9 +1946,7 @@ define(
                 }
             }
         });
-
         return Stage;
-
     }
 );
          
