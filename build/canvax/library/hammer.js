@@ -1378,8 +1378,10 @@ define(
           }
         
           else {
-            window.Hammer = Hammer;
+            //window.Hammer = Hammer;
           }
+
+          window.Hammer = Hammer;
         
         
           /*标注出来目前所有Hammer可以用的事件*/
