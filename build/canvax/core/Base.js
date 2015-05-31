@@ -13,10 +13,36 @@ define(
     [
         !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : "",
         "canvax/animation/AnimationFrame",
-        ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
         !window._ ? "canvax/library/underscore" : ""
     ],
     function( FlashCanvas ){
+
+        var addOrRmoveEventHand = function( domHand , ieHand ){
+            if( document[ domHand ] ){
+                return function( el , type , fn ){
+                    if( el.length ){
+                        for(var i=0 ; i < el.length ; i++){
+                            arguments.callee( el[i] , type , fn );
+                        }
+                    } else {
+                        el[ domHand ]( type , fn , false );
+                    }
+                };
+            } else {
+                return function( el , type , fn ){
+                    if( el.length ){
+                        for(var i=0 ; i < el.length ; i++){
+                            arguments.callee( el[i],type,fn );
+                        }
+                    } else {
+                        el[ ieHand ]( "on"+type , function(){
+                            return fn.call( el , window.event );
+                        });
+                    }
+                };
+            }
+        };
+        
         var Base = {
             mainFrameRate   : 60,//默认主帧率
             now : 0,
@@ -63,6 +89,8 @@ define(
                     left: left 
                 }; 
             },
+            addEvent : addOrRmoveEventHand( "addEventListener" , "attachEvent" ),
+            removeEvent : addOrRmoveEventHand( "removeEventListener" , "detachEvent" ),
             //dom相关代码结束
             
             /*像素检测专用*/
@@ -239,7 +267,6 @@ define(
                 return [r1,r2,r3,r4];
             }
         };
-
 
 
         /*这里先给underscore 添加一个插件 deep-extend BEGIN*/

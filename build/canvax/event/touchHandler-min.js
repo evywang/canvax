@@ -1,0 +1,1 @@
+define("canvax/event/touchHandler",["canvax/core/Base","canvax/library/hammer"],function(a,b){var c=function(){};return c.prototype={},c});

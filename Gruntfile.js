@@ -24,9 +24,9 @@ module.exports = function(grunt) {
                  "!"+ buildPath +"/canvax/shape/Droplet.js",
                  "!"+ buildPath +"/canvax/shape/Ellipse.js",
                  "!"+ buildPath +"/canvax/shape/Heart.js",
-                 "!"+ buildPath +"/canvax/shape/Isogon.js"
+                 "!"+ buildPath +"/canvax/shape/Isogon.js",
                  
-                 "!"+ buildPath +"/canvax/shape/shapes.js"
+                 "!"+ buildPath +"/canvax/shape/Shapes.js"
              ],
              dest: buildPath + "/canvax/index.js"
          }

@@ -39,10 +39,36 @@ define(
     [
         !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : "",
         "canvax/animation/AnimationFrame",
-        ( 'ontouchstart' in window ) ? "canvax/library/hammer" : "",
         !window._ ? "canvax/library/underscore" : ""
     ],
     function( FlashCanvas ){
+
+        var addOrRmoveEventHand = function( domHand , ieHand ){
+            if( document[ domHand ] ){
+                return function( el , type , fn ){
+                    if( el.length ){
+                        for(var i=0 ; i < el.length ; i++){
+                            arguments.callee( el[i] , type , fn );
+                        }
+                    } else {
+                        el[ domHand ]( type , fn , false );
+                    }
+                };
+            } else {
+                return function( el , type , fn ){
+                    if( el.length ){
+                        for(var i=0 ; i < el.length ; i++){
+                            arguments.callee( el[i],type,fn );
+                        }
+                    } else {
+                        el[ ieHand ]( "on"+type , function(){
+                            return fn.call( el , window.event );
+                        });
+                    }
+                };
+            }
+        };
+        
         var Base = {
             mainFrameRate   : 60,//默认主帧率
             now : 0,
@@ -89,6 +115,8 @@ define(
                     left: left 
                 }; 
             },
+            addEvent : addOrRmoveEventHand( "addEventListener" , "attachEvent" ),
+            removeEvent : addOrRmoveEventHand( "removeEventListener" , "detachEvent" ),
             //dom相关代码结束
             
             /*像素检测专用*/
@@ -265,7 +293,6 @@ define(
                 return [r1,r2,r3,r4];
             }
         };
-
 
 
         /*这里先给underscore 添加一个插件 deep-extend BEGIN*/
@@ -676,58 +703,6 @@ define(
         return PropertyFactory;
 });
 ;define(
-    "canvax/display/Bitmap",
-    [
-        "canvax/display/Shape",
-        "canvax/core/Base"
-    ],
-    function(Shape , Base){
-        var Bitmap = function(opt){
-            var self = this;
-            self.type = "bitmap";
-      
-            //TODO:这里不负责做img 的加载，所以这里的img是必须已经准备好了的img元素
-            //如果img没准备好，会出现意想不到的错误，我不给你负责
-            self.img  = opt.img || null; //bitmap的图片来源，可以是页面上面的img 也可以是某个canvas
-      
-            opt = Base.checkOpt( opt );
-            self._context = {
-                dx     : opt.context.dx, //图片切片的x位置
-                dy     : opt.context.dy, //图片切片的y位置
-                dWidth : opt.context.dWidth || 0, //切片的width
-                dHeight: opt.context.dHeight|| 0  //切片的height
-            }
-      
-            arguments.callee.superclass.constructor.apply(this, arguments);
-      
-        };
-      
-        Base.creatClass( Bitmap , Shape , {
-            draw : function(ctx, style) {
-                if (!this.img) {
-                    //img都没有画个毛
-                    return;
-                };
-                var image = this.img;
-                if(!style.width || !style.height ){
-                    ctx.drawImage(image, 0, 0);
-                } else {
-                    if( style.dx == undefined || style.dy == undefined  ){
-                       ctx.drawImage(image, 0, 0, style.width, style.height);
-                    } else {
-                       !style.dWidth  && ( style.dWidth  = style.width  );
-                       !style.dHeight && ( style.dHeight = style.height );
-                       ctx.drawImage(image , style.dx , style.dy , style.dWidth , style.dHeight , 0 , 0 , style.width, style.height );
-                    }
-                }
-            }
-        });
-      
-        return Bitmap;
-
-    }
-)
-;define(
     "canvax/display/DisplayObject",
     [
         "canvax/event/EventDispatcher",
@@ -765,7 +740,7 @@ define(
     
             self._eventEnabled   = false;   //是否响应事件交互,在添加了事件侦听后会自动设置为true
     
-            self.dragEnabled     = false;   //是否启用元素的拖拽
+            self.dragEnabled     = true;//false;   //是否启用元素的拖拽
 
     
             //创建好context
@@ -1432,243 +1407,6 @@ define(
     }
 )
 ;define(
-    "canvax/display/Moveclip",
-    [
-        "canvax/display/DisplayObjectContainer",
-        "canvax/core/Base"
-    ],
-    function(S , DisplayObjectContainer , Base){
-        var Movieclip = function( opt ){
-      
-            var self = this;
-            opt = Base.checkOpt( opt );
-            self.type = "movieclip";
-            self.currentFrame  = 0;
-            self.autoPlay      = opt.autoPlay   || false;//是否自动播放
-            self.repeat        = opt.repeat     || 0;//是否循环播放,repeat为数字，则表示循环多少次，为true or !运算结果为true 的话表示永久循环
-      
-            self.overPlay      = opt.overPlay   || false; //是否覆盖播放，为false只播放currentFrame 当前帧,true则会播放当前帧 和 当前帧之前的所有叠加
-      
-            self._frameRate    = Base.mainFrameRate;
-            self._speedTime    = parseInt(1000/self._frameRate);
-            self._preRenderTime= 0;
-      
-            self._context = {
-                //r : opt.context.r || 0   //{number},  // 必须，圆半径
-            }
-            arguments.callee.superclass.constructor.apply(this, [ opt ] );
-        };
-      
-        Base.creatClass(Movieclip , DisplayObjectContainer , {
-            init : function(){
-               
-            },
-            getStatus    : function(){
-                //查询Movieclip的autoPlay状态
-                return this.autoPlay;
-            },
-            getFrameRate : function(){
-                return this._frameRate;
-            },
-            setFrameRate : function(frameRate) {
-                
-                var self = this;
-                if(self._frameRate  == frameRate) {
-                    return;
-                }
-                self._frameRate  = frameRate;
-      
-                //根据最新的帧率，来计算最新的间隔刷新时间
-                self._speedTime = parseInt( 1000/self._frameRate );
-            }, 
-            afterAddChild:function(child , index){
-               if(this.children.length==1){
-                  return;
-               }
-      
-               if( index != undefined && index <= this.currentFrame ){
-                  //插入当前frame的前面 
-                  this.currentFrame++;
-               }
-            },
-            afterDelChild:function(child,index){
-               //记录下当前帧
-               var preFrame = this.currentFrame;
-      
-               //如果干掉的是当前帧前面的帧，当前帧的索引就往上走一个
-               if(index < this.currentFrame){
-                  this.currentFrame--;
-               }
-      
-               //如果干掉了元素后当前帧已经超过了length
-               if((this.currentFrame >= this.children.length) && this.children.length>0){
-                  this.currentFrame = this.children.length-1;
-               };
-            },
-            _goto:function(i){
-               var len = this.children.length;
-               if(i>= len){
-                  i = i%len;
-               }
-               if(i<0){
-                  i = this.children.length-1-Math.abs(i)%len;
-               }
-               this.currentFrame = i;
-            },
-            gotoAndStop:function(i){
-               this._goto(i);
-               if(!this.autoPlay){
-                 //再stop的状态下面跳帧，就要告诉stage去发心跳
-                 this._preRenderTime = 0;
-                 this.getStage().heartBeat();
-                 return;
-               }
-               this.autoPlay = false;
-            },
-            stop:function(){
-               if(!this.autoPlay){
-                 return;
-               }
-               this.autoPlay = false;
-            },
-            gotoAndPlay:function(i){
-               this._goto(i);
-               this.play();
-            },
-            play:function(){
-               if(this.autoPlay){
-                 return;
-               }
-               this.autoPlay = true;
-               var canvax = this.getStage().parent;
-               if(!canvax._heartBeat && canvax._taskList.length==0){
-                   //手动启动引擎
-                   canvax.__startEnter();
-               }
-               this._push2TaskList();
-               
-               this._preRenderTime = new Date().getTime();
-            },
-            _push2TaskList : function(){
-               //把enterFrame push 到 引擎的任务列表
-               if(!this._enterInCanvax){
-                 this.getStage().parent._taskList.push( this );
-                 this._enterInCanvax=true;
-               }
-            },
-            //autoPlay为true 而且已经把__enterFrame push 到了引擎的任务队列，
-            //则为true
-            _enterInCanvax:false, 
-            __enterFrame:function(){
-               var self = this;
-               if((Base.now-self._preRenderTime) >= self._speedTime ){
-                   //大于_speedTime，才算完成了一帧
-                   //上报心跳 无条件心跳吧。
-                   //后续可以加上对应的 Movieclip 跳帧 心跳
-                   self.getStage().heartBeat();
-               }
-      
-            },
-            next  :function(){
-               var self = this;
-               if(!self.autoPlay){
-                   //只有再非播放状态下才有效
-                   self.gotoAndStop(self._next());
-               }
-            },
-            pre   :function(){
-               var self = this;
-               if(!self.autoPlay){
-                   //只有再非播放状态下才有效
-                   self.gotoAndStop(self._pre());
-               }
-            },
-            _next : function(){
-               var self = this;
-               if(this.currentFrame >= this.children.length-1){
-                   this.currentFrame = 0;
-               } else {
-                   this.currentFrame++;
-               }
-               return this.currentFrame;
-            },
-      
-            _pre : function(){
-               var self = this;
-               if(this.currentFrame == 0){
-                   this.currentFrame = this.children.length-1;
-               } else {
-                   this.currentFrame--;
-               }
-               return this.currentFrame;
-            },
-            render:function(ctx){
-                //这里也还要做次过滤，如果不到speedTime，就略过
-                //console.log("moveclip_reder_ready")
-      
-                //TODO：如果是改变moviclip的x or y 等 非帧动画 属性的时候加上这个就会 有漏帧现象，先注释掉
-                /* 
-                if( (Base.now-this._preRenderTime) < this._speedTime ){
-                   return;
-                }
-                */
-      
-                //因为如果children为空的话，Movieclip 会把自己设置为 visible:false，不会执行到这个render
-                //所以这里可以不用做children.length==0 的判断。 大胆的搞吧。
-      
-                if( !this.overPlay ){
-                    this.getChildAt(this.currentFrame)._render(ctx);
-                } else {
-                    for(var i=0 ; i <= this.currentFrame ; i++){
-                        this.getChildAt(i)._render(ctx);
-                    }
-                }
-      
-                if(this.children.length == 1){
-                    this.autoPlay = false;
-                }
-      
-                //如果不循环
-                if( this.currentFrame == this.getNumChildren()-1 ){
-                    //那么，到了最后一帧就停止
-                    if(!this.repeat) {
-                        this.stop();
-                        if( this.hasEvent("end") ){
-                            this.fire("end");
-                        }
-                    }
-                    //使用掉一次循环
-                    if( _.isNumber( this.repeat ) && this.repeat > 0 ) {
-                       this.repeat -- ;
-                    }
-                }
-      
-                if(this.autoPlay){
-                    //如果要播放
-                    if( (Base.now-this._preRenderTime) >= this._speedTime ){
-                        //先把当前绘制的时间点记录
-                        this._preRenderTime = Base.now;
-                        this._next();
-                    }
-                    this._push2TaskList();
-                } else {
-                    //暂停播放
-                    if(this._enterInCanvax){
-                        //如果这个时候 已经 添加到了canvax的任务列表
-                        this._enterInCanvax=false;
-                        var tList = this.getStage().parent._taskList;
-                        tList.splice( _.indexOf(tList , this) , 1 ); 
-                    }
-                }
-      
-            } 
-        });
-      
-        return Movieclip;
-      
-    }
-)
-;define(
     "canvax/display/Point",
     [],
     function(){
@@ -2203,122 +1941,25 @@ define(
 ;define(
     "canvax/event/CanvaxEvent",
     [
-         "canvax/event/EventBase",
          "canvax/core/Base"
     ],
     function(EventBase,Base){
-        var CanvaxEvent = function(type, bubbles, cancelable) {
-            EventBase.call(this, type, bubbles, cancelable);
-    
+        var CanvaxEvent = function() {
             this.mouseX = 0;
             this.mouseY = 0;
-        }
-    
-        Base.creatClass( CanvaxEvent , EventBase , {
-            toString : function() {
-            return "[CanvaxEvent type=" + this.type + ", mouseX=" + this.mouseX + ", mouseY=" + this.mouseY + "]";
-        }
-    
-        });
-    
-        CanvaxEvent.EVENTS = [
-           "click" , "mousedown" , "mousemove" , "mouseup" , "mouseout"    
-        ];
-    
-        var addOrRmoveEventHand = function( domHand , ieHand ){
-            if( document[ domHand ] ){
-                return function( el , type , fn ){
-                    if( el.length ){
-                        for(var i=0 ; i < el.length ; i++){
-                            arguments.callee( el[i] , type , fn );
-                        }
-                    } else {
-                        el[ domHand ]( type , fn , false );
-                    }
-                };
-            } else {
-                return function( el , type , fn ){
-                    if( el.length ){
-                        for(var i=0 ; i < el.length ; i++){
-                            arguments.callee( el[i],type,fn );
-                        }
-                    } else {
-                        el[ ieHand ]( "on"+type , function(){
-                            return fn.call( el , window.event );
-                        });
-                    }
-                };
-            }
-        }
-    
-    
-    
-        /*
-         * 添加事件侦听
-         */
-        CanvaxEvent.addEvent    = addOrRmoveEventHand( "addEventListener" , "attachEvent" );
-         /*
-         * 删除事件侦听
-         */
-        CanvaxEvent.removeEvent = addOrRmoveEventHand( "removeEventListener" , "detachEvent" );
-        
-        //阻止浏览器的默认行为 
-        CanvaxEvent.stopDefault = function( e ) { 
-                //阻止默认浏览器动作(W3C) 
-                    if ( e && e.preventDefault ) 
-                        e.preventDefault(); 
-                //IE中阻止函数器默认动作的方式 
-                    else
-                        window.event.returnValue = false; 
-                return false; 
-        }
-    
-        return CanvaxEvent;
-    
-    } 
-)
-
-
-;define(
-    "canvax/event/EventBase",
-    [
-        "canvax/core/Base"
-    ],
-    function(core){
-        var EventBase = function(type, bubbles, cancelable) {
-            this.type = type;
+            //this.type = type;
             this.target = null;
             this.currentTarget = null;	
             this.params = null;
-    
-            this.bubbles = bubbles != undefined ? bubbles : false; //TODO Not implemented yet.
-            this.cancelable = cancelable != undefined ? cancelable : false;	//TODO Not implemented yet.
-    
+
             this._stopPropagation = false ; //默认不阻止事件冒泡
         }
-
-        EventBase.prototype.stopPropagation = function() {
-            this._stopPropagation = true;
+        CanvaxEvent.prototype = {
+            stopPropagation : function() {
+                this._stopPropagation = true;
+            }
         }
-    
-        EventBase.prototype.preventDefault = function() {
-            //TODO
-        }
-    
-        EventBase.prototype.clone = function() {
-            return Base.copy(this);
-        }
-    
-        EventBase.prototype.dispose = function() {
-            delete this.type;
-            delete this.target;
-            delete this.currentTarget;
-            delete this.params;
-        }
-
-        return EventBase;
-    
-    
+        return CanvaxEvent;
     } 
 );
 ;define(
@@ -2461,6 +2102,116 @@ define(
     }
 );
 ;define(
+    "canvax/event/EventHandler",
+    [
+        "canvax/core/Base",
+        ( 'ontouchstart' in window ) ? "canvax/event/touchHandler" : "canvax/event/mouseHandler",
+        "canvax/display/Point",
+        "canvax/event/CanvaxEvent"
+    ],
+    function( Base , Handler , Point , CanvaxEvent ){
+        var EventHandler = function( canvax ){
+            this.canvax = canvax;
+            this.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
+ 
+            //当前激活的点对应的obj，在touch下可以是个数组,和上面的curPoints对应
+            this.curPointsTarget = [];
+            
+            /**
+             *交互相关属性
+             * */
+            //接触canvas
+            this._touching = false;
+            //正在拖动，前提是_touching=true
+            this._draging =false;
+ 
+            //当前的鼠标状态
+            this._cursor  = "default";
+
+            //this.initEvent = function(){};
+        };
+        Base.creatClass( EventHandler , Handler , {
+            /*
+             *@param {array} childs 
+             * */
+            __dispatchEventInChilds : function( e , childs ){
+                if( !childs && !("length" in childs) ){
+                  return false;
+                }
+                var me       = this;
+                var hasChild = false;
+                _.each( childs , function( child , i){
+                    if( child ){
+                        hasChild = true;
+                        var ce         = Base.copyEvent( new CanvaxEvent() , e);
+                        ce.target      = ce.currentTarget = child || this;
+                        ce.stagePoint  = me.curPoints[i];
+                        ce.point       = ce.target.globalToLocal( ce.stagePoint );
+                        child.dispatchEvent( ce );
+                    }
+                } );
+                return hasChild;
+            },
+            //克隆一个元素到hover stage中去
+            _clone2hoverStage : function( target , i ){
+                var me   = this;
+                var root = me.canvax;
+                var _dragDuplicate = canvax._hoverStage.getChildById( target.id );
+                if(!_dragDuplicate){
+                    _dragDuplicate             = target.clone(true);
+                    _dragDuplicate._transform  = target.getConcatenatedMatrix();
+
+                    /**
+                     *TODO: 因为后续可能会有手动添加的 元素到_hoverStage 里面来
+                     *比如tips
+                     *这类手动添加进来的肯定是因为需要显示在最外层的。在hover元素之上。
+                     *所有自动添加的hover元素都默认添加在_hoverStage的最底层
+                     **/
+                    
+                    canvax._hoverStage.addChildAt( _dragDuplicate , 0 );
+                }
+                _dragDuplicate.context.visible = true;
+                _dragDuplicate._dragPoint = target.globalToLocal( me.curPoints[ i ] );
+            },
+            //drag 中 的处理函数
+            _dragHander  : function( e , target , i ){
+                var me   = this;
+                var root = me.canvax;
+                var _dragDuplicate = canvax._hoverStage.getChildById( target.id );
+                var gPoint = new Point( me.curPoints[i].x - _dragDuplicate._dragPoint.x , me.curPoints[i].y - _dragDuplicate._dragPoint.y );
+                _dragDuplicate.context.x = gPoint.x; 
+                _dragDuplicate.context.y = gPoint.y;  
+                target.drag && target.drag( e );
+ 
+                //要对应的修改本尊的位置，但是要告诉引擎不要watch这个时候的变化
+                var tPoint = gPoint;
+                if( target.type != "stage" && target.parent && target.parent.type != "stage" ){
+                    tPoint = target.parent.globalToLocal( gPoint );
+                }
+                target._notWatch = true;
+                target.context.x = tPoint.x;
+                target.context.y = tPoint.y;
+                target._notWatch = false;
+                //同步完毕本尊的位置
+            },
+            //drag结束的处理函数
+            _dragEnd  : function( e , target , i ){
+                var me   = this;
+                var root = me.canvax;
+                //_dragDuplicate 复制在_hoverStage 中的副本
+                var _dragDuplicate     = root._hoverStage.getChildById( target.id );
+ 
+                target.context.visible = true;
+                if( e.type == "mouseout" || e.type == "dragend"){
+                    _dragDuplicate.destroy();
+                }
+            }
+        } );
+        return EventHandler;
+    } 
+);
+
+;define(
     "canvax/event/EventManager",
     [ ],
     function(){
@@ -2598,6 +2349,234 @@ define(
         return EventManager;
     }
 );
+;define(
+    "canvax/event/mouseHandler",
+    [
+        "canvax/core/Base",
+        "canvax/display/Point",
+        "canvax/event/CanvaxEvent"
+    ],
+    function( Base , Point , CanvaxEvent ){
+        var mouseHandler = function(){
+        
+        };
+        mouseHandler.prototype = {
+            init : function(){
+                var _moveStep = 0; //move的时候的频率设置
+                //依次添加上浏览器的自带事件侦听
+                var me   = this;
+                var root = this.canvax;
+                _.each( ["click" , "mousedown" , "mousemove" , "mouseup" , "mouseout"] , function( type ){
+                    Base.addEvent( root.el , type , function( e ){
+                        root._updateRootOffset();
+                        //如果发现是mousemove的话，要做mousemove的频率控制
+                        if( e.type == "mousemove" ){
+                            if(_moveStep<1){
+                                _moveStep++;
+                                return;
+                            }
+                            _moveStep = 0;
+                        }
+                        me.__mouseHandler( e );
+                    } ); 
+                } );   
+            },
+            /*
+             * 鼠标事件处理函数
+             * */
+            __mouseHandler : function(e) {
+                var me = this;
+                var root = me.canvax;
+                me.curPoints = [ new Point( 
+                        ( e.pageX || e.clientX ) - root.rootOffset.left , 
+                        ( e.pageY || e.clientY ) - root.rootOffset.top
+                        )];
+ 
+                var curMousePoint  = me.curPoints[0]; 
+                var curMouseTarget = me.curPointsTarget[0];
+ 
+                //mousedown的时候 如果 curMouseTarget.dragEnabled 为true。就要开始准备drag了
+                if( e.type == "mousedown" ){
+                   //如果curTarget 的数组为空或者第一个为falsh ，，，
+                   if( !curMouseTarget ){
+                     var obj = root.getObjectsUnderPoint( curMousePoint , 1)[0];
+                     if(obj){
+                       me.curPointsTarget = [ obj ];
+                     }
+                   }
+                   curMouseTarget = me.curPointsTarget[0];
+                   if ( curMouseTarget && curMouseTarget.dragEnabled ){
+                       me._touching = true
+                   }
+                }
+ 
+                var contains = document.compareDocumentPosition ? function (parent, child) {
+                    if( !child ){
+                        return false;
+                    }
+                    return !!(parent.compareDocumentPosition(child) & 16);
+                } : function (parent, child) {
+                    if( !child ){
+                        return false;
+                    }
+                    return child !== child && (parent.contains ? parent.contains(child) : true);
+                }
+ 
+                if( e.type == "mouseup" || (e.type == "mouseout" && !contains(root.el , (e.toElement || e.relatedTarget) )) ){
+                   if(me._draging == true){
+                      //说明刚刚在拖动
+                      me._dragEnd( e , curMouseTarget , 0 );
+                   }
+                   me._draging  = false;
+                   me._touching = false;
+                }
+ 
+                if( e.type == "mouseout" ){
+                    if( !contains(root.el , (e.toElement || e.relatedTarget) ) ){
+                        me.__getcurPointsTarget(e , curMousePoint);
+                    }
+                } else if( e.type == "mousemove" ){  //|| e.type == "mousedown" ){
+                    //拖动过程中就不在做其他的mouseover检测，drag优先
+                    if(me._touching && e.type == "mousemove" && curMouseTarget){
+                        //说明正在拖动啊
+                        if(!me._draging){
+                            //begin drag
+                            curMouseTarget.dragBegin && curMouseTarget.dragBegin(e);
+                            
+                            //先把本尊给隐藏了
+                            curMouseTarget.context.visible = false;
+                                                 
+                            //然后克隆一个副本到activeStage
+                            me._clone2hoverStage( curMouseTarget , 0 );
+                        } else {
+                            //drag ing
+                            me._dragHander( e , curMouseTarget , 0 );
+                        }
+                        me._draging = true;
+                    } else {
+                        //常规mousemove检测
+                        //move事件中，需要不停的搜索target，这个开销挺大，
+                        //后续可以优化，加上和帧率相当的延迟处理
+                        me.__getcurPointsTarget( e , curMousePoint );
+                    }
+ 
+                } else {
+                    //其他的事件就直接在target上面派发事件
+                    var child = curMouseTarget;
+                    if( !child ){
+                        child = root;
+                    };
+                    me.__dispatchEventInChilds( e , [ child ] );
+                }
+                if( root.preventDefault ) {
+                    //阻止默认浏览器动作(W3C) 
+                    if ( e && e.preventDefault ) {
+                        e.preventDefault(); 
+                    } else {
+                        window.event.returnValue = false;
+                    }
+                }
+ 
+            },
+            __getcurPointsTarget : function(e , point ) {
+                var me     = this;
+                var root   = me.canvax;
+                var oldObj = me.curPointsTarget[0];
+ 
+                var e = Base.copyEvent( new CanvaxEvent() , e );
+ 
+                if( e.type=="mousemove" && oldObj && oldObj._hoverClass && oldObj.getChildInPoint( point ) ){
+                    //小优化,鼠标move的时候。计算频率太大，所以。做此优化
+                    //如果有target存在，而且当前元素正在hoverStage中，而且当前鼠标还在target内,就没必要取检测整个displayList了
+                    //开发派发常规mousemove事件
+                    e.target = e.currentTarget = oldObj;
+                    e.point  = oldObj.globalToLocal( point );
+                    me._mouseEventDispatch( oldObj , e );
+                    return;
+                };
+
+                var obj = root.getObjectsUnderPoint( point , 1)[0];
+ 
+                if(oldObj && oldObj != obj || e.type=="mouseout") {
+                    if(!oldObj){
+                       return;
+                    }
+                    me.curPointsTarget[0] = null;
+                    e.type     = "mouseout";
+                    e.toTarget = obj; 
+                    e.target   = e.currentTarget = oldObj;
+                    e.point    = oldObj.globalToLocal( point );
+                    //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
+                    //会有修改visible的意愿
+                    if(!oldObj.context.visible){
+                       oldObj.context.visible = true;
+                    }
+                    me._mouseEventDispatch( oldObj , e );
+                };
+ 
+                if( obj && oldObj != obj ){ //&& obj._hoverable 已经 干掉了
+                    me.curPointsTarget[0] = obj;
+                    e.type       = "mouseover";
+                    e.fromTarget = oldObj;
+                    e.target     = e.currentTarget = obj;
+                    e.point      = obj.globalToLocal( point );
+ 
+                    me._mouseEventDispatch( obj , e );
+                };
+ 
+                if( e.type == "mousemove" && obj ){
+                    e.target = e.currentTarget = oldObj;
+                    e.point  = oldObj.globalToLocal( point );
+                    me._mouseEventDispatch( oldObj , e );
+                };
+
+                me._cursorHander( obj , oldObj );
+ 
+            },
+            _mouseEventDispatch : function( obj , e ){
+                obj.dispatchEvent( e );
+            },
+            _cursorHander    : function( obj , oldObj ){
+                if(!obj && !oldObj ){
+                    this._setCursor("default");
+                }
+                if(obj && oldObj != obj){
+                    this._setCursor(obj.context.cursor);
+                }
+            },
+            _setCursor : function(cursor) {
+                if(this._cursor == cursor){
+                  //如果两次要设置的鼠标状态是一样的
+                  return;
+                }
+                this.canvax.el.style.cursor = cursor;
+                this._cursor = cursor;
+            }
+        };
+        return mouseHandler;
+    } 
+);
+
+
+;define(
+    "canvax/event/touchHandler",
+    [
+        "canvax/core/Base",
+        "canvax/library/hammer"
+    ],
+    function( Base , Hammer ){
+        var touchHandler = function(){
+        
+        };
+        touchHandler.prototype = {
+        
+        };
+        return touchHandler;
+    } 
+);
+
+
+
 ;define(
     "canvax/geom/HitTestPoint",
     [
@@ -3315,11 +3294,269 @@ define(
     }
 );
 ;define(
+    "canvax/geom/SmoothSpline",
+    [
+        "canvax/geom/Vector"
+    ],
+    function( Vector ){
+        /**
+         * @inner
+         */
+        function interpolate(p0, p1, p2, p3, t, t2, t3) {
+            var v0 = (p2 - p0) * 0.5;
+            var v1 = (p3 - p1) * 0.5;
+            return (2 * (p1 - p2) + v0 + v1) * t3 
+                   + (- 3 * (p1 - p2) - 2 * v0 - v1) * t2
+                   + v0 * t + p1;
+        }
+        /**
+         * 多线段平滑曲线 
+         * opt ==> points , isLoop
+         */
+        return function ( opt ) {
+            var points = opt.points;
+            var isLoop = opt.isLoop;
+            var smoothFilter = opt.smoothFilter;
+
+            var len = points.length;
+            if( len == 1 ){
+                return points;
+            }
+            var ret = [];
+            var distance  = 0;
+            var preVertor = new Vector( points[0] );
+            var iVtor     = null
+            for (var i = 1; i < len; i++) {
+                iVtor = new Vector(points[i]);
+                distance += preVertor.distance( iVtor );
+                preVertor = iVtor;
+            }
+    
+            preVertor = null;
+            iVtor     = null;
+    
+    
+            //基本上等于曲率
+            var segs = distance / 6;
+    
+            segs = segs < len ? len : segs;
+            for (var i = 0; i < segs; i++) {
+                var pos = i / (segs-1) * (isLoop ? len : len - 1);
+                var idx = Math.floor(pos);
+    
+                var w = pos - idx;
+    
+                var p0;
+                var p1 = points[idx % len];
+                var p2;
+                var p3;
+                if (!isLoop) {
+                    p0 = points[idx === 0 ? idx : idx - 1];
+                    p2 = points[idx > len - 2 ? len - 1 : idx + 1];
+                    p3 = points[idx > len - 3 ? len - 1 : idx + 2];
+                } else {
+                    p0 = points[(idx -1 + len) % len];
+                    p2 = points[(idx + 1) % len];
+                    p3 = points[(idx + 2) % len];
+                }
+    
+                var w2 = w * w;
+                var w3 = w * w2;
+
+                var rp = [
+                        interpolate(p0[0], p1[0], p2[0], p3[0], w, w2, w3),
+                        interpolate(p0[1], p1[1], p2[1], p3[1], w, w2, w3)
+                        ];
+
+                _.isFunction(smoothFilter) && smoothFilter( rp );
+    
+                ret.push( rp );
+            }
+            return ret;
+        };
+    } 
+);
+;define(
+    "canvax/geom/Vector",
+    [],
+    function(){
+        function Vector(x, y) {
+            
+            if (this instanceof Vector === false) {
+                return new Vector(x, y);
+            }
+    
+            var vx = 0;
+            var vy = 0;
+            if ( arguments.length == 1 && _.isObject( x ) ){
+                var arg = arguments[0];
+                if( _.isArray( arg ) ){
+                   vx = arg[0];
+                   vy = arg[1];
+                } else if( arg.hasOwnProperty("x") && arg.hasOwnProperty("y") ) {
+                   vx = arg.x;
+                   vy = arg.y;
+                }
+            }
+    
+            this._axes = [vx, vy];
+        }
+    
+        var precision = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000];
+    
+        Vector.prototype = {
+            ctor: Vector,
+            setAxes: function(x, y) {
+                this._axes[0] = x;
+                this._axes[1] = y;
+                return this;
+            },
+            getX: function() {
+                return this._axes[0];
+            },
+            setX: function(x) {
+                this._axes[0] = x;
+    
+                return this;
+            },
+            getY: function() {
+                return this._axes[1];
+            },
+            setY: function(y) {
+                this._axes[1] = y;
+    
+                return this;
+            },
+            toArray: function() {
+                return new Array(this._axes[0], this._axes[1]);
+            },
+            add: function(vec) {
+                this._axes[0] += vec._axes[0];
+                this._axes[1] += vec._axes[1];
+                return this;
+            },
+            subtract: function(vec) {
+                this._axes[0] -= vec._axes[0];
+                this._axes[1] -= vec._axes[1];
+                return this;
+            },
+            equals: function(vec) {
+                return (vec._axes[0] == this._axes[0] && vec._axes[1] == this._axes[1]);
+            },
+            multiplyByVector: function(vec) {
+                this._axes[0] *= vec._axes[0];
+                this._axes[1] *= vec._axes[1];
+                return this;
+            },
+            mulV: function(v) {
+                return this.multiplyByVector(v);
+            },
+            divideByVector: function(vec) {
+                this._axes[0] /= vec._axes[0];
+                this._axes[1] /= vec._axes[1];
+                return this;
+            },
+            divV: function(v) {
+                return this.divideByVector(v);
+            },
+            multiplyByScalar: function(n) {
+                this._axes[0] *= n;
+                this._axes[1] *= n;
+    
+                return this;
+            },
+            mulS: function(n) {
+                return this.multiplyByScalar(n);
+            },
+            divideByScalar: function(n) {
+                this._axes[0] /= n;
+                this._axes[1] /= n;
+                return this;
+            },
+            divS: function(n) {
+                return this.divideByScalar(n);
+            },
+            normalise: function() {
+                return this.multiplyByScalar(1 / this.magnitude());
+            },
+            normalize: function() {
+                return this.normalise();
+            },
+            unit: function() {
+                return this.normalise();
+            },
+            magnitude: function() {
+                return Math.sqrt((this._axes[0] * this._axes[0]) + (this._axes[1] * this._axes[1]));
+            },
+            length: function() {
+                return this.magnitude();
+            },
+            lengthSq: function() {
+                return (this._axes[0] * this._axes[0]) + (this._axes[1] * this._axes[1]);
+            },
+            dot: function(vec) {
+                return (vec._axes[0] * this._axes[0]) + (vec._axes[1] * this._axes[1]);
+            },
+            cross: function(vec) {
+                return ((this._axes[0] * vec._axes[1]) - (this._axes[1] * vec._axes[0]));
+            },
+            reverse: function() {
+                this._axes[0] = -this._axes[0];
+                this._axes[1] = -this._axes[1];
+                return this;
+            },
+            abs: function() {
+                this._axes[0] = Math.abs(this._axes[0]);
+                this._axes[1] = Math.abs(this._axes[1]);
+    
+                return this;
+            },
+            zero: function() {
+                this._axes[0] = this._axes[1] = 0;
+                return this;
+            },
+            distance: function (v) {
+                var x = this._axes[0] - v._axes[0];
+                var y = this._axes[1] - v._axes[1];
+    
+                return Math.sqrt((x * x) + (y * y));
+            },
+            rotate: function(rads) {
+                var cos = Math.cos(rads),
+                sin = Math.sin(rads);
+    
+                var ox = this._axes[0],
+                    oy = this._axes[1];
+    
+                this._axes[0] = ox * cos - oy * sin;
+                this._axes[1] = ox * sin + oy * cos;
+    
+                return this;
+            },
+            round: function(n) {
+                // Default is two decimals
+                n = n || 2;
+    
+                // This performs waaay better than toFixed and give Float32 the edge again.
+                // http://www.dynamicguru.com/javascript/round-numbers-with-precision/
+                this._axes[0] = ((0.5 + (this._axes[0] * precision[n])) << 0) / precision[n];
+                this._axes[1] = ((0.5 + (this._axes[1] * precision[n])) << 0) / precision[n];
+    
+                return this;
+            },
+            clone: function() {
+                return new this.ctor(this._axes[0], this._axes[1]);
+            }
+        };
+    
+        return Vector;
+    } 
+)
+;define(
     "canvax/index",
     [
         "canvax/core/Base",
-        "canvax/event/CanvaxEvent",
-        "canvax/event/EventBase",
+        "canvax/event/EventHandler",
         "canvax/event/EventDispatcher",
         "canvax/event/EventManager",
 
@@ -3332,7 +3569,7 @@ define(
     ]
     , 
     function( 
-        Base , CanvaxEvent , EventBase , EventDispatcher , EventManager , 
+        Base , EventHandler ,  EventDispatcher , EventManager , 
         DisplayObjectContainer , 
         Stage , Sprite , Shape , Point , Text   
     ) {
@@ -3370,11 +3607,9 @@ define(
         this.el = Base.getEl("cc-"+this._cid);
         
         this.rootOffset      = Base.getOffset(this.el); //this.el.offset();
+        this.lastGetRO       = 0;//最后一次获取rootOffset的时间
  
-        this.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
- 
-        //当前激活的点对应的obj，在touch下可以是个数组,和上面的curPoints对应
-        this.curPointsTarget = [];
+        
  
         //每帧 由 心跳 上报的 需要重绘的stages 列表
         this.convertStages = {};
@@ -3392,19 +3627,10 @@ define(
         
         this._hoverStage = null;
         
-        this._isReady = false;
+        this._isReady    = false;
+
+        this.evt = null;
  
-        /**
-         *交互相关属性
-         * */
-        //接触canvas
-        this._touching = false;
-        //正在拖动，前提是_touching=true
-        this._draging =false;
- 
-        //当前的鼠标状态
-        this._cursor  = "default";
-        
         arguments.callee.superclass.constructor.apply(this, arguments);
         
     };
@@ -3418,7 +3644,8 @@ define(
             this._creatHoverStage();
  
             //初始化事件委托到root元素上面
-            this._initEvent();
+            this.evt = new EventHandler( this );
+            this.evt.init();
  
             //创建一个如果要用像素检测的时候的容器
             this._createPixelContext();
@@ -3517,14 +3744,24 @@ define(
             }
             Base._pixelCtx = _pixelCanvas.getContext('2d');
         },
+        _updateRootOffset : function(){
+            var now = new Date().getTime();
+            if( now - this.lastGetRO > 1000 ){
+                this.rootOffset      = Base.getOffset(this.el);
+                this.lastGetRO       = now;
+            }
+        },
         _initEvent : function(){
             //初始绑定事件，为后续的displayList的事件分发提供入口
             var self = this;
             var _moveStep = 0; //move的时候的频率设置
+            /*
             if( !(window.Hammer && Hammer.NO_MOUSEEVENTS) ) {
                 //依次添加上浏览器的自带事件侦听
-                _.each( CanvaxEvent.EVENTS , function( type ){
-                    CanvaxEvent.addEvent( self.el , type , function( e ){
+                _.each( ["click" , "mousedown" , "mousemove" , "mouseup" , "mouseout"] , function( type ){
+                    Base.addEvent( self.el , type , function( e ){
+                        self._updateRootOffset();
+
                         //如果发现是mousemove的话，要做mousemove的频率控制
                         if( e.type == "mousemove" ){
                             if(_moveStep<1){
@@ -3537,12 +3774,13 @@ define(
                     } ); 
                 } );
             } 
+            */
  
             //触屏系统则引入Hammer
             if( window.Hammer && Hammer.HAS_TOUCHEVENTS ){
                 var el = self.el
                 self._hammer = Hammer( el ).on( Hammer.EventsTypes , function( e ){
-                   
+                   self._updateRootOffset();
                    //console.log(e.type)
                    //同样的，如果是drag事件，则要频率控制
                    if( e.type == "drag" ){
@@ -3551,15 +3789,7 @@ define(
                             return;
                         }
                         _moveStep = 0;
-                   }
- 
-                   if( e.type == "touch" ){
-                        //再移动端，每次touch的时候重新计算rootOffset
-                        //无奈之举，因为宿主rootOffset不是一直再那个位置。
-                        //经常再一些业务场景下面。会被移动了position
-                        self.rootOffset = Base.getOffset(self.el);
-                   }
- 
+                   }; 
                    self.__touchHandler( e );
                 } );
             }
@@ -3641,27 +3871,7 @@ define(
                 };
             }
         },
-        /*
-         *@param {array} childs 
-         * */
-        __dispatchEventInChilds : function( e , childs ){
-            if( !childs && !("length" in childs) ){
-              return false;
-            }
-            var self = this;
-            var hasChild = false;
-            _.each( childs , function( child , i){
-                if( child ){
-                    hasChild = true;
-                    var ce         = Base.copyEvent( new CanvaxEvent() , e);
-                    ce.target      = ce.currentTarget = child || this;
-                    ce.stagePoint  = self.curPoints[i];
-                    ce.point       = ce.target.globalToLocal( ce.stagePoint );
-                    child.dispatchEvent( ce );
-                }
-            } );
-            return hasChild;
-        },
+        
         //从touchs中获取到对应touch , 在上面添加上canvax坐标系统的x，y
         __getCanvaxPointInTouchs : function( e ){
             var self          = this;
@@ -3686,223 +3896,9 @@ define(
          * */
  
  
-        /*
-         * 鼠标事件处理函数
-         * */
-        __mouseHandler : function(e) {
-            var self = this;
-            self.curPoints = [ new Point( 
-                    ( e.pageX || e.clientX ) - self.rootOffset.left , 
-                    ( e.pageY || e.clientY ) - self.rootOffset.top
-                    )];
- 
-            var curMousePoint  = self.curPoints[0]; 
-            var curMouseTarget = self.curPointsTarget[0];
- 
-            //mousedown的时候 如果 curMouseTarget.dragEnabled 为true。就要开始准备drag了
-            if( e.type == "mousedown" ){
-               //如果curTarget 的数组为空或者第一个为falsh ，，，
-               if( !curMouseTarget ){
-                 var obj = self.getObjectsUnderPoint( curMousePoint , 1)[0];
-                 if(obj){
-                   self.curPointsTarget = [ obj ];
-                 }
-               }
-               curMouseTarget = self.curPointsTarget[0];
-               if ( curMouseTarget && self.dragEnabled ){
-                   self._touching = true
-               }
-            }
- 
-            var contains = document.compareDocumentPosition ? function (parent, child) {
-                if( !child ){
-                    return false;
-                }
-                return !!(parent.compareDocumentPosition(child) & 16);
-            } : function (parent, child) {
-                if( !child ){
-                    return false;
-                }
-                return child !== child && (parent.contains ? parent.contains(child) : true);
-            }
- 
-            if( e.type == "mouseup" || (e.type == "mouseout" && !contains(self.el , (e.toElement || e.relatedTarget) )) ){
-               if(self._draging == true){
-                  //说明刚刚在拖动
-                  self._dragEnd( e , curMouseTarget , 0 );
-               }
-               self._draging  = false;
-               self._touching = false;
-            }
- 
-            if( e.type == "mouseout" ){
-                if( !contains(self.el , (e.toElement || e.relatedTarget) ) ){
-                    self.__getcurPointsTarget(e , curMousePoint);
-                }
-            } else if( e.type == "mousemove" ){  //|| e.type == "mousedown" ){
-                //拖动过程中就不在做其他的mouseover检测，drag优先
-                if(self._touching && e.type == "mousemove" && curMouseTarget){
-                    //说明正在拖动啊
-                    if(!self._draging){
-                        //begin drag
-                        curMouseTarget.dragBegin && curMouseTarget.dragBegin(e);
-                        
-                        //先把本尊给隐藏了
-                        curMouseTarget.context.visible = false;
-                                             
-                        //然后克隆一个副本到activeStage
-                        self._clone2hoverStage( curMouseTarget , 0 );
-                    } else {
-                        //drag ing
-                        self._dragHander( e , curMouseTarget , 0 );
-                    }
-                    self._draging = true;
-                } else {
-                    //常规mousemove检测
-                    //move事件中，需要不停的搜索target，这个开销挺大，
-                    //后续可以优化，加上和帧率相当的延迟处理
-                    self.__getcurPointsTarget( e , curMousePoint );
-                }
- 
-            } else {
-                //其他的事件就直接在target上面派发事件
-                var child = curMouseTarget;
-                if( !child ){
-                    child = self;
-                };
- 
-                self.__dispatchEventInChilds( e , [ child ] );
-            }
- 
-            if( this.preventDefault ) {
-                CanvaxEvent.stopDefault( e );
-            }
- 
-        },
-        __getcurPointsTarget : function(e , point ) {
-            var oldObj = this.curPointsTarget[0];
- 
-            var e = Base.copyEvent( new CanvaxEvent() , e );
- 
-            if( e.type=="mousemove" && oldObj && oldObj._hoverClass && oldObj.getChildInPoint( point ) ){
-                //小优化,鼠标move的时候。计算频率太大，所以。做此优化
-                //如果有target存在，而且当前元素正在hoverStage中，而且当前鼠标还在target内,就没必要取检测整个displayList了
-                //开发派发常规mousemove事件
-                e.target = e.currentTarget = oldObj;
-                e.point  = oldObj.globalToLocal( point );
-                this._mouseEventDispatch( oldObj , e );
-                return;
-            };
+        
 
-            var obj = this.getObjectsUnderPoint( point , 1)[0];
- 
-            if(oldObj && oldObj != obj || e.type=="mouseout") {
-                if(!oldObj){
-                   return;
-                }
-                this.curPointsTarget[0] = null;
-                e.type     = "mouseout";
-                e.toTarget = obj; 
-                e.target   = e.currentTarget = oldObj;
-                e.point    = oldObj.globalToLocal( point );
-                //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
-                //会有修改visible的意愿
-                if(!oldObj.context.visible){
-                   oldObj.context.visible = true;
-                }
-                this._mouseEventDispatch( oldObj , e );
-            };
- 
-            if( obj && oldObj != obj ){ //&& obj._hoverable 已经 干掉了
-                this.curPointsTarget[0] = obj;
-                e.type       = "mouseover";
-                e.fromTarget = oldObj;
-                e.target     = e.currentTarget = obj;
-                e.point      = obj.globalToLocal( point );
- 
-                this._mouseEventDispatch( obj , e );
-            };
- 
-            if( e.type == "mousemove" && obj ){
-                e.target = e.currentTarget = oldObj;
-                e.point  = oldObj.globalToLocal( point );
-                this._mouseEventDispatch( oldObj , e );
-            };
 
-            this._cursorHander( obj , oldObj );
- 
-        },
-        _mouseEventDispatch : function( obj , e ){
-            obj.dispatchEvent( e );
-        },
-        //克隆一个元素到hover stage中去
-        _clone2hoverStage : function( target , i ){
-            var self = this;
-            
-            var _dragDuplicate = self._hoverStage.getChildById( target.id );
-            if(!_dragDuplicate){
-                _dragDuplicate             = target.clone(true);
-                _dragDuplicate._transform  = target.getConcatenatedMatrix();
-
-                /**
-                 *TODO: 因为后续可能会有手动添加的 元素到_hoverStage 里面来
-                 *比如tips
-                 *这类手动添加进来的肯定是因为需要显示在最外层的。在hover元素之上。
-                 *所有自动添加的hover元素都默认添加在_hoverStage的最底层
-                 **/
-                
-                self._hoverStage.addChildAt( _dragDuplicate , 0 );
-            }
-            _dragDuplicate.context.visible = true;
-            _dragDuplicate._dragPoint = target.globalToLocal( self.curPoints[ i ] );
-        },
-        //drag 中 的处理函数
-        _dragHander  : function( e , target , i ){
-            var self = this;
-            var _dragDuplicate = self._hoverStage.getChildById( target.id );
-            var gPoint = new Point( self.curPoints[i].x - _dragDuplicate._dragPoint.x , self.curPoints[i].y - _dragDuplicate._dragPoint.y );
-            _dragDuplicate.context.x = gPoint.x; 
-            _dragDuplicate.context.y = gPoint.y;  
-            target.drag && target.drag( e );
- 
-            //要对应的修改本尊的位置，但是要告诉引擎不要watch这个时候的变化
-            var tPoint = gPoint;
-            if( target.type != "stage" && target.parent && target.parent.type != "stage" ){
-                tPoint = target.parent.globalToLocal( gPoint );
-            }
-            target._notWatch = true;
-            target.context.x = tPoint.x;
-            target.context.y = tPoint.y;
-            target._notWatch = false;
-            //同步完毕本尊的位置
-        },
-        //drag结束的处理函数
-        _dragEnd  : function( e , target , i ){
- 
-            //_dragDuplicate 复制在_hoverStage 中的副本
-            var _dragDuplicate     = this._hoverStage.getChildById( target.id );
- 
-            target.context.visible = true;
-            if( e.type == "mouseout" || e.type == "dragend"){
-                _dragDuplicate.destroy();
-            }
-        },
-        _cursorHander    : function( obj , oldObj ){
-            if(!obj && !oldObj ){
-                this.setCursor("default");
-            }
-            if(obj && oldObj != obj){
-                this.setCursor(obj.context.cursor);
-            }
-        },
-        setCursor : function(cursor) {
-            if(this._cursor == cursor){
-              //如果两次要设置的鼠标状态是一样的
-              return;
-            }
-            this.el.style.cursor = cursor;
-            this._cursor = cursor;
-        },
         setFrameRate : function(frameRate) {
            if(Base.mainFrameRate == frameRate) {
                return;
@@ -4120,11 +4116,1105 @@ define(
     }
  
     Canvax.Event = {
-        CanvaxEvent : CanvaxEvent,
-        EventBase   : EventBase,
         EventDispatcher : EventDispatcher,
-        EventManager : EventManager
+        EventManager    : EventManager
     }
  
     return Canvax;
 });
+;define(
+    "canvax/shape/BrokenLine",
+    [
+        "canvax/display/Shape",
+        "canvax/core/Base",
+        "canvax/geom/SmoothSpline"
+    ],
+    function(Shape , Base , SmoothSpline){
+        var BrokenLine = function(opt){
+            var self = this;
+            self.type = "brokenline";
+            self._drawTypeOnly = "stroke";
+     
+            opt = Base.checkOpt( opt );
+            
+            self._initPointList( opt.context );
+
+            self._context = {
+                lineType     : opt.context.lineType  || null,
+                smooth       : opt.context.smooth    || false,
+                pointList    : opt.context.pointList || [], //{Array}  // 必须，各个顶角坐标
+                smoothFilter : opt.context.smoothFilter || null
+            }
+     
+            //self.pointsLen = self._context.pointList.length;去掉该属性，直接自己pointList.length
+            self.originPointList = null; //context.pointList 的备份，如果有smooth，则为SmoothSpline后的备份
+            
+            arguments.callee.superclass.constructor.apply(this, arguments);
+        }
+     
+        Base.creatClass(BrokenLine , Shape , {
+            $watch : function( name , value , preValue ){
+                if( name == "pointList" ){
+                    this._initPointList( this.context , value , preValue );
+                }
+            },
+            _initPointList : function( context , value , preValue ){
+                var myC = context;
+                if( myC.smooth ){
+                    //smoothFilter -- 比如在折线图中。会传一个smoothFilter过来做point的纠正。
+                    //让y不能超过底部的原点
+                    var obj = {
+                        points : myC.pointList
+                    }
+                    if( _.isFunction( myC.smoothFilter ) ){
+                        obj.smoothFilter = myC.smoothFilter;
+                    }
+                    this._notWatch = true; //本次转换不出发心跳
+                    var currL      = SmoothSpline( obj );
+
+                    if( value ){
+                        currL[currL.length-1][0] = value[value.length-1][0];
+                    }
+                    myC.pointList  = currL;
+                    this._notWatch = false;
+                };
+                this.originPointList = myC.pointList;
+                
+            },
+            draw : function(ctx, context) {
+                var pointList = context.pointList;
+                if (pointList.length < 2) {
+                    // 少于2个点就不画了~
+                    return;
+                }
+                if (!context.lineType || context.lineType == 'solid' || context.smooth) {
+                    //默认为实线
+                    //TODO:目前如果 有设置smooth 的情况下是不支持虚线的
+                    ctx.moveTo( pointList[0][0] , pointList[0][1] );
+                    for (var i = 1, l = pointList.length; i < l; i++) {
+                        ctx.lineTo( pointList[i][0] , pointList[i][1] );
+                    }
+                } else if (context.lineType == 'dashed' || context.lineType == 'dotted') {
+                    //画虚线的方法  
+                    ctx.moveTo( pointList[0][0] , pointList[0][1] );
+                    for (var i = 1, l = pointList.length; i < l; i++) {
+                        var fromX = pointList[i - 1][0];
+                        var toX   = pointList[i][0];
+                        var fromY = pointList[i - 1][1];
+                        var toY   = pointList[i][1];
+     
+                        this.dashedLineTo( ctx , fromX , fromY , toX , toY , 5 );
+                    }
+                }
+                return;
+            },
+            getRect :  function(context) {
+                var context = context ? context : this.context;
+                return this.getRectFormPointList( context );
+            }
+        });
+     
+        return BrokenLine;
+     
+    }
+)
+;define(
+    "canvax/shape/Circle",
+    [
+        "canvax/display/Shape",
+        "canvax/core/Base"
+    ],
+    function(Shape , Base) {
+        var Circle = function(opt) {
+            var self = this;
+            self.type = "circle";
+
+            opt = Base.checkOpt( opt );
+            self._context = {
+                //x : 0 , // {number},  // 丢弃
+                //y : 0 , //{number},  // 丢弃，圆心xy坐标 都 为原点
+                r : opt.context.r || 0   //{number},  // 必须，圆半径
+            }
+
+
+            arguments.callee.superclass.constructor.apply(this, arguments);
+        }
+
+        Base.creatClass(Circle , Shape , {
+           /**
+             * 创建圆形路径
+             * @param {Context2D} ctx Canvas 2D上下文
+             * @param {Object} style 样式
+             */
+            draw : function(ctx, style) {
+                if (!style) {
+                  return;
+                }
+                //ctx.arc(this.get("x"), this.get("y"), style.r, 0, Math.PI * 2, true);
+                ctx.arc(0 , 0, style.r, 0, Math.PI * 2, true);
+            },
+
+            /**
+             * 返回矩形区域，用于局部刷新和文字定位
+             * @param {Object} style
+             */
+            getRect : function(style) {
+                var lineWidth;
+                var style = style ? style : this.context;
+                if (style.fillStyle || style.strokeStyle ) {
+                    lineWidth = style.lineWidth || 1;
+                } else {
+                    lineWidth = 0;
+                }
+                return {
+                    x : Math.round(0 - style.r - lineWidth / 2),
+                    y : Math.round(0 - style.r - lineWidth / 2),
+                    width : style.r * 2 + lineWidth,
+                    height : style.r * 2 + lineWidth
+                };
+            }
+
+        });
+
+        return Circle;
+    }
+)
+;define(
+    "canvax/shape/Line",
+    [
+        "canvax/display/Shape",
+        "canvax/core/Base"
+    ],
+    function(Shape,Base){
+        var Line = function(opt){
+            var self = this;
+            this.type = "line";
+            this.drawTypeOnly = "stroke";
+            opt = Base.checkOpt( opt );
+            self._context = {
+                 lineType      : opt.context.lineType || null, //可选 虚线 实现 的 类型
+                 xStart        : opt.context.xStart   || 0 ,//{number},  // 必须，起点横坐标
+                 yStart        : opt.context.yStart   || 0 ,//{number},  // 必须，起点纵坐标
+                 xEnd          : opt.context.xEnd     || 0 ,//{number},  // 必须，终点横坐标
+                 yEnd          : opt.context.yEnd     || 0 ,//{number},  // 必须，终点纵坐标
+                 dashLength    : opt.context.dashLength
+            }
+            arguments.callee.superclass.constructor.apply(this, arguments);
+        };
+      
+        
+        Base.creatClass( Line , Shape , {
+            /**
+             * 创建线条路径
+             * @param {Context2D} ctx Canvas 2D上下文
+             * @param {Object} style 样式
+             */
+            draw : function(ctx, style) {
+                if (!style.lineType || style.lineType == 'solid') {
+                    //默认为实线
+                    ctx.moveTo(parseInt(style.xStart), parseInt(style.yStart));
+                    ctx.lineTo(parseInt(style.xEnd), parseInt(style.yEnd));
+                } else if (style.lineType == 'dashed' || style.lineType == 'dotted') {
+                    this.dashedLineTo(
+                        ctx,
+                        style.xStart, style.yStart,
+                        style.xEnd, style.yEnd,
+                        style.dashLength
+                    );
+                }
+            },
+      
+            /**
+             * 返回矩形区域，用于局部刷新和文字定位
+             * @param {Object} style
+             */
+            getRect:function(style) {
+                var lineWidth = style.lineWidth || 1;
+                var style = style ? style : this.context;
+                return {
+                    x : Math.min(style.xStart, style.xEnd) - lineWidth,
+                      y : Math.min(style.yStart, style.yEnd) - lineWidth,
+                      width : Math.abs(style.xStart - style.xEnd)
+                          + lineWidth,
+                      height : Math.abs(style.yStart - style.yEnd)
+                          + lineWidth
+                };
+            }
+      
+        } );
+      
+        return Line;
+    } 
+);
+;define(
+    "canvax/shape/Path",
+    [
+        "canvax/display/Shape",
+        "canvax/core/Base"
+    ],
+    function(Shape , Base){
+
+        var Path=function(opt){
+            var self = this;
+            self.type = "path";
+     
+            opt = Base.checkOpt( opt );
+     
+            if( "drawTypeOnly" in opt ){
+                self.drawTypeOnly = opt.drawTypeOnly;
+            }
+     
+            self._context = {
+                pointList : [], //从下面的path中计算得到的边界点的集合
+                path : opt.context.path || ""  //字符串 必须，路径。例如:M 0 0 L 0 10 L 10 10 Z (一个三角形)
+                                         //M = moveto
+                                         //L = lineto
+                                         //H = horizontal lineto
+                                         //V = vertical lineto
+                                         //C = curveto
+                                         //S = smooth curveto
+                                         //Q = quadratic Belzier curve
+                                         //T = smooth quadratic Belzier curveto
+                                         //Z = closepath
+            }
+            arguments.callee.superclass.constructor.apply(this , arguments);
+        };
+      
+        Base.creatClass( Path , Shape , {
+             _parsePathData : function(data) {
+                 if (!data) {
+                     return [];
+                 }
+     
+                
+                 // command string
+                 var cs = data;
+     
+                 // command chars
+                 var cc = [
+                     'm', 'M', 'l', 'L', 'v', 'V', 'h', 'H', 'z', 'Z',
+                     'c', 'C', 'q', 'Q', 't', 'T', 's', 'S', 'a', 'A'
+                 ];
+                 cs = cs.replace(/  /g, ' ');
+                 cs = cs.replace(/ /g, ',');
+                 //cs = cs.replace(/(.)-/g, "$1,-");
+                 cs = cs.replace(/(\d)-/g,'$1,-');
+                 cs = cs.replace(/,,/g, ',');
+                 var n;
+                 // create pipes so that we can split the data
+                 for (n = 0; n < cc.length; n++) {
+                     cs = cs.replace(new RegExp(cc[n], 'g'), '|' + cc[n]);
+                 }
+                 // create array
+                 var arr = cs.split('|');
+                 var ca = [];
+                 // init context point
+                 var cpx = 0;
+                 var cpy = 0;
+                 for (n = 1; n < arr.length; n++) {
+                     var str = arr[n];
+                     var c = str.charAt(0);
+                     str = str.slice(1);
+                     str = str.replace(new RegExp('e,-', 'g'), 'e-');
+                     
+                     //有的时候，比如“22，-22” 数据可能会经常的被写成22-22，那么需要手动修改
+                     //str = str.replace(new RegExp('-', 'g'), ',-');
+     
+                     //str = str.replace(/(.)-/g, "$1,-")
+     
+     
+                     var p = str.split(',');
+                     
+                     if (p.length > 0 && p[0] === '') {
+                         p.shift();
+                     }
+     
+                     for (var i = 0; i < p.length; i++) {
+                         p[i] = parseFloat(p[i]);
+                     }
+                     while (p.length > 0) {
+                         if (isNaN(p[0])) {
+                             break;
+                         }
+                         var cmd = null;
+                         var points = [];
+     
+                         var ctlPtx;
+                         var ctlPty;
+                         var prevCmd;
+     
+                         var rx;
+                         var ry;
+                         var psi;
+                         var fa;
+                         var fs;
+     
+                         var x1 = cpx;
+                         var y1 = cpy;
+     
+                         // convert l, H, h, V, and v to L
+                         switch (c) {
+                         case 'l':
+                             cpx += p.shift();
+                             cpy += p.shift();
+                             cmd = 'L';
+                             points.push(cpx, cpy);
+                             break;
+                         case 'L':
+                             cpx = p.shift();
+                             cpy = p.shift();
+                             points.push(cpx, cpy);
+                             break;
+                         case 'm':
+                             cpx += p.shift();
+                             cpy += p.shift();
+                             cmd = 'M';
+                             points.push(cpx, cpy);
+                             c = 'l';
+                             break;
+                         case 'M':
+                             cpx = p.shift();
+                             cpy = p.shift();
+                             cmd = 'M';
+                             points.push(cpx, cpy);
+                             c = 'L';
+                             break;
+     
+                         case 'h':
+                             cpx += p.shift();
+                             cmd = 'L';
+                             points.push(cpx, cpy);
+                             break;
+                         case 'H':
+                             cpx = p.shift();
+                             cmd = 'L';
+                             points.push(cpx, cpy);
+                             break;
+                         case 'v':
+                             cpy += p.shift();
+                             cmd = 'L';
+                             points.push(cpx, cpy);
+                             break;
+                         case 'V':
+                             cpy = p.shift();
+                             cmd = 'L';
+                             points.push(cpx, cpy);
+                             break;
+                         case 'C':
+                             points.push(p.shift(), p.shift(), p.shift(), p.shift());
+                             cpx = p.shift();
+                             cpy = p.shift();
+                             points.push(cpx, cpy);
+                             break;
+                         case 'c':
+                             points.push(
+                                 cpx + p.shift(), cpy + p.shift(),
+                                 cpx + p.shift(), cpy + p.shift()
+                             );
+                             cpx += p.shift();
+                             cpy += p.shift();
+                             cmd = 'C';
+                             points.push(cpx, cpy);
+                             break;
+                         case 'S':
+                             ctlPtx = cpx;
+                             ctlPty = cpy;
+                             prevCmd = ca[ca.length - 1];
+                             if (prevCmd.command === 'C') {
+                                 ctlPtx = cpx + (cpx - prevCmd.points[2]);
+                                 ctlPty = cpy + (cpy - prevCmd.points[3]);
+                             }
+                             points.push(ctlPtx, ctlPty, p.shift(), p.shift());
+                             cpx = p.shift();
+                             cpy = p.shift();
+                             cmd = 'C';
+                             points.push(cpx, cpy);
+                             break;
+                         case 's':
+                             ctlPtx = cpx, ctlPty = cpy;
+                             prevCmd = ca[ca.length - 1];
+                             if (prevCmd.command === 'C') {
+                                 ctlPtx = cpx + (cpx - prevCmd.points[2]);
+                                 ctlPty = cpy + (cpy - prevCmd.points[3]);
+                             }
+                             points.push(
+                                 ctlPtx, ctlPty,
+                                 cpx + p.shift(), cpy + p.shift()
+                             );
+                             cpx += p.shift();
+                             cpy += p.shift();
+                             cmd = 'C';
+                             points.push(cpx, cpy);
+                             break;
+                         case 'Q':
+                             points.push(p.shift(), p.shift());
+                             cpx = p.shift();
+                             cpy = p.shift();
+                             points.push(cpx, cpy);
+                             break;
+                         case 'q':
+                             points.push(cpx + p.shift(), cpy + p.shift());
+                             cpx += p.shift();
+                             cpy += p.shift();
+                             cmd = 'Q';
+                             points.push(cpx, cpy);
+                             break;
+                         case 'T':
+                             ctlPtx = cpx, ctlPty = cpy;
+                             prevCmd = ca[ca.length - 1];
+                             if (prevCmd.command === 'Q') {
+                                 ctlPtx = cpx + (cpx - prevCmd.points[0]);
+                                 ctlPty = cpy + (cpy - prevCmd.points[1]);
+                             }
+                             cpx = p.shift();
+                             cpy = p.shift();
+                             cmd = 'Q';
+                             points.push(ctlPtx, ctlPty, cpx, cpy);
+                             break;
+                         case 't':
+                             ctlPtx = cpx, ctlPty = cpy;
+                             prevCmd = ca[ca.length - 1];
+                             if (prevCmd.command === 'Q') {
+                                 ctlPtx = cpx + (cpx - prevCmd.points[0]);
+                                 ctlPty = cpy + (cpy - prevCmd.points[1]);
+                             }
+                             cpx += p.shift();
+                             cpy += p.shift();
+                             cmd = 'Q';
+                             points.push(ctlPtx, ctlPty, cpx, cpy);
+                             break;
+                         case 'A':
+                             rx = p.shift();
+                             ry = p.shift();
+                             psi = p.shift();
+                             fa = p.shift();
+                             fs = p.shift();
+     
+                             x1 = cpx, y1 = cpy;
+                             cpx = p.shift(), cpy = p.shift();
+                             cmd = 'A';
+                             points = this._convertPoint(
+                                 x1, y1, cpx, cpy, fa, fs, rx, ry, psi
+                             );
+                             break;
+                         case 'a':
+                             rx = p.shift();
+                             ry = p.shift();
+                             psi = p.shift();
+                             fa = p.shift();
+                             fs = p.shift();
+     
+                             x1 = cpx, y1 = cpy;
+                             cpx += p.shift();
+                             cpy += p.shift();
+                             cmd = 'A';
+                             points = this._convertPoint(
+                                 x1, y1, cpx, cpy, fa, fs, rx, ry, psi
+                             );
+                             break;
+     
+                         }
+     
+                         ca.push({
+                             command : cmd || c,
+                             points : points
+                         });
+                     }
+     
+                     if (c === 'z' || c === 'Z') {
+                         ca.push({
+                             command : 'z',
+                             points : []
+                         });
+                     }
+                 }
+     
+                 return ca;
+     
+             },
+     
+             _convertPoint : function(x1, y1, x2, y2, fa, fs, rx, ry, psiDeg) {
+                 var psi = psiDeg * (Math.PI / 180.0);
+                 var xp = Math.cos(psi) * (x1 - x2) / 2.0
+                          + Math.sin(psi) * (y1 - y2) / 2.0;
+                 var yp = -1 * Math.sin(psi) * (x1 - x2) / 2.0
+                          + Math.cos(psi) * (y1 - y2) / 2.0;
+     
+                 var lambda = (xp * xp) / (rx * rx) + (yp * yp) / (ry * ry);
+     
+                 if (lambda > 1) {
+                     rx *= Math.sqrt(lambda);
+                     ry *= Math.sqrt(lambda);
+                 }
+     
+                 var f = Math.sqrt((((rx * rx) * (ry * ry))
+                         - ((rx * rx) * (yp * yp))
+                         - ((ry * ry) * (xp * xp))) / ((rx * rx) * (yp * yp)
+                         + (ry * ry) * (xp * xp))
+                     );
+     
+                 if (fa === fs) {
+                     f *= -1;
+                 }
+                 if (isNaN(f)) {
+                     f = 0;
+                 }
+     
+                 var cxp = f * rx * yp / ry;
+                 var cyp = f * -ry * xp / rx;
+     
+                 var cx = (x1 + x2) / 2.0
+                          + Math.cos(psi) * cxp
+                          - Math.sin(psi) * cyp;
+                 var cy = (y1 + y2) / 2.0
+                         + Math.sin(psi) * cxp
+                         + Math.cos(psi) * cyp;
+     
+                 var vMag = function(v) {
+                     return Math.sqrt(v[0] * v[0] + v[1] * v[1]);
+                 };
+                 var vRatio = function(u, v) {
+                     return (u[0] * v[0] + u[1] * v[1]) / (vMag(u) * vMag(v));
+                 };
+                 var vAngle = function(u, v) {
+                     return (u[0] * v[1] < u[1] * v[0] ? -1 : 1)
+                             * Math.acos(vRatio(u, v));
+                 };
+                 var theta = vAngle([ 1, 0 ], [ (xp - cxp) / rx, (yp - cyp) / ry ]);
+                 var u = [ (xp - cxp) / rx, (yp - cyp) / ry ];
+                 var v = [ (-1 * xp - cxp) / rx, (-1 * yp - cyp) / ry ];
+                 var dTheta = vAngle(u, v);
+     
+                 if (vRatio(u, v) <= -1) {
+                     dTheta = Math.PI;
+                 }
+                 if (vRatio(u, v) >= 1) {
+                     dTheta = 0;
+                 }
+                 if (fs === 0 && dTheta > 0) {
+                     dTheta = dTheta - 2 * Math.PI;
+                 }
+                 if (fs === 1 && dTheta < 0) {
+                     dTheta = dTheta + 2 * Math.PI;
+                 }
+                 return [ cx, cy, rx, ry, theta, dTheta, psi, fs ];
+             },
+     
+             /**
+              * 创建路径
+              * @param {Context2D} ctx Canvas 2D上下文
+              * @param {Object} style 样式
+              */
+             draw : function(ctx, style) {
+                 var path = style.path;
+     
+                 var pathArray = this._parsePathData(path);
+     
+                 // 平移坐标
+                 var x =  0;
+                 var y =  0;
+     
+                 var p;
+                 // 记录边界点，用于判断inside
+                 var pointList = style.pointList = [];
+                 var singlePointList = [];
+                 for (var i = 0, l = pathArray.length; i < l; i++) {
+                     if (pathArray[i].command.toUpperCase() == 'M') {
+                         singlePointList.length > 0 
+                         && pointList.push(singlePointList);
+                         singlePointList = [];
+                     }
+                     p = pathArray[i].points;
+                     for (var j = 0, k = p.length; j < k; j += 2) {
+                         singlePointList.push([p[j] + x, p[j+1] + y]);
+                     }
+                 }
+                 singlePointList.length > 0 && pointList.push(singlePointList);
+                 
+                 var c;
+                 for (var i = 0, l = pathArray.length; i < l; i++) {
+                     c = pathArray[i].command;
+                     p = pathArray[i].points;
+                     // 平移变换
+                     for (var j = 0, k = p.length; j < k; j++) {
+                         if (j % 2 === 0) {
+                             p[j] += x;
+                         } else {
+                             p[j] += y;
+                         }
+                     }
+                     switch (c) {
+                         case 'L':
+                             ctx.lineTo(p[0], p[1]);
+                             break;
+                         case 'M':
+                             ctx.moveTo(p[0], p[1]);
+                             break;
+                         case 'C':
+                             ctx.bezierCurveTo(p[0], p[1], p[2], p[3], p[4], p[5]);
+                             break;
+                         case 'Q':
+                             ctx.quadraticCurveTo(p[0], p[1], p[2], p[3]);
+                             break;
+                         case 'A':
+                             var cx = p[0];
+                             var cy = p[1];
+                             var rx = p[2];
+                             var ry = p[3];
+                             var theta = p[4];
+                             var dTheta = p[5];
+                             var psi = p[6];
+                             var fs = p[7];
+                             var r = (rx > ry) ? rx : ry;
+                             var scaleX = (rx > ry) ? 1 : rx / ry;
+                             var scaleY = (rx > ry) ? ry / rx : 1;
+     
+                             ctx.translate(cx, cy);
+                             ctx.rotate(psi);
+                             ctx.scale(scaleX, scaleY);
+                             ctx.arc(0, 0, r, theta, theta + dTheta, 1 - fs);
+                             ctx.scale(1 / scaleX, 1 / scaleY);
+                             ctx.rotate(-psi);
+                             ctx.translate(-cx, -cy);
+                             break;
+                         case 'z':
+                             ctx.closePath();
+                             break;
+                     }
+                 }
+     
+                 return;
+             },
+     
+             /**
+              * 返回矩形区域，用于局部刷新和文字定位
+              * @param {Object} style 样式
+              */
+             getRect : function(style) {
+                 var lineWidth;
+                 var style = style ? style : this.context;
+                 if (style.strokeStyle || style.fillStyle) {
+                     lineWidth = style.lineWidth || 1;
+                 }
+                 else {
+                     lineWidth = 0;
+                 }
+     
+                 var minX = Number.MAX_VALUE;
+                 var maxX = Number.MIN_VALUE;
+     
+                 var minY = Number.MAX_VALUE;
+                 var maxY = Number.MIN_VALUE;
+     
+                 // 平移坐标
+                 var x = 0;
+                 var y = 0;
+     
+                 var pathArray = this._parsePathData(style.path);
+                 for (var i = 0; i < pathArray.length; i++) {
+                     var p = pathArray[i].points;
+     
+                     for (var j = 0; j < p.length; j++) {
+                         if (j % 2 === 0) {
+                             if (p[j] + x < minX) {
+                                 minX = p[j] + x;
+                             }
+                             if (p[j] + x > maxX) {
+                                 maxX = p[j] + x;
+                             }
+                         } else {
+                             if (p[j] + y < minY) {
+                                 minY = p[j] + y;
+                             }
+                             if (p[j] + y > maxY) {
+                                 maxY = p[j] + y;
+                             }
+                         }
+                     }
+                 }
+     
+                 var rect;
+                 if (minX === Number.MAX_VALUE
+                     || maxX === Number.MIN_VALUE
+                     || minY === Number.MAX_VALUE
+                     || maxY === Number.MIN_VALUE
+                 ) {
+                     rect = {
+                         x : 0,
+                         y : 0,
+                         width : 0,
+                         height : 0
+                     };
+                 }
+                 else {
+                     rect = {
+                         x : Math.round(minX - lineWidth / 2),
+                         y : Math.round(minY - lineWidth / 2),
+                         width : maxX - minX + lineWidth,
+                         height : maxY - minY + lineWidth
+                     };
+                 }
+                 return rect;
+             }
+          
+        } );
+        return Path;
+    } 
+);
+;define(
+    "canvax/shape/Polygon",
+    [
+        "canvax/display/Shape",
+        "canvax/core/Base"
+    ],
+    function(Shape , Base){
+
+        var Polygon=function(opt){
+            var self = this;
+            self.type = "polygon";
+            self._hasFillAndStroke = true;
+            opt = Base.checkOpt( opt );
+            self._context = {
+                lineType      : opt.context.lineType  || null,
+                pointList     : opt.context.pointList || []  //{Array},   // 必须，多边形各个顶角坐标
+            }
+            arguments.callee.superclass.constructor.apply(this, arguments);
+     
+        };
+     
+       
+        Base.creatClass( Polygon , Shape , {
+            draw : function(ctx, style) {
+                ctx.save();
+                ctx.beginPath();
+                this.buildPath(ctx, style);
+                ctx.closePath();
+     
+                if ( style.strokeStyle || style.lineWidth ) {
+                    ctx.stroke();
+                }
+     
+                if (style.fillStyle) {
+                    if (style.lineType == 'dashed' || style.lineType == 'dotted') {
+                           // 特殊处理，虚线围不成path，实线再build一次
+                           ctx.beginPath();
+                           this.buildPath(
+                               ctx, 
+                               {
+                                lineType  :  "solid",
+                                lineWidth : style.lineWidth,
+                                pointList : style.pointList
+                               }
+                               );
+                           ctx.closePath();
+                       }
+                    ctx.fill();
+                }
+     
+                ctx.restore();
+     
+                return true;
+         
+            },
+            buildPath : function(ctx, style) {
+                var pointList = style.pointList;
+                // 开始点和结束点重复
+                var start = pointList[0];
+                var end = pointList[pointList.length-1];
+                if (start && end) {
+                    if (start[0] == end[0] &&
+                        start[1] == end[1]) {
+                            // 移除最后一个点
+                            pointList.pop();
+                        }
+                }
+                if (pointList.length < 2) {
+                    return;
+                }
+             
+                if (!style.lineType || style.lineType == 'solid') {
+                    //默认为实线
+                    ctx.moveTo(pointList[0][0],pointList[0][1]);
+                    for (var i = 1, l = pointList.length; i < l; i++) {
+                        ctx.lineTo(pointList[i][0],pointList[i][1]);
+                    }
+                    ctx.lineTo(pointList[0][0], pointList[0][1]);
+                } else if (style.lineType == 'dashed' || style.lineType == 'dotted') {
+                    var dashLength= (style.lineWidth || 1)*(style.lineType == 'dashed'? 5 : 1 );
+                    ctx.moveTo(pointList[0][0],pointList[0][1]);
+                    for (var i = 1, l = pointList.length; i < l; i++) {
+                        this.dashedLineTo(
+                                ctx,
+                                pointList[i - 1][0], pointList[i - 1][1],
+                                pointList[i][0], pointList[i][1],
+                                dashLength
+                                );
+                    }
+                    this.dashedLineTo(
+                            ctx,
+                            pointList[pointList.length - 1][0], 
+                            pointList[pointList.length - 1][1],
+                            pointList[0][0],
+                            pointList[0][1],
+                            dashLength
+                            );
+                }
+                
+                return;
+            },
+            getRect : function(context) {
+                var context = context ? context : this.context;
+                return this.getRectFormPointList( context );
+            }
+     
+        } );
+     
+        return Polygon;
+    }
+);
+;define(
+    "canvax/shape/Rect",
+    [
+        "canvax/display/Shape",
+        "canvax/core/Base"
+    ],
+    function(Shape , Base){
+        var Rect = function(opt){
+            var self = this;
+            self.type = "rect";
+      
+            opt = Base.checkOpt( opt );
+            self._context = {
+                 //x             : 0,//{number},  // 必须，左上角横坐标
+                 //y             : 0,//{number},  // 必须，左上角纵坐标
+                 width         : opt.context.width || 0,//{number},  // 必须，宽度
+                 height        : opt.context.height|| 0,//{number},  // 必须，高度
+                 radius        : opt.context.radius|| []     //{array},   // 默认为[0]，圆角 
+            }
+            arguments.callee.superclass.constructor.apply(this, arguments);
+        };
+      
+        Base.creatClass( Rect , Shape , {
+            /**
+             * 绘制圆角矩形
+             * @param {Context2D} ctx Canvas 2D上下文
+             * @param {Object} style 样式
+             */
+            _buildRadiusPath: function(ctx, style) {
+                //左上、右上、右下、左下角的半径依次为r1、r2、r3、r4
+                //r缩写为1         相当于 [1, 1, 1, 1]
+                //r缩写为[1]       相当于 [1, 1, 1, 1]
+                //r缩写为[1, 2]    相当于 [1, 2, 1, 2]
+                //r缩写为[1, 2, 3] 相当于 [1, 2, 3, 2]
+                var x = 0;
+                var y = 0;
+                var width = this.context.width;
+                var height = this.context.height;
+                var r = Base.getCssOrderArr(style.radius);
+              
+                ctx.moveTo( parseInt(x + r[0]), parseInt(y));
+                ctx.lineTo( parseInt(x + width - r[1]), parseInt(y));
+                r[1] !== 0 && ctx.quadraticCurveTo(
+                        x + width, y, x + width, y + r[1]
+                        );
+                ctx.lineTo( parseInt(x + width), parseInt(y + height - r[2]));
+                r[2] !== 0 && ctx.quadraticCurveTo(
+                        x + width, y + height, x + width - r[2], y + height
+                        );
+                ctx.lineTo( parseInt(x + r[3]), parseInt(y + height));
+                r[3] !== 0 && ctx.quadraticCurveTo(
+                        x, y + height, x, y + height - r[3]
+                        );
+                ctx.lineTo( parseInt(x), parseInt(y + r[0]));
+                r[0] !== 0 && ctx.quadraticCurveTo(x, y, x + r[0], y);
+            },
+      
+            /**
+             * 创建矩形路径
+             * @param {Context2D} ctx Canvas 2D上下文
+             * @param {Object} style 样式
+             */
+            draw : function(ctx, style) {
+                if(!style.$model.radius.length) {
+                    if(!!style.fillStyle){
+                       ctx.fillRect( 0 , 0 ,this.context.width,this.context.height)
+                    }
+                    if(!!style.lineWidth){
+                       ctx.strokeRect( 0 , 0 , this.context.width,this.context.height);
+                    }
+                } else {
+                    this._buildRadiusPath(ctx, style);
+                }
+                return;
+            },
+      
+            /**
+             * 返回矩形区域，用于局部刷新和文字定位
+             * @param {Object} style
+             */
+            getRect : function(style) {
+                    var lineWidth;
+                    var style = style ? style : this.context;
+                    if (style.fillStyle || style.strokeStyle) {
+                        lineWidth = style.lineWidth || 1;
+                    }
+                    else {
+                        lineWidth = 0;
+                    }
+                    return {
+                          x : Math.round(0 - lineWidth / 2),
+                          y : Math.round(0 - lineWidth / 2),
+                          width : this.context.width + lineWidth,
+                          height : this.context.height + lineWidth
+                    };
+                }
+      
+        } );
+        return Rect;
+    } 
+);
+;define(
+    "canvax/shape/Sector",
+    [
+        "canvax/display/Shape",
+        "canvax/geom/Math",
+        "canvax/core/Base"
+    ],
+    function(Shape , myMath , Base){
+ 
+        var Sector = function(opt){
+            var self  = this;
+            self.type = "sector";
+            self.regAngle  = [];
+            self.isRing    = false;//是否为一个圆环
+     
+            opt = Base.checkOpt( opt );
+            self._context  = {
+                pointList  : [],//边界点的集合,私有，从下面的属性计算的来
+                r0         : opt.context.r0         || 0,// 默认为0，内圆半径指定后将出现内弧，同时扇边长度 = r - r0
+                r          : opt.context.r          || 0,//{number},  // 必须，外圆半径
+                startAngle : opt.context.startAngle || 0,//{number},  // 必须，起始角度[0, 360)
+                endAngle   : opt.context.endAngle   || 0, //{number},  // 必须，结束角度(0, 360]
+                clockwise  : opt.context.clockwise  || false //是否顺时针，默认为false(顺时针)
+            }
+            arguments.callee.superclass.constructor.apply(this , arguments);
+        };
+     
+        Base.creatClass(Sector , Shape , {
+            draw : function(ctx, context) {
+                // 形内半径[0,r)
+                var r0 = typeof context.r0 == 'undefined' ? 0 : context.r0;
+                var r  = context.r;                            // 扇形外半径(0,r]
+                var startAngle = myMath.degreeTo360(context.startAngle);          // 起始角度[0,360)
+                var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
+     
+                //var isRing     = false;                       //是否为圆环
+
+                //if( startAngle != endAngle && Math.abs(startAngle - endAngle) % 360 == 0 ) {
+                if( startAngle == endAngle && context.startAngle != context.endAngle ) {
+                    //如果两个角度相等，那么就认为是个圆环了
+                    this.isRing     = true;
+                    startAngle = 0 ;
+                    endAngle   = 360;
+                }
+     
+                startAngle = myMath.degreeToRadian(startAngle);
+                endAngle   = myMath.degreeToRadian(endAngle);
+             
+                ctx.arc( 0 , 0 , r, startAngle, endAngle, this.context.clockwise);
+                if (r0 !== 0) {
+                    if( this.isRing ){
+                        //加上这个isRing的逻辑是为了兼容flashcanvas下绘制圆环的的问题
+                        //不加这个逻辑flashcanvas会绘制一个大圆 ， 而不是圆环
+                        ctx.moveTo( r0 , 0 );
+                        ctx.arc( 0 , 0 , r0 , startAngle , endAngle , !this.context.clockwise);
+                    } else {
+                        ctx.arc( 0 , 0 , r0 , endAngle , startAngle , !this.context.clockwise);
+                    }
+                } else {
+                    //TODO:在r0为0的时候，如果不加lineTo(0,0)来把路径闭合，会出现有搞笑的一个bug
+                    //整个圆会出现一个以每个扇形两端为节点的镂空，我可能描述不清楚，反正这个加上就好了
+                    ctx.lineTo(0,0);
+                }
+             },
+             getRegAngle : function(){
+                 this.regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
+                 var c           = this.context;
+                 var startAngle = myMath.degreeTo360(c.startAngle);          // 起始角度[0,360)
+                 var endAngle   = myMath.degreeTo360(c.endAngle);            // 结束角度(0,360]
+
+                 if ( ( startAngle > endAngle && !c.clockwise ) || ( startAngle < endAngle && c.clockwise ) ) {
+                     this.regIn  = false; //out
+                 };
+                 //度的范围，从小到大
+                 this.regAngle   = [ 
+                     Math.min( startAngle , endAngle ) , 
+                     Math.max( startAngle , endAngle ) 
+                 ];
+             },
+             getRect : function(context){
+                 var context = context ? context : this.context;
+                 var r0 = typeof context.r0 == 'undefined'     // 形内半径[0,r)
+                     ? 0 : context.r0;
+                 var r = context.r;                            // 扇形外半径(0,r]
+                 
+                 this.getRegAngle();
+
+                 var startAngle = myMath.degreeTo360(context.startAngle);          // 起始角度[0,360)
+                 var endAngle   = myMath.degreeTo360(context.endAngle);            // 结束角度(0,360]
+
+                 /*
+                 var isCircle = false;
+                 if( Math.abs( startAngle - endAngle ) == 360 
+                         || ( startAngle == endAngle && startAngle * endAngle != 0 ) ){
+                     isCircle = true;
+                 }
+                 */
+     
+                 var pointList  = [];
+     
+                 var p4Direction= {
+                     "90" : [ 0 , r ],
+                     "180": [ -r, 0 ],
+                     "270": [ 0 , -r],
+                     "360": [ r , 0 ] 
+                 };
+     
+                 for ( var d in p4Direction ){
+                     var inAngleReg = parseInt(d) > this.regAngle[0] && parseInt(d) < this.regAngle[1];
+                     if( this.isRing || (inAngleReg && this.regIn) || (!inAngleReg && !this.regIn) ){
+                         pointList.push( p4Direction[ d ] );
+                     }
+                 }
+     
+                 if( !this.isRing ) {
+                     startAngle = myMath.degreeToRadian( startAngle );
+                     endAngle   = myMath.degreeToRadian( endAngle   );
+     
+                     pointList.push([
+                             myMath.cos(startAngle) * r0 , myMath.sin(startAngle) * r0
+                             ]);
+     
+                     pointList.push([
+                             myMath.cos(startAngle) * r  , myMath.sin(startAngle) * r
+                             ]);
+     
+                     pointList.push([
+                             myMath.cos(endAngle)   * r  ,  myMath.sin(endAngle)  * r
+                             ]);
+     
+                     pointList.push([
+                             myMath.cos(endAngle)   * r0 ,  myMath.sin(endAngle)  * r0
+                             ]);
+                 }
+     
+                 context.pointList = pointList;
+                 return this.getRectFormPointList( context );
+             }
+     
+        });
+     
+        return Sector;
+     
+    }
+);
