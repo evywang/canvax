@@ -10,12 +10,23 @@ module.exports = function(grunt) {
          dist: {
              src: [
                  buildPath + "/canvax/**/*.js",
+                 "!"+ buildPath +"/canvax/display/Bitmap.js",
+                 "!"+ buildPath +"/canvax/display/Movieclip.js",
                  "!"+ buildPath +"/canvax/library/**/*.js",
                  "!"+ buildPath +"/canvax/animation/Tween.js",
-                 "!"+ buildPath +"/canvax/shape/**/*.js",
+                 //"!"+ buildPath +"/canvax/shape/**/*.js",
                  "!"+ buildPath +"/canvax/utils/**/*.js",
-                 "!"+ buildPath +"/canvax/geom/SmoothSpline.js",
-                 "!"+ buildPath +"/canvax/geom/Vector.js"
+                 //"!"+ buildPath +"/canvax/geom/SmoothSpline.js",
+                 //"!"+ buildPath +"/canvax/geom/Vector.js"
+
+                 //shape中只留下几个最常用的 
+                 "!"+ buildPath +"/canvax/shape/Beziercurve.js",
+                 "!"+ buildPath +"/canvax/shape/Droplet.js",
+                 "!"+ buildPath +"/canvax/shape/Ellipse.js",
+                 "!"+ buildPath +"/canvax/shape/Heart.js",
+                 "!"+ buildPath +"/canvax/shape/Isogon.js"
+                 
+                 "!"+ buildPath +"/canvax/shape/shapes.js"
              ],
              dest: buildPath + "/canvax/index.js"
          }
