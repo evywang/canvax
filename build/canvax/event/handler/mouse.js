@@ -42,10 +42,10 @@ define(
             __mouseHandler : function(e) {
                 var me = this;
                 var root = me.canvax;
-                debugger
+            
                 me.curPoints = [ new Point( 
-                        ( e.pageX || e.clientX ) - root.rootOffset.left , 
-                        ( e.pageY || e.clientY ) - root.rootOffset.top
+                        CanvaxEvent.pageX( e ) - root.rootOffset.left , 
+                        CanvaxEvent.pageY( e ) - root.rootOffset.top
                         )];
  
                 var curMousePoint  = me.curPoints[0]; 

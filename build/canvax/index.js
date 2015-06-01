@@ -1965,6 +1965,20 @@ define(
                 this._stopPropagation = true;
             }
         }
+        CanvaxEvent.pageX = function(e) {
+            if (e.pageX) return e.pageX;
+            else if (e.clientX)
+                return e.clientX + (document.documentElement.scrollLeft ?
+                        document.documentElement.scrollLeft : document.body.scrollLeft);
+            else return null;
+        }
+        CanvaxEvent.pageY = function(e) {
+            if (e.pageY) return e.pageY;
+            else if (e.clientY)
+                return e.clientY + (document.documentElement.scrollTop ?
+                        document.documentElement.scrollTop : document.body.scrollTop);
+            else return null;
+        }
         return CanvaxEvent;
     } 
 );
@@ -2392,10 +2406,10 @@ define(
             __mouseHandler : function(e) {
                 var me = this;
                 var root = me.canvax;
-                debugger
+            
                 me.curPoints = [ new Point( 
-                        ( e.pageX || e.clientX ) - root.rootOffset.left , 
-                        ( e.pageY || e.clientY ) - root.rootOffset.top
+                        CanvaxEvent.pageX( e ) - root.rootOffset.left , 
+                        CanvaxEvent.pageY( e ) - root.rootOffset.top
                         )];
  
                 var curMousePoint  = me.curPoints[0]; 
