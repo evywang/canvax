@@ -2168,7 +2168,7 @@ define(
                      *所有自动添加的hover元素都默认添加在_hoverStage的最底层
                      **/
                     
-                    canvax._hoverStage.addChildAt( _dragDuplicate , 0 );
+                    root._hoverStage.addChildAt( _dragDuplicate , 0 );
                 }
                 _dragDuplicate.context.visible = true;
                 _dragDuplicate._dragPoint = target.globalToLocal( me.curPoints[ i ] );
@@ -2210,7 +2210,6 @@ define(
         return EventHandler;
     } 
 );
-
 ;define(
     "canvax/event/EventManager",
     [ ],
