@@ -23,7 +23,7 @@ define(
                 var root = this.canvax;
                 _.each( ["click" , "mousedown" , "mousemove" , "mouseup" , "mouseout"] , function( type ){
                     Base.addEvent( root.el , type , function( e ){
-                        root._updateRootOffset();
+                        root.updateRootOffset();
                         //如果发现是mousemove的话，要做mousemove的频率控制
                         if( e.type == "mousemove" ){
                             if(_moveStep<1){
