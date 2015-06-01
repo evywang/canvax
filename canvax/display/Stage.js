@@ -64,9 +64,15 @@ define(
                 if(arguments.length >= 4) {
                     this.context2D.clearRect(x, y, width, height);
                 } else {
-                    this.context2D.canvas.width  = this.context2D.canvas.offsetWidth;
-                    this.context2D.canvas.height = this.context2D.canvas.offsetHeight;
-                    //this.context2D.clearRect(0, 0, this.context2D.canvas.width, this.context2D.canvas.height);
+                    //直接width = width的方式会导致绘图模糊 
+                    //this.context2D.canvas.width  = this.context2D.canvas.offsetWidth;
+                    //this.context2D.canvas.height = this.context2D.canvas.offsetHeight;
+                    this.context2D.clearRect(
+                            0, 
+                            0,
+                            this.context2D.canvas.width * Base._devicePixelRatio,
+                            this.context2D.canvas.height* Base._devicePixelRatio
+                    );
                 }
             }
         });
