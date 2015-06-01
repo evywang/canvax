@@ -2156,7 +2156,7 @@ define(
             _clone2hoverStage : function( target , i ){
                 var me   = this;
                 var root = me.canvax;
-                var _dragDuplicate = canvax._hoverStage.getChildById( target.id );
+                var _dragDuplicate = root._hoverStage.getChildById( target.id );
                 if(!_dragDuplicate){
                     _dragDuplicate             = target.clone(true);
                     _dragDuplicate._transform  = target.getConcatenatedMatrix();
@@ -2177,7 +2177,7 @@ define(
             _dragHander  : function( e , target , i ){
                 var me   = this;
                 var root = me.canvax;
-                var _dragDuplicate = canvax._hoverStage.getChildById( target.id );
+                var _dragDuplicate = root._hoverStage.getChildById( target.id );
                 var gPoint = new Point( me.curPoints[i].x - _dragDuplicate._dragPoint.x , me.curPoints[i].y - _dragDuplicate._dragPoint.y );
                 _dragDuplicate.context.x = gPoint.x; 
                 _dragDuplicate.context.y = gPoint.y;  
