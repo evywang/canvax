@@ -206,7 +206,6 @@ define(
             var now = new Date().getTime();
             if( now - this.lastGetRO > 1000 ){
                 //alert( this.lastGetRO )
-                return
                 this.rootOffset      = Base.getOffset(this.el);
                 this.lastGetRO       = now;
             }
