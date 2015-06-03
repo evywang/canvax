@@ -36,6 +36,7 @@ module.exports = function(grunt) {
                  buildPath + "/canvax/display/Shape.js",
                  buildPath + "/canvax/display/Sprite.js",
                  buildPath + "/canvax/display/Stage.js",
+                 buildPath + "/canvax/display/Text.js",
 
                  //shape中只留下几个最常用的 
                  buildPath + "/canvax/shape/*.js",
