@@ -19,19 +19,19 @@ define(
             self._reNewline = /\r?\n/;
             self.fontProperts = [ "fontStyle" , "fontVariant" , "fontWeight" , "fontSize" , "fontFamily"];
 
-
             //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
             opt = Base.checkOpt( opt );
+            var optc = opt.context;
             
             self._context = {
-                fontSize            : opt.context.fontSize       || 13 , //字体大小默认13
-                fontWeight          : opt.context.fontWeight     || "normal",
-                fontFamily          : opt.context.fontFamily     || "微软雅黑",
-                textDecoration      : opt.context.textDecoration,  
-                fillStyle           : opt.context.fontColor      || opt.context.fillStyle   || 'blank',
-                lineHeight          : opt.context.lineHeight     || 1.3,
-                backgroundColor     : opt.context.backgroundColor ,
-                textBackgroundColor : opt.context.textBackgroundColor
+                fontSize            : optc.fontSize       || 13 , //字体大小默认13
+                fontWeight          : optc.fontWeight     || "normal",
+                fontFamily          : optc.fontFamily     || "微软雅黑",
+                textDecoration      : optc.textDecoration,  
+                fillStyle           : optc.fontColor      || opt.context.fillStyle   || 'blank',
+                lineHeight          : optc.lineHeight     || 1.3,
+                backgroundColor     : optc.backgroundColor ,
+                textBackgroundColor : optc.textBackgroundColor
             };
 
             self._context.font = self._getFontDeclaration();
@@ -193,9 +193,7 @@ define(
                 return this.context.fontSize * this.context.lineHeight;
             },
             _getTextWidth: function(ctx, textLines) {
-                
                 var maxWidth = ctx.measureText(textLines[0] || '|').width;
-
                 for (var i = 1, len = textLines.length; i < len; i++) {
                     var currentLineWidth = ctx.measureText(textLines[i]).width;
                     if (currentLineWidth > maxWidth) {

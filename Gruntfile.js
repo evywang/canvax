@@ -9,24 +9,45 @@ module.exports = function(grunt) {
          },
          dist: {
              src: [
-                 buildPath + "/canvax/**/*.js",
-                 "!"+ buildPath +"/canvax/display/Bitmap.js",
-                 "!"+ buildPath +"/canvax/display/Movieclip.js",
-                 "!"+ buildPath +"/canvax/library/**/*.js",
-                 "!"+ buildPath +"/canvax/animation/Tween.js",
-                 //"!"+ buildPath +"/canvax/shape/**/*.js",
-                 "!"+ buildPath +"/canvax/utils/**/*.js",
-                 //"!"+ buildPath +"/canvax/geom/SmoothSpline.js",
-                 //"!"+ buildPath +"/canvax/geom/Vector.js"
+                 //animationframe
+                 buildPath + "/canvax/animation/AnimationFrame.js",
+                 
+                 //core
+                 buildPath + "/canvax/core/*.js",
+
+                 //CanvaxEvent依赖point
+                 //event
+                 buildPath + "/canvax/display/Point.js",
+                 buildPath + "/canvax/event/CanvaxEvent.js",
+                 buildPath + "/canvax/event/EventManager.js",
+                 buildPath + "/canvax/event/EventDispatcher.js",
+                 buildPath + "/canvax/event/EventHandler.js",
+                 
+                 //geom
+                 buildPath + "/canvax/geom/Math.js",
+                 buildPath + "/canvax/geom/HitTestPoint.js",
+                 buildPath + "/canvax/geom/Matrix.js",
+                 buildPath + "/canvax/geom/Vector.js",
+                 buildPath + "/canvax/geom/SmoothSpline.js",
+
+                 //display
+                 buildPath + "/canvax/display/DisplayObject.js",
+                 buildPath + "/canvax/display/DisplayObjectContainer.js",
+                 buildPath + "/canvax/display/Shape.js",
+                 buildPath + "/canvax/display/Sprite.js",
+                 buildPath + "/canvax/display/Stage.js",
 
                  //shape中只留下几个最常用的 
+                 buildPath + "/canvax/shape/*.js",
+
                  "!"+ buildPath +"/canvax/shape/Beziercurve.js",
                  "!"+ buildPath +"/canvax/shape/Droplet.js",
                  "!"+ buildPath +"/canvax/shape/Ellipse.js",
-                 "!"+ buildPath +"/canvax/shape/Heart.js",
                  "!"+ buildPath +"/canvax/shape/Isogon.js",
-                 
-                 "!"+ buildPath +"/canvax/shape/Shapes.js"
+                 "!"+ buildPath +"/canvax/shape/Shapes.js",
+
+
+                 buildPath + "/canvax/index.js"
              ],
              dest: buildPath + "/canvax/index.js"
          }

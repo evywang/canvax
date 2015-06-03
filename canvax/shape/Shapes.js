@@ -18,7 +18,6 @@ define(
         "canvax/shape/Circle",
         "canvax/shape/Droplet",
         "canvax/shape/Ellipse",
-        "canvax/shape/Heart",
         "canvax/shape/Isogon",
         "canvax/shape/Line",
         "canvax/shape/Path",
@@ -32,7 +31,6 @@ define(
             Circle,
             Droplet,
             Ellipse,
-            Heart,
             Isogon,
             Line,
             Path,
@@ -47,7 +45,6 @@ define(
         Circle      : Circle,      //圆形
         Droplet     : Droplet,     //水滴型
         Ellipse     : Ellipse,     //椭圆形
-        Heart       : Heart,       //心形
         Isogon      : Isogon,      //正多边形
         Line        : Line,        //直线
         Path        : Path,        //路径

@@ -469,103 +469,65 @@ define(
                     if (_.indexOf(skipArray,name) !== -1 || (name.charAt(0) === "$" && !watchMore[name])) {
                         return VBPublics.push(name)
                     }
+                    var accessor = function(neo) { //创建监控属性或数组，自变量，由用户触发其改变
+                        var value = accessor.value, preValue = value, complexValue;
+                        
+                        if (arguments.length) {
+                            //写操作
+                            //set 的 值的 类型
+                            var neoType = getType(neo);
     
-                    var accessor, oldArgs;
-                    if (valueType === "object" && typeof val.get === "function" && _.keys(val).length <= 2) {
-                       
-                        var setter = val.set;
-                        var getter = val.get;
-                        accessor = function(neo) { 
-                            //创建计算属性，因变量，基本上由其他监控属性触发其改变
-                            var value = accessor.value, preValue = value;
-                            if (arguments.length) {
-                                //走的setter
-                                if (stopRepeatAssign) {
-                                    return //阻止重复赋值
-                                };
-                                if (typeof setter === "function") {
-                                    setter.call(pmodel, neo)
-                                };
-                                if (oldArgs !== neo) { //只检测用户的传参是否与上次是否一致
-                                    oldArgs = neo;
-                                    value = accessor.value = model[name] = neo ;
-                                    pmodel.$fire && pmodel.$fire(name, value, preValue);
-                                };
-                            } else {
-                                //走的getter
-                                neo = accessor.value = model[name] = getter.call(pmodel);
-                                if (value !== neo) {
-                                    oldArgs = void 0;
-                                    pmodel.$fire && pmodel.$fire(name, neo, value)
-                                }
-                                return neo
+                            if (stopRepeatAssign) {
+                                return //阻止重复赋值
                             }
-                        }
-    
-                    } else {
-    
-                        accessor = function(neo) { //创建监控属性或数组，自变量，由用户触发其改变
-                            var value = accessor.value, preValue = value, complexValue;
-                            
-                            if (arguments.length) {
-                                //写操作
-                                //set 的 值的 类型
-                                var neoType = getType(neo);
-    
-                                if (stopRepeatAssign) {
-                                    return //阻止重复赋值
+                            if (value !== neo) {
+                                if( neoType === "object" ){
+                                    value = neo.$model ? neo : PropertyFactory(neo , neo);
+                                    complexValue = value.$model;
+                                } else {//如果是其他数据类型
+                                    //if( neoType === "array" ){
+                                    //    value = _.clone(neo);
+                                    //} else {
+                                        value = neo
+                                    //}
                                 }
-                                if (value !== neo) {
-    
-                                    
-                                    if( neoType === "object" ){
-                                        value = neo.$model ? neo : PropertyFactory(neo , neo);
-                                        complexValue = value.$model;
-                                    } else {//如果是其他数据类型
-                                        //if( neoType === "array" ){
-                                        //    value = _.clone(neo);
-                                        //} else {
-                                            value = neo
-                                        //}
-                                    }
-                                    accessor.value = value;
-                                    model[name] = complexValue ? complexValue : value;//更新$model中的值
-                                    if (!complexValue) {
-                                        pmodel.$fire && pmodel.$fire(name, value, preValue)
-                                    }
-                                    if(valueType != neoType){
-                                        //如果set的值类型已经改变，
-                                        //那么也要把对应的valueType修改为对应的neoType
-                                        valueType = neoType;
-                                    }
-                                    var hasWatchModel = pmodel;
-                                    //所有的赋值都要触发watch的监听事件
-                                    if ( !pmodel.$watch ) {
-                                      while( hasWatchModel.$parent ){
-                                         hasWatchModel = hasWatchModel.$parent;
-                                      }
-                                    }
-                                    if ( hasWatchModel.$watch ) {
-                                      hasWatchModel.$watch.call(hasWatchModel , name, value, preValue);
-                                    }
+                                accessor.value = value;
+                                model[name] = complexValue ? complexValue : value;//更新$model中的值
+                                if (!complexValue) {
+                                    pmodel.$fire && pmodel.$fire(name, value, preValue)
                                 }
-                            } else {
-                                //读操作
-                                //读的时候，发现value是个obj，而且还没有defineProperty
-                                //那么就临时defineProperty一次
-                                if ((valueType === "object") && !value.$model) {
-                                    //建立和父数据节点的关系
-                                    value.$parent = pmodel;
-                                    value = PropertyFactory(value , value);
-    
-                                    //accessor.value 重新复制为defineProperty过后的对象
-                                    accessor.value = value;
+                                if(valueType != neoType){
+                                    //如果set的值类型已经改变，
+                                    //那么也要把对应的valueType修改为对应的neoType
+                                    valueType = neoType;
                                 }
-                                return value;
+                                var hasWatchModel = pmodel;
+                                //所有的赋值都要触发watch的监听事件
+                                if ( !pmodel.$watch ) {
+                                  while( hasWatchModel.$parent ){
+                                     hasWatchModel = hasWatchModel.$parent;
+                                  }
+                                }
+                                if ( hasWatchModel.$watch ) {
+                                  hasWatchModel.$watch.call(hasWatchModel , name, value, preValue);
+                                }
                             }
+                        } else {
+                            //读操作
+                            //读的时候，发现value是个obj，而且还没有defineProperty
+                            //那么就临时defineProperty一次
+                            if ((valueType === "object") && !value.$model) {
+                                //建立和父数据节点的关系
+                                value.$parent = pmodel;
+                                value = PropertyFactory(value , value);
+    
+                                //accessor.value 重新复制为defineProperty过后的对象
+                                accessor.value = value;
+                            }
+                            return value;
                         }
-                        accessor.value = val;
-                    }
+                    };
+                    accessor.value = val;
                     
                     accessores[name] = {
                         set: accessor,
@@ -702,6 +664,1246 @@ define(
         window.PropertyFactory = PropertyFactory;
         return PropertyFactory;
 });
+;define(
+    "canvax/display/Point",
+    [],
+    function(){
+        var Point = function(x,y){
+            if(arguments.length==1 && typeof arguments[0] == 'object' ){
+               var arg=arguments[0]
+               if( "x" in arg && "y" in arg ){
+                  this.x = arg.x*1;
+                  this.y = arg.y*1;
+               } else {
+                  var i=0;
+                  for (var p in arg){
+                      if(i==0){
+                        this.x = arg[p]*1;
+                      } else {
+                        this.y = arg[p]*1;
+                        break;
+                      }
+                      i++;
+                  }
+               }
+               return;
+            }
+            x || (x=0);
+            y || (y=0);
+            this.x = x*1;
+            this.y = y*1;
+        };
+        return Point;
+    }
+);
+;define(
+    "canvax/event/CanvaxEvent",
+    [
+         "canvax/core/Base"
+    ],
+    function(EventBase,Base){
+        var CanvaxEvent = function() {
+            this.mouseX = 0;
+            this.mouseY = 0;
+            //this.type = type;
+            this.target = null;
+            this.currentTarget = null;	
+            this.params = null;
+
+            this._stopPropagation = false ; //默认不阻止事件冒泡
+        }
+        CanvaxEvent.prototype = {
+            stopPropagation : function() {
+                this._stopPropagation = true;
+            }
+        }
+        CanvaxEvent.pageX = function(e) {
+            if (e.pageX) return e.pageX;
+            else if (e.clientX)
+                return e.clientX + (document.documentElement.scrollLeft ?
+                        document.documentElement.scrollLeft : document.body.scrollLeft);
+            else return null;
+        }
+        CanvaxEvent.pageY = function(e) {
+            if (e.pageY) return e.pageY;
+            else if (e.clientY)
+                return e.clientY + (document.documentElement.scrollTop ?
+                        document.documentElement.scrollTop : document.body.scrollTop);
+            else return null;
+        }
+        return CanvaxEvent;
+    } 
+);
+;define(
+    "canvax/event/EventManager",
+    [ ],
+    function(){
+        /**
+         * 构造函数.
+         * @name EventDispatcher
+         * @class EventDispatcher类是可调度事件的类的基类，它允许显示列表上的任何对象都是一个事件目标。
+         */
+        var EventManager = function() {
+            //事件映射表，格式为：{type1:[listener1, listener2], type2:[listener3, listener4]}
+            this._eventMap = {};
+        };
+    
+        EventManager.prototype = { 
+            /*
+             * 注册事件侦听器对象，以使侦听器能够接收事件通知。
+             */
+            _addEventListener : function(type, listener) {
+    
+                if( typeof listener != "function" ){
+                  //listener必须是个function呐亲
+                  return false;
+                }
+                var addResult = true;
+                var self      = this;
+                _.each( type.split(" ") , function(type){
+                    var map = self._eventMap[type];
+                    if(!map){
+                        map = self._eventMap[type] = [];
+                        map.push(listener);
+                        self._eventEnabled = true;
+                        return true;
+                    }
+    
+                    if(_.indexOf(map ,listener) == -1) {
+                        map.push(listener);
+                        self._eventEnabled = true;
+                        return true;
+                    }
+    
+                    addResult = false;
+                });
+                return addResult;
+            },
+            /**
+             * 删除事件侦听器。
+             */
+            _removeEventListener : function(type, listener) {
+                if(arguments.length == 1) return this.removeEventListenerByType(type);
+    
+                var map = this._eventMap[type];
+                if(!map){
+                    return false;
+                }
+    
+                for(var i = 0; i < map.length; i++) {
+                    var li = map[i];
+                    if(li === listener) {
+                        map.splice(i, 1);
+                        if(map.length    == 0) { 
+                            delete this._eventMap[type];
+                            //如果这个如果这个时候child没有任何事件侦听
+                            if(_.isEmpty(this._eventMap)){
+                                //那么该元素不再接受事件的检测
+                                this._eventEnabled = false;
+                            }
+                        }
+                        return true;
+                    }
+                }
+                
+                return false;
+            },
+            /**
+             * 删除指定类型的所有事件侦听器。
+             */
+            _removeEventListenerByType : function(type) {
+                var map = this._eventMap[type];
+                if(!map) {
+                    delete this._eventMap[type];
+    
+                    //如果这个如果这个时候child没有任何事件侦听
+                    if(_.isEmpty(this._eventMap)){
+                        //那么该元素不再接受事件的检测
+                        this._eventEnabled = false;
+                    }
+    
+                    return true;
+                }
+                return false;
+            },
+            /**
+             * 删除所有事件侦听器。
+             */
+            _removeAllEventListeners : function() {	
+                this._eventMap = {};
+                this._eventEnabled = false;
+            },
+            /**
+            * 派发事件，调用事件侦听器。
+            */
+            _dispatchEvent : function(e) {
+                var map = this._eventMap[e.type];
+                
+                if( map ){
+                    if(!e.target) e.target = this;
+                    map = map.slice();
+    
+                    for(var i = 0; i < map.length; i++) {
+                        var listener = map[i];
+                        if(typeof(listener) == "function") {
+                            listener.call(this, e);
+                        }
+                    }
+                }
+    
+                if( !e._stopPropagation ) {
+                    //向上冒泡
+                    if( this.parent ){
+                        e.currentTarget = this.parent;
+                        this.parent._dispatchEvent( e );
+                    }
+                } 
+                return true;
+            },
+            /**
+               * 检查是否为指定事件类型注册了任何侦听器。
+               */
+            _hasEventListener : function(type) {
+                var map = this._eventMap[type];
+                return map != null && map.length > 0;
+            }
+        }
+    
+        return EventManager;
+    }
+);
+;define(
+    "canvax/event/EventDispatcher",
+    [
+        "canvax/core/Base",
+        "canvax/event/EventManager"
+    ],
+    function( Base ,EventManager){
+
+        var EventDispatcher = function(){
+            arguments.callee.superclass.constructor.call(this, name);
+        };
+      
+        Base.creatClass(EventDispatcher , EventManager , {
+            on : function(type, listener){
+                this._addEventListener( type, listener);
+                return this;
+            },
+            addEventListener:function(type, listener){
+                this._addEventListener( type, listener);
+                return this;
+            },
+            un : function(type,listener){
+                this._removeEventListener( type, listener);
+                return this;
+            },
+            removeEventListener:function(type,listener){
+                this._removeEventListener( type, listener);
+                return this;
+            },
+            removeEventListenerByType:function(type){
+                this._removeEventListenerByType( type);
+                return this;
+            },
+            removeAllEventListeners:function(){
+                this._removeAllEventListeners();
+                return this;
+            },
+            fire : function(eventType , event){
+                //因为需要在event上面冒泡传递信息，所以还是不用clone了
+                var e       = event;//_.clone( event );
+                var me      = this;
+                var preCurr = e ? e.currentTarget : null;
+                _.each( eventType.split(" ") , function(evt){
+                    var preEventType = null;
+                    if( !e ){
+                        e = { type : evt };
+                    } else {
+                        //把原有的e.type暂存起来
+                        preEventType = e.type;
+                        //如果有传递e过来
+                        e.type = evt;
+                    };
+                    e.currentTarget = me;
+                    me.dispatchEvent( e );
+                    if( preEventType ){
+                        e.type = preEventType;
+                    }
+                } );
+                e.currentTarget = preCurr;
+                return this;
+            },
+            dispatchEvent:function(event){
+                if(event.type == "mouseover"){
+                    
+                    //记录dispatchEvent之前的心跳
+                    var preHeartBeat = this._heartBeatNum;
+                    this._dispatchEvent( event );
+                    if( preHeartBeat != this._heartBeatNum ){
+                        this._hoverClass = true;
+
+                        /*
+                        //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
+                        //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
+                        //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
+                        if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
+                            //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
+                        } else {
+                            delete canvax.convertStages[ this.getStage().id ];
+                            this._heart = false;
+                        }
+                        */
+
+                        if( this.hoverClone ){
+                            var canvax = this.getStage().parent;
+                            //然后clone一份obj，添加到_hoverStage 中
+                            var activShape = this.clone(true);                     
+                            activShape._transform = this.getConcatenatedMatrix();
+                            canvax._hoverStage.addChildAt( activShape , 0 ); 
+
+                            //然后把自己visible=false隐藏了
+                            //this.context.visible = false;
+                            this._globalAlpha = this.context.globalAlpha;
+                            this.context.globalAlpha = 0;
+                        }
+
+                    }
+                    return;
+                }
+      
+                this._dispatchEvent( event );
+      
+                if(event.type == "mouseout"){
+                    if(this._hoverClass){
+                        //说明刚刚over的时候有添加样式
+                        var canvax = this.getStage().parent;
+                        this._hoverClass = false;
+                        canvax._hoverStage.removeChildById(this.id);
+                        
+                        this.context.globalAlpha = this._globalAlpha;
+                        delete this._globalAlpha;
+                    }
+                }
+      
+                return this;
+            },
+            hasEvent:function(type){
+                return this._hasEventListener(type);
+            },
+            hasEventListener:function(type){
+                return this._hasEventListener(type);
+            },
+            hover : function( overFun , outFun ){
+                this.on("mouseover" , overFun);
+                this.on("mouseout"  , outFun );
+                return this;
+            },
+            once : function(type, listener){
+                this.on(type , function(){
+                    listener.apply(this , arguments);
+                    this.un(type , arguments.callee);
+                });
+                return this;
+            }
+        });
+      
+        return EventDispatcher;
+      
+    }
+);
+;define(
+    "canvax/event/EventHandler",
+    [
+        "canvax/core/Base",
+        ( 'ontouchstart' in window ) ? "canvax/event/handler/touch" : "canvax/event/handler/mouse",
+        "canvax/display/Point",
+        "canvax/event/CanvaxEvent"
+    ],
+    function( Base , Handler , Point , CanvaxEvent ){
+        var EventHandler = function( canvax ){
+            this.canvax = canvax;
+            this.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
+ 
+            //当前激活的点对应的obj，在touch下可以是个数组,和上面的curPoints对应
+            this.curPointsTarget = [];
+            
+            /**
+             *交互相关属性
+             * */
+            //接触canvas
+            this._touching = false;
+            //正在拖动，前提是_touching=true
+            this._draging =false;
+ 
+            //当前的鼠标状态
+            this._cursor  = "default";
+
+            //this.initEvent = function(){};
+        };
+        Base.creatClass( EventHandler , Handler , {
+            /*
+             *@param {array} childs 
+             * */
+            __dispatchEventInChilds : function( e , childs ){
+                if( !childs && !("length" in childs) ){
+                  return false;
+                }
+                var me       = this;
+                var hasChild = false;
+                _.each( childs , function( child , i){
+                    if( child ){
+                        hasChild = true;
+                        var ce         = Base.copyEvent( new CanvaxEvent() , e);
+                        ce.target      = ce.currentTarget = child || this;
+                        ce.stagePoint  = me.curPoints[i];
+                        ce.point       = ce.target.globalToLocal( ce.stagePoint );
+                        child.dispatchEvent( ce );
+                    }
+                } );
+                return hasChild;
+            },
+            //克隆一个元素到hover stage中去
+            _clone2hoverStage : function( target , i ){
+                var me   = this;
+                var root = me.canvax;
+                var _dragDuplicate = root._hoverStage.getChildById( target.id );
+                if(!_dragDuplicate){
+                    _dragDuplicate             = target.clone(true);
+                    _dragDuplicate._transform  = target.getConcatenatedMatrix();
+
+                    /**
+                     *TODO: 因为后续可能会有手动添加的 元素到_hoverStage 里面来
+                     *比如tips
+                     *这类手动添加进来的肯定是因为需要显示在最外层的。在hover元素之上。
+                     *所有自动添加的hover元素都默认添加在_hoverStage的最底层
+                     **/
+                    
+                    root._hoverStage.addChildAt( _dragDuplicate , 0 );
+                }
+                _dragDuplicate.context.visible = true;
+                _dragDuplicate._dragPoint = target.globalToLocal( me.curPoints[ i ] );
+            },
+            //drag 中 的处理函数
+            _dragHander  : function( e , target , i ){
+                var me   = this;
+                var root = me.canvax;
+                var _dragDuplicate = root._hoverStage.getChildById( target.id );
+                var gPoint = new Point( me.curPoints[i].x - _dragDuplicate._dragPoint.x , me.curPoints[i].y - _dragDuplicate._dragPoint.y );
+                _dragDuplicate.context.x = gPoint.x; 
+                _dragDuplicate.context.y = gPoint.y;  
+                target.drag && target.drag( e );
+ 
+                //要对应的修改本尊的位置，但是要告诉引擎不要watch这个时候的变化
+                var tPoint = gPoint;
+                if( target.type != "stage" && target.parent && target.parent.type != "stage" ){
+                    tPoint = target.parent.globalToLocal( gPoint );
+                }
+                target._notWatch = true;
+                target.context.x = tPoint.x;
+                target.context.y = tPoint.y;
+                target._notWatch = false;
+                //同步完毕本尊的位置
+            },
+            //drag结束的处理函数
+            _dragEnd  : function( e , target , i ){
+                var me   = this;
+                var root = me.canvax;
+                //_dragDuplicate 复制在_hoverStage 中的副本
+                var _dragDuplicate     = root._hoverStage.getChildById( target.id );
+ 
+                target.context.visible = true;
+                if( e.type == "mouseout" || e.type == "dragend"){
+                    _dragDuplicate.destroy();
+                }
+            }
+        } );
+        return EventHandler;
+    } 
+);
+;define(
+    "canvax/geom/Math",
+    [],
+    function(){
+        var _cache = {
+            sin : {},     //sin缓存
+            cos : {}      //cos缓存
+        };
+        var _radians = Math.PI / 180;
+
+        /**
+         * @param angle 弧度（角度）参数
+         * @param isDegrees angle参数是否为角度计算，默认为false，angle为以弧度计量的角度
+         */
+        function sin(angle, isDegrees) {
+            angle = (isDegrees ? angle * _radians : angle).toFixed(4);
+            if(typeof _cache.sin[angle] == 'undefined') {
+                _cache.sin[angle] = Math.sin(angle);
+            }
+            return _cache.sin[angle];
+        }
+
+        /**
+         * @param radians 弧度参数
+         */
+        function cos(angle, isDegrees) {
+            angle = (isDegrees ? angle * _radians : angle).toFixed(4);
+            if(typeof _cache.cos[angle] == 'undefined') {
+                _cache.cos[angle] = Math.cos(angle);
+            }
+            return _cache.cos[angle];
+        }
+
+        /**
+         * 角度转弧度
+         * @param {Object} angle
+         */
+        function degreeToRadian(angle) {
+            return angle * _radians;
+        }
+
+        /**
+         * 弧度转角度
+         * @param {Object} angle
+         */
+        function radianToDegree(angle) {
+            return angle / _radians;
+        }
+
+        /*
+         * 校验角度到360度内
+         * @param {angle} number
+         */
+        function degreeTo360( angle ) {
+            var reAng = (360 +  angle  % 360) % 360;//Math.abs(360 + Math.ceil( angle ) % 360) % 360;
+            if( reAng == 0 && angle !== 0 ){
+                reAng = 360
+            }
+            return reAng;
+        }
+
+        return {
+            PI  : Math.PI  ,
+            sin : sin      ,
+            cos : cos      ,
+            degreeToRadian : degreeToRadian,
+            radianToDegree : radianToDegree,
+            degreeTo360    : degreeTo360   
+        };
+ 
+    }
+)
+;define(
+    "canvax/geom/HitTestPoint",
+    [
+        "canvax/core/Base",
+        "canvax/geom/Math"
+    ],
+    function(Base , myMath){
+        /**
+         * 图形空间辅助类
+         * isInside：是否在区域内部
+         * isOutside：是否在区域外部
+         * getTextWidth：测算单行文本宽度
+         * TODO:本检测只为进一步的 详细 检测。也就是说 进过了基本的矩形范围检测后才会
+         * 使用本检测方法
+         */
+        var HitTestPoint={};
+    
+        /**
+         * 包含判断
+         * @param {string} shape : 图形
+         * @param {number} x ： 横坐标
+         * @param {number} y ： 纵坐标
+         */
+        function isInside(shape , point) {
+            var x = point.x;
+            var y = point.y;
+            if( shape.type == "bitmap" ){
+                //如果是bitmap
+                return true;
+            }
+    
+            if (!shape || !shape.type) {
+                // 无参数或不支持类型
+                return false;
+            }
+            var zoneType = shape.type;
+    
+    
+            //数学运算，主要是line，brokenLine
+            var _mathReturn = _mathMethod(zoneType, shape, x, y);
+    
+            if (typeof _mathReturn != 'undefined') {
+                return _mathReturn;
+            }
+    
+            if (zoneType != 'beziercurve'&& shape.buildPath && Base._pixelCtx.isPointInPath) {
+                   return _buildPathMethod(shape, Base._pixelCtx, x, y);
+            } else if (Base._pixelCtx.getImageData) {
+                return _pixelMethod(shape, x, y);
+            }
+    
+            // 上面的方法都行不通时
+            switch (zoneType) {
+                    //水滴----------------------11
+                case 'droplet':
+                    return true;    // Todo，不精确
+                case 'ellipse':
+                    return true;     // Todo，不精确
+                    //路径，椭圆，曲线等-----------------13
+                default:
+                    return false;   // Todo，暂不支持
+            }
+        }
+    
+        /**
+         * 用数学方法判断，三个方法中最快，但是支持的shape少
+         *
+         * @param {string} zoneType ： 图形类型
+         * * @param {number} x ： 横坐标
+         * @param {number} y ： 纵坐标
+         * @return {boolean=} true表示坐标处在图形中
+         */
+        function _mathMethod(zoneType,shape,x, y) {
+            // 在矩形内则部分图形需要进一步判断
+            switch (zoneType) {
+                //线-----------------------1
+                case 'line':
+                    return _isInsideLine(shape.context, x, y);
+                    //折线----------------------2
+                case 'brokenLine':
+                    return _isInsideBrokenLine(shape, x, y);
+                    //文本----------------------3
+                case 'text':
+                    return true;
+                    //矩形----------------------4
+                case 'rect':
+                    return true;
+                    //圆形----------------------5
+                case 'circle':
+                    return _isInsideCircle(shape , x, y);
+                    //椭圆
+                case 'ellipse':
+                    return _isPointInElipse(shape , x , y);
+                    //扇形----------------------6
+                case 'sector':
+                    return _isInsideSector(shape , x, y);
+                    //path---------------------7
+                case 'path':
+                    return _isInsidePath(shape , x, y);
+                    //多边形-------------------8
+                case 'polygon':
+                case 'isogon':
+                    return _isInsidePolygon(shape , x, y);
+                    //图片----------------------10
+                case 'image':
+                    return true;
+            }
+        }
+    
+        /**
+         * 通过buildPath方法来判断，三个方法中较快，但是不支持线条类型的shape，
+         * 而且excanvas不支持isPointInPath方法
+         *
+         * @param {Object} shapeClazz ： shape类
+         * @param {Object} context : 上下文
+         * @param {Object} context ：目标区域
+         * @param {number} x ： 横坐标
+         * @param {number} y ： 纵坐标
+         * @return {boolean} true表示坐标处在图形中
+         */
+        function _buildPathMethod(shape, context, x, y) {
+            var context = shape.context;
+            // 图形类实现路径创建了则用类的path
+            context.beginPath();
+            shape.buildPath(context, context);
+            context.closePath();
+            return context.isPointInPath(x, y);
+        }
+    
+        /**
+         * 通过像素值来判断，三个方法中最慢，但是支持广,不足之处是excanvas不支持像素处理,flashCanvas支持还好
+         *
+         * @param {Object} shapeClazz ： shape类
+         * @param {Object} context ：目标区域
+         * @param {number} x ： 横坐标
+         * @param {number} y ： 纵坐标
+         * @return {boolean} true表示坐标处在图形中
+         */
+        function _pixelMethod(shape, x, y) {
+            var context  = shape.context;
+            
+            var _context = Base._pixelCtx;
+                
+            _context.save();
+            _context.beginPath();
+            Base.setContextStyle( _context , context.$model );
+           
+            _context.transform.apply( _context , shape.getConcatenatedMatrix().toArray() );
+    
+            //这个时候肯定是做过矩形范围检测过来的
+            //所以，shape._rect 肯定都是已经有值的
+            _context.clearRect( shape._rect.x-10 , shape._rect.y-10 , shape._rect.width+20 , shape._rect.height+20 );
+    
+    
+            shape.draw( _context,  context );
+
+            _context.globalAlpha = 1;
+
+            shape.drawEnd(_context);
+            _context.closePath();
+            _context.restore();
+    
+            //对鼠标的坐标也做相同的变换
+            var _transformStage = shape.getConcatenatedMatrix()
+            if( _transformStage ){
+                var inverseMatrix = _transformStage.clone();
+    
+                var originPos = [x, y];
+                inverseMatrix.mulVector( originPos , [ x , y , 1 ] );
+    
+                x = originPos[0];
+                y = originPos[1];
+            }
+    
+            return _isPainted(_context, x , y);
+        };
+    
+        /**
+         * 坐标像素值，判断坐标是否被作色
+         *
+         * @param {Object} context : 上下文
+         * @param {number} x : 横坐标
+         * @param {number} y : 纵坐标
+         * @param {number=} unit : 触发的精度，越大越容易触发，可选，缺省是为1
+         * @return {boolean} 已经被画过返回true
+         */
+        function _isPainted(context, x, y, unit) {
+            var pixelsData;
+    
+            if (typeof unit != 'undefined') {
+                unit = Math.floor((unit || 1 )/ 2);
+                pixelsData = context.getImageData(
+                        x - unit,
+                        y - unit,
+                        unit + unit,
+                        unit + unit
+                        ).data;
+            }
+            else {
+                pixelsData = context.getImageData(x, y, 1, 1).data;
+            }
+    
+            var len = pixelsData.length;
+            while (len--) {
+                if (pixelsData[len] !== 0) {
+                    return true;
+                }
+            }
+    
+            return false;
+        };
+    
+        /**
+         * !isInside
+         */
+        function isOutside(shape, x, y) {
+            return !isInside(shape, x, y);
+        };
+    
+        /**
+         * 线段包含判断
+         */
+        function _isInsideLine( context , x , y ) {
+            var _x1 = context.xStart;
+            var _y1 = context.yStart;
+            var _x2 = context.xEnd;
+            var _y2 = context.yEnd;
+            var _l  = context.lineWidth;
+            var _a = 0;
+            var _b = _x1;
+    
+            if (_x1 !== _x2) {
+                _a = (_y1 - _y2) / (_x1 - _x2);
+                _b = (_x1 * _y2 - _x2 * _y1) / (_x1 - _x2) ;
+            }
+            else {
+                return Math.abs(x - _x1) <= _l / 2;
+            }
+    
+            var _s = (_a * x - y + _b) * (_a * x - y + _b) / (_a * _a + 1);
+            return  _s <= _l / 2 * _l / 2;
+        };
+    
+        function _isInsideBrokenLine(shape, x, y) {
+            var context   = shape.context;
+            var pointList = context.pointList;
+            var lineArea;
+            var insideCatch = false;
+            for (var i = 0, l = pointList.length - 1; i < l; i++) {
+                lineArea = {
+                    xStart : pointList[i][0],
+                    yStart : pointList[i][1],
+                    xEnd   : pointList[i + 1][0],
+                    yEnd   : pointList[i + 1][1],
+                    lineWidth : context.lineWidth
+                };
+                if (!_isInsideRectangle(
+                            {
+                                x : Math.min(lineArea.xStart, lineArea.xEnd)
+                    - lineArea.lineWidth,
+                   y : Math.min(lineArea.yStart, lineArea.yEnd)
+                    - lineArea.lineWidth,
+                   width : Math.abs(lineArea.xStart - lineArea.xEnd)
+                    + lineArea.lineWidth,
+                   height : Math.abs(lineArea.yStart - lineArea.yEnd)
+                    + lineArea.lineWidth
+                            },
+                            x,y
+                            )
+                   ) {
+                       // 不在矩形区内跳过
+                       continue;
+                   }
+                insideCatch = _isInsideLine(lineArea, x, y);
+                if (insideCatch) {
+                    break;
+                }
+            }
+            return insideCatch;
+        };
+
+    
+        /**
+         * 矩形包含判断
+         */
+        function _isInsideRectangle(shape, x, y) {
+    
+            if (x >= shape.x
+                    && x <= (shape.x + shape.width)
+                    && y >= shape.y
+                    && y <= (shape.y + shape.height)
+               ) {
+                   return true;
+               }
+            return false;
+        };
+    
+        /**
+         * 圆形包含判断
+         */
+        function _isInsideCircle(shape, x, y , r) {
+            var context = shape.context;
+            !r && ( r = context.r );
+            return (x * x + y * y) < r * r;
+        };
+    
+        /**
+         * 扇形包含判断
+         */
+        function _isInsideSector(shape, x, y) {
+            var context = shape.context
+            if (!_isInsideCircle(shape, x, y)
+                    || ( context.r0 > 0 && _isInsideCircle( shape ,x, y , context.r0))
+               ){
+                   // 大圆外或者小圆内直接false
+                   return false;
+               }
+            else {
+                // 判断夹角
+                var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
+                var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
+    
+                //计算该点所在的角度
+                var angle      = myMath.degreeTo360( (Math.atan2(y , x ) / Math.PI * 180) % 360 );
+                
+                var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
+                if ( (startAngle > endAngle && !context.clockwise ) || (startAngle < endAngle && context.clockwise ) ) {
+                    regIn      = false; //out
+                }
+                //度的范围，从小到大
+                var regAngle   = [ 
+                    Math.min( startAngle , endAngle ) , 
+                    Math.max( startAngle , endAngle ) 
+                ];
+    
+                //console.log(angle+"|"+startAngle+"|"+endAngle)
+    
+                var inAngleReg = angle > regAngle[0] && angle < regAngle[1];
+                return (inAngleReg && regIn) || (!inAngleReg && !regIn);
+            }
+        };
+    
+        /*
+         *椭圆包含判断
+         * */
+        function _isPointInElipse(shape , x , y) {
+            var context = shape.context;
+            var center  = { x:0 , y:0 };
+            //x半径
+            var XRadius = context.hr;
+            var YRadius = context.vr;
+    
+            var p = {
+                x : x,
+                y : y
+            }
+            
+            var iRes;
+    
+            p.x -= center.x;
+            p.y -= center.y;
+    
+            p.x *= p.x;
+            p.y *= p.y;
+    
+            XRadius *= XRadius;
+            YRadius *= YRadius;
+    
+            iRes = YRadius * p.x + XRadius * p.y - XRadius * YRadius;
+    
+            return (iRes < 0);
+        };
+    
+        /**
+         * 多边形包含判断
+         * 警告：下面这段代码会很难看，建议跳过~
+         */
+        function _isInsidePolygon(shape, x, y) {
+            /**
+             * 射线判别法
+             * 如果一个点在多边形内部，任意角度做射线肯定会与多边形要么有一个交点，要么有与多边形边界线重叠
+             * 如果一个点在多边形外部，任意角度做射线要么与多边形有一个交点，
+             * 要么有两个交点，要么没有交点，要么有与多边形边界线重叠。
+             */
+            var context = shape.context ? shape.context : shape;
+            var polygon = context.pointList ;
+            var i;
+            var j;
+            var N = polygon.length;
+            var inside = false;
+            var redo = true;
+            var v;
+    
+            for (i = 0; i < N; ++i) {
+                // 是否在顶点上
+                if (polygon[i][0] == x && polygon[i][1] == y ) {
+                    redo = false;
+                    inside = true;
+                    break;
+                }
+            }
+    
+            if (redo) {
+                redo = false;
+                inside = false;
+                for (i = 0,j = N - 1;i < N;j = i++) {
+                    if ((polygon[i][1] < y && y < polygon[j][1])
+                            || (polygon[j][1] < y && y < polygon[i][1])
+                       ) {
+                           if (x <= polygon[i][0] || x <= polygon[j][0]) {
+                               v = (y - polygon[i][1])
+                                   * (polygon[j][0] - polygon[i][0])
+                                   / (polygon[j][1] - polygon[i][1])
+                                   + polygon[i][0];
+                               if (x < v) {          // 在线的左侧
+                                   inside = !inside;
+                               }
+                               else if (x == v) {   // 在线上
+                                   inside = true;
+                                   break;
+                               }
+                           }
+                       }
+                    else if (y == polygon[i][1]) {
+                        if (x < polygon[i][0]) {    // 交点在顶点上
+                            polygon[i][1] > polygon[j][1] ? --y : ++y;
+                            //redo = true;
+                            break;
+                        }
+                    }
+                    else if (polygon[i][1] == polygon[j][1] // 在水平的边界线上
+                            && y == polygon[i][1]
+                            && ((polygon[i][0] < x && x < polygon[j][0])
+                                || (polygon[j][0] < x && x < polygon[i][0]))
+                            ) {
+                                inside = true;
+                                break;
+                            }
+                }
+            }
+            return inside;
+        };
+    
+        /**
+         * 路径包含判断，依赖多边形判断
+         */
+        function _isInsidePath(shape, x, y) {
+            var context = shape.context;
+            var pointList = context.pointList;
+            var insideCatch = false;
+            for (var i = 0, l = pointList.length; i < l; i++) {
+                insideCatch = _isInsidePolygon(
+                        { pointList : pointList[i] }, x, y
+                        );
+                if (insideCatch) {
+                    break;
+                }
+            }
+            return insideCatch;
+        };
+        HitTestPoint = {
+            isInside : isInside,
+            isOutside : isOutside
+        };
+        return HitTestPoint;
+    }
+);
+;define(
+    "canvax/geom/Matrix",
+    [
+        "canvax/core/Base"
+    ],
+    function(Base){
+  
+        var Matrix = function(a, b, c, d, tx, ty){
+            this.a = a != undefined ? a : 1;
+            this.b = b != undefined ? b : 0;
+            this.c = c != undefined ? c : 0;
+            this.d = d != undefined ? d : 1;
+            this.tx = tx != undefined ? tx : 0;
+            this.ty = ty != undefined ? ty : 0;
+        };
+    
+        Base.creatClass( Matrix , function(){} , {
+            concat : function(mtx){
+                var a = this.a;
+                var c = this.c;
+                var tx = this.tx;
+    
+                this.a = a * mtx.a + this.b * mtx.c;
+                this.b = a * mtx.b + this.b * mtx.d;
+                this.c = c * mtx.a + this.d * mtx.c;
+                this.d = c * mtx.b + this.d * mtx.d;
+                this.tx = tx * mtx.a + this.ty * mtx.c + mtx.tx;
+                this.ty = tx * mtx.b + this.ty * mtx.d + mtx.ty;
+                return this;
+            },
+            concatTransform : function(x, y, scaleX, scaleY, rotation){
+                var cos = 1;
+                var sin = 0;
+                if(rotation%360){
+                    var r = rotation * Math.PI / 180;
+                    cos = Math.cos(r);
+                    sin = Math.sin(r);
+                }
+    
+                this.concat(new Matrix(cos*scaleX, sin*scaleX, -sin*scaleY, cos*scaleY, x, y));
+                return this;
+            },
+            rotate : function(angle){
+                //目前已经提供对顺时针逆时针两个方向旋转的支持
+                var cos = Math.cos(angle);
+                var sin = Math.sin(angle);
+    
+                var a = this.a;
+                var c = this.c;
+                var tx = this.tx;
+    
+                if (angle>0){
+                    this.a = a * cos - this.b * sin;
+                    this.b = a * sin + this.b * cos;
+                    this.c = c * cos - this.d * sin;
+                    this.d = c * sin + this.d * cos;
+                    this.tx = tx * cos - this.ty * sin;
+                    this.ty = tx * sin + this.ty * cos;
+                } else {
+                    var st = Math.sin(Math.abs(angle));
+                    var ct = Math.cos(Math.abs(angle));
+    
+                    this.a = a*ct + this.b*st;
+                    this.b = -a*st + this.b*ct;
+                    this.c = c*ct + this.d*st;
+                    this.d = -c*st + ct*this.d;
+                    this.tx = ct*tx + st*this.ty;
+                    this.ty = ct*this.ty - st*tx;
+                }
+                return this;
+    
+    
+            },
+            scale : function(sx, sy){
+                this.a *= sx;
+                this.d *= sy;
+                this.tx *= sx;
+                this.ty *= sy;
+                return this;
+            },
+            translate : function(dx, dy){
+                this.tx += dx;
+                this.ty += dy;
+                return this;
+            },
+            identity : function(){
+                //初始化
+                this.a = this.d = 1;
+                this.b = this.c = this.tx = this.ty = 0;
+                return this;
+            },
+            invert : function(){
+                //逆向矩阵
+                var a = this.a;
+                var b = this.b;
+                var c = this.c;
+                var d = this.d;
+                var tx = this.tx;
+                var i = a * d - b * c;
+    
+                this.a = d / i;
+                this.b = -b / i;
+                this.c = -c / i;
+                this.d = a / i;
+                this.tx = (c * this.ty - d * tx) / i;
+                this.ty = -(a * this.ty - b * tx) / i;
+                return this;
+            },
+            clone : function(){
+                return new Matrix(this.a, this.b, this.c, this.d, this.tx, this.ty);
+            },
+            toArray : function(){
+                return [ this.a , this.b , this.c , this.d , this.tx , this.ty ];
+            },
+            /**
+             * 矩阵左乘向量
+             */
+            mulVector : function(out , v) {
+                var aa = this.a, ac = this.c, atx = this.tx;
+                var ab = this.b, ad = this.d, aty = this.ty;
+    
+                out[0] = v[0] * aa + v[1] * ac + atx;
+                out[1] = v[0] * ab + v[1] * ad + aty;
+    
+                return out;
+            }
+    
+        } );
+    
+        return Matrix;
+    
+    }
+);
+;define(
+    "canvax/geom/Vector",
+    [],
+    function(){
+        function Vector(x, y) {
+            var vx = 0,vy = 0;
+            if ( arguments.length == 1 && _.isObject( x ) ){
+                var arg = arguments[0];
+                if( _.isArray( arg ) ){
+                   vx = arg[0];
+                   vy = arg[1];
+                } else if( arg.hasOwnProperty("x") && arg.hasOwnProperty("y") ) {
+                   vx = arg.x;
+                   vy = arg.y;
+                }
+            }
+            this._axes = [vx, vy];
+        };
+        Vector.prototype = {
+            distance: function (v) {
+                var x = this._axes[0] - v._axes[0];
+                var y = this._axes[1] - v._axes[1];
+    
+                return Math.sqrt((x * x) + (y * y));
+            }
+        };
+        return Vector;
+    } 
+)
+;define(
+    "canvax/geom/SmoothSpline",
+    [
+        "canvax/geom/Vector"
+    ],
+    function( Vector ){
+        /**
+         * @inner
+         */
+        function interpolate(p0, p1, p2, p3, t, t2, t3) {
+            var v0 = (p2 - p0) * 0.5;
+            var v1 = (p3 - p1) * 0.5;
+            return (2 * (p1 - p2) + v0 + v1) * t3 
+                   + (- 3 * (p1 - p2) - 2 * v0 - v1) * t2
+                   + v0 * t + p1;
+        }
+        /**
+         * 多线段平滑曲线 
+         * opt ==> points , isLoop
+         */
+        return function ( opt ) {
+            var points = opt.points;
+            var isLoop = opt.isLoop;
+            var smoothFilter = opt.smoothFilter;
+
+            var len = points.length;
+            if( len == 1 ){
+                return points;
+            }
+            var ret = [];
+            var distance  = 0;
+            var preVertor = new Vector( points[0] );
+            var iVtor     = null
+            for (var i = 1; i < len; i++) {
+                iVtor = new Vector(points[i]);
+                distance += preVertor.distance( iVtor );
+                preVertor = iVtor;
+            }
+    
+            preVertor = null;
+            iVtor     = null;
+    
+    
+            //基本上等于曲率
+            var segs = distance / 6;
+    
+            segs = segs < len ? len : segs;
+            for (var i = 0; i < segs; i++) {
+                var pos = i / (segs-1) * (isLoop ? len : len - 1);
+                var idx = Math.floor(pos);
+    
+                var w = pos - idx;
+    
+                var p0;
+                var p1 = points[idx % len];
+                var p2;
+                var p3;
+                if (!isLoop) {
+                    p0 = points[idx === 0 ? idx : idx - 1];
+                    p2 = points[idx > len - 2 ? len - 1 : idx + 1];
+                    p3 = points[idx > len - 3 ? len - 1 : idx + 2];
+                } else {
+                    p0 = points[(idx -1 + len) % len];
+                    p2 = points[(idx + 1) % len];
+                    p3 = points[(idx + 2) % len];
+                }
+    
+                var w2 = w * w;
+                var w3 = w * w2;
+
+                var rp = [
+                        interpolate(p0[0], p1[0], p2[0], p3[0], w, w2, w3),
+                        interpolate(p0[1], p1[1], p2[1], p3[1], w, w2, w3)
+                        ];
+
+                _.isFunction(smoothFilter) && smoothFilter( rp );
+    
+                ret.push( rp );
+            }
+            return ret;
+        };
+    } 
+);
 ;define(
     "canvax/display/DisplayObject",
     [
@@ -1407,38 +2609,6 @@ define(
     }
 )
 ;define(
-    "canvax/display/Point",
-    [],
-    function(){
-        var Point = function(x,y){
-            if(arguments.length==1 && typeof arguments[0] == 'object' ){
-               var arg=arguments[0]
-               if( "x" in arg && "y" in arg ){
-                  this.x = arg.x*1;
-                  this.y = arg.y*1;
-               } else {
-                  var i=0;
-                  for (var p in arg){
-                      if(i==0){
-                        this.x = arg[p]*1;
-                      } else {
-                        this.y = arg[p]*1;
-                        break;
-                      }
-                      i++;
-                  }
-               }
-               return;
-            }
-            x || (x=0);
-            y || (y=0);
-            this.x = x*1;
-            this.y = y*1;
-        };
-        return Point;
-    }
-);
-;define(
     "canvax/display/Shape",
     [
         "canvax/display/DisplayObject",
@@ -1694,2418 +2864,6 @@ define(
     }
 );
          
-;define(
-    "canvax/display/Text",
-    [
-        "canvax/display/DisplayObject",
-        "canvax/core/Base"
-    ],
-    function( DisplayObject , Base ) {
-        var Text = function( text , opt ) {
-            var self = this;
-            self.type = "text";
-            self._reNewline = /\r?\n/;
-            self.fontProperts = [ "fontStyle" , "fontVariant" , "fontWeight" , "fontSize" , "fontFamily"];
-
-
-            //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
-            opt = Base.checkOpt( opt );
-            
-            self._context = {
-                fontSize            : opt.context.fontSize       || 13 , //字体大小默认13
-                fontWeight          : opt.context.fontWeight     || "normal",
-                fontFamily          : opt.context.fontFamily     || "微软雅黑",
-                textDecoration      : opt.context.textDecoration,  
-                fillStyle           : opt.context.fontColor      || opt.context.fillStyle   || 'blank',
-                lineHeight          : opt.context.lineHeight     || 1.3,
-                backgroundColor     : opt.context.backgroundColor ,
-                textBackgroundColor : opt.context.textBackgroundColor
-            };
-
-            self._context.font = self._getFontDeclaration();
-
-            self.text  = text.toString();
-
-            arguments.callee.superclass.constructor.apply(this, [opt]);
-
-        };
-
-        Base.creatClass(Text , DisplayObject , {
-            $watch : function( name , value , preValue ){
-                 //context属性有变化的监听函数
-                 if( name in  this.fontProperts){
-                     //如果修改的是font的某个内容，就重新组装一遍font的值，
-                     //然后通知引擎这次对context的修改不需要上报心跳
-                     this._notWatch    = false;
-                     this.context.font = this._getFontDeclaration();
-                 }
-            },
-            init : function(text , opt){
-               var self = this;
-               var c = this.context;
-               c.width  = this.getTextWidth();
-               c.height = this.getTextHeight();
-
-            },
-            render : function( ctx ){
-               for (p in this.context.$model){
-                   if(p in ctx){
-                       if ( p != "textBaseline" && this.context.$model[p] ) {
-                           ctx[p] = this.context.$model[p];
-                       }
-                   }
-               }
-               this._renderText(ctx, this._getTextLines());
-            },
-            resetText     : function( text ){
-               this.text  = text.toString();
-               this.heartBeat();
-            },
-            getTextWidth  : function(){
-               var width = 0;
-               Base._pixelCtx.save();
-               Base._pixelCtx.font = this.context.font;
-               width = this._getTextWidth(  Base._pixelCtx , this._getTextLines() );
-               Base._pixelCtx.restore();
-               return width;
-            },
-            getTextHeight : function(){
-               return this._getTextHeight( Base._pixelCtx , this._getTextLines() );
-            },
-            _getTextLines : function(){
-               return this.text.split( this._reNewline );
-            },
-            _renderText: function(ctx, textLines) {
-                ctx.save();
-                this._renderTextFill(ctx, textLines);
-                this._renderTextStroke(ctx, textLines);
-                ctx.restore();
-            },
-            _getFontDeclaration: function() {
-                var self         = this;
-                var fontArr      = [];
-                    
-                _.each( this.fontProperts , function( p ){
-                    var fontP    =  self._context[p];
-                    if( p == "fontSize" ) { 
-                        fontP = parseFloat( fontP ) + "px"
-                    }
-                    fontP && fontArr.push( fontP );
-                } );
-
-                return fontArr.join(' ');
-
-            },
-            _renderTextFill: function(ctx, textLines) {
-                if (!this.context.fillStyle ) return;
-
-                this._boundaries = [ ];
-                var lineHeights = 0;
-
-                for (var i = 0, len = textLines.length; i < len; i++) {
-                    var heightOfLine = this._getHeightOfLine(ctx, i, textLines);
-                    lineHeights += heightOfLine;
-
-                    this._renderTextLine(
-                            'fillText',
-                            ctx,
-                            textLines[i],
-                            0,//this._getLeftOffset(),
-                            this._getTopOffset() + lineHeights,
-                            i
-                            );
-                }
-            },
-            _renderTextStroke: function(ctx, textLines) {
-                if ( (!this.context.strokeStyle || !this.context.lineWidth ) && !this._skipFillStrokeCheck) return;
-
-                var lineHeights = 0;
-
-                ctx.save();
-                if (this.strokeDashArray) {
-                    if (1 & this.strokeDashArray.length) {
-                        this.strokeDashArray.push.apply(this.strokeDashArray, this.strokeDashArray);
-                    }
-                    supportsLineDash && ctx.setLineDash(this.strokeDashArray);
-                }
-
-                ctx.beginPath();
-                for (var i = 0, len = textLines.length; i < len; i++) {
-                    var heightOfLine = this._getHeightOfLine(ctx, i, textLines);
-                    lineHeights += heightOfLine;
-
-                    this._renderTextLine(
-                            'strokeText',
-                            ctx,
-                            textLines[i],
-                            0, //this._getLeftOffset(),
-                            this._getTopOffset() + lineHeights,
-                            i
-                            );
-                }
-                ctx.closePath();
-                ctx.restore();
-            },
-            _renderTextLine: function(method, ctx, line, left, top, lineIndex) {
-                top -= this.context.fontSize / 4;
-
-                if (this.context.textAlign !== 'justify') {
-                    this._renderChars(method, ctx, line, left, top, lineIndex);
-                    return;
-                }
-
-                var lineWidth = ctx.measureText(line).width;
-                var totalWidth = this.context.width;
-
-                if (totalWidth > lineWidth) {
-                    var words = line.split(/\s+/);
-                    var wordsWidth = ctx.measureText(line.replace(/\s+/g, '')).width;
-                    var widthDiff = totalWidth - wordsWidth;
-                    var numSpaces = words.length - 1;
-                    var spaceWidth = widthDiff / numSpaces;
-
-                    var leftOffset = 0;
-                    for (var i = 0, len = words.length; i < len; i++) {
-                        this._renderChars(method, ctx, words[i], left + leftOffset, top, lineIndex);
-                        leftOffset += ctx.measureText(words[i]).width + spaceWidth;
-                    }
-                }
-                else {
-                    this._renderChars(method, ctx, line, left, top, lineIndex);
-                }
-            },
-            _renderChars: function(method, ctx, chars, left, top) {
-                ctx[method]( chars , 0 , top );
-            },
-            _getHeightOfLine: function() {
-                return this.context.fontSize * this.context.lineHeight;
-            },
-            _getTextWidth: function(ctx, textLines) {
-                
-                var maxWidth = ctx.measureText(textLines[0] || '|').width;
-
-                for (var i = 1, len = textLines.length; i < len; i++) {
-                    var currentLineWidth = ctx.measureText(textLines[i]).width;
-                    if (currentLineWidth > maxWidth) {
-                        maxWidth = currentLineWidth;
-                    }
-                }
-                return maxWidth;
-            },
-            _getTextHeight: function(ctx, textLines) {
-                return this.context.fontSize * textLines.length * this.context.lineHeight;
-            },
-
-            /**
-             * @private
-             * @return {Number} Top offset
-             */
-            _getTopOffset: function() {
-                var t = 0;
-                switch(this.context.textBaseline){
-                    case "top":
-                         t = 0;
-                         break; 
-                    case "middle":
-                         t = -this.context.height / 2;
-                         break;
-                    case "bottom":
-                         t = -this.context.height;
-                         break;
-                }
-                return t;
-            },
-            getRect : function(){
-                var c = this.context;
-                var x = 0;
-                var y = 0;
-                //更具textAlign 和 textBaseline 重新矫正 xy
-                if( c.textAlign == "center" ){
-                    x = -c.width / 2;
-                };
-                if( c.textAlign == "right" ){
-                    x =  -c.width;
-                };
-                if( c.textBaseline == "middle" ){
-                    y = -c.height / 2;
-                };
-                if( c.textBaseline == "bottom" ){
-                    y = -c.height;
-                };
-
-                return {
-                    x     : x,
-                    y     : y,
-                    width : c.width,
-                    height: c.height
-                }
-            }
-        });
-        return Text;
-    }
-);
-;define(
-    "canvax/event/CanvaxEvent",
-    [
-         "canvax/core/Base"
-    ],
-    function(EventBase,Base){
-        var CanvaxEvent = function() {
-            this.mouseX = 0;
-            this.mouseY = 0;
-            //this.type = type;
-            this.target = null;
-            this.currentTarget = null;	
-            this.params = null;
-
-            this._stopPropagation = false ; //默认不阻止事件冒泡
-        }
-        CanvaxEvent.prototype = {
-            stopPropagation : function() {
-                this._stopPropagation = true;
-            }
-        }
-        CanvaxEvent.pageX = function(e) {
-            if (e.pageX) return e.pageX;
-            else if (e.clientX)
-                return e.clientX + (document.documentElement.scrollLeft ?
-                        document.documentElement.scrollLeft : document.body.scrollLeft);
-            else return null;
-        }
-        CanvaxEvent.pageY = function(e) {
-            if (e.pageY) return e.pageY;
-            else if (e.clientY)
-                return e.clientY + (document.documentElement.scrollTop ?
-                        document.documentElement.scrollTop : document.body.scrollTop);
-            else return null;
-        }
-        return CanvaxEvent;
-    } 
-);
-;define(
-    "canvax/event/EventDispatcher",
-    [
-        "canvax/core/Base",
-        "canvax/event/EventManager"
-    ],
-    function( Base ,EventManager){
-
-        var EventDispatcher = function(){
-            arguments.callee.superclass.constructor.call(this, name);
-        };
-      
-        Base.creatClass(EventDispatcher , EventManager , {
-            on : function(type, listener){
-                this._addEventListener( type, listener);
-                return this;
-            },
-            addEventListener:function(type, listener){
-                this._addEventListener( type, listener);
-                return this;
-            },
-            un : function(type,listener){
-                this._removeEventListener( type, listener);
-                return this;
-            },
-            removeEventListener:function(type,listener){
-                this._removeEventListener( type, listener);
-                return this;
-            },
-            removeEventListenerByType:function(type){
-                this._removeEventListenerByType( type);
-                return this;
-            },
-            removeAllEventListeners:function(){
-                this._removeAllEventListeners();
-                return this;
-            },
-            fire : function(eventType , event){
-                //因为需要在event上面冒泡传递信息，所以还是不用clone了
-                var e       = event;//_.clone( event );
-                var me      = this;
-                var preCurr = e ? e.currentTarget : null;
-                _.each( eventType.split(" ") , function(evt){
-                    var preEventType = null;
-                    if( !e ){
-                        e = { type : evt };
-                    } else {
-                        //把原有的e.type暂存起来
-                        preEventType = e.type;
-                        //如果有传递e过来
-                        e.type = evt;
-                    };
-                    e.currentTarget = me;
-                    me.dispatchEvent( e );
-                    if( preEventType ){
-                        e.type = preEventType;
-                    }
-                } );
-                e.currentTarget = preCurr;
-                return this;
-            },
-            dispatchEvent:function(event){
-                if(event.type == "mouseover"){
-                    
-                    //记录dispatchEvent之前的心跳
-                    var preHeartBeat = this._heartBeatNum;
-                    this._dispatchEvent( event );
-                    if( preHeartBeat != this._heartBeatNum ){
-                        this._hoverClass = true;
-
-                        /*
-                        //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
-                        //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
-                        //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
-                        if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
-                            //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
-                        } else {
-                            delete canvax.convertStages[ this.getStage().id ];
-                            this._heart = false;
-                        }
-                        */
-
-                        if( this.hoverClone ){
-                            var canvax = this.getStage().parent;
-                            //然后clone一份obj，添加到_hoverStage 中
-                            var activShape = this.clone(true);                     
-                            activShape._transform = this.getConcatenatedMatrix();
-                            canvax._hoverStage.addChildAt( activShape , 0 ); 
-
-                            //然后把自己visible=false隐藏了
-                            //this.context.visible = false;
-                            this._globalAlpha = this.context.globalAlpha;
-                            this.context.globalAlpha = 0;
-                        }
-
-                    }
-                    return;
-                }
-      
-                this._dispatchEvent( event );
-      
-                if(event.type == "mouseout"){
-                    if(this._hoverClass){
-                        //说明刚刚over的时候有添加样式
-                        var canvax = this.getStage().parent;
-                        this._hoverClass = false;
-                        canvax._hoverStage.removeChildById(this.id);
-                        
-                        this.context.globalAlpha = this._globalAlpha;
-                        delete this._globalAlpha;
-                    }
-                }
-      
-                return this;
-            },
-            hasEvent:function(type){
-                return this._hasEventListener(type);
-            },
-            hasEventListener:function(type){
-                return this._hasEventListener(type);
-            },
-            hover : function( overFun , outFun ){
-                this.on("mouseover" , overFun);
-                this.on("mouseout"  , outFun );
-                return this;
-            },
-            once : function(type, listener){
-                this.on(type , function(){
-                    listener.apply(this , arguments);
-                    this.un(type , arguments.callee);
-                });
-                return this;
-            }
-        });
-      
-        return EventDispatcher;
-      
-    }
-);
-;define(
-    "canvax/event/EventHandler",
-    [
-        "canvax/core/Base",
-        ( 'ontouchstart' in window ) ? "canvax/event/handler/touch" : "canvax/event/handler/mouse",
-        "canvax/display/Point",
-        "canvax/event/CanvaxEvent"
-    ],
-    function( Base , Handler , Point , CanvaxEvent ){
-        var EventHandler = function( canvax ){
-            this.canvax = canvax;
-            this.curPoints       = [ new Point( 0 , 0 ) ] //X,Y 的 point 集合, 在touch下面则为 touch的集合，只是这个touch被添加了对应的x，y
- 
-            //当前激活的点对应的obj，在touch下可以是个数组,和上面的curPoints对应
-            this.curPointsTarget = [];
-            
-            /**
-             *交互相关属性
-             * */
-            //接触canvas
-            this._touching = false;
-            //正在拖动，前提是_touching=true
-            this._draging =false;
- 
-            //当前的鼠标状态
-            this._cursor  = "default";
-
-            //this.initEvent = function(){};
-        };
-        Base.creatClass( EventHandler , Handler , {
-            /*
-             *@param {array} childs 
-             * */
-            __dispatchEventInChilds : function( e , childs ){
-                if( !childs && !("length" in childs) ){
-                  return false;
-                }
-                var me       = this;
-                var hasChild = false;
-                _.each( childs , function( child , i){
-                    if( child ){
-                        hasChild = true;
-                        var ce         = Base.copyEvent( new CanvaxEvent() , e);
-                        ce.target      = ce.currentTarget = child || this;
-                        ce.stagePoint  = me.curPoints[i];
-                        ce.point       = ce.target.globalToLocal( ce.stagePoint );
-                        child.dispatchEvent( ce );
-                    }
-                } );
-                return hasChild;
-            },
-            //克隆一个元素到hover stage中去
-            _clone2hoverStage : function( target , i ){
-                var me   = this;
-                var root = me.canvax;
-                var _dragDuplicate = root._hoverStage.getChildById( target.id );
-                if(!_dragDuplicate){
-                    _dragDuplicate             = target.clone(true);
-                    _dragDuplicate._transform  = target.getConcatenatedMatrix();
-
-                    /**
-                     *TODO: 因为后续可能会有手动添加的 元素到_hoverStage 里面来
-                     *比如tips
-                     *这类手动添加进来的肯定是因为需要显示在最外层的。在hover元素之上。
-                     *所有自动添加的hover元素都默认添加在_hoverStage的最底层
-                     **/
-                    
-                    root._hoverStage.addChildAt( _dragDuplicate , 0 );
-                }
-                _dragDuplicate.context.visible = true;
-                _dragDuplicate._dragPoint = target.globalToLocal( me.curPoints[ i ] );
-            },
-            //drag 中 的处理函数
-            _dragHander  : function( e , target , i ){
-                var me   = this;
-                var root = me.canvax;
-                var _dragDuplicate = root._hoverStage.getChildById( target.id );
-                var gPoint = new Point( me.curPoints[i].x - _dragDuplicate._dragPoint.x , me.curPoints[i].y - _dragDuplicate._dragPoint.y );
-                _dragDuplicate.context.x = gPoint.x; 
-                _dragDuplicate.context.y = gPoint.y;  
-                target.drag && target.drag( e );
- 
-                //要对应的修改本尊的位置，但是要告诉引擎不要watch这个时候的变化
-                var tPoint = gPoint;
-                if( target.type != "stage" && target.parent && target.parent.type != "stage" ){
-                    tPoint = target.parent.globalToLocal( gPoint );
-                }
-                target._notWatch = true;
-                target.context.x = tPoint.x;
-                target.context.y = tPoint.y;
-                target._notWatch = false;
-                //同步完毕本尊的位置
-            },
-            //drag结束的处理函数
-            _dragEnd  : function( e , target , i ){
-                var me   = this;
-                var root = me.canvax;
-                //_dragDuplicate 复制在_hoverStage 中的副本
-                var _dragDuplicate     = root._hoverStage.getChildById( target.id );
- 
-                target.context.visible = true;
-                if( e.type == "mouseout" || e.type == "dragend"){
-                    _dragDuplicate.destroy();
-                }
-            }
-        } );
-        return EventHandler;
-    } 
-);
-;define(
-    "canvax/event/EventManager",
-    [ ],
-    function(){
-        /**
-         * 构造函数.
-         * @name EventDispatcher
-         * @class EventDispatcher类是可调度事件的类的基类，它允许显示列表上的任何对象都是一个事件目标。
-         */
-        var EventManager = function() {
-            //事件映射表，格式为：{type1:[listener1, listener2], type2:[listener3, listener4]}
-            this._eventMap = {};
-        };
-    
-        EventManager.prototype = { 
-            /*
-             * 注册事件侦听器对象，以使侦听器能够接收事件通知。
-             */
-            _addEventListener : function(type, listener) {
-    
-                if( typeof listener != "function" ){
-                  //listener必须是个function呐亲
-                  return false;
-                }
-                var addResult = true;
-                var self      = this;
-                _.each( type.split(" ") , function(type){
-                    var map = self._eventMap[type];
-                    if(!map){
-                        map = self._eventMap[type] = [];
-                        map.push(listener);
-                        self._eventEnabled = true;
-                        return true;
-                    }
-    
-                    if(_.indexOf(map ,listener) == -1) {
-                        map.push(listener);
-                        self._eventEnabled = true;
-                        return true;
-                    }
-    
-                    addResult = false;
-                });
-                return addResult;
-            },
-            /**
-             * 删除事件侦听器。
-             */
-            _removeEventListener : function(type, listener) {
-                if(arguments.length == 1) return this.removeEventListenerByType(type);
-    
-                var map = this._eventMap[type];
-                if(!map){
-                    return false;
-                }
-    
-                for(var i = 0; i < map.length; i++) {
-                    var li = map[i];
-                    if(li === listener) {
-                        map.splice(i, 1);
-                        if(map.length    == 0) { 
-                            delete this._eventMap[type];
-                            //如果这个如果这个时候child没有任何事件侦听
-                            if(_.isEmpty(this._eventMap)){
-                                //那么该元素不再接受事件的检测
-                                this._eventEnabled = false;
-                            }
-                        }
-                        return true;
-                    }
-                }
-                
-                return false;
-            },
-            /**
-             * 删除指定类型的所有事件侦听器。
-             */
-            _removeEventListenerByType : function(type) {
-                var map = this._eventMap[type];
-                if(!map) {
-                    delete this._eventMap[type];
-    
-                    //如果这个如果这个时候child没有任何事件侦听
-                    if(_.isEmpty(this._eventMap)){
-                        //那么该元素不再接受事件的检测
-                        this._eventEnabled = false;
-                    }
-    
-                    return true;
-                }
-                return false;
-            },
-            /**
-             * 删除所有事件侦听器。
-             */
-            _removeAllEventListeners : function() {	
-                this._eventMap = {};
-                this._eventEnabled = false;
-            },
-            /**
-            * 派发事件，调用事件侦听器。
-            */
-            _dispatchEvent : function(e) {
-                var map = this._eventMap[e.type];
-                
-                if( map ){
-                    if(!e.target) e.target = this;
-                    map = map.slice();
-    
-                    for(var i = 0; i < map.length; i++) {
-                        var listener = map[i];
-                        if(typeof(listener) == "function") {
-                            listener.call(this, e);
-                        }
-                    }
-                }
-    
-                if( !e._stopPropagation ) {
-                    //向上冒泡
-                    if( this.parent ){
-                        e.currentTarget = this.parent;
-                        this.parent._dispatchEvent( e );
-                    }
-                } 
-                return true;
-            },
-            /**
-               * 检查是否为指定事件类型注册了任何侦听器。
-               */
-            _hasEventListener : function(type) {
-                var map = this._eventMap[type];
-                return map != null && map.length > 0;
-            }
-        }
-    
-        return EventManager;
-    }
-);
-;define(
-    "canvax/event/handler/mouse",
-    [
-        "canvax/core/Base",
-        "canvax/display/Point",
-        "canvax/event/CanvaxEvent"
-    ],
-    function( Base , Point , CanvaxEvent ){
-        var mouseHandler = function(){
-        
-        };
-        mouseHandler.prototype = {
-            init : function(){
-                var _moveStep = 0; //move的时候的频率设置
-                //依次添加上浏览器的自带事件侦听
-                var me   = this;
-                var root = this.canvax;
-                _.each( ["click" , "mousedown" , "mousemove" , "mouseup" , "mouseout"] , function( type ){
-                    Base.addEvent( root.el , type , function( e ){
-                        root.updateRootOffset();
-                        //如果发现是mousemove的话，要做mousemove的频率控制
-                        if( e.type == "mousemove" ){
-                            if(_moveStep<1){
-                                _moveStep++;
-                                return;
-                            }
-                            _moveStep = 0;
-                        }
-                        me.__mouseHandler( e );
-                    } ); 
-                } );   
-            },
-            /*
-             * 鼠标事件处理函数
-             * */
-            __mouseHandler : function(e) {
-                var me = this;
-                var root = me.canvax;
-            
-                me.curPoints = [ new Point( 
-                        CanvaxEvent.pageX( e ) - root.rootOffset.left , 
-                        CanvaxEvent.pageY( e ) - root.rootOffset.top
-                        )];
- 
-                var curMousePoint  = me.curPoints[0]; 
-                var curMouseTarget = me.curPointsTarget[0];
- 
-                //mousedown的时候 如果 curMouseTarget.dragEnabled 为true。就要开始准备drag了
-                if( e.type == "mousedown" ){
-                   //如果curTarget 的数组为空或者第一个为falsh ，，，
-                   if( !curMouseTarget ){
-                     var obj = root.getObjectsUnderPoint( curMousePoint , 1)[0];
-                     if(obj){
-                       me.curPointsTarget = [ obj ];
-                     }
-                   }
-                   curMouseTarget = me.curPointsTarget[0];
-                   if ( curMouseTarget && curMouseTarget.dragEnabled ){
-                       me._touching = true
-                   }
-                }
- 
-                var contains = document.compareDocumentPosition ? function (parent, child) {
-                    if( !child ){
-                        return false;
-                    }
-                    return !!(parent.compareDocumentPosition(child) & 16);
-                } : function (parent, child) {
-                    if( !child ){
-                        return false;
-                    }
-                    return child !== child && (parent.contains ? parent.contains(child) : true);
-                }
- 
-                if( e.type == "mouseup" || (e.type == "mouseout" && !contains(root.el , (e.toElement || e.relatedTarget) )) ){
-                   if(me._draging == true){
-                      //说明刚刚在拖动
-                      me._dragEnd( e , curMouseTarget , 0 );
-                   }
-                   me._draging  = false;
-                   me._touching = false;
-                }
- 
-                if( e.type == "mouseout" ){
-                    if( !contains(root.el , (e.toElement || e.relatedTarget) ) ){
-                        me.__getcurPointsTarget(e , curMousePoint);
-                    }
-                } else if( e.type == "mousemove" ){  //|| e.type == "mousedown" ){
-                    //拖动过程中就不在做其他的mouseover检测，drag优先
-                    if(me._touching && e.type == "mousemove" && curMouseTarget){
-                        //说明正在拖动啊
-                        if(!me._draging){
-                            //begin drag
-                            curMouseTarget.dragBegin && curMouseTarget.dragBegin(e);
-                            
-                            //先把本尊给隐藏了
-                            curMouseTarget.context.visible = false;
-                                                 
-                            //然后克隆一个副本到activeStage
-                            me._clone2hoverStage( curMouseTarget , 0 );
-                        } else {
-                            //drag ing
-                            me._dragHander( e , curMouseTarget , 0 );
-                        }
-                        me._draging = true;
-                    } else {
-                        //常规mousemove检测
-                        //move事件中，需要不停的搜索target，这个开销挺大，
-                        //后续可以优化，加上和帧率相当的延迟处理
-                        me.__getcurPointsTarget( e , curMousePoint );
-                    }
- 
-                } else {
-                    //其他的事件就直接在target上面派发事件
-                    var child = curMouseTarget;
-                    if( !child ){
-                        child = root;
-                    };
-                    me.__dispatchEventInChilds( e , [ child ] );
-                }
-                if( root.preventDefault ) {
-                    //阻止默认浏览器动作(W3C) 
-                    if ( e && e.preventDefault ) {
-                        e.preventDefault(); 
-                    } else {
-                        window.event.returnValue = false;
-                    }
-                }
- 
-            },
-            __getcurPointsTarget : function(e , point ) {
-                var me     = this;
-                var root   = me.canvax;
-                var oldObj = me.curPointsTarget[0];
- 
-                var e = Base.copyEvent( new CanvaxEvent() , e );
- 
-                if( e.type=="mousemove" && oldObj && oldObj._hoverClass && oldObj.getChildInPoint( point ) ){
-                    //小优化,鼠标move的时候。计算频率太大，所以。做此优化
-                    //如果有target存在，而且当前元素正在hoverStage中，而且当前鼠标还在target内,就没必要取检测整个displayList了
-                    //开发派发常规mousemove事件
-                    e.target = e.currentTarget = oldObj;
-                    e.point  = oldObj.globalToLocal( point );
-                    me._mouseEventDispatch( oldObj , e );
-                    return;
-                };
-
-                var obj = root.getObjectsUnderPoint( point , 1)[0];
- 
-                if(oldObj && oldObj != obj || e.type=="mouseout") {
-                    if(!oldObj){
-                       return;
-                    }
-                    me.curPointsTarget[0] = null;
-                    e.type     = "mouseout";
-                    e.toTarget = obj; 
-                    e.target   = e.currentTarget = oldObj;
-                    e.point    = oldObj.globalToLocal( point );
-                    //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
-                    //会有修改visible的意愿
-                    if(!oldObj.context.visible){
-                       oldObj.context.visible = true;
-                    }
-                    me._mouseEventDispatch( oldObj , e );
-                };
- 
-                if( obj && oldObj != obj ){ //&& obj._hoverable 已经 干掉了
-                    me.curPointsTarget[0] = obj;
-                    e.type       = "mouseover";
-                    e.fromTarget = oldObj;
-                    e.target     = e.currentTarget = obj;
-                    e.point      = obj.globalToLocal( point );
- 
-                    me._mouseEventDispatch( obj , e );
-                };
- 
-                if( e.type == "mousemove" && obj ){
-                    e.target = e.currentTarget = oldObj;
-                    e.point  = oldObj.globalToLocal( point );
-                    me._mouseEventDispatch( oldObj , e );
-                };
-
-                me._cursorHander( obj , oldObj );
- 
-            },
-            _mouseEventDispatch : function( obj , e ){
-                obj.dispatchEvent( e );
-            },
-            _cursorHander    : function( obj , oldObj ){
-                if(!obj && !oldObj ){
-                    this._setCursor("default");
-                }
-                if(obj && oldObj != obj){
-                    this._setCursor(obj.context.cursor);
-                }
-            },
-            _setCursor : function(cursor) {
-                if(this._cursor == cursor){
-                  //如果两次要设置的鼠标状态是一样的
-                  return;
-                }
-                this.canvax.el.style.cursor = cursor;
-                this._cursor = cursor;
-            }
-        };
-        return mouseHandler;
-    } 
-);
-
-
-;define(
-    "canvax/event/handler/touch",
-    [
-        "canvax/core/Base",
-        "canvax/library/hammer"
-    ],
-    function( Base , Hammer ){
-        var EventsTypes = [ 
-            "pan","panstart","panmove","panend","pancancel","panleft","panright","panup","pandown",
-            "press" , "pressup",
-            "swipe" , "swipeleft" , "swiperight" , "swipeup" , "swipedown",
-            "tap"
-        ];
-        var touchHandler = function(){
-        
-        };
-        touchHandler.prototype = {
-            init : function(){
-                var me        = this;
-                var root      = me.canvax;
-                var el        = root.el;
-                
-                me._hammer = new Hammer( el );
-                _.each( EventsTypes , function( et ){
-                    me._hammer.on(et , function( e ){
-                        root.updateRootOffset();
-                        me.__touchHandler( e );
-                        //console.log( e.type )
-                    });
-                } );
-            },
-            /*
-             *触屏事件处理函数
-             * */
-            __touchHandler : function( e ) {
-                var me   = this;
-                var root = me.canvax;
-                //用hamer的方式来阻止执行浏览器默认事件
-                if( this.preventDefault ) {
-                    this._hammer.options.prevent_default = true
-                } else {
-                    this._hammer.options.prevent_default = false
-                }
- 
-                //touch下的curPointsTarget 从touches中来
-                //获取canvax坐标系统里面的坐标
-                me.curPoints = me.__getCanvaxPointInTouchs( e );
-
-                //drag开始
-                if( e.type == "panstart"){
-                    //dragstart的时候touch已经准备好了target，curPointsTarget里面只要有一个是有效的
-                    //就认为drags开始
-                    _.each( me.curPointsTarget , function( child , i ){
-                        if( child && child.dragEnabled ){
-                           //只要有一个元素就认为正在准备drag了
-                           me._draging = true;
-                           //然后克隆一个副本到activeStage
-                           me._clone2hoverStage( child , i );
-                           //先把本尊给隐藏了
-                           child.context.visible = false;
- 
-                           return false;
-                        }
-                    } ) 
-                }
- 
-                //dragIng
-                if( e.type == "panmove"){
-                    if( me._draging ){
-                        _.each( me.curPointsTarget , function( child , i ){
-                            if( child && child.dragEnabled) {
-                               me._dragHander( e , child , i);
-                            }
-                        } )
-                    }
-                }
- 
-                //drag结束
-                if( e.type == "panend"){
-                    if( me._draging ){
-                        _.each( me.curPointsTarget , function( child , i ){
-                            if( child && child.dragEnabled) {
-                                me._dragEnd( e , child , 0 );
-                            }
-                        } );
-                        me._draging = false;
-                    }
-                }
- 
-                var childs = me.__getChildInTouchs( me.curPoints );
-                if( me.__dispatchEventInChilds( e , childs ) ){
-                    me.curPointsTarget = childs;
-                } else {
-                    //如果当前没有一个target，就把事件派发到canvax上面
-                    me.__dispatchEventInChilds( e , [ root ] );
-                };
-            },
-            
-            //从touchs中获取到对应touch , 在上面添加上canvax坐标系统的x，y
-            __getCanvaxPointInTouchs : function( e ){
-                var me        = this;
-                var root      = me.canvax;
-                var curTouchs = [];
-                _.each( e.pointers , function( touch ){
-                   touch.x = touch.pageX - root.rootOffset.left , 
-                   touch.y = touch.pageY - root.rootOffset.top
-                   curTouchs.push( touch );
-                });
-                return curTouchs;
-            },
-            __getChildInTouchs : function( touchs ){
-                var me   = this;
-                var root = me.canvax;
-                var touchesTarget = [];
-                _.each( touchs , function(touch){
-                    touchesTarget.push( root.getObjectsUnderPoint( touch , 1)[0] );
-                } );
-                return touchesTarget;
-            }
-            /*
-             *触屏类处理结束
-             * */
-
-        };
-        return touchHandler;
-    } 
-);
-
-
-
-;define(
-    "canvax/geom/HitTestPoint",
-    [
-        "canvax/core/Base",
-        "canvax/geom/Math"
-    ],
-    function(Base , myMath){
-        /**
-         * 图形空间辅助类
-         * isInside：是否在区域内部
-         * isOutside：是否在区域外部
-         * getTextWidth：测算单行文本宽度
-         * TODO:本检测只为进一步的 详细 检测。也就是说 进过了基本的矩形范围检测后才会
-         * 使用本检测方法
-         */
-        var HitTestPoint={};
-    
-        /**
-         * 包含判断
-         * @param {string} shape : 图形
-         * @param {number} x ： 横坐标
-         * @param {number} y ： 纵坐标
-         */
-        function isInside(shape , point) {
-            var x = point.x;
-            var y = point.y;
-            if( shape.type == "bitmap" ){
-                //如果是bitmap
-                return true;
-            }
-    
-            if (!shape || !shape.type) {
-                // 无参数或不支持类型
-                return false;
-            }
-            var zoneType = shape.type;
-    
-    
-            //数学运算，主要是line，brokenLine
-            var _mathReturn = _mathMethod(zoneType, shape, x, y);
-    
-            if (typeof _mathReturn != 'undefined') {
-                return _mathReturn;
-            }
-    
-            if (zoneType != 'beziercurve'&& shape.buildPath && Base._pixelCtx.isPointInPath) {
-                   return _buildPathMethod(shape, Base._pixelCtx, x, y);
-            } else if (Base._pixelCtx.getImageData) {
-                return _pixelMethod(shape, x, y);
-            }
-    
-            // 上面的方法都行不通时
-            switch (zoneType) {
-                //心形----------------------10
-                case 'heart':
-                    return true;    // Todo，不精确
-                    //水滴----------------------11
-                case 'droplet':
-                    return true;    // Todo，不精确
-                case 'ellipse':
-                    return true;     // Todo，不精确
-                    //路径，椭圆，曲线等-----------------13
-                default:
-                    return false;   // Todo，暂不支持
-            }
-        }
-    
-        /**
-         * 用数学方法判断，三个方法中最快，但是支持的shape少
-         *
-         * @param {string} zoneType ： 图形类型
-         * * @param {number} x ： 横坐标
-         * @param {number} y ： 纵坐标
-         * @return {boolean=} true表示坐标处在图形中
-         */
-        function _mathMethod(zoneType,shape,x, y) {
-            // 在矩形内则部分图形需要进一步判断
-            switch (zoneType) {
-                //线-----------------------1
-                case 'line':
-                    return _isInsideLine(shape.context, x, y);
-                    //折线----------------------2
-                case 'brokenLine':
-                    return _isInsideBrokenLine(shape, x, y);
-                    //文本----------------------3
-                case 'text':
-                    return true;
-                    //圆环----------------------4
-                case 'ring':
-                    return _isInsideRing(shape , x, y);
-                    //矩形----------------------5
-                case 'rect':
-                    return true;
-                    //圆形----------------------6
-                case 'circle':
-                    return _isInsideCircle(shape , x, y);
-                    //椭圆
-                case 'ellipse':
-                    return _isPointInElipse(shape , x , y);
-                    //扇形----------------------7
-                case 'sector':
-                    return _isInsideSector(shape , x, y);
-                    //path---------------------8
-                case 'path':
-                    return _isInsidePath(shape , x, y);
-                    //多边形-------------------9
-                case 'polygon':
-                case 'star':
-                case 'isogon':
-                    return _isInsidePolygon(shape , x, y);
-                    //图片----------------------10
-                case 'image':
-                    return true;
-            }
-        }
-    
-        /**
-         * 通过buildPath方法来判断，三个方法中较快，但是不支持线条类型的shape，
-         * 而且excanvas不支持isPointInPath方法
-         *
-         * @param {Object} shapeClazz ： shape类
-         * @param {Object} context : 上下文
-         * @param {Object} context ：目标区域
-         * @param {number} x ： 横坐标
-         * @param {number} y ： 纵坐标
-         * @return {boolean} true表示坐标处在图形中
-         */
-        function _buildPathMethod(shape, context, x, y) {
-            var context = shape.context;
-            // 图形类实现路径创建了则用类的path
-            context.beginPath();
-            shape.buildPath(context, context);
-            context.closePath();
-            return context.isPointInPath(x, y);
-        }
-    
-        /**
-         * 通过像素值来判断，三个方法中最慢，但是支持广,不足之处是excanvas不支持像素处理,flashCanvas支持还好
-         *
-         * @param {Object} shapeClazz ： shape类
-         * @param {Object} context ：目标区域
-         * @param {number} x ： 横坐标
-         * @param {number} y ： 纵坐标
-         * @return {boolean} true表示坐标处在图形中
-         */
-        function _pixelMethod(shape, x, y) {
-            var context  = shape.context;
-            
-            var _context = Base._pixelCtx;
-                
-            _context.save();
-            _context.beginPath();
-            Base.setContextStyle( _context , context.$model );
-           
-            _context.transform.apply( _context , shape.getConcatenatedMatrix().toArray() );
-    
-            //这个时候肯定是做过矩形范围检测过来的
-            //所以，shape._rect 肯定都是已经有值的
-            _context.clearRect( shape._rect.x-10 , shape._rect.y-10 , shape._rect.width+20 , shape._rect.height+20 );
-    
-    
-            shape.draw( _context,  context );
-
-            _context.globalAlpha = 1;
-
-            shape.drawEnd(_context);
-            _context.closePath();
-            _context.restore();
-    
-            //对鼠标的坐标也做相同的变换
-            var _transformStage = shape.getConcatenatedMatrix()
-            if( _transformStage ){
-                var inverseMatrix = _transformStage.clone();
-    
-                var originPos = [x, y];
-                inverseMatrix.mulVector( originPos , [ x , y , 1 ] );
-    
-                x = originPos[0];
-                y = originPos[1];
-            }
-    
-            return _isPainted(_context, x , y);
-        };
-    
-        /**
-         * 坐标像素值，判断坐标是否被作色
-         *
-         * @param {Object} context : 上下文
-         * @param {number} x : 横坐标
-         * @param {number} y : 纵坐标
-         * @param {number=} unit : 触发的精度，越大越容易触发，可选，缺省是为1
-         * @return {boolean} 已经被画过返回true
-         */
-        function _isPainted(context, x, y, unit) {
-            var pixelsData;
-    
-            if (typeof unit != 'undefined') {
-                unit = Math.floor((unit || 1 )/ 2);
-                pixelsData = context.getImageData(
-                        x - unit,
-                        y - unit,
-                        unit + unit,
-                        unit + unit
-                        ).data;
-            }
-            else {
-                pixelsData = context.getImageData(x, y, 1, 1).data;
-            }
-    
-            var len = pixelsData.length;
-            while (len--) {
-                if (pixelsData[len] !== 0) {
-                    return true;
-                }
-            }
-    
-            return false;
-        };
-    
-        /**
-         * !isInside
-         */
-        function isOutside(shape, x, y) {
-            return !isInside(shape, x, y);
-        };
-    
-        /**
-         * 线段包含判断
-         */
-        function _isInsideLine( context , x , y ) {
-            var _x1 = context.xStart;
-            var _y1 = context.yStart;
-            var _x2 = context.xEnd;
-            var _y2 = context.yEnd;
-            var _l  = context.lineWidth;
-            var _a = 0;
-            var _b = _x1;
-    
-            if (_x1 !== _x2) {
-                _a = (_y1 - _y2) / (_x1 - _x2);
-                _b = (_x1 * _y2 - _x2 * _y1) / (_x1 - _x2) ;
-            }
-            else {
-                return Math.abs(x - _x1) <= _l / 2;
-            }
-    
-            var _s = (_a * x - y + _b) * (_a * x - y + _b) / (_a * _a + 1);
-            return  _s <= _l / 2 * _l / 2;
-        };
-    
-        function _isInsideBrokenLine(shape, x, y) {
-            var context   = shape.context;
-            var pointList = context.pointList;
-            var lineArea;
-            var insideCatch = false;
-            for (var i = 0, l = pointList.length - 1; i < l; i++) {
-                lineArea = {
-                    xStart : pointList[i][0],
-                    yStart : pointList[i][1],
-                    xEnd   : pointList[i + 1][0],
-                    yEnd   : pointList[i + 1][1],
-                    lineWidth : context.lineWidth
-                };
-                if (!_isInsideRectangle(
-                            {
-                                x : Math.min(lineArea.xStart, lineArea.xEnd)
-                    - lineArea.lineWidth,
-                   y : Math.min(lineArea.yStart, lineArea.yEnd)
-                    - lineArea.lineWidth,
-                   width : Math.abs(lineArea.xStart - lineArea.xEnd)
-                    + lineArea.lineWidth,
-                   height : Math.abs(lineArea.yStart - lineArea.yEnd)
-                    + lineArea.lineWidth
-                            },
-                            x,y
-                            )
-                   ) {
-                       // 不在矩形区内跳过
-                       continue;
-                   }
-                insideCatch = _isInsideLine(lineArea, x, y);
-                if (insideCatch) {
-                    break;
-                }
-            }
-            return insideCatch;
-        };
-    
-        function _isInsideRing(shape , x, y) {
-            var context = shape.context;
-            if (_isInsideCircle(shape , x, y)
-                    && !_isInsideCircle(
-                        shape,
-                        x, y,
-                        context.r0 || 0
-                        )
-               ){
-                   // 大圆内，小圆外
-                   return true;
-               }
-            return false;
-        };
-    
-        /**
-         * 矩形包含判断
-         */
-        function _isInsideRectangle(shape, x, y) {
-    
-            if (x >= shape.x
-                    && x <= (shape.x + shape.width)
-                    && y >= shape.y
-                    && y <= (shape.y + shape.height)
-               ) {
-                   return true;
-               }
-            return false;
-        };
-    
-        /**
-         * 圆形包含判断
-         */
-        function _isInsideCircle(shape, x, y , r) {
-            var context = shape.context;
-            !r && ( r = context.r );
-            return (x * x + y * y) < r * r;
-        };
-    
-        /**
-         * 扇形包含判断
-         */
-        function _isInsideSector(shape, x, y) {
-            var context = shape.context
-            if (!_isInsideCircle(shape, x, y)
-                    || ( context.r0 > 0 && _isInsideCircle( shape ,x, y , context.r0))
-               ){
-                   // 大圆外或者小圆内直接false
-                   return false;
-               }
-            else {
-                // 判断夹角
-                var startAngle = myMath.degreeTo360(context.startAngle);            // 起始角度[0,360)
-                var endAngle   = myMath.degreeTo360(context.endAngle);              // 结束角度(0,360]
-    
-                //计算该点所在的角度
-                var angle      = myMath.degreeTo360( (Math.atan2(y , x ) / Math.PI * 180) % 360 );
-                
-                var regIn      = true;  //如果在start和end的数值中，end大于start而且是顺时针则regIn为true
-                if ( (startAngle > endAngle && !context.clockwise ) || (startAngle < endAngle && context.clockwise ) ) {
-                    regIn      = false; //out
-                }
-                //度的范围，从小到大
-                var regAngle   = [ 
-                    Math.min( startAngle , endAngle ) , 
-                    Math.max( startAngle , endAngle ) 
-                ];
-    
-                //console.log(angle+"|"+startAngle+"|"+endAngle)
-    
-                var inAngleReg = angle > regAngle[0] && angle < regAngle[1];
-                return (inAngleReg && regIn) || (!inAngleReg && !regIn);
-            }
-        };
-    
-        /*
-         *椭圆包含判断
-         * */
-        function _isPointInElipse(shape , x , y) {
-            var context = shape.context;
-            var center  = { x:0 , y:0 };
-            //x半径
-            var XRadius = context.hr;
-            var YRadius = context.vr;
-    
-            var p = {
-                x : x,
-                y : y
-            }
-            
-            var iRes;
-    
-            p.x -= center.x;
-            p.y -= center.y;
-    
-            p.x *= p.x;
-            p.y *= p.y;
-    
-            XRadius *= XRadius;
-            YRadius *= YRadius;
-    
-            iRes = YRadius * p.x + XRadius * p.y - XRadius * YRadius;
-    
-            return (iRes < 0);
-        };
-    
-        /**
-         * 多边形包含判断
-         * 警告：下面这段代码会很难看，建议跳过~
-         */
-        function _isInsidePolygon(shape, x, y) {
-            /**
-             * 射线判别法
-             * 如果一个点在多边形内部，任意角度做射线肯定会与多边形要么有一个交点，要么有与多边形边界线重叠
-             * 如果一个点在多边形外部，任意角度做射线要么与多边形有一个交点，
-             * 要么有两个交点，要么没有交点，要么有与多边形边界线重叠。
-             */
-            var context = shape.context ? shape.context : shape;
-            var polygon = context.pointList ;
-            var i;
-            var j;
-            var N = polygon.length;
-            var inside = false;
-            var redo = true;
-            var v;
-    
-            for (i = 0; i < N; ++i) {
-                // 是否在顶点上
-                if (polygon[i][0] == x && polygon[i][1] == y ) {
-                    redo = false;
-                    inside = true;
-                    break;
-                }
-            }
-    
-            if (redo) {
-                redo = false;
-                inside = false;
-                for (i = 0,j = N - 1;i < N;j = i++) {
-                    if ((polygon[i][1] < y && y < polygon[j][1])
-                            || (polygon[j][1] < y && y < polygon[i][1])
-                       ) {
-                           if (x <= polygon[i][0] || x <= polygon[j][0]) {
-                               v = (y - polygon[i][1])
-                                   * (polygon[j][0] - polygon[i][0])
-                                   / (polygon[j][1] - polygon[i][1])
-                                   + polygon[i][0];
-                               if (x < v) {          // 在线的左侧
-                                   inside = !inside;
-                               }
-                               else if (x == v) {   // 在线上
-                                   inside = true;
-                                   break;
-                               }
-                           }
-                       }
-                    else if (y == polygon[i][1]) {
-                        if (x < polygon[i][0]) {    // 交点在顶点上
-                            polygon[i][1] > polygon[j][1] ? --y : ++y;
-                            //redo = true;
-                            break;
-                        }
-                    }
-                    else if (polygon[i][1] == polygon[j][1] // 在水平的边界线上
-                            && y == polygon[i][1]
-                            && ((polygon[i][0] < x && x < polygon[j][0])
-                                || (polygon[j][0] < x && x < polygon[i][0]))
-                            ) {
-                                inside = true;
-                                break;
-                            }
-                }
-            }
-            return inside;
-        };
-    
-        /**
-         * 路径包含判断，依赖多边形判断
-         */
-        function _isInsidePath(shape, x, y) {
-            var context = shape.context;
-            var pointList = context.pointList;
-            var insideCatch = false;
-            for (var i = 0, l = pointList.length; i < l; i++) {
-                insideCatch = _isInsidePolygon(
-                        { pointList : pointList[i] }, x, y
-                        );
-                if (insideCatch) {
-                    break;
-                }
-            }
-            return insideCatch;
-        };
-    
-        /**
-         * 测算单行文本宽度
-         * @param {Object} text
-         * @param {Object} textFont
-         */
-        function getTextWidth(text, textFont) {
-            Base._pixelCtx.save();
-            if (textFont) {
-                Base._pixelCtx.font = textFont;
-            }
-            var width = Base._pixelCtx.measureText(text).width;
-            Base._pixelCtx.restore();
-    
-            return width;
-        };
-    
-        HitTestPoint = {
-            isInside : isInside,
-            isOutside : isOutside,
-            getTextWidth : getTextWidth
-        };
-    
-        return HitTestPoint;
-    
-    }
-);
-;define(
-    "canvax/geom/Math",
-    [],
-    function(){
-        var _cache = {
-            sin : {},     //sin缓存
-            cos : {}      //cos缓存
-        };
-        var _radians = Math.PI / 180;
-
-        /**
-         * @param angle 弧度（角度）参数
-         * @param isDegrees angle参数是否为角度计算，默认为false，angle为以弧度计量的角度
-         */
-        function sin(angle, isDegrees) {
-            angle = (isDegrees ? angle * _radians : angle).toFixed(4);
-            if(typeof _cache.sin[angle] == 'undefined') {
-                _cache.sin[angle] = Math.sin(angle);
-            }
-            return _cache.sin[angle];
-        }
-
-        /**
-         * @param radians 弧度参数
-         */
-        function cos(angle, isDegrees) {
-            angle = (isDegrees ? angle * _radians : angle).toFixed(4);
-            if(typeof _cache.cos[angle] == 'undefined') {
-                _cache.cos[angle] = Math.cos(angle);
-            }
-            return _cache.cos[angle];
-        }
-
-        /**
-         * 角度转弧度
-         * @param {Object} angle
-         */
-        function degreeToRadian(angle) {
-            return angle * _radians;
-        }
-
-        /**
-         * 弧度转角度
-         * @param {Object} angle
-         */
-        function radianToDegree(angle) {
-            return angle / _radians;
-        }
-
-        /*
-         * 校验角度到360度内
-         * @param {angle} number
-         */
-        function degreeTo360( angle ) {
-            var reAng = (360 +  angle  % 360) % 360;//Math.abs(360 + Math.ceil( angle ) % 360) % 360;
-            if( reAng == 0 && angle !== 0 ){
-                reAng = 360
-            }
-            return reAng;
-        }
-
-        return {
-            PI  : Math.PI  ,
-            sin : sin      ,
-            cos : cos      ,
-            degreeToRadian : degreeToRadian,
-            radianToDegree : radianToDegree,
-            degreeTo360    : degreeTo360   
-        };
- 
-    }
-)
-;define(
-    "canvax/geom/Matrix",
-    [
-        "canvax/core/Base"
-    ],
-    function(Base){
-  
-        var Matrix = function(a, b, c, d, tx, ty){
-            this.a = a != undefined ? a : 1;
-            this.b = b != undefined ? b : 0;
-            this.c = c != undefined ? c : 0;
-            this.d = d != undefined ? d : 1;
-            this.tx = tx != undefined ? tx : 0;
-            this.ty = ty != undefined ? ty : 0;
-        };
-    
-        Base.creatClass( Matrix , function(){} , {
-            concat : function(mtx){
-                var a = this.a;
-                var c = this.c;
-                var tx = this.tx;
-    
-                this.a = a * mtx.a + this.b * mtx.c;
-                this.b = a * mtx.b + this.b * mtx.d;
-                this.c = c * mtx.a + this.d * mtx.c;
-                this.d = c * mtx.b + this.d * mtx.d;
-                this.tx = tx * mtx.a + this.ty * mtx.c + mtx.tx;
-                this.ty = tx * mtx.b + this.ty * mtx.d + mtx.ty;
-                return this;
-            },
-            concatTransform : function(x, y, scaleX, scaleY, rotation){
-                var cos = 1;
-                var sin = 0;
-                if(rotation%360){
-                    var r = rotation * Math.PI / 180;
-                    cos = Math.cos(r);
-                    sin = Math.sin(r);
-                }
-    
-                this.concat(new Matrix(cos*scaleX, sin*scaleX, -sin*scaleY, cos*scaleY, x, y));
-                return this;
-            },
-            rotate : function(angle){
-                //目前已经提供对顺时针逆时针两个方向旋转的支持
-                var cos = Math.cos(angle);
-                var sin = Math.sin(angle);
-    
-                var a = this.a;
-                var c = this.c;
-                var tx = this.tx;
-    
-                if (angle>0){
-                    this.a = a * cos - this.b * sin;
-                    this.b = a * sin + this.b * cos;
-                    this.c = c * cos - this.d * sin;
-                    this.d = c * sin + this.d * cos;
-                    this.tx = tx * cos - this.ty * sin;
-                    this.ty = tx * sin + this.ty * cos;
-                } else {
-                    var st = Math.sin(Math.abs(angle));
-                    var ct = Math.cos(Math.abs(angle));
-    
-                    this.a = a*ct + this.b*st;
-                    this.b = -a*st + this.b*ct;
-                    this.c = c*ct + this.d*st;
-                    this.d = -c*st + ct*this.d;
-                    this.tx = ct*tx + st*this.ty;
-                    this.ty = ct*this.ty - st*tx;
-                }
-                return this;
-    
-    
-            },
-            scale : function(sx, sy){
-                this.a *= sx;
-                this.d *= sy;
-                this.tx *= sx;
-                this.ty *= sy;
-                return this;
-            },
-            translate : function(dx, dy){
-                this.tx += dx;
-                this.ty += dy;
-                return this;
-            },
-            identity : function(){
-                //初始化
-                this.a = this.d = 1;
-                this.b = this.c = this.tx = this.ty = 0;
-                return this;
-            },
-            invert : function(){
-                //逆向矩阵
-                var a = this.a;
-                var b = this.b;
-                var c = this.c;
-                var d = this.d;
-                var tx = this.tx;
-                var i = a * d - b * c;
-    
-                this.a = d / i;
-                this.b = -b / i;
-                this.c = -c / i;
-                this.d = a / i;
-                this.tx = (c * this.ty - d * tx) / i;
-                this.ty = -(a * this.ty - b * tx) / i;
-                return this;
-            },
-            clone : function(){
-                return new Matrix(this.a, this.b, this.c, this.d, this.tx, this.ty);
-            },
-            toString : function(){
-                return "(a="+this.a+", b="+this.b+", c="+this.c+", d="+this.d+", tx="+this.tx+", ty="+this.ty+")";
-            },
-            toArray : function(){
-                return [ this.a , this.b , this.c , this.d , this.tx , this.ty ];
-            },
-            /**
-             * 矩阵左乘向量
-             */
-            mulVector : function(out , v) {
-                var aa = this.a, ac = this.c, atx = this.tx;
-                var ab = this.b, ad = this.d, aty = this.ty;
-    
-                out[0] = v[0] * aa + v[1] * ac + atx;
-                out[1] = v[0] * ab + v[1] * ad + aty;
-    
-                return out;
-            }
-    
-        } );
-    
-        return Matrix;
-    
-    }
-);
-;define(
-    "canvax/geom/SmoothSpline",
-    [
-        "canvax/geom/Vector"
-    ],
-    function( Vector ){
-        /**
-         * @inner
-         */
-        function interpolate(p0, p1, p2, p3, t, t2, t3) {
-            var v0 = (p2 - p0) * 0.5;
-            var v1 = (p3 - p1) * 0.5;
-            return (2 * (p1 - p2) + v0 + v1) * t3 
-                   + (- 3 * (p1 - p2) - 2 * v0 - v1) * t2
-                   + v0 * t + p1;
-        }
-        /**
-         * 多线段平滑曲线 
-         * opt ==> points , isLoop
-         */
-        return function ( opt ) {
-            var points = opt.points;
-            var isLoop = opt.isLoop;
-            var smoothFilter = opt.smoothFilter;
-
-            var len = points.length;
-            if( len == 1 ){
-                return points;
-            }
-            var ret = [];
-            var distance  = 0;
-            var preVertor = new Vector( points[0] );
-            var iVtor     = null
-            for (var i = 1; i < len; i++) {
-                iVtor = new Vector(points[i]);
-                distance += preVertor.distance( iVtor );
-                preVertor = iVtor;
-            }
-    
-            preVertor = null;
-            iVtor     = null;
-    
-    
-            //基本上等于曲率
-            var segs = distance / 6;
-    
-            segs = segs < len ? len : segs;
-            for (var i = 0; i < segs; i++) {
-                var pos = i / (segs-1) * (isLoop ? len : len - 1);
-                var idx = Math.floor(pos);
-    
-                var w = pos - idx;
-    
-                var p0;
-                var p1 = points[idx % len];
-                var p2;
-                var p3;
-                if (!isLoop) {
-                    p0 = points[idx === 0 ? idx : idx - 1];
-                    p2 = points[idx > len - 2 ? len - 1 : idx + 1];
-                    p3 = points[idx > len - 3 ? len - 1 : idx + 2];
-                } else {
-                    p0 = points[(idx -1 + len) % len];
-                    p2 = points[(idx + 1) % len];
-                    p3 = points[(idx + 2) % len];
-                }
-    
-                var w2 = w * w;
-                var w3 = w * w2;
-
-                var rp = [
-                        interpolate(p0[0], p1[0], p2[0], p3[0], w, w2, w3),
-                        interpolate(p0[1], p1[1], p2[1], p3[1], w, w2, w3)
-                        ];
-
-                _.isFunction(smoothFilter) && smoothFilter( rp );
-    
-                ret.push( rp );
-            }
-            return ret;
-        };
-    } 
-);
-;define(
-    "canvax/geom/Vector",
-    [],
-    function(){
-        function Vector(x, y) {
-            
-            if (this instanceof Vector === false) {
-                return new Vector(x, y);
-            }
-    
-            var vx = 0;
-            var vy = 0;
-            if ( arguments.length == 1 && _.isObject( x ) ){
-                var arg = arguments[0];
-                if( _.isArray( arg ) ){
-                   vx = arg[0];
-                   vy = arg[1];
-                } else if( arg.hasOwnProperty("x") && arg.hasOwnProperty("y") ) {
-                   vx = arg.x;
-                   vy = arg.y;
-                }
-            }
-    
-            this._axes = [vx, vy];
-        }
-    
-        var precision = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000];
-    
-        Vector.prototype = {
-            ctor: Vector,
-            setAxes: function(x, y) {
-                this._axes[0] = x;
-                this._axes[1] = y;
-                return this;
-            },
-            getX: function() {
-                return this._axes[0];
-            },
-            setX: function(x) {
-                this._axes[0] = x;
-    
-                return this;
-            },
-            getY: function() {
-                return this._axes[1];
-            },
-            setY: function(y) {
-                this._axes[1] = y;
-    
-                return this;
-            },
-            toArray: function() {
-                return new Array(this._axes[0], this._axes[1]);
-            },
-            add: function(vec) {
-                this._axes[0] += vec._axes[0];
-                this._axes[1] += vec._axes[1];
-                return this;
-            },
-            subtract: function(vec) {
-                this._axes[0] -= vec._axes[0];
-                this._axes[1] -= vec._axes[1];
-                return this;
-            },
-            equals: function(vec) {
-                return (vec._axes[0] == this._axes[0] && vec._axes[1] == this._axes[1]);
-            },
-            multiplyByVector: function(vec) {
-                this._axes[0] *= vec._axes[0];
-                this._axes[1] *= vec._axes[1];
-                return this;
-            },
-            mulV: function(v) {
-                return this.multiplyByVector(v);
-            },
-            divideByVector: function(vec) {
-                this._axes[0] /= vec._axes[0];
-                this._axes[1] /= vec._axes[1];
-                return this;
-            },
-            divV: function(v) {
-                return this.divideByVector(v);
-            },
-            multiplyByScalar: function(n) {
-                this._axes[0] *= n;
-                this._axes[1] *= n;
-    
-                return this;
-            },
-            mulS: function(n) {
-                return this.multiplyByScalar(n);
-            },
-            divideByScalar: function(n) {
-                this._axes[0] /= n;
-                this._axes[1] /= n;
-                return this;
-            },
-            divS: function(n) {
-                return this.divideByScalar(n);
-            },
-            normalise: function() {
-                return this.multiplyByScalar(1 / this.magnitude());
-            },
-            normalize: function() {
-                return this.normalise();
-            },
-            unit: function() {
-                return this.normalise();
-            },
-            magnitude: function() {
-                return Math.sqrt((this._axes[0] * this._axes[0]) + (this._axes[1] * this._axes[1]));
-            },
-            length: function() {
-                return this.magnitude();
-            },
-            lengthSq: function() {
-                return (this._axes[0] * this._axes[0]) + (this._axes[1] * this._axes[1]);
-            },
-            dot: function(vec) {
-                return (vec._axes[0] * this._axes[0]) + (vec._axes[1] * this._axes[1]);
-            },
-            cross: function(vec) {
-                return ((this._axes[0] * vec._axes[1]) - (this._axes[1] * vec._axes[0]));
-            },
-            reverse: function() {
-                this._axes[0] = -this._axes[0];
-                this._axes[1] = -this._axes[1];
-                return this;
-            },
-            abs: function() {
-                this._axes[0] = Math.abs(this._axes[0]);
-                this._axes[1] = Math.abs(this._axes[1]);
-    
-                return this;
-            },
-            zero: function() {
-                this._axes[0] = this._axes[1] = 0;
-                return this;
-            },
-            distance: function (v) {
-                var x = this._axes[0] - v._axes[0];
-                var y = this._axes[1] - v._axes[1];
-    
-                return Math.sqrt((x * x) + (y * y));
-            },
-            rotate: function(rads) {
-                var cos = Math.cos(rads),
-                sin = Math.sin(rads);
-    
-                var ox = this._axes[0],
-                    oy = this._axes[1];
-    
-                this._axes[0] = ox * cos - oy * sin;
-                this._axes[1] = ox * sin + oy * cos;
-    
-                return this;
-            },
-            round: function(n) {
-                // Default is two decimals
-                n = n || 2;
-    
-                // This performs waaay better than toFixed and give Float32 the edge again.
-                // http://www.dynamicguru.com/javascript/round-numbers-with-precision/
-                this._axes[0] = ((0.5 + (this._axes[0] * precision[n])) << 0) / precision[n];
-                this._axes[1] = ((0.5 + (this._axes[1] * precision[n])) << 0) / precision[n];
-    
-                return this;
-            },
-            clone: function() {
-                return new this.ctor(this._axes[0], this._axes[1]);
-            }
-        };
-    
-        return Vector;
-    } 
-)
-;define(
-    "canvax/index",
-    [
-        "canvax/core/Base",
-        "canvax/event/EventHandler",
-        "canvax/event/EventDispatcher",
-        "canvax/event/EventManager",
-
-        "canvax/display/DisplayObjectContainer",
-        "canvax/display/Stage",
-        "canvax/display/Sprite",
-        "canvax/display/Shape",
-        "canvax/display/Point",
-        "canvax/display/Text"
-    ]
-    , 
-    function( 
-        Base , EventHandler ,  EventDispatcher , EventManager , 
-        DisplayObjectContainer , 
-        Stage , Sprite , Shape , Point , Text   
-    ) {
-
-    var Canvax = function( opt ){
-        this.type = "canvax";
-        this._cid = new Date().getTime() + "_" + Math.floor(Math.random()*100); 
-        
-        this._rootDom   = Base.getEl(opt.el);
-        this.width      = parseInt("width"  in opt || this._rootDom.offsetWidth  , 10); 
-        this.height     = parseInt("height" in opt || this._rootDom.offsetHeight , 10); 
-
-        //是否阻止浏览器默认事件的执行
-        this.preventDefault = true;
-        if( opt.preventDefault === false ){
-            this.preventDefault = false
-        }
- 
-        //如果这个时候el里面已经有东西了。嗯，也许曾经这个el被canvax干过一次了。
-        //那么要先清除这个el的所有内容。
-        //默认的el是一个自己创建的div，因为要在这个div上面注册n多个事件 来 在整个canvax系统里面进行事件分发。
-        //所以不能直接用配置传进来的el对象。因为可能会重复添加很多的事件在上面。导致很多内容无法释放。
-        var htmlStr = "<div id='cc-"+this._cid+"' class='canvax-c' ";
-            htmlStr+= "style='position:relative;width:" + this.width + "px;height:" + this.height +"px;'>";
-            htmlStr+= "   <div id='cdc-"+this._cid+"' class='canvax-dom-container' ";
-            htmlStr+= "   style='position:absolute;width:" + this.width + "px;height:" + this.height +"px;'>";
-            htmlStr+= "   </div>";
-            htmlStr+= "</div>";
-
-        //var docfrag = document.createDocumentFragment();
-        //docfrag.innerHTML = htmlStr
-
-        this._rootDom.innerHTML = htmlStr;
- 
-        this.el = Base.getEl("cc-"+this._cid);
-        
-        this.rootOffset      = Base.getOffset(this.el); //this.el.offset();
-        this.lastGetRO       = 0;//最后一次获取rootOffset的时间
- 
-        
- 
-        //每帧 由 心跳 上报的 需要重绘的stages 列表
-        this.convertStages = {};
- 
-        this._heartBeat = false;//心跳，默认为false，即false的时候引擎处于静默状态 true则启动渲染
-        
-        //设置帧率
-        this._speedTime = parseInt(1000/Base.mainFrameRate);
-        this._preRenderTime = 0;
- 
-        //任务列表, 如果_taskList 不为空，那么主引擎就一直跑
-        //为 含有__enterFrame 方法 DisplayObject 的对象列表
-        //比如Movieclip的__enterFrame方法。
-        this._taskList = [];
-        
-        this._hoverStage = null;
-        
-        this._isReady    = false;
-
-        this.evt = null;
- 
-        arguments.callee.superclass.constructor.apply(this, arguments);
-        
-    };
-    
-    Base.creatClass(Canvax , DisplayObjectContainer , {
-        init : function(){
-            this.context.width  = this.width;
-            this.context.height = this.height; 
- 
-            //然后创建一个用于绘制激活shape的 stage到activation
-            this._creatHoverStage();
- 
-            //初始化事件委托到root元素上面
-            this.evt = new EventHandler( this );
-            this.evt.init();
- 
-            //创建一个如果要用像素检测的时候的容器
-            this._createPixelContext();
-            
-            this._isReady = true;
-        },
-        resize : function(){
-            //重新设置坐标系统 高宽 等。
-            this.width    = parseInt( this._rootDom.offsetWidth  );
-            this.height   = parseInt( this._rootDom.offsetHeight );
- 
-            this.el.style.width  = this.width +"px";
-            this.el.style.height = this.height+"px";
- 
-            this.rootOffset     = Base.getOffset(this.el);
-            this._notWatch      = true;
-            this.context.width  = this.width;
-            this.context.height = this.height;
-            this._notWatch      = false;
- 
-            var me = this;
-            var reSizeCanvas    = function(ctx){
-                var canvas = ctx.canvas;
-                canvas.style.width = me.width + "px";
-                canvas.style.height= me.height+ "px";
-                canvas.setAttribute("width"  , me.width * Base._devicePixelRatio);
-                canvas.setAttribute("height" , me.height* Base._devicePixelRatio);
- 
-                //如果是swf的话就还要调用这个方法。
-                if (ctx.resize) {
-                    ctx.resize(me.width , me.height);
-                }
-            }; 
-            _.each(this.children , function(s , i){
-                s._notWatch     = true;
-                s.context.width = me.width;
-                s.context.height= me.height;
-                reSizeCanvas(s.context2D);
-                s._notWatch     = false;
-            });
-
-            var canvaxDOMc = Base.getEl("cdc-"+this._cid);
-            canvaxDOMc.style.width  = this.width  + "px";
-            canvaxDOMc.style.height = this.height + "px";
-
-            this.heartBeat();
- 
-        },
-        getDomContainer  : function(){
-            return Base.getEl("cdc-"+this._cid);
-        },
-        getHoverStage : function(){
-            return this._hoverStage;
-        },
-        _creatHoverStage : function(){
-            //TODO:创建stage的时候一定要传入width height  两个参数
-            this._hoverStage = new Stage( {
-                id : "activCanvas"+(new Date()).getTime(),
-                context : {
-                    width : this.context.width,
-                    height: this.context.height
-                }
-            } );
-            //该stage不参与事件检测
-            this._hoverStage._eventEnabled = false;
-            this.addChild( this._hoverStage );
-        },
-        /**
-         * 获取像素拾取专用的上下文
-         * @return {Object} 上下文
-        */
-        _createPixelContext : function() {
-            
-            var _pixelCanvas = Base.getEl("_pixelCanvas");
-            if(!_pixelCanvas){
-                _pixelCanvas = Base._createCanvas("_pixelCanvas" , this.context.width , this.context.height); 
-            } else {
-                //如果又的话 就不需要在创建了
-                return;
-            }
-
-            document.body.appendChild( _pixelCanvas );
- 
-            Base.initElement( _pixelCanvas );
- 
-            if( Base.canvasSupport() ){
-                //canvas的话，哪怕是display:none的页可以用来左像素检测和measureText文本width检测
-                _pixelCanvas.style.display    = "none";
-            } else {
-                //flashCanvas 的话，swf如果display:none了。就做不了measureText 文本宽度 检测了
-                _pixelCanvas.style.zIndex     = -1;
-                _pixelCanvas.style.position   = "absolute";
-                _pixelCanvas.style.left       = - this.context.width  + "px";
-                _pixelCanvas.style.top        = - this.context.height + "px";
-                _pixelCanvas.style.visibility = "hidden";
-            }
-            Base._pixelCtx = _pixelCanvas.getContext('2d');
-        },
-        updateRootOffset : function(){
-            var now = new Date().getTime();
-            if( now - this.lastGetRO > 1000 ){
-                //alert( this.lastGetRO )
-                this.rootOffset      = Base.getOffset(this.el);
-                this.lastGetRO       = now;
-            }
-        },    
-        setFrameRate : function(frameRate) {
-           if(Base.mainFrameRate == frameRate) {
-               return;
-           }
-           Base.mainFrameRate = frameRate;
- 
-           //根据最新的帧率，来计算最新的间隔刷新时间
-           this._speedTime = parseInt(1000/Base.mainFrameRate);
-        },
-        getFrameRate : function(){
-           return  Base.mainFrameRate;
-        },
- 
-        //如果引擎处于静默状态的话，就会启动
-        __startEnter : function(){
-           var self = this;
-           if( !self.requestAid ){
-               self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
-           }
-        },
-        __enterFrame : function(){
-            
-            console.log("enterFrame!");
-            var self = this;
-            //不管怎么样，__enterFrame执行了就要把
-            //requestAid null 掉
-            self.requestAid = null;
-            Base.now = new Date().getTime();
- 
-            if( self._heartBeat ){
- 
-                //console.log(self._speedTime)
-                if(( Base.now - self._preRenderTime ) < self._speedTime ){
-                    //事件speed不够，下一帧再来
-                    self.__startEnter();
-                    return;
-                }
- 
-                //开始渲染的事件
-                self.fire("beginRender");
- 
-                _.each(_.values( self.convertStages ) , function(convertStage){
-                   convertStage.stage._render( convertStage.stage.context2D );
-                });
- 
-                self._heartBeat = false;
-                
-                self.convertStages = {};
- 
-                //渲染完了，打上最新时间挫
-                self._preRenderTime = new Date().getTime();
- 
-                //渲染结束
-                self.fire("afterRender");
-            }
-            
-            //先跑任务队列,因为有可能再具体的hander中会把自己清除掉
-            //所以跑任务和下面的length检测分开来
-            if(self._taskList.length > 0){
-               for(var i=0,l = self._taskList.length ; i < l ; i++ ){
-                  var obj = self._taskList[i];
-                  if(obj.__enterFrame){
-                     obj.__enterFrame();
-                  } else {
-                     self.__taskList.splice(i-- , 1);
-                  }
-               }  
-            }
-            //如果依然还有任务。 就继续enterFrame.
-            if(self._taskList.length > 0){
-               self.__startEnter();
-            }
-        },
-        _afterAddChild : function( stage , index ){
-            var canvas;
-            var contextInit = true;
- 
-            if(!stage.context2D){
-                contextInit = false;
-                canvas = Base._createCanvas( stage.id , this.context.width , this.context.height );
-            } else {
-                canvas = stage.context2D.canvas;
-            }
-
-            var canvaxDOMc = Base.getEl("cdc-"+this._cid);
-
-            if(this.children.length == 1){
-                //this.el.append( canvas );
-                this.el.insertBefore( canvas , canvaxDOMc );
-            } else if(this.children.length>1) {
-                if( index == undefined ) {
-                    //如果没有指定位置，那么就放到_hoverStage的下面。
-                    this.el.insertBefore( canvas , this._hoverStage.context2D.canvas);
-                } else {
-                    //如果有指定的位置，那么就指定的位置来
-                    if( index >= this.children.length-1 ){
-                       //this.el.append( canvas );
-                       this.el.insertBefore( canvas , canvaxDOMc );
-                    } else {
-                       this.el.insertBefore( canvas , this.children[ index ].context2D.canvas );
-                    }
-                }
-            };
- 
-            if( !contextInit ) {
-                Base.initElement( canvas );
-            }
-            stage.initStage( canvas.getContext("2d") , this.context.width , this.context.height ); 
-        },
-        _afterDelChild : function(stage){
-            this.el.removeChild( stage.context2D.canvas );
-        },
-        _convertCanvax : function(opt){
-            _.each( this.children , function(stage){
-                stage.context[opt.name] = opt.value; 
-            } );  
-        },
-        heartBeat : function( opt ){
-            //displayList中某个属性改变了
-            var self = this;
-            if( opt ){
-                //心跳包有两种，一种是某元素的可视属性改变了。一种是children有变动
-                //分别对应convertType  为 context  and children
-                if (opt.convertType == "context"){
-                    var stage   = opt.stage;
-                    var shape   = opt.shape;
-                    var name    = opt.name;
-                    var value   = opt.value;
-                    var preValue=opt.preValue;
- 
-                    if (!self._isReady) {
-                        //在还没初始化完毕的情况下，无需做任何处理
-                        return;
-                    }
- 
-                    if( shape.type == "canvax" ){
-                        self._convertCanvax(opt)
-                    } else {
-                        if(!self.convertStages[stage.id]){
-                            self.convertStages[stage.id]={
-                                stage : stage,
-                                convertShapes : {}
-                            }
-                        };
- 
-                        if(shape){
-                            if (!self.convertStages[ stage.id ].convertShapes[ shape.id ]){
-                                self.convertStages[ stage.id ].convertShapes[ shape.id ]={
-                                    shape : shape,
-                                    convertType : opt.convertType
-                                }
-                            } else {
-                                //如果已经上报了该shape的心跳。
-                                return;
-                            }
-                        }
-                    }
-                }
- 
-                if (opt.convertType == "children"){
-                    //元素结构变化，比如addchild removeChild等
-                    var target = opt.target;
-                    var stage = opt.src.getStage();
-                    if( stage || (target.type=="stage") ){
-                        //如果操作的目标元素是Stage
-                        stage = stage || target;
-                        if(!self.convertStages[stage.id]) {
-                            self.convertStages[stage.id]={
-                                stage : stage ,
-                                convertShapes : {}
-                            }
-                        }
-                    }
-                }
- 
-                if(!opt.convertType){
-                    //无条件要求刷新
-                    var stage = opt.stage;
-                    if(!self.convertStages[stage.id]) {
-                        self.convertStages[stage.id]={
-                            stage : stage ,
-                            convertShapes : {}
-                        }
-                    }
-                }
-            } else {
-                //无条件要求全部刷新，一般用在resize等。
-                _.each( self.children , function( stage , i ){
-                    self.convertStages[ stage.id ] = {
-                        stage : stage,
-                        convertShapes : {}
-                    }
-                } );
-            } 
-            
-            if (!self._heartBeat){
-               //如果发现引擎在静默状态，那么就唤醒引擎
-               self._heartBeat = true;
-               self.__startEnter();
-               //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
-            } else {
-               //否则智慧继续确认心跳
-               self._heartBeat = true;
-            }
-        }
-    } );
- 
- 
-    Canvax.Display = {
-        Stage  : Stage,
-        Sprite : Sprite,
-        Shape  : Shape,
-        Point  : Point,
-        Text   : Text
-    }
- 
-    Canvax.Event = {
-        EventDispatcher : EventDispatcher,
-        EventManager    : EventManager
-    }
- 
-    return Canvax;
-});
 ;define(
     "canvax/shape/BrokenLine",
     [
@@ -5202,3 +3960,426 @@ define(
      
     }
 );
+;define(
+    "canvax/index",
+    [
+        "canvax/core/Base",
+        "canvax/event/EventHandler",
+        "canvax/event/EventDispatcher",
+        "canvax/event/EventManager",
+
+        "canvax/display/DisplayObjectContainer",
+        "canvax/display/Stage",
+        "canvax/display/Sprite",
+        "canvax/display/Shape",
+        "canvax/display/Point",
+        "canvax/display/Text"
+    ]
+    , 
+    function( 
+        Base , EventHandler ,  EventDispatcher , EventManager , 
+        DisplayObjectContainer , 
+        Stage , Sprite , Shape , Point , Text   
+    ) {
+
+    var Canvax = function( opt ){
+        this.type = "canvax";
+        this._cid = new Date().getTime() + "_" + Math.floor(Math.random()*100); 
+        
+        this._rootDom   = Base.getEl(opt.el);
+        this.width      = parseInt("width"  in opt || this._rootDom.offsetWidth  , 10); 
+        this.height     = parseInt("height" in opt || this._rootDom.offsetHeight , 10); 
+
+        //是否阻止浏览器默认事件的执行
+        this.preventDefault = true;
+        if( opt.preventDefault === false ){
+            this.preventDefault = false
+        }
+ 
+        //如果这个时候el里面已经有东西了。嗯，也许曾经这个el被canvax干过一次了。
+        //那么要先清除这个el的所有内容。
+        //默认的el是一个自己创建的div，因为要在这个div上面注册n多个事件 来 在整个canvax系统里面进行事件分发。
+        //所以不能直接用配置传进来的el对象。因为可能会重复添加很多的事件在上面。导致很多内容无法释放。
+        var htmlStr = "<div id='cc-"+this._cid+"' class='canvax-c' ";
+            htmlStr+= "style='position:relative;width:" + this.width + "px;height:" + this.height +"px;'>";
+            htmlStr+= "   <div id='cdc-"+this._cid+"' class='canvax-dom-container' ";
+            htmlStr+= "   style='position:absolute;width:" + this.width + "px;height:" + this.height +"px;'>";
+            htmlStr+= "   </div>";
+            htmlStr+= "</div>";
+
+        //var docfrag = document.createDocumentFragment();
+        //docfrag.innerHTML = htmlStr
+
+        this._rootDom.innerHTML = htmlStr;
+ 
+        this.el = Base.getEl("cc-"+this._cid);
+        
+        this.rootOffset      = Base.getOffset(this.el); //this.el.offset();
+        this.lastGetRO       = 0;//最后一次获取rootOffset的时间
+ 
+        
+ 
+        //每帧 由 心跳 上报的 需要重绘的stages 列表
+        this.convertStages = {};
+ 
+        this._heartBeat = false;//心跳，默认为false，即false的时候引擎处于静默状态 true则启动渲染
+        
+        //设置帧率
+        this._speedTime = parseInt(1000/Base.mainFrameRate);
+        this._preRenderTime = 0;
+ 
+        //任务列表, 如果_taskList 不为空，那么主引擎就一直跑
+        //为 含有__enterFrame 方法 DisplayObject 的对象列表
+        //比如Movieclip的__enterFrame方法。
+        this._taskList = [];
+        
+        this._hoverStage = null;
+        
+        this._isReady    = false;
+
+        this.evt = null;
+ 
+        arguments.callee.superclass.constructor.apply(this, arguments);
+        
+    };
+    
+    Base.creatClass(Canvax , DisplayObjectContainer , {
+        init : function(){
+            this.context.width  = this.width;
+            this.context.height = this.height; 
+ 
+            //然后创建一个用于绘制激活shape的 stage到activation
+            this._creatHoverStage();
+ 
+            //初始化事件委托到root元素上面
+            this.evt = new EventHandler( this );
+            this.evt.init();
+ 
+            //创建一个如果要用像素检测的时候的容器
+            this._createPixelContext();
+            
+            this._isReady = true;
+        },
+        resize : function(){
+            //重新设置坐标系统 高宽 等。
+            this.width    = parseInt( this._rootDom.offsetWidth  );
+            this.height   = parseInt( this._rootDom.offsetHeight );
+ 
+            this.el.style.width  = this.width +"px";
+            this.el.style.height = this.height+"px";
+ 
+            this.rootOffset     = Base.getOffset(this.el);
+            this._notWatch      = true;
+            this.context.width  = this.width;
+            this.context.height = this.height;
+            this._notWatch      = false;
+ 
+            var me = this;
+            var reSizeCanvas    = function(ctx){
+                var canvas = ctx.canvas;
+                canvas.style.width = me.width + "px";
+                canvas.style.height= me.height+ "px";
+                canvas.setAttribute("width"  , me.width * Base._devicePixelRatio);
+                canvas.setAttribute("height" , me.height* Base._devicePixelRatio);
+ 
+                //如果是swf的话就还要调用这个方法。
+                if (ctx.resize) {
+                    ctx.resize(me.width , me.height);
+                }
+            }; 
+            _.each(this.children , function(s , i){
+                s._notWatch     = true;
+                s.context.width = me.width;
+                s.context.height= me.height;
+                reSizeCanvas(s.context2D);
+                s._notWatch     = false;
+            });
+
+            var canvaxDOMc = Base.getEl("cdc-"+this._cid);
+            canvaxDOMc.style.width  = this.width  + "px";
+            canvaxDOMc.style.height = this.height + "px";
+
+            this.heartBeat();
+ 
+        },
+        getDomContainer  : function(){
+            return Base.getEl("cdc-"+this._cid);
+        },
+        getHoverStage : function(){
+            return this._hoverStage;
+        },
+        _creatHoverStage : function(){
+            //TODO:创建stage的时候一定要传入width height  两个参数
+            this._hoverStage = new Stage( {
+                id : "activCanvas"+(new Date()).getTime(),
+                context : {
+                    width : this.context.width,
+                    height: this.context.height
+                }
+            } );
+            //该stage不参与事件检测
+            this._hoverStage._eventEnabled = false;
+            this.addChild( this._hoverStage );
+        },
+        /**
+         * 获取像素拾取专用的上下文
+         * @return {Object} 上下文
+        */
+        _createPixelContext : function() {
+            
+            var _pixelCanvas = Base.getEl("_pixelCanvas");
+            if(!_pixelCanvas){
+                _pixelCanvas = Base._createCanvas("_pixelCanvas" , this.context.width , this.context.height); 
+            } else {
+                //如果又的话 就不需要在创建了
+                return;
+            }
+
+            document.body.appendChild( _pixelCanvas );
+ 
+            Base.initElement( _pixelCanvas );
+ 
+            if( Base.canvasSupport() ){
+                //canvas的话，哪怕是display:none的页可以用来左像素检测和measureText文本width检测
+                _pixelCanvas.style.display    = "none";
+            } else {
+                //flashCanvas 的话，swf如果display:none了。就做不了measureText 文本宽度 检测了
+                _pixelCanvas.style.zIndex     = -1;
+                _pixelCanvas.style.position   = "absolute";
+                _pixelCanvas.style.left       = - this.context.width  + "px";
+                _pixelCanvas.style.top        = - this.context.height + "px";
+                _pixelCanvas.style.visibility = "hidden";
+            }
+            Base._pixelCtx = _pixelCanvas.getContext('2d');
+        },
+        updateRootOffset : function(){
+            var now = new Date().getTime();
+            if( now - this.lastGetRO > 1000 ){
+                //alert( this.lastGetRO )
+                this.rootOffset      = Base.getOffset(this.el);
+                this.lastGetRO       = now;
+            }
+        },    
+        setFrameRate : function(frameRate) {
+           if(Base.mainFrameRate == frameRate) {
+               return;
+           }
+           Base.mainFrameRate = frameRate;
+ 
+           //根据最新的帧率，来计算最新的间隔刷新时间
+           this._speedTime = parseInt(1000/Base.mainFrameRate);
+        },
+        getFrameRate : function(){
+           return  Base.mainFrameRate;
+        },
+ 
+        //如果引擎处于静默状态的话，就会启动
+        __startEnter : function(){
+           var self = this;
+           if( !self.requestAid ){
+               self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
+           }
+        },
+        __enterFrame : function(){
+            
+            console.log("enterFrame!");
+            var self = this;
+            //不管怎么样，__enterFrame执行了就要把
+            //requestAid null 掉
+            self.requestAid = null;
+            Base.now = new Date().getTime();
+ 
+            if( self._heartBeat ){
+ 
+                //console.log(self._speedTime)
+                if(( Base.now - self._preRenderTime ) < self._speedTime ){
+                    //事件speed不够，下一帧再来
+                    self.__startEnter();
+                    return;
+                }
+ 
+                //开始渲染的事件
+                self.fire("beginRender");
+ 
+                _.each(_.values( self.convertStages ) , function(convertStage){
+                   convertStage.stage._render( convertStage.stage.context2D );
+                });
+ 
+                self._heartBeat = false;
+                
+                self.convertStages = {};
+ 
+                //渲染完了，打上最新时间挫
+                self._preRenderTime = new Date().getTime();
+ 
+                //渲染结束
+                self.fire("afterRender");
+            }
+            
+            //先跑任务队列,因为有可能再具体的hander中会把自己清除掉
+            //所以跑任务和下面的length检测分开来
+            if(self._taskList.length > 0){
+               for(var i=0,l = self._taskList.length ; i < l ; i++ ){
+                  var obj = self._taskList[i];
+                  if(obj.__enterFrame){
+                     obj.__enterFrame();
+                  } else {
+                     self.__taskList.splice(i-- , 1);
+                  }
+               }  
+            }
+            //如果依然还有任务。 就继续enterFrame.
+            if(self._taskList.length > 0){
+               self.__startEnter();
+            }
+        },
+        _afterAddChild : function( stage , index ){
+            var canvas;
+            var contextInit = true;
+ 
+            if(!stage.context2D){
+                contextInit = false;
+                canvas = Base._createCanvas( stage.id , this.context.width , this.context.height );
+            } else {
+                canvas = stage.context2D.canvas;
+            }
+
+            var canvaxDOMc = Base.getEl("cdc-"+this._cid);
+
+            if(this.children.length == 1){
+                //this.el.append( canvas );
+                this.el.insertBefore( canvas , canvaxDOMc );
+            } else if(this.children.length>1) {
+                if( index == undefined ) {
+                    //如果没有指定位置，那么就放到_hoverStage的下面。
+                    this.el.insertBefore( canvas , this._hoverStage.context2D.canvas);
+                } else {
+                    //如果有指定的位置，那么就指定的位置来
+                    if( index >= this.children.length-1 ){
+                       //this.el.append( canvas );
+                       this.el.insertBefore( canvas , canvaxDOMc );
+                    } else {
+                       this.el.insertBefore( canvas , this.children[ index ].context2D.canvas );
+                    }
+                }
+            };
+ 
+            if( !contextInit ) {
+                Base.initElement( canvas );
+            }
+            stage.initStage( canvas.getContext("2d") , this.context.width , this.context.height ); 
+        },
+        _afterDelChild : function(stage){
+            this.el.removeChild( stage.context2D.canvas );
+        },
+        _convertCanvax : function(opt){
+            _.each( this.children , function(stage){
+                stage.context[opt.name] = opt.value; 
+            } );  
+        },
+        heartBeat : function( opt ){
+            //displayList中某个属性改变了
+            var self = this;
+            if( opt ){
+                //心跳包有两种，一种是某元素的可视属性改变了。一种是children有变动
+                //分别对应convertType  为 context  and children
+                if (opt.convertType == "context"){
+                    var stage   = opt.stage;
+                    var shape   = opt.shape;
+                    var name    = opt.name;
+                    var value   = opt.value;
+                    var preValue=opt.preValue;
+ 
+                    if (!self._isReady) {
+                        //在还没初始化完毕的情况下，无需做任何处理
+                        return;
+                    }
+ 
+                    if( shape.type == "canvax" ){
+                        self._convertCanvax(opt)
+                    } else {
+                        if(!self.convertStages[stage.id]){
+                            self.convertStages[stage.id]={
+                                stage : stage,
+                                convertShapes : {}
+                            }
+                        };
+ 
+                        if(shape){
+                            if (!self.convertStages[ stage.id ].convertShapes[ shape.id ]){
+                                self.convertStages[ stage.id ].convertShapes[ shape.id ]={
+                                    shape : shape,
+                                    convertType : opt.convertType
+                                }
+                            } else {
+                                //如果已经上报了该shape的心跳。
+                                return;
+                            }
+                        }
+                    }
+                }
+ 
+                if (opt.convertType == "children"){
+                    //元素结构变化，比如addchild removeChild等
+                    var target = opt.target;
+                    var stage = opt.src.getStage();
+                    if( stage || (target.type=="stage") ){
+                        //如果操作的目标元素是Stage
+                        stage = stage || target;
+                        if(!self.convertStages[stage.id]) {
+                            self.convertStages[stage.id]={
+                                stage : stage ,
+                                convertShapes : {}
+                            }
+                        }
+                    }
+                }
+ 
+                if(!opt.convertType){
+                    //无条件要求刷新
+                    var stage = opt.stage;
+                    if(!self.convertStages[stage.id]) {
+                        self.convertStages[stage.id]={
+                            stage : stage ,
+                            convertShapes : {}
+                        }
+                    }
+                }
+            } else {
+                //无条件要求全部刷新，一般用在resize等。
+                _.each( self.children , function( stage , i ){
+                    self.convertStages[ stage.id ] = {
+                        stage : stage,
+                        convertShapes : {}
+                    }
+                } );
+            } 
+            
+            if (!self._heartBeat){
+               //如果发现引擎在静默状态，那么就唤醒引擎
+               self._heartBeat = true;
+               self.__startEnter();
+               //self.requestAid = requestAnimationFrame( _.bind(self.__enterFrame,self) );
+            } else {
+               //否则智慧继续确认心跳
+               self._heartBeat = true;
+            }
+        }
+    } );
+ 
+ 
+    Canvax.Display = {
+        Stage  : Stage,
+        Sprite : Sprite,
+        Shape  : Shape,
+        Point  : Point,
+        Text   : Text
+    }
+ 
+    Canvax.Event = {
+        EventDispatcher : EventDispatcher,
+        EventManager    : EventManager
+    }
+ 
+    return Canvax;
+});

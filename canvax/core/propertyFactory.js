@@ -67,103 +67,65 @@ define(
                     if (_.indexOf(skipArray,name) !== -1 || (name.charAt(0) === "$" && !watchMore[name])) {
                         return VBPublics.push(name)
                     }
+                    var accessor = function(neo) { //创建监控属性或数组，自变量，由用户触发其改变
+                        var value = accessor.value, preValue = value, complexValue;
+                        
+                        if (arguments.length) {
+                            //写操作
+                            //set 的 值的 类型
+                            var neoType = getType(neo);
     
-                    var accessor, oldArgs;
-                    if (valueType === "object" && typeof val.get === "function" && _.keys(val).length <= 2) {
-                       
-                        var setter = val.set;
-                        var getter = val.get;
-                        accessor = function(neo) { 
-                            //创建计算属性，因变量，基本上由其他监控属性触发其改变
-                            var value = accessor.value, preValue = value;
-                            if (arguments.length) {
-                                //走的setter
-                                if (stopRepeatAssign) {
-                                    return //阻止重复赋值
-                                };
-                                if (typeof setter === "function") {
-                                    setter.call(pmodel, neo)
-                                };
-                                if (oldArgs !== neo) { //只检测用户的传参是否与上次是否一致
-                                    oldArgs = neo;
-                                    value = accessor.value = model[name] = neo ;
-                                    pmodel.$fire && pmodel.$fire(name, value, preValue);
-                                };
-                            } else {
-                                //走的getter
-                                neo = accessor.value = model[name] = getter.call(pmodel);
-                                if (value !== neo) {
-                                    oldArgs = void 0;
-                                    pmodel.$fire && pmodel.$fire(name, neo, value)
-                                }
-                                return neo
+                            if (stopRepeatAssign) {
+                                return //阻止重复赋值
                             }
-                        }
-    
-                    } else {
-    
-                        accessor = function(neo) { //创建监控属性或数组，自变量，由用户触发其改变
-                            var value = accessor.value, preValue = value, complexValue;
-                            
-                            if (arguments.length) {
-                                //写操作
-                                //set 的 值的 类型
-                                var neoType = getType(neo);
-    
-                                if (stopRepeatAssign) {
-                                    return //阻止重复赋值
+                            if (value !== neo) {
+                                if( neoType === "object" ){
+                                    value = neo.$model ? neo : PropertyFactory(neo , neo);
+                                    complexValue = value.$model;
+                                } else {//如果是其他数据类型
+                                    //if( neoType === "array" ){
+                                    //    value = _.clone(neo);
+                                    //} else {
+                                        value = neo
+                                    //}
                                 }
-                                if (value !== neo) {
-    
-                                    
-                                    if( neoType === "object" ){
-                                        value = neo.$model ? neo : PropertyFactory(neo , neo);
-                                        complexValue = value.$model;
-                                    } else {//如果是其他数据类型
-                                        //if( neoType === "array" ){
-                                        //    value = _.clone(neo);
-                                        //} else {
-                                            value = neo
-                                        //}
-                                    }
-                                    accessor.value = value;
-                                    model[name] = complexValue ? complexValue : value;//更新$model中的值
-                                    if (!complexValue) {
-                                        pmodel.$fire && pmodel.$fire(name, value, preValue)
-                                    }
-                                    if(valueType != neoType){
-                                        //如果set的值类型已经改变，
-                                        //那么也要把对应的valueType修改为对应的neoType
-                                        valueType = neoType;
-                                    }
-                                    var hasWatchModel = pmodel;
-                                    //所有的赋值都要触发watch的监听事件
-                                    if ( !pmodel.$watch ) {
-                                      while( hasWatchModel.$parent ){
-                                         hasWatchModel = hasWatchModel.$parent;
-                                      }
-                                    }
-                                    if ( hasWatchModel.$watch ) {
-                                      hasWatchModel.$watch.call(hasWatchModel , name, value, preValue);
-                                    }
+                                accessor.value = value;
+                                model[name] = complexValue ? complexValue : value;//更新$model中的值
+                                if (!complexValue) {
+                                    pmodel.$fire && pmodel.$fire(name, value, preValue)
                                 }
-                            } else {
-                                //读操作
-                                //读的时候，发现value是个obj，而且还没有defineProperty
-                                //那么就临时defineProperty一次
-                                if ((valueType === "object") && !value.$model) {
-                                    //建立和父数据节点的关系
-                                    value.$parent = pmodel;
-                                    value = PropertyFactory(value , value);
-    
-                                    //accessor.value 重新复制为defineProperty过后的对象
-                                    accessor.value = value;
+                                if(valueType != neoType){
+                                    //如果set的值类型已经改变，
+                                    //那么也要把对应的valueType修改为对应的neoType
+                                    valueType = neoType;
                                 }
-                                return value;
+                                var hasWatchModel = pmodel;
+                                //所有的赋值都要触发watch的监听事件
+                                if ( !pmodel.$watch ) {
+                                  while( hasWatchModel.$parent ){
+                                     hasWatchModel = hasWatchModel.$parent;
+                                  }
+                                }
+                                if ( hasWatchModel.$watch ) {
+                                  hasWatchModel.$watch.call(hasWatchModel , name, value, preValue);
+                                }
                             }
+                        } else {
+                            //读操作
+                            //读的时候，发现value是个obj，而且还没有defineProperty
+                            //那么就临时defineProperty一次
+                            if ((valueType === "object") && !value.$model) {
+                                //建立和父数据节点的关系
+                                value.$parent = pmodel;
+                                value = PropertyFactory(value , value);
+    
+                                //accessor.value 重新复制为defineProperty过后的对象
+                                accessor.value = value;
+                            }
+                            return value;
                         }
-                        accessor.value = val;
-                    }
+                    };
+                    accessor.value = val;
                     
                     accessores[name] = {
                         set: accessor,

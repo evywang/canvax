@@ -62,9 +62,6 @@ define(
     
             // 上面的方法都行不通时
             switch (zoneType) {
-                //心形----------------------10
-                case 'heart':
-                    return true;    // Todo，不精确
                     //水滴----------------------11
                 case 'droplet':
                     return true;    // Todo，不精确
@@ -96,27 +93,23 @@ define(
                     //文本----------------------3
                 case 'text':
                     return true;
-                    //圆环----------------------4
-                case 'ring':
-                    return _isInsideRing(shape , x, y);
-                    //矩形----------------------5
+                    //矩形----------------------4
                 case 'rect':
                     return true;
-                    //圆形----------------------6
+                    //圆形----------------------5
                 case 'circle':
                     return _isInsideCircle(shape , x, y);
                     //椭圆
                 case 'ellipse':
                     return _isPointInElipse(shape , x , y);
-                    //扇形----------------------7
+                    //扇形----------------------6
                 case 'sector':
                     return _isInsideSector(shape , x, y);
-                    //path---------------------8
+                    //path---------------------7
                 case 'path':
                     return _isInsidePath(shape , x, y);
-                    //多边形-------------------9
+                    //多边形-------------------8
                 case 'polygon':
-                case 'star':
                 case 'isogon':
                     return _isInsidePolygon(shape , x, y);
                     //图片----------------------10
@@ -296,21 +289,7 @@ define(
             }
             return insideCatch;
         };
-    
-        function _isInsideRing(shape , x, y) {
-            var context = shape.context;
-            if (_isInsideCircle(shape , x, y)
-                    && !_isInsideCircle(
-                        shape,
-                        x, y,
-                        context.r0 || 0
-                        )
-               ){
-                   // 大圆内，小圆外
-                   return true;
-               }
-            return false;
-        };
+
     
         /**
          * 矩形包含判断
@@ -490,30 +469,10 @@ define(
             }
             return insideCatch;
         };
-    
-        /**
-         * 测算单行文本宽度
-         * @param {Object} text
-         * @param {Object} textFont
-         */
-        function getTextWidth(text, textFont) {
-            Base._pixelCtx.save();
-            if (textFont) {
-                Base._pixelCtx.font = textFont;
-            }
-            var width = Base._pixelCtx.measureText(text).width;
-            Base._pixelCtx.restore();
-    
-            return width;
-        };
-    
         HitTestPoint = {
             isInside : isInside,
-            isOutside : isOutside,
-            getTextWidth : getTextWidth
+            isOutside : isOutside
         };
-    
         return HitTestPoint;
-    
     }
 );

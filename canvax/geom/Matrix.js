@@ -118,9 +118,6 @@ define(
             clone : function(){
                 return new Matrix(this.a, this.b, this.c, this.d, this.tx, this.ty);
             },
-            toString : function(){
-                return "(a="+this.a+", b="+this.b+", c="+this.c+", d="+this.d+", tx="+this.tx+", ty="+this.ty+")";
-            },
             toArray : function(){
                 return [ this.a , this.b , this.c , this.d , this.tx , this.ty ];
             },
