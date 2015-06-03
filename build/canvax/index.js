@@ -30,11 +30,7 @@ define(
         }
     }
 );
-;window.FlashCanvasOptions = {
-    swfPath: "http://g.tbcdn.cn/thx/canvax/1.0.0/canvax/library/flashCanvas/"
-};
-
-define(
+;define(
     "canvax/core/Base",
     [
         !document.createElement('canvas').getContext ? "canvax/library/flashCanvas/flashcanvas" : "",
