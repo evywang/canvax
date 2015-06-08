@@ -12,9 +12,6 @@ define(
     ],
     function(EventBase,Base){
         var CanvaxEvent = function() {
-            this.mouseX = 0;
-            this.mouseY = 0;
-            //this.type = type;
             this.target = null;
             this.currentTarget = null;	
             this.params = null;
