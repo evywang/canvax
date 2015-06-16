@@ -73,6 +73,7 @@ define(
                     
                     //记录dispatchEvent之前的心跳
                     var preHeartBeat = this._heartBeatNum;
+                    var pregAlpha    = this.context.globalAlpha;
                     this._dispatchEvent( event );
                     if( preHeartBeat != this._heartBeatNum ){
                         this._hoverClass = true;
@@ -95,10 +96,8 @@ define(
                             var activShape = this.clone(true);                     
                             activShape._transform = this.getConcatenatedMatrix();
                             canvax._hoverStage.addChildAt( activShape , 0 ); 
-
-                            //然后把自己visible=false隐藏了
-                            //this.context.visible = false;
-                            this._globalAlpha = this.context.globalAlpha;
+                            //然后把自己隐藏了
+                            this._globalAlpha = pregAlpha;
                             this.context.globalAlpha = 0;
                         }
 

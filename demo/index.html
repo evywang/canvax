@@ -370,15 +370,15 @@ var pageload = function(){
           window.sector =new Shapes.Sector({
               id : "sector",
               context : {
-               x :600,
+               x :700,
                y : 110,
 
                //clockwise : true,//逆时针
                r : 100,
-               r0: 20, 
-               startAngle : 59,
+               r0: 70, 
+               startAngle : 110 ,
                
-               endAngle : 220,
+               endAngle : 60,
                fillStyle:color.getColor(colorInd++),
                strokeStyle:color.getColor(colorInd++),
                lineWidth : 0
@@ -393,7 +393,7 @@ var pageload = function(){
          var srect = sector.getRect();
          var sector_rect = new Shapes.Rect({
              context : {
-                 x           : 600 + srect.x,
+                 x           : 700 + srect.x,
                  y           : 110 + srect.y,
                  width       : srect.width,
                  height      : srect.height,
