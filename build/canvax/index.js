@@ -1933,7 +1933,9 @@ define(
     
             self._eventEnabled   = false;   //是否响应事件交互,在添加了事件侦听后会自动设置为true
     
-            self.dragEnabled     = false;   //是否启用元素的拖拽
+            self.dragEnabled     = "dragEnabled" in opt ? opt.dragEnabled : false;   //是否启用元素的拖拽
+
+            self.xyToInt         = "xyToInt" in opt ? opt.xyToInt : true;    //是否对xy坐标统一int处理，默认为true，但是有的时候可以由外界用户手动指定是否需要计算为int，因为有的时候不计算比较好，比如，进度图表中，再sector的两端添加两个圆来做圆角的进度条的时候，圆circle不做int计算，才能和sector更好的衔接
 
     
             //创建好context
@@ -2253,12 +2255,19 @@ define(
                 };
     
                 //如果有位移
-                var x = Math.round(ctx.x);
-                var y = Math.round(ctx.y);
+                var x,y;
+                if( this.xyToInt ){
+                    var x = Math.round(ctx.x);
+                    var y = Math.round(ctx.y);
     
-                if( parseInt(ctx.lineWidth , 10) % 2 == 1 && ctx.strokeStyle ){
-                    x += 0.5;
-                    y += 0.5;
+                    if( parseInt(ctx.lineWidth , 10) % 2 == 1 && ctx.strokeStyle ){
+                        x += 0.5;
+                        y += 0.5;
+                    }
+                } else {
+                    debugger
+                    x = ctx.x;
+                    y = ctx.y;
                 }
     
                 if( x != 0 || y != 0 ){
@@ -3212,12 +3221,8 @@ define(
 
             opt = Base.checkOpt( opt );
             self._context = {
-                //x : 0 , // {number},  // 丢弃
-                //y : 0 , //{number},  // 丢弃，圆心xy坐标 都 为原点
                 r : opt.context.r || 0   //{number},  // 必须，圆半径
             }
-
-
             arguments.callee.superclass.constructor.apply(this, arguments);
         }
 
@@ -3231,7 +3236,6 @@ define(
                 if (!style) {
                   return;
                 }
-                //ctx.arc(this.get("x"), this.get("y"), style.r, 0, Math.PI * 2, true);
                 ctx.arc(0 , 0, style.r, 0, Math.PI * 2, true);
             },
 
@@ -3254,7 +3258,6 @@ define(
                     height : style.r * 2 + lineWidth
                 };
             }
-
         });
 
         return Circle;
