@@ -2265,7 +2265,6 @@ define(
                         y += 0.5;
                     }
                 } else {
-                    debugger
                     x = ctx.x;
                     y = ctx.y;
                 }
@@ -2289,7 +2288,6 @@ define(
             getChildInPoint : function( point ){
                 var result; //检测的结果
                 
-                //debugger;
                 //先把鼠标转换到stage下面来
                 /*
                 var stage = this.getStage();
