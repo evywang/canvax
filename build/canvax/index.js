@@ -929,8 +929,7 @@ define(
                 return this;
             },
             dispatchEvent:function(event){
-                if(event.type == "mouseover"){
-                    
+                if(this.context && event.type == "mouseover"){
                     //记录dispatchEvent之前的心跳
                     var preHeartBeat = this._heartBeatNum;
                     var pregAlpha    = this.context.globalAlpha;
@@ -967,7 +966,7 @@ define(
       
                 this._dispatchEvent( event );
       
-                if(event.type == "mouseout"){
+                if( this.context && event.type == "mouseout"){
                     if(this._hoverClass){
                         //说明刚刚over的时候有添加样式
                         var canvax = this.getStage().parent;
