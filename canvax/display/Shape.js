@@ -26,6 +26,7 @@ define(
             //over的时候如果有修改样式，就为true
             self._hoverClass = false;
             self.hoverClone  = true;    //是否开启在hover的时候clone一份到active stage 中 
+            self.pointChkPriority = true; //在鼠标mouseover到该节点，然后mousemove的时候，是否优先检测该节点
      
             //拖拽drag的时候显示在activShape的副本
             self._dragDuplicate = null;

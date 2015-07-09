@@ -141,7 +141,9 @@ define(
  
                 var e = Base.copyEvent( new CanvaxEvent() , e );
  
-                if( e.type=="mousemove" && oldObj && oldObj._hoverClass && oldObj.getChildInPoint( point ) ){
+                if( e.type=="mousemove"
+                    && oldObj && oldObj._hoverClass && oldObj.pointChkPriority
+                    && oldObj.getChildInPoint( point ) ){
                     //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                     //如果有target存在，而且当前元素正在hoverStage中，而且当前鼠标还在target内,就没必要取检测整个displayList了
                     //开发派发常规mousemove事件

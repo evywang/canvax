@@ -51,8 +51,9 @@ define(
                 var y = 0;
                 var width = this.context.width;
                 var height = this.context.height;
+            
                 var r = Base.getCssOrderArr(style.radius);
-              
+             
                 ctx.moveTo( parseInt(x + r[0]), parseInt(y));
                 ctx.lineTo( parseInt(x + width - r[1]), parseInt(y));
                 r[1] !== 0 && ctx.quadraticCurveTo(
