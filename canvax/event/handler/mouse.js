@@ -149,7 +149,7 @@ define(
                     //开发派发常规mousemove事件
                     e.target = e.currentTarget = oldObj;
                     e.point  = oldObj.globalToLocal( point );
-                    me._mouseEventDispatch( oldObj , e );
+                    oldObj.dispatchEvent( e );
                     return;
                 };
 
@@ -168,8 +168,8 @@ define(
                     //会有修改visible的意愿
                     if(!oldObj.context.visible){
                        oldObj.context.visible = true;
-                    }
-                    me._mouseEventDispatch( oldObj , e );
+                    };
+                    oldObj.dispatchEvent( e );
                 };
  
                 if( obj && oldObj != obj ){ //&& obj._hoverable 已经 干掉了
@@ -178,21 +178,17 @@ define(
                     e.fromTarget = oldObj;
                     e.target     = e.currentTarget = obj;
                     e.point      = obj.globalToLocal( point );
- 
-                    me._mouseEventDispatch( obj , e );
+                    obj.dispatchEvent( e );
                 };
  
                 if( e.type == "mousemove" && obj ){
                     e.target = e.currentTarget = oldObj;
                     e.point  = oldObj.globalToLocal( point );
-                    me._mouseEventDispatch( oldObj , e );
+                    oldObj.dispatchEvent( e );
                 };
 
                 me._cursorHander( obj , oldObj );
  
-            },
-            _mouseEventDispatch : function( obj , e ){
-                obj.dispatchEvent( e );
             },
             _cursorHander    : function( obj , oldObj ){
                 if(!obj && !oldObj ){

@@ -63,7 +63,7 @@ define(
                                 return //阻止重复赋值
                             }
                             if (value !== neo) {
-                                if( neoType === "object" ){
+                                if( neo && neoType === "object" && !(neo instanceof Array) ){
                                     value = neo.$model ? neo : PropertyFactory(neo , neo);
                                     complexValue = value.$model;
                                 } else {//如果是其他数据类型
