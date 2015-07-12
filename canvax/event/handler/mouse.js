@@ -21,7 +21,7 @@ define(
                 //依次添加上浏览器的自带事件侦听
                 var me   = this;
                 var root = this.canvax;
-                _.each( ["click" , "mousedown" , "mousemove" , "mouseup" , "mouseout"] , function( type ){
+                _.each( ["click","dblclick","mousedown","mousemove","mouseup","mouseout"] , function( type ){
                     Base.addEvent( root.el , type , function( e ){
                         root.updateRootOffset();
                         //如果发现是mousemove的话，要做mousemove的频率控制
@@ -152,7 +152,6 @@ define(
                     oldObj.dispatchEvent( e );
                     return;
                 };
-
                 var obj = root.getObjectsUnderPoint( point , 1)[0];
  
                 if(oldObj && oldObj != obj || e.type=="mouseout") {
