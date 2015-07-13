@@ -69,6 +69,15 @@ define(
                 return this;
             },
             dispatchEvent:function(event){
+                
+                if( this instanceof DisplayObjectContainer && event.point ){
+                    var target = this.getObjectsUnderPoint( event.point , 1)[0];
+                    if( target ){
+                        target.dispatchEvent( event );
+                    }
+                    return;
+                }
+                
                 if(this.context && event.type == "mouseover"){
                     //记录dispatchEvent之前的心跳
                     var preHeartBeat = this._heartBeatNum;

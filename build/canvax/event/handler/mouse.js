@@ -21,7 +21,7 @@ define(
                 //依次添加上浏览器的自带事件侦听
                 var me   = this;
                 var root = this.canvax;
-                _.each( ["click" , "mousedown" , "mousemove" , "mouseup" , "mouseout"] , function( type ){
+                _.each( ["click","dblclick","mousedown","mousemove","mouseup","mouseout"] , function( type ){
                     Base.addEvent( root.el , type , function( e ){
                         root.updateRootOffset();
                         //如果发现是mousemove的话，要做mousemove的频率控制
@@ -141,16 +141,17 @@ define(
  
                 var e = Base.copyEvent( new CanvaxEvent() , e );
  
-                if( e.type=="mousemove" && oldObj && oldObj._hoverClass && oldObj.getChildInPoint( point ) ){
+                if( e.type=="mousemove"
+                    && oldObj && oldObj._hoverClass && oldObj.pointChkPriority
+                    && oldObj.getChildInPoint( point ) ){
                     //小优化,鼠标move的时候。计算频率太大，所以。做此优化
                     //如果有target存在，而且当前元素正在hoverStage中，而且当前鼠标还在target内,就没必要取检测整个displayList了
                     //开发派发常规mousemove事件
                     e.target = e.currentTarget = oldObj;
                     e.point  = oldObj.globalToLocal( point );
-                    me._mouseEventDispatch( oldObj , e );
+                    oldObj.dispatchEvent( e );
                     return;
                 };
-
                 var obj = root.getObjectsUnderPoint( point , 1)[0];
  
                 if(oldObj && oldObj != obj || e.type=="mouseout") {
@@ -166,8 +167,8 @@ define(
                     //会有修改visible的意愿
                     if(!oldObj.context.visible){
                        oldObj.context.visible = true;
-                    }
-                    me._mouseEventDispatch( oldObj , e );
+                    };
+                    oldObj.dispatchEvent( e );
                 };
  
                 if( obj && oldObj != obj ){ //&& obj._hoverable 已经 干掉了
@@ -176,21 +177,17 @@ define(
                     e.fromTarget = oldObj;
                     e.target     = e.currentTarget = obj;
                     e.point      = obj.globalToLocal( point );
- 
-                    me._mouseEventDispatch( obj , e );
+                    obj.dispatchEvent( e );
                 };
  
                 if( e.type == "mousemove" && obj ){
                     e.target = e.currentTarget = oldObj;
                     e.point  = oldObj.globalToLocal( point );
-                    me._mouseEventDispatch( oldObj , e );
+                    oldObj.dispatchEvent( e );
                 };
 
                 me._cursorHander( obj , oldObj );
  
-            },
-            _mouseEventDispatch : function( obj , e ){
-                obj.dispatchEvent( e );
             },
             _cursorHander    : function( obj , oldObj ){
                 if(!obj && !oldObj ){

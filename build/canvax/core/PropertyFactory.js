@@ -14,22 +14,6 @@ define(
     ],
     function(Base){
     //定义封装好的兼容大部分浏览器的defineProperties 的 属性工厂
-
-        var classTypes = {};
-        "Boolean Number String Function Array Date RegExp Object Error".replace(/[^, ]+/g, function(name) {
-            classTypes["[object " + name + "]"] = name.toLowerCase()
-        });
-    
-        var getType = function(obj) { //取得类型
-            if (obj == null) {
-                return String(obj)
-            }
-            // 早期的webkit内核浏览器实现了已废弃的ecma262v4标准，可以将正则字面量当作函数使用，因此typeof在判定正则时会返回function
-            return typeof obj === "object" || typeof obj === "function" ?
-                classTypes[Object.prototype.toString.call(obj)] || "object" :
-                typeof obj
-        };
-    
         var unwatchOne = {
             "$skipArray" : 0,
             "$watch"     : 1,
@@ -58,7 +42,7 @@ define(
                 if ( !unwatchOne[name] || (unwatchOne[name] && name.charAt(0) !== "$") ) {
                     model[name] = val
                 };
-                var valueType = getType(val);
+                var valueType = typeof val;
                 if (valueType === "function") {
                     if(!unwatchOne[name]){
                       VBPublics.push(name) //函数无需要转换
@@ -73,13 +57,13 @@ define(
                         if (arguments.length) {
                             //写操作
                             //set 的 值的 类型
-                            var neoType = getType(neo);
+                            var neoType = typeof neo;
     
                             if (stopRepeatAssign) {
                                 return //阻止重复赋值
                             }
                             if (value !== neo) {
-                                if( neoType === "object" ){
+                                if( neo && neoType === "object" && !(neo instanceof Array) ){
                                     value = neo.$model ? neo : PropertyFactory(neo , neo);
                                     complexValue = value.$model;
                                 } else {//如果是其他数据类型
@@ -114,7 +98,9 @@ define(
                             //读操作
                             //读的时候，发现value是个obj，而且还没有defineProperty
                             //那么就临时defineProperty一次
-                            if ((valueType === "object") && !value.$model) {
+                            if ( value && (valueType === "object") 
+                               && !(value instanceof Array) 
+                               && !value.$model) {
                                 //建立和父数据节点的关系
                                 value.$parent = pmodel;
                                 value = PropertyFactory(value , value);
