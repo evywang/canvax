@@ -181,7 +181,10 @@ define(
                 for(var i = this.children.length - 1; i >= 0; i--) {
                     var child = this.children[i];
     
-                    if( child == null || !child._eventEnabled || !child.context.visible ) {
+                    if( child == null ||
+                        (!child._eventEnabled && !child.dragEnabled) || 
+                        !child.context.visible 
+                    ) {
                         continue;
                     }
                     if( child instanceof DisplayObjectContainer ) {

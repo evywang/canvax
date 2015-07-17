@@ -105,9 +105,9 @@ define(
                 var _dragDuplicate     = root._hoverStage.getChildById( target.id );
  
                 target.context.visible = true;
-                if( e.type == "mouseout" || e.type == "dragend"){
+                //if( e.type == "mouseout" || e.type == "dragend"){
                     _dragDuplicate.destroy();
-                }
+                //}
             }
         } );
         return EventHandler;

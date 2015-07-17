@@ -414,7 +414,8 @@ var pageload = function(){
       
          //不规则多变形
           var polygon = new Shapes.Polygon({
-             id : "polygon",
+              id : "polygon",
+              dragEnabled : true,
              context : {
                  x:400,
                  y:150,
@@ -429,6 +430,7 @@ var pageload = function(){
 
          });
 
+         /*
          polygon.on("mouseover",function(){
              this.context.lineWidth=2
                     });
@@ -436,6 +438,7 @@ var pageload = function(){
          polygon.on("mouseout",function(){
              this.context.lineWidth = 8
          });
+         */
 
          
 

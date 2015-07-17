@@ -40,6 +40,7 @@ define(
              * 鼠标事件处理函数
              * */
             __mouseHandler : function(e) {
+                console.log(e)
                 var me = this;
                 var root = me.canvax;
             
@@ -76,15 +77,17 @@ define(
                         return false;
                     }
                     return child !== child && (parent.contains ? parent.contains(child) : true);
-                }
- 
+                };
+
                 if( e.type == "mouseup" || (e.type == "mouseout" && !contains(root.el , (e.toElement || e.relatedTarget) )) ){
-                   if(me._draging == true){
-                      //说明刚刚在拖动
-                      me._dragEnd( e , curMouseTarget , 0 );
-                   }
-                   me._draging  = false;
-                   me._touching = false;
+                    if(me._draging == true){
+                        //说明刚刚在拖动
+                        me._dragEnd( e , curMouseTarget , 0 );
+
+                        curMouseTarget.fire("dragEnd" , e);
+                    }
+                    me._draging  = false;
+                    me._touching = false;
                 }
  
                 if( e.type == "mouseout" ){
@@ -104,9 +107,13 @@ define(
                                                  
                             //然后克隆一个副本到activeStage
                             me._clone2hoverStage( curMouseTarget , 0 );
+
+                            curMouseTarget.fire("dragBegin" , e);
                         } else {
                             //drag ing
                             me._dragHander( e , curMouseTarget , 0 );
+
+                            curMouseTarget.fire("dragIng" , e);
                         }
                         me._draging = true;
                     } else {
@@ -123,6 +130,7 @@ define(
                         child = root;
                     };
                     me.__dispatchEventInChilds( e , [ child ] );
+                    me._cursorHander( child );
                 }
                 if( root.preventDefault ) {
                     //阻止默认浏览器动作(W3C) 
