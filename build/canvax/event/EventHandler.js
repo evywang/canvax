@@ -46,7 +46,7 @@ define(
                 _.each( childs , function( child , i){
                     if( child ){
                         hasChild = true;
-                        var ce         = Base.copyEvent( new CanvaxEvent() , e);
+                        var ce         = new CanvaxEvent(e);
                         ce.target      = ce.currentTarget = child || this;
                         ce.stagePoint  = me.curPoints[i];
                         ce.point       = ce.target.globalToLocal( ce.stagePoint );

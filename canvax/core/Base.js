@@ -208,28 +208,6 @@ define(
                 return target;
             },
             /**
-             * 把系统event copy到 canvax的event上面
-             * @cavnaxE  canvax的event
-             * @E        系统的event
-             */
-            copyEvent : function( canvaxE , E ){
-                //TODO： 在ie11 和 firefox 中，type已经不在event的自身属性上面
-                /*
-                !E.hasOwnProperty && ( E.hasOwnProperty = Object.prototype.hasOwnProperty ) ;
-                for(var key in E){
-                    if( E.hasOwnProperty( key ) ){
-                        canvaxE[ key ] = E[ key ];
-                    }
-                }
-                */
-                var eps = ["type"];
-                for( var i=0,l=eps.length ; i < l ; i++ ){
-                    var key = eps[i];
-                    canvaxE[key] = E[key];
-                }
-                return canvaxE;
-            },
-            /**
              * 按照css的顺序，返回一个[上,右,下,左]
              */
             getCssOrderArr : function( r ){

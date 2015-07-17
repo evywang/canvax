@@ -11,10 +11,13 @@ define(
          "canvax/core/Base"
     ],
     function(EventBase,Base){
-        var CanvaxEvent = function() {
+        var CanvaxEvent = function( e ) {
             this.target = null;
             this.currentTarget = null;	
             this.params = null;
+
+            this.type   = e.type;
+            this.points = null;
 
             this._stopPropagation = false ; //默认不阻止事件冒泡
         }

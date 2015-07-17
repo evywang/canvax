@@ -235,28 +235,6 @@ define(
                 return target;
             },
             /**
-             * 把系统event copy到 canvax的event上面
-             * @cavnaxE  canvax的event
-             * @E        系统的event
-             */
-            copyEvent : function( canvaxE , E ){
-                //TODO： 在ie11 和 firefox 中，type已经不在event的自身属性上面
-                /*
-                !E.hasOwnProperty && ( E.hasOwnProperty = Object.prototype.hasOwnProperty ) ;
-                for(var key in E){
-                    if( E.hasOwnProperty( key ) ){
-                        canvaxE[ key ] = E[ key ];
-                    }
-                }
-                */
-                var eps = ["type"];
-                for( var i=0,l=eps.length ; i < l ; i++ ){
-                    var key = eps[i];
-                    canvaxE[key] = E[key];
-                }
-                return canvaxE;
-            },
-            /**
              * 按照css的顺序，返回一个[上,右,下,左]
              */
             getCssOrderArr : function( r ){
@@ -686,10 +664,13 @@ define(
          "canvax/core/Base"
     ],
     function(EventBase,Base){
-        var CanvaxEvent = function() {
+        var CanvaxEvent = function( e ) {
             this.target = null;
             this.currentTarget = null;	
             this.params = null;
+
+            this.type   = e.type;
+            this.points = null;
 
             this._stopPropagation = false ; //默认不阻止事件冒泡
         }
@@ -1041,7 +1022,7 @@ define(
                 _.each( childs , function( child , i){
                     if( child ){
                         hasChild = true;
-                        var ce         = Base.copyEvent( new CanvaxEvent() , e);
+                        var ce         = new CanvaxEvent(e);
                         ce.target      = ce.currentTarget = child || this;
                         ce.stagePoint  = me.curPoints[i];
                         ce.point       = ce.target.globalToLocal( ce.stagePoint );

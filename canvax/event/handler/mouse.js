@@ -84,7 +84,9 @@ define(
                         //说明刚刚在拖动
                         me._dragEnd( e , curMouseTarget , 0 );
 
-                        curMouseTarget.fire("dragEnd" , e);
+                        curMouseTarget.fire("dragEnd" , {
+                            point : curMousePoint
+                        });
                     }
                     me._draging  = false;
                     me._touching = false;
@@ -108,12 +110,16 @@ define(
                             //然后克隆一个副本到activeStage
                             me._clone2hoverStage( curMouseTarget , 0 );
 
-                            curMouseTarget.fire("dragBegin" , e);
+                            curMouseTarget.fire("dragBegin" , {
+                                point : curMousePoint
+                            });
                         } else {
                             //drag ing
                             me._dragHander( e , curMouseTarget , 0 );
 
-                            curMouseTarget.fire("dragIng" , e);
+                            curMouseTarget.fire("dragIng" , {
+                                point : curMousePoint
+                            });
                         }
                         me._draging = true;
                     } else {
@@ -147,7 +153,7 @@ define(
                 var root   = me.canvax;
                 var oldObj = me.curPointsTarget[0];
  
-                var e = Base.copyEvent( new CanvaxEvent() , e );
+                var e = new CanvaxEvent( e );
  
                 if( e.type=="mousemove"
                     && oldObj && oldObj._hoverClass && oldObj.pointChkPriority
