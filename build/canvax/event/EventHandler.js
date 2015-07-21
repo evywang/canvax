@@ -75,6 +75,7 @@ define(
                 }
                 _dragDuplicate.context.visible = true;
                 _dragDuplicate._dragPoint = target.globalToLocal( me.curPoints[ i ] );
+                return _dragDuplicate;
             },
             //drag 中 的处理函数
             _dragHander  : function( e , target , i ){

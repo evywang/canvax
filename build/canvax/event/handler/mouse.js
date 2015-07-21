@@ -40,7 +40,6 @@ define(
              * 鼠标事件处理函数
              * */
             __mouseHandler : function(e) {
-                console.log(e)
                 var me = this;
                 var root = me.canvax;
             
@@ -117,9 +116,18 @@ define(
                             //drag ing
                             me._dragHander( e , curMouseTarget , 0 );
 
+                            curMouseTarget._notWatch = true;
                             curMouseTarget.fire("dragIng" , {
                                 point : curMousePoint
                             });
+                            curMouseTarget._notWatch = false;
+
+                            //拖动中可能会限定其x,y轨迹。必须拖动的时候，x或者y轴恒定
+                            //比如在kanga中的rect调整框的上下左右改变大小的时候x或者y有一个会是恒定的
+                            var _dragDuplicate = root._hoverStage.getChildById( curMouseTarget.id );
+                            _dragDuplicate.context.x = curMouseTarget.context.x;
+                            _dragDuplicate.context.y = curMouseTarget.context.y;
+
                         }
                         me._draging = true;
                     } else {
