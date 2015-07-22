@@ -4068,6 +4068,7 @@ define(
      
         Base.creatClass(Sector , Shape , {
             draw : function(ctx, context) {
+                debugger
                 // 形内半径[0,r)
                 var r0 = typeof context.r0 == 'undefined' ? 0 : context.r0;
                 var r  = context.r;                            // 扇形外半径(0,r]
@@ -4087,6 +4088,11 @@ define(
                 startAngle = myMath.degreeToRadian(startAngle);
                 endAngle   = myMath.degreeToRadian(endAngle);
              
+                //处理下极小夹角的情况
+                if( endAngle - startAngle < 0.025 ){
+                    startAngle -= 0.003
+                }
+
                 ctx.arc( 0 , 0 , r, startAngle, endAngle, this.context.clockwise);
                 if (r0 !== 0) {
                     if( this.isRing ){
