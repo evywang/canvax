@@ -177,20 +177,21 @@ define(
                 var obj = root.getObjectsUnderPoint( point , 1)[0];
  
                 if(oldObj && oldObj != obj || e.type=="mouseout") {
-                    if(!oldObj){
-                       return;
+                    if( oldObj && oldObj.context ){
+                        me.curPointsTarget[0] = null;
+                        e.type     = "mouseout";
+                        e.toTarget = obj; 
+                        e.target   = e.currentTarget = oldObj;
+                        e.point    = oldObj.globalToLocal( point );
+
+                        //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
+                        //会有修改visible的意愿
+                        if(!oldObj.context.visible){
+                           oldObj.context.visible = true;
+                        };
+                   
+                        oldObj.dispatchEvent( e );
                     }
-                    me.curPointsTarget[0] = null;
-                    e.type     = "mouseout";
-                    e.toTarget = obj; 
-                    e.target   = e.currentTarget = oldObj;
-                    e.point    = oldObj.globalToLocal( point );
-                    //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
-                    //会有修改visible的意愿
-                    if(!oldObj.context.visible){
-                       oldObj.context.visible = true;
-                    };
-                    oldObj.dispatchEvent( e );
                 };
  
                 if( obj && oldObj != obj ){ //&& obj._hoverable 已经 干掉了

@@ -241,7 +241,7 @@ define(
                     cm.concat( o._transform );
                     if( !o.parent || ( container && o.parent && o.parent == container ) || ( o.parent && o.parent.type=="stage" ) ) {
                     //if( o.type == "stage" || (o.parent && container && o.parent.type == container.type ) ) {
-                        break;
+                        return cm;//break;
                     }
                 }
                 return cm;

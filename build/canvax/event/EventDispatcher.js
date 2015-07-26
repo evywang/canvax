@@ -122,8 +122,10 @@ define(
                         this._hoverClass = false;
                         canvax._hoverStage.removeChildById(this.id);
                         
-                        this.context.globalAlpha = this._globalAlpha;
-                        delete this._globalAlpha;
+                        if( this._globalAlpha ){
+                            this.context.globalAlpha = this._globalAlpha;
+                            delete this._globalAlpha;
+                        }
                     }
                 }
       
