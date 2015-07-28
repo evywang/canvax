@@ -285,10 +285,8 @@ define(
         },
         _afterAddChild : function( stage , index ){
             var canvas;
-            var contextInit = true;
  
             if(!stage.context2D){
-                contextInit = false;
                 canvas = Base._createCanvas( stage.id , this.context.width , this.context.height );
             } else {
                 canvas = stage.context2D.canvas;
@@ -314,9 +312,7 @@ define(
                 }
             };
  
-            if( !contextInit ) {
-                Base.initElement( canvas );
-            }
+            Base.initElement( canvas );
             stage.initStage( canvas.getContext("2d") , this.context.width , this.context.height ); 
         },
         _afterDelChild : function(stage){
