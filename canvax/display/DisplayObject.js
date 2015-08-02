@@ -365,7 +365,7 @@ define(
                         _transform.translate( origin.x , origin.y );
                     }
                 };
-    
+
                 //如果有位移
                 var x,y;
                 if( this.xyToInt ){

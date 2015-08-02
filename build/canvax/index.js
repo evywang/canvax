@@ -2234,7 +2234,7 @@ define(
                         _transform.translate( origin.x , origin.y );
                     }
                 };
-    
+
                 //如果有位移
                 var x,y;
                 if( this.xyToInt ){
@@ -3203,6 +3203,10 @@ define(
             self.type = "circle";
 
             opt = Base.checkOpt( opt );
+
+            //默认情况下面，circle不需要把xy进行parentInt转换
+            ( "xyToInt" in opt ) || ( opt.xyToInt = false );
+
             self._context = {
                 r : opt.context.r || 0   //{number},  // 必须，圆半径
             }
