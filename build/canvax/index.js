@@ -2092,6 +2092,9 @@ define(
             globalToLocal : function( point , container) {
                 !point && ( point = new Point( 0 , 0 ) );
     
+                if( this.type == "stage" ){
+                    return point;
+                }
                 var cm = this.getConcatenatedMatrix( container );
     
                 if (cm == null) return new Point( 0 , 0 ); //{x:0, y:0};
