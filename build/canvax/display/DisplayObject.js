@@ -424,7 +424,7 @@ define(
                 //第一步，吧glob的point转换到对应的obj的层级内的坐标系统
                 if( this.type != "stage" && this.parent && this.parent.type != "stage" ) {
                     point = this.parent.globalToLocal( point );
-                }
+                };
     
                 var x = point.x ;
                 var y = point.y ;

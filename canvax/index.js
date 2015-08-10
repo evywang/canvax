@@ -232,7 +232,7 @@ define(
         },
         __enterFrame : function(){
             
-            console.log("enterFrame!");
+            //console.log("enterFrame!");
             var self = this;
             //不管怎么样，__enterFrame执行了就要把
             //requestAid null 掉
