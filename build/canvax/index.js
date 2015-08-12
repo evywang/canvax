@@ -1499,7 +1499,6 @@ define(
                     Math.max( startAngle , endAngle ) 
                 ];
     
-                //console.log(angle+"|"+startAngle+"|"+endAngle)
     
                 var inAngleReg = angle > regAngle[0] && angle < regAngle[1];
                 return (inAngleReg && regIn) || (!inAngleReg && !regIn);
@@ -2276,7 +2275,6 @@ define(
                 /*
                 var stage = this.getStage();
                 if( stage._transform ){
-                    console.log( "dom:"+point.x+"||"+point.y )
                     var inverseMatrixStage = stage._transform.clone();
                     inverseMatrixStage.scale( 1 / stage.context.$model.scaleX , 1 / stage.context.$model.scaleY );
                     inverseMatrixStage     = inverseMatrixStage.invert();
@@ -2285,7 +2283,6 @@ define(
     
                     point.x = originPosStage[0] ;
                     point.y = originPosStage[1] ;
-                    console.log( "stage:"+point.x+"||"+point.y )
                 }
                 */
                 
@@ -4420,7 +4417,6 @@ define(
         },
         __enterFrame : function(){
             
-            //console.log("enterFrame!");
             var self = this;
             //不管怎么样，__enterFrame执行了就要把
             //requestAid null 掉
@@ -4429,7 +4425,6 @@ define(
  
             if( self._heartBeat ){
  
-                //console.log(self._speedTime)
                 if(( Base.now - self._preRenderTime ) < self._speedTime ){
                     //事件speed不够，下一帧再来
                     self.__startEnter();

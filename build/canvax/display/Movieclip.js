@@ -180,7 +180,6 @@ define(
             },
             render:function(ctx){
                 //这里也还要做次过滤，如果不到speedTime，就略过
-                //console.log("moveclip_reder_ready")
       
                 //TODO：如果是改变moviclip的x or y 等 非帧动画 属性的时候加上这个就会 有漏帧现象，先注释掉
                 /* 

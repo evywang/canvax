@@ -344,7 +344,6 @@ define(
                     Math.max( startAngle , endAngle ) 
                 ];
     
-                //console.log(angle+"|"+startAngle+"|"+endAngle)
     
                 var inAngleReg = angle > regAngle[0] && angle < regAngle[1];
                 return (inAngleReg && regIn) || (!inAngleReg && !regIn);

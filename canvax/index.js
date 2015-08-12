@@ -232,7 +232,6 @@ define(
         },
         __enterFrame : function(){
             
-            //console.log("enterFrame!");
             var self = this;
             //不管怎么样，__enterFrame执行了就要把
             //requestAid null 掉
@@ -241,7 +240,6 @@ define(
  
             if( self._heartBeat ){
  
-                //console.log(self._speedTime)
                 if(( Base.now - self._preRenderTime ) < self._speedTime ){
                     //事件speed不够，下一帧再来
                     self.__startEnter();

@@ -407,7 +407,6 @@ define(
                 /*
                 var stage = this.getStage();
                 if( stage._transform ){
-                    console.log( "dom:"+point.x+"||"+point.y )
                     var inverseMatrixStage = stage._transform.clone();
                     inverseMatrixStage.scale( 1 / stage.context.$model.scaleX , 1 / stage.context.$model.scaleY );
                     inverseMatrixStage     = inverseMatrixStage.invert();
@@ -416,7 +415,6 @@ define(
     
                     point.x = originPosStage[0] ;
                     point.y = originPosStage[1] ;
-                    console.log( "stage:"+point.x+"||"+point.y )
                 }
                 */
                 
