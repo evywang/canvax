@@ -45,11 +45,14 @@ define(
         Base.creatClass(Text , DisplayObject , {
             $watch : function( name , value , preValue ){
                  //context属性有变化的监听函数
-                 if( name in  this.fontProperts){
+                 if( _.indexOf(this.fontProperts , name) >= 0 ){
+                     this._context[name] = value;
                      //如果修改的是font的某个内容，就重新组装一遍font的值，
                      //然后通知引擎这次对context的修改不需要上报心跳
                      this._notWatch    = false;
                      this.context.font = this._getFontDeclaration();
+                     this.context.width  = this.getTextWidth();
+                     this.context.height = this.getTextHeight();
                  }
             },
             init : function(text , opt){

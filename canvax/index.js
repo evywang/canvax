@@ -179,7 +179,10 @@ define(
             
             var _pixelCanvas = Base.getEl("_pixelCanvas");
             if(!_pixelCanvas){
-                _pixelCanvas = Base._createCanvas("_pixelCanvas" , this.context.width , this.context.height); 
+               // _pixelCanvas = Base._createCanvas("_pixelCanvas" , this.context.width , this.context.height); 
+                var clientH = window.innerHeight || ( document.documentElement && document.documentElement.clientHeight  ) || document.body.clientHeight;
+                var clientW = window.innerWidth  || ( document.documentElement && document.documentElement.clientWidth   ) || document.body.clientWidth;
+                _pixelCanvas = Base._createCanvas("_pixelCanvas" , clientW , clientH ); 
             } else {
                 //如果又的话 就不需要在创建了
                 return;

@@ -1,4 +1,4 @@
-KISSY.add("demo/flappyBird/index" , function( S , Canvax , Tween , Bird , Ready , gameOverUI ){
+KISSY.add("demo/flappyBird/index" , function( S , Canvax , Tween , Bitmap , Bird , Ready , gameOverUI ){
 
     var timer    = null;
     var animate  = function(){
@@ -57,7 +57,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Tween , Bird , Ready 
            var self  = this;
 
            //先创建背景
-           this.stageBg.addChild( new Canvax.Display.Bitmap({
+           this.stageBg.addChild( new Bitmap({
               id  : "bg",
               img : this.files.bg,
               context : {
@@ -123,7 +123,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Tween , Bird , Ready 
                    }
                });
                for( var i=0 ; i < 2 ; i++ ){
-                   this.ground.addChild(new Canvax.Display.Bitmap({
+                   this.ground.addChild(new Bitmap({
                        img      : this.files.ground,
                        context  : {
                            x     : this.width*i,
@@ -181,7 +181,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Tween , Bird , Ready 
 
             //知道了缺口的大小和位置，以此来创建上面的柱子
             var b1dH = gapY / this.scale;
-            s.addChild( new Canvax.Display.Bitmap({
+            s.addChild( new Bitmap({
                 img : this.files.flappyPacker,
                 context     : {
                     width   : BarWidth,
@@ -195,7 +195,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Tween , Bird , Ready 
 
             //下面的柱子的高度
             var b2H = boxH - gapY - gapH; 
-            s.addChild( new Canvax.Display.Bitmap({
+            s.addChild( new Bitmap({
                 img : this.files.flappyPacker,
                 context     : {
                     y       : gapY + gapH,
@@ -359,6 +359,7 @@ KISSY.add("demo/flappyBird/index" , function( S , Canvax , Tween , Bird , Ready 
     requires : [
       "canvax/",
       "canvax/animation/Tween",
+      "canvax/display/Bitmap",
       "demo/flappyBird/bird",
       "demo/flappyBird/ready",
       "demo/flappyBird/gameOverUI"
