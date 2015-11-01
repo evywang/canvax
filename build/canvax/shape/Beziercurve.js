@@ -126,6 +126,7 @@ define(
            * @return {Point}  -- return point at the given time in the bezier arc 
            */
           getPointByTime: function(t) {
+              debugger
               var it = 1 - t,
               it2 = it * it,
               it3 = it2 * it;

@@ -209,8 +209,9 @@
 
 
 var ps = "M 100 100 L 200 200 A 50 50 0 1 1 200 250 z";
-var ps =  "M10 315 L 110 215 A 30 50 0 0 1 162.55 162.45 L 172.55 152.45 A 30 50 -45 0 1 215.1 109.9 L 315 10"
+var ps =  "M10 10 H 100 M10 315 L 110 215 A 30 50 0 0 1 162.55 162.45 L 172.55 152.45 A 30 50 -45 0 1 215.1 109.9 L 315 10 v 60 Q 350 100 350 130 C 350 230 450 130 450 230 Z"
                    
+
 
 
                                         window.map1 = new Shapes.Path({
@@ -220,7 +221,7 @@ var ps =  "M10 315 L 110 215 A 30 50 0 0 1 162.55 162.45 L 172.55 152.45 A 30 50
                                                 y:0,
                                                 path : ps,
                                                 lineWidth : 1,
-                                                fillStyle:color.getColor(colorInd++),
+                                                //fillStyle:color.getColor(colorInd++),
                                                 strokeStyle:color.getColor(colorInd++)
                                             }
                                         });
@@ -244,6 +245,7 @@ var ps =  "M10 315 L 110 215 A 30 50 0 0 1 162.55 162.45 L 172.55 152.45 A 30 50
                                                 setTimeout(function(){
 
                                                     _.each( map1.context.pointList , function( p ){
+                                                        //debugger
                                                         _.each( p , function(point){
                                                             console.log(point[0]+"|"+point[1])
                                                             stage.addChild(new Shapes.Circle({

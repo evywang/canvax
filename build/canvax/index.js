@@ -1179,30 +1179,23 @@ define(
          * 图形空间辅助类
          * isInside：是否在区域内部
          * isOutside：是否在区域外部
-         * getTextWidth：测算单行文本宽度
          * TODO:本检测只为进一步的 详细 检测。也就是说 进过了基本的矩形范围检测后才会
-         * 使用本检测方法
          */
         var HitTestPoint={};
-    
         /**
          * 包含判断
-         * @param {string} shape : 图形
-         * @param {number} x ： 横坐标
-         * @param {number} y ： 纵坐标
+         * shape : 图形
+         * x ： 横坐标
+         * y ： 纵坐标
          */
         function isInside(shape , point) {
             var x = point.x;
             var y = point.y;
-            if( shape.type == "bitmap" ){
-                //如果是bitmap
-                return true;
-            }
     
             if (!shape || !shape.type) {
                 // 无参数或不支持类型
                 return false;
-            }
+            };
             var zoneType = shape.type;
     
             //数学运算，主要是line，brokenLine
@@ -1217,74 +1210,48 @@ define(
             } else if (Base._pixelCtx.getImageData) {
                 return _pixelMethod(shape, x, y);
             }
-    
-            // 上面的方法都行不通时
-            switch (zoneType) {
-                    //水滴----------------------11
-                case 'droplet':
-                    return true;    // Todo，不精确
-                case 'ellipse':
-                    return true;     // Todo，不精确
-                    //路径，椭圆，曲线等-----------------13
-                default:
-                    return false;   // Todo，暂不支持
-            }
-        }
+        };
     
         /**
-         * 用数学方法判断，三个方法中最快，但是支持的shape少
-         *
-         * @param {string} zoneType ： 图形类型
-         * * @param {number} x ： 横坐标
-         * @param {number} y ： 纵坐标
-         * @return {boolean=} true表示坐标处在图形中
+         * zoneType ： 图形类型
+         * x ： 横坐标
+         * y ： 纵坐标
+         * true表示坐标处在图形中
          */
         function _mathMethod(zoneType,shape,x, y) {
             // 在矩形内则部分图形需要进一步判断
             switch (zoneType) {
-                //线-----------------------1
                 case 'line':
                     return _isInsideLine(shape.context, x, y);
-                    //折线----------------------2
                 case 'brokenLine':
                     return _isInsideBrokenLine(shape, x, y);
-                    //文本----------------------3
                 case 'text':
                     return true;
-                    //矩形----------------------4
                 case 'rect':
                     return true;
-                    //圆形----------------------5
                 case 'circle':
                     return _isInsideCircle(shape , x, y);
-                    //椭圆
                 case 'ellipse':
                     return _isPointInElipse(shape , x , y);
-                    //扇形----------------------6
                 case 'sector':
                     return _isInsideSector(shape , x, y);
-                    //path---------------------7
                 case 'path':
                     return _isInsidePath(shape , x, y);
-                    //多边形-------------------8
                 case 'polygon':
                 case 'isogon':
                     return _isInsidePolygon(shape , x, y);
-                    //图片----------------------10
-                case 'image':
-                    return true;
             }
-        }
+        };
     
         /**
          * 通过buildPath方法来判断，三个方法中较快，但是不支持线条类型的shape，
          * 而且excanvas不支持isPointInPath方法
          *
-         * @param {Object} shapeClazz ： shape类
-         * @param {Object} context : 上下文
-         * @param {Object} context ：目标区域
-         * @param {number} x ： 横坐标
-         * @param {number} y ： 纵坐标
+         * shapeClazz ： shape类
+         * context : 上下文
+         * context ：目标区域
+         * x ： 横坐标
+         * y ： 纵坐标
          * @return {boolean} true表示坐标处在图形中
          */
         function _buildPathMethod(shape, context, x, y) {
@@ -1299,10 +1266,10 @@ define(
         /**
          * 通过像素值来判断，三个方法中最慢，但是支持广,不足之处是excanvas不支持像素处理,flashCanvas支持还好
          *
-         * @param {Object} shapeClazz ： shape类
-         * @param {Object} context ：目标区域
-         * @param {number} x ： 横坐标
-         * @param {number} y ： 纵坐标
+         *  shapeClazz ： shape类
+         *  context ：目标区域
+         *  x ： 横坐标
+         *  y ： 纵坐标
          * @return {boolean} true表示坐标处在图形中
          */
         function _pixelMethod(shape, x, y) {
@@ -1348,10 +1315,10 @@ define(
         /**
          * 坐标像素值，判断坐标是否被作色
          *
-         * @param {Object} context : 上下文
-         * @param {number} x : 横坐标
-         * @param {number} y : 纵坐标
-         * @param {number=} unit : 触发的精度，越大越容易触发，可选，缺省是为1
+         * context : 上下文
+         * x : 横坐标
+         * y : 纵坐标
+         * unit : 触发的精度，越大越容易触发，可选，缺省是为1
          * @return {boolean} 已经被画过返回true
          */
         function _isPainted(context, x, y, unit) {
@@ -1609,7 +1576,6 @@ define(
             }
             return inside;
         };
-    
         /**
          * 路径包含判断，依赖多边形判断
          */
@@ -1619,8 +1585,8 @@ define(
             var insideCatch = false;
             for (var i = 0, l = pointList.length; i < l; i++) {
                 insideCatch = _isInsidePolygon(
-                        { pointList : pointList[i] }, x, y
-                        );
+                    { pointList : pointList[i] }, x, y
+                );
                 if (insideCatch) {
                     break;
                 }
@@ -3288,8 +3254,8 @@ define(
         Base.creatClass( Line , Shape , {
             /**
              * 创建线条路径
-             * @param {Context2D} ctx Canvas 2D上下文
-             * @param {Object} style 样式
+             * ctx Canvas 2D上下文
+             * style 样式
              */
             draw : function(ctx, style) {
                 if (!style.lineType || style.lineType == 'solid') {
@@ -3308,7 +3274,7 @@ define(
       
             /**
              * 返回矩形区域，用于局部刷新和文字定位
-             * @param {Object} style
+             * style
              */
             getRect:function(style) {
                 var lineWidth = style.lineWidth || 1;
@@ -3332,21 +3298,19 @@ define(
     "canvax/shape/Path", [
         "canvax/display/Shape",
         "canvax/core/Base",
-        "canvax/geom/Matrix"
+        "canvax/geom/Matrix",
+        "canvax/geom/bezier"
     ],
-    function(Shape, Base, Matrix) {
-
+    function(Shape, Base, Matrix , Bezier) {
         var Path = function(opt) {
             var self = this;
             self.type = "path";
-
             opt = Base.checkOpt(opt);
-
             if ("drawTypeOnly" in opt) {
                 self.drawTypeOnly = opt.drawTypeOnly;
-            }
-
-            self._context = {
+            };
+            self.__parsePathData = null;
+            var _context = {
                 pointList: [], //从下面的path中计算得到的边界点的集合
                 path: opt.context.path || "" //字符串 必须，路径。例如:M 0 0 L 0 10 L 10 10 Z (一个三角形)
                     //M = moveto
@@ -3358,23 +3322,27 @@ define(
                     //Q = quadratic Belzier curve
                     //T = smooth quadratic Belzier curveto
                     //Z = closepath
-            }
-            arguments.callee.superclass.constructor.apply(this, arguments);
+            };
+            self._context = _.deepExtend(_context , (self._context || {}));
+            arguments.callee.superclass.constructor.apply(self, arguments);
         };
 
         Base.creatClass(Path, Shape, {
+            $watch : function( name , value , preValue ){
+                if( name == "path" ){//如果path有变动，需要自动计算新的pointList
+                    this.__parsePathData = null;
+                    this.context.pointList = [];
+                }
+            },
             _parsePathData: function(data) {
                 if (this.__parsePathData) {
                     return this.__parsePathData;
-                }
+                };
                 if (!data) {
                     return [];
-                }
-
-
+                };
                 // command string
                 var cs = data;
-
                 // command chars
                 var cc = [
                     'm', 'M', 'l', 'L', 'v', 'V', 'h', 'H', 'z', 'Z',
@@ -3404,9 +3372,7 @@ define(
 
                     //有的时候，比如“22，-22” 数据可能会经常的被写成22-22，那么需要手动修改
                     //str = str.replace(new RegExp('-', 'g'), ',-');
-
                     //str = str.replace(/(.)-/g, "$1,-")
-
 
                     var p = str.split(',');
 
@@ -3686,6 +3652,20 @@ define(
                 return [cx, cy, rx, ry, theta, dTheta, psi, fs];
             },
             /*
+            * 获取bezier上面的点列表
+            * */
+            _getBezierPoints : function(p){
+                var steps = Math.abs( Math.sqrt( Math.pow( p.slice(-1)[0] - p[1] , 2) + Math.pow(p.slice(-2,-1 )[0] - p[0] , 2)) );
+                var parr  = [];
+                for(var i = 0;i<steps;i++){
+                    var t = i / steps;
+                    var tp = Bezier.getPointByTime( t , p );
+                    parr.push( tp.x );
+                    parr.push( tp.y );
+                }
+                return parr;
+            },
+            /*
              * 如果path中有A a ，要导出对应的points
              */
             _getArcPoints: function(p) {
@@ -3722,16 +3702,16 @@ define(
                 return cps;
             },
 
+            draw : function(ctx,style){
+                this._draw(ctx , style);
+            },
             /**
-             * 创建路径
-             * @param {Context2D} ctx Canvas 2D上下文
-             * @param {Object} style 样式
+             *  ctx Canvas 2D上下文
+             *  style 样式
              */
-            draw: function(ctx, style) {
+            _draw: function(ctx, style) {
                 var path = style.path;
-
                 var pathArray = this._parsePathData(path);
-
                 this._setPointList(pathArray, style);
 
                 for (var i = 0, l = pathArray.length; i < l; i++) {
@@ -3779,7 +3759,6 @@ define(
                             break;
                     }
                 }
-
                 return;
             },
             _setPointList: function(pathArray, style) {
@@ -3792,18 +3771,35 @@ define(
                 var pointList = style.pointList = [];
                 var singlePointList = [];
                 for (var i = 0, l = pathArray.length; i < l; i++) {
+                    //debugger
                     if (pathArray[i].command.toUpperCase() == 'M') {
                         singlePointList.length > 0 && pointList.push(singlePointList);
                         singlePointList = [];
-                    }
+                    };
+
                     p = pathArray[i].points;
 
                     if (pathArray[i].command.toUpperCase() == 'A') {
-
                         p = this._getArcPoints(p);
                         //A命令的话，外接矩形的检测必须转换为_points
                         pathArray[i]._points = p;
-                    }
+                    };
+
+                    if( pathArray[i].command.toUpperCase() == "C" || pathArray[i].command.toUpperCase() == "Q" ){
+                        var cStart = [0,0];
+                        if( singlePointList.length > 0 ){
+                            cStart = singlePointList.slice(-1)[0];
+                        } else if(i>0){
+                            var prePoints = ( pathArray[i-1]._points || pathArray[i-1].points );
+                            if( prePoints.length >= 2 ){
+                                cStart = prePoints.slice(-2);
+                            }
+                        }
+
+                        p = this._getBezierPoints( cStart.concat( p ));
+                        pathArray[i]._points = p;
+                    };
+
                     for (var j = 0, k = p.length; j < k; j += 2) {
                         var px = p[j];
                         var py = p[j + 1];
@@ -3812,14 +3808,12 @@ define(
                         };
                         singlePointList.push([px, py]);
                     }
-                }
-
+                };
                 singlePointList.length > 0 && pointList.push(singlePointList);
-
             },
             /**
              * 返回矩形区域，用于局部刷新和文字定位
-             * @param {Object} style 样式
+             * style 样式
              */
             getRect: function(style) {
                 var lineWidth;
@@ -3841,8 +3835,8 @@ define(
                 var y = 0;
 
                 var pathArray = this._parsePathData(style.path);
-
                 this._setPointList(pathArray, style);
+
                 for (var i = 0; i < pathArray.length; i++) {
                     var p = pathArray[i]._points || pathArray[i].points;
 
@@ -3886,7 +3880,8 @@ define(
         });
         return Path;
     }
-);;define(
+);
+;define(
     "canvax/shape/Polygon",
     [
         "canvax/display/Shape",
