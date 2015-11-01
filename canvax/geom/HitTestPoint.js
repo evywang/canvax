@@ -97,7 +97,6 @@ define(
         };
     
         function _isInsideBrokenLine(shape, x, y) {
-            debugger
             var context   = shape.context;
             var pointList = context.pointList;
             var lineArea;
