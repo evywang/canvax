@@ -41,7 +41,6 @@ module.exports = function(grunt) {
                  //shape中只留下几个最常用的 
                  buildPath + "/canvax/shape/*.js",
 
-                 "!"+ buildPath +"/canvax/shape/Beziercurve.js",
                  "!"+ buildPath +"/canvax/shape/Droplet.js",
                  "!"+ buildPath +"/canvax/shape/Ellipse.js",
                  "!"+ buildPath +"/canvax/shape/Isogon.js",

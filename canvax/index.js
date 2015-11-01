@@ -90,7 +90,6 @@ define(
         this.evt = null;
  
         arguments.callee.superclass.constructor.apply(this, arguments);
-        
     };
     
     Base.creatClass(Canvax , DisplayObjectContainer , {
@@ -105,9 +104,6 @@ define(
             this.evt = new EventHandler( this );
             this.evt.init();
  
-            //创建一个如果要用像素检测的时候的容器
-            this._createPixelContext();
-            
             this._isReady = true;
         },
         resize : function(){
@@ -170,40 +166,6 @@ define(
             //该stage不参与事件检测
             this._hoverStage._eventEnabled = false;
             this.addChild( this._hoverStage );
-        },
-        /**
-         * 获取像素拾取专用的上下文
-         * @return {Object} 上下文
-        */
-        _createPixelContext : function() {
-            
-            var _pixelCanvas = Base.getEl("_pixelCanvas");
-            if(!_pixelCanvas){
-               // _pixelCanvas = Base._createCanvas("_pixelCanvas" , this.context.width , this.context.height); 
-                var clientH = window.innerHeight || ( document.documentElement && document.documentElement.clientHeight  ) || document.body.clientHeight;
-                var clientW = window.innerWidth  || ( document.documentElement && document.documentElement.clientWidth   ) || document.body.clientWidth;
-                _pixelCanvas = Base._createCanvas("_pixelCanvas" , clientW , clientH ); 
-            } else {
-                //如果又的话 就不需要在创建了
-                return;
-            }
-
-            document.body.appendChild( _pixelCanvas );
- 
-            Base.initElement( _pixelCanvas );
- 
-            if( Base.canvasSupport() ){
-                //canvas的话，哪怕是display:none的页可以用来左像素检测和measureText文本width检测
-                _pixelCanvas.style.display    = "none";
-            } else {
-                //flashCanvas 的话，swf如果display:none了。就做不了measureText 文本宽度 检测了
-                _pixelCanvas.style.zIndex     = -1;
-                _pixelCanvas.style.position   = "absolute";
-                _pixelCanvas.style.left       = - this.context.width  + "px";
-                _pixelCanvas.style.top        = - this.context.height + "px";
-                _pixelCanvas.style.visibility = "hidden";
-            }
-            Base._pixelCtx = _pixelCanvas.getContext('2d');
         },
         updateRootOffset : function(){
             var now = new Date().getTime();
