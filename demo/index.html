@@ -6,8 +6,8 @@
 <title>Canvax</title>
 
 <style type="text/css">
-    body{margin:0;padding:0;font-size:12px;background-color:#eee;padding:10px 100px 100px;}
-    //canvas {background:#999}
+body{margin:0;padding:0;font-size:12px;background-color:#eee;padding:10px 100px 100px;}
+//canvas {background:#999}
 </style>
 
 <!-- <script type="text/javascript" src="http://g.tbcdn.cn/kissy/k/1.3.1/seed-min.js"></script>-->
@@ -17,8 +17,8 @@
 </head>
 
 <body onload="pageload()">
-    <div id="ready"></div>
-   <script>
+<div id="ready"></div>
+<script>
 
 /*       
 ## 通用模块定义
@@ -29,7 +29,7 @@ http://docs.kissyui.com/1.4/docs/html/guideline/kmd.html
 兼容kissy部分代码来自@墨智在项目中使用的UMD代码
 传送门--> http://gitlab.alibaba-inc.com/mm/zuanshi/blob/master/indexbp.js
 Author @释剑
-*/
+ */
 
 if (!window.define) {
     if(KISSY){
@@ -43,16 +43,16 @@ if (!window.define) {
             switch (arguments.length) {
                 case 2:
                     factory = dependencies;
-                    dependencies = id;
-                    KISSY.add(proxy, {
-                        requires: dependencies
-                    });
-                    break;
+                dependencies = id;
+                KISSY.add(proxy, {
+                    requires: dependencies
+                });
+                break;
                 case 3:
                     KISSY.add(id, proxy, {
-                        requires: dependencies
-                    });
-                    break;
+                    requires: dependencies
+                });
+                break;
             }
         };
         window.define.kmd = {}
@@ -91,9 +91,9 @@ var baseUrl = "./"
 var configs = {
     packages : [
         {
-            name : "canvax",
-            path : baseUrl 
-        }
+        name : "canvax",
+        path : baseUrl 
+    }
     ],
     alias : {
         "canvax" : baseUrl
@@ -114,565 +114,503 @@ var pageload = function(){
 
 
 
-       /*
+    /*
        KISSY.config({
-           debug:true,
-           //base : "./",
-           packages:[
-             {
-               name : "canvax",
-               path : "../"
-             }
-           ]
-       });
+debug:true,
+    //base : "./",
+packages:[
+{
+name : "canvax",
+path : "../"
+}
+]
+});
 
-       seajs.config({
-           base: "../",
-           alias: {
-               "canvax": "../"
-           }
-       });
-       */
+seajs.config({
+base: "../",
+alias: {
+"canvax": "../"
+}
+});
+     */
 
-       seajs.config({
-           base: "../"
-       });
-
-
-
-
-       var colorInd=0;
-       window.stage=null;
-       var S = KISSY;
-       KISSY.use("node" , function(S){
-           seajs.use(["canvax/index" , "canvax/shape/Shapes" , "canvax/animation/Tween" , "canvax/library/color" ] , function( Canvax , Shapes , Tween , color ){
-       //KISSY.use("canvax/index , canvax/shape/Shapes , canvax/animation/Tween , canvax/library/color ,  node" , function( S , Canvax , Shapes , Tween , color ){
-           S.all("#ready").html("ready")
-
-           
-
-           var box = S.one("#canvasTest");
-           var width = box.width();
-           var height = box.height();
-
-         
-           canvax = new Canvax({
-              id : "canvax",
-              el : box
-           })
-           stage = new Canvax.Display.Stage({
-               id : "chart0",
-               context:{
-                 width : width,
-                 height: height,
-
-               }
-           });
-
-           window.sprite = new Canvax.Display.Sprite({
-               context : {
-                  x    : 10,
-                  y    : 10,
-                  width : 300,
-                  height: 300,
-
-                  rotation : 15,
-                  scaleX : 1.2,
-                  scaleOrigin:{
-                      x:50,
-                      y:50
-                  },
-                  rotateOrigin : {
-                      x:150,
-                      y:150
-                  }
-
-
-               }
-           });
-
-           sprite.on("mousemove" , function( e ){
-               
-           })
-
-           stage.addChild( sprite );
-
-           
-           //box.append( stage.get("canvas") );
- 
-        
-           /* 
-           var rect1=new Canvax.Shape({
-
-               x : 0,
-               y : 0,
-               width:100,
-               height:100,
-               id:"rect1",
-               scaleX:2,
-           
-               //rotation : 45,
-               draw : function(){
-                   this.graphics.beginFill("red")
-                   this.graphics.drawRect(0 , 0 ,100,100);
-               }
-           });
-
-           var circle = new Canvax.Shape({
-               id:"circle1",
-               x:100,
-               y:100,
-               r:50,
-               draw : function(){
-                   this.graphics.beginFill("blue");
-                   this.graphics.drawCircle(0 ,0,50)
-               }
-               
-           });
-           */
-           
-           
-
-           var circle2 = new Shapes.Circle({
-               //type : 'Circle',
-               id : "c2",               //rotation:45,
-               context : {
-                   
-                   x:0,
-                   y:0,
-
-                   r : 50,
-                   fillStyle : 'rgba(220, 20, 60, 0.8)',          // rgba supported
-                   strokeStyle : color.getColor(colorInd++),  // getColor from default palette
-                   lineWidth : 5
-                   //lineType  : "dashed"
-               }
-           });
-           /*
-           circle2.on("mouseover" , function(){
-               this.context.y = 53;
-               this.context.x = 53;
-           });
-           circle2.on("mouseout" , function(){
-               this.context.y= 0;
-               this.context.x=0;
-           });
-           */
-           circle2.hover(function(){
-               this.context.y = 53;
-               this.context.x = 53;
-           },function(){
-               this.context.y= 0;
-               this.context.x=0;
-           });
-
-           circle3 = circle2.clone();
-           circle3.context.x = 200;
-           circle3.context.y = 200;
-
-           
-
-
-           // 贝塞尔曲线
-           window.bezier = new Shapes.Beziercurve(
-               {
-                   id :'beziercurve',
-                   context : {
-                       xStart : width,
-                       yStart : 0,
-                       cpX1 : width / 2,
-                       cpY1 : 0,
-                       //cpX2 : width / 2,
-                       //cpY2 : height,
-                       xEnd : 0,
-                       yEnd : height,
-                       strokeStyle : color.getColor(colorInd++),
-                       lineWidth : 5
-                   }
-               }
-               );
-               bezier.on("mouseover" , function(){
-                   this.context.strokeStyle = "red";
-               })
-
-               bezier.on("mouseout" , function(){
-                   this.context.strokeStyle = "blue";
-
-               })
-    
-           //折线
-           var brokenLine = new Shapes.BrokenLine({
-               id : "brokenline",
-               context : {
-                   pointList : [[10, 10], [60, 100], [148, 130], [250, 40], [446, 100]],
-                   strokeStyle : "red",//color.getColor(colorInd++),
-                   lineWidth : 1,
-                   smooth    : true ,
-                   lineType  : "dashed"
-               }
-           });
-
-           brokenLine.on("mouseover" , function(){
-               this.context.strokeStyle = "red";
-           });
-
-           brokenLine.on("mouseout" , function(){
-               this.context.strokeStyle = "yellow";
-          
-           });
-
-           var droplet = new Shapes.Droplet({
-               id : "droplet",
-               context : {
-                   x : 300,
-                   y : 300,
-
-                   hr : 50,
-                   vr : 70,
-                   fillStyle:color.getColor(colorInd++),
-                   strokeStyle:color.getColor(colorInd++),
-                   lineWidth : 4
-               }
-           });
-           droplet.on("mouseover" , function(){
-               this.context.lineWidth = 8;
-           });
-           droplet.on("mouseout" , function(){
-               this.context.lineWidth = 4;
-           });
-
-           var ellipse  = new Shapes.Ellipse({
-               id : "ellipse",
-               context : {
-                 x : 350,
-                 y :120,
-
-                 hr : 70,
-                 vr : 30,
-                 fillStyle:color.getColor(colorInd++),
-                 strokeStyle:color.getColor(colorInd++),
-                 lineWidth : 8
-
-              }
-          });
-
-
-          ellipse.on("mouseover" , function(){
-              this.context.lineWidth=12
-          });
-          ellipse.on("mouseout" , function(){
-              this.context.lineWidth=8
-          });
-
-
-
-         
-          window.sector =new Shapes.Sector({
-              id : "sector",
-              context : {
-               x :700,
-               y : 110,
-
-               //clockwise : true,//逆时针
-               r : 100,
-               r0: 70, 
-               startAngle : 110 ,
-               
-               endAngle : 60,
-               fillStyle:color.getColor(colorInd++),
-               strokeStyle:color.getColor(colorInd++),
-               lineWidth : 0
-               //lineJoin : "round"
-             }
-         });
-
-         sector.on("mousemove" , function( e ){
-             
-         });
-         
-         var srect = sector.getRect();
-         var sector_rect = new Shapes.Rect({
-             context : {
-                 x           : 700 + srect.x,
-                 y           : 110 + srect.y,
-                 width       : srect.width,
-                 height      : srect.height,
-                 strokeStyle : "red",
-                 lineWidth   : 1
-             }
-         })
-         
-         sector.on("mouseover" , function(){
-             this.context.lineWidth = 10;
-         })
-
-         sector.on("mouseout" , function(){
-             this.context.lineWidth = 5;
-         })
-         
-
-      
-         //不规则多变形
-          var polygon = new Shapes.Polygon({
-              id : "polygon",
-              dragEnabled : true,
-             context : {
-                 x:400,
-                 y:150,
-
-                  lineType  : "dashed",
-                 pointList : [[310, 120], [360, 120], [348, 230], [250, 340], [146, 200]],
-                 fillStyle:color.getColor(colorInd++),
-                 strokeStyle:color.getColor(colorInd++),
-                 lineWidth : 2
-
-             }
-
-         });
-
-         
-         polygon.on("mouseover",function(){
-             this.context.lineWidth=2
-                    });
-
-         polygon.on("mouseout",function(){
-             this.context.lineWidth = 8
-         });
-        
-
-         
-
-
-        map1Path = "M423.637,253.208l2.024-0.597l6.312,2.621c0,0,1.768,2.299,2.861,2.856c1.092,0.557,5.118,1.43,5.118,1.43l2.021,1.667l2.858-0.479l0.599,1.072l-0.957,6.074l2.858,1.666l1.189,2.263l4.287,0.831l1.666-2.854l2.621,0.356l1.666,2.265l-0.24,2.021l-5.121,0.596v2.264v1.665l-2.021,2.265l1.43,2.618l4.287,2.856l0.237,3.454l8.572,0.832v4.525l-1.666,2.381l1.191,2.263l-0.951,1.43l-3.338,0.594l-1.428,1.906l0.235,4.882l-4.285,6.072l-0.715,0.683l-2.381-2.111H446.5l-2.498-2.855l-4.884,4.761l-1.786-0.834l2.026-3.69l-0.24-1.188l-1.786-0.479l-5.718,3.099l-5.356-10.241l1.666-3.214l-0.595-1.071l-2.858-0.952l-4.76-2.858l1.903-3.928l2.855-1.43l0.598-3.214l-1.07-5.716l-0.596-0.479l-2.856,2.86c0,0-5.978-4.647-4.287-3.453c1.69,1.192-3.217-4.049-3.217-4.049l3.217-2.261l0.834-4.05l2.021-1.431l-0.354-5.359l1.43-1.188l2.619,1.787l1.664,2.26l3.453-2.26l1.192-1.434l-0.598-2.617l-4.049-2.263L423.637,253.208z"
-        var map1 = new Shapes.Path({
-              id:"map1",
-              context : {
-                  x:0,
-                  y:0,
-                  path : map1Path,
-                  lineWidth : 1,
-                  fillStyle:color.getColor(colorInd++),
-                  strokeStyle:color.getColor(colorInd++)
-              }
-        });
-        map1.on("mouseover" , function(){
-           this.context.lineWidth = 5;
-         })
-
-         map1.on("mouseout" , function(){
-           this.context.lineWidth = 1;
-         })
-
-
-         //规则多边形
-          var isogon = new Shapes.Isogon({
-              id : "isogon",
-              context : {
-                  x : 150,
-                  y : 420,
-                  r : 70,
-                  n : 9,
-                  lineWidth : 6,
-
-                  fillStyle:color.getColor(colorInd++),
-                  strokeStyle:color.getColor(colorInd++)
-              }
-          });
-          isogon.on("mouseover" , function(){
-              this.context.lineWidth = 3;
-          });
-          isogon.on("mouseout"  , function(){
-              this.context.lineWidth = 3
-          })
+seajs.config({
+base: "../"
+});
 
 
 
 
-          var rect = new Shapes.Rect({
-              id : "rect",
-              context : {
-                
-              x  : 100,
-              y  :100,
-              width : 100,
-              height:100,
-              rotation : 45,
-              scaleX : 2,
-              scaleOrigin:{
+var colorInd=0;
+window.stage=null;
+var S = KISSY;
+KISSY.use("node" , function(S){
+        seajs.use(["canvax/index" , "canvax/shape/Shapes" , "canvax/animation/Tween" , "canvax/library/color" ] , function( Canvax , Shapes , Tween , color ){
+            //KISSY.use("canvax/index , canvax/shape/Shapes , canvax/animation/Tween , canvax/library/color ,  node" , function( S , Canvax , Shapes , Tween , color ){
+            S.all("#ready").html("ready")
+
+
+
+    var box = S.one("#canvasTest");
+    var width = box.width();
+    var height = box.height();
+
+
+    canvax = new Canvax({
+        id : "canvax",
+        el : box
+    })
+    stage = new Canvax.Display.Stage({
+        id : "chart0",
+        context:{
+            width : width,
+            height: height,
+
+        }
+    });
+
+    window.sprite = new Canvax.Display.Sprite({
+        context : {
+            x    : 10,
+            y    : 10,
+            width : 300,
+            height: 300,
+
+            rotation : 15,
+            scaleX : 1.2,
+            scaleOrigin:{
                 x:50,
                 y:50
-              },
-              rotateOrigin : {x : 50,y:50},
-              //scaleY : 0.5,
-              cursor:"pointer",
-
-
-              radius: [10, 20,0],
-              //lineWidth : 6,
-              fillStyle:color.getColor(colorInd++)
-              //strokeStyle:color.getColor(colorInd++),
-              //shadowColor :"blue",
-
-              //shadowOffsetX : 3,
-
-              //shadowOffsetY : 3,
-
-              //shadowBlur : 0
-
+            },
+            rotateOrigin : {
+                x:150,
+                y:150
             }
-          });
-          rect.on("mouseover" , function(e){
-              this.context.rotation = 50;
-          })
-          rect.on("mouseout" , function(){
-              this.context.rotation = 45;
-          })
 
 
-          
-          var line = new Shapes.Line({
-              id : "line1",
-              context : {
-                  xStart : 0,
-                  yStart : 0,
-                  xEnd : width,
-                  yEnd : height,
-                  lineType : "dashed",
-                  lineWidth : 2,
-                  dashLength : 2, //虚线的长度
-                  strokeStyle:color.getColor(colorInd++)
-              }
-          });
-          line.once("mouseover" , function(){
-              this.context.lineWidth = 8;
-          });
+        }
+    });
 
-          line.once("mouseout" , function(){
-              this.context.lineWidth = 2;
-          });
+    sprite.on("mousemove" , function( e ){
 
-          window.text = new Canvax.Display.Text("世<span>间</span>安得双全法\n不负如来不负卿" , {
-              context : {
-                  x :500,
-                  y :500,
-                  fillStyle : "red",
-                  fontSize  : 20,
-                  textBackgroundColor : "blue",
-                  textAlign    : "center",
-                  textBaseline : "top"
-                  
-                  
-              }
-          })
-        
+    })
 
-          //stage.addChild(rect);
-          sprite.addChild(sector);
-
-          sprite.addChild(sector_rect);
-          sprite.addChild(rect);
-        
-
-           
-
-           stage.addChild(circle2);
-
-           stage.addChild(circle3);
-           stage.addChild(bezier);
-
-           stage.addChild(brokenLine);
-           stage.addChild(ellipse);
-
-           
-           
-           
-           stage.addChild(map1);
-
-           stage.addChild(isogon);
-           stage.addChild(polygon);
+    stage.addChild( sprite );
 
 
-           
-           
-
-           stage.addChild(droplet);
+    //box.append( stage.get("canvas") );
 
 
-           
-           stage.addChild(line);
-           setTimeout(function(){
-               
-               line.toBack(6);
-           },1000)
+    /* 
+        var rect1=new Canvax.Shape({
+
+        x : 0,
+        y : 0,
+        width:100,
+        height:100,
+        id:"rect1",
+        scaleX:2,
+
+        //rotation : 45,
+        draw : function(){
+            this.graphics.beginFill("red")
+            this.graphics.drawRect(0 , 0 ,100,100);
+        }
+    });
+
+    var circle = new Canvax.Shape({
+        id:"circle1",
+        x:100,
+        y:100,
+        r:50,
+        draw : function(){
+            this.graphics.beginFill("blue");
+            this.graphics.drawCircle(0 ,0,50)
+        }
+
+    });
+    */
 
 
-             
- 
-           window.stage1 = new Canvax.Display.Stage({
-               id : "chart1"               
-           });
-           
-           stage1.addChild( text );
-           canvax.addChild( stage1 );
 
-           canvax.addChild(stage); 
+    var circle2 = new Shapes.Circle({
+        //type : 'Circle',
+        id : "c2",               //rotation:45,
+        context : {
 
-           //stage1.toFront();
+            x:0,
+            y:0,
 
-           
+            r : 50,
+            fillStyle : 'rgba(220, 20, 60, 0.8)',          // rgba supported
+            strokeStyle : color.getColor(colorInd++),  // getColor from default palette
+            lineWidth : 5
+            //lineType  : "dashed"
+        }
+    });
+    /*
+        circle2.on("mouseover" , function(){
+        this.context.y = 53;
+        this.context.x = 53;
+    });
+    circle2.on("mouseout" , function(){
+        this.context.y= 0;
+        this.context.x=0;
+    });
+    */
+    circle2.hover(function(){
+        this.context.y = 53;
+        this.context.x = 53;
+    },function(){
+        this.context.y= 0;
+        this.context.x=0;
+    });
 
-           //按照贝塞尔曲线平滑运动的circle
-           var bezierCircle = new Shapes.Circle({
-               context : {                   
-                   x : bezier.context.$model.xStart,
-                   y : bezier.context.$model.yStart,
-                   r : 10,
-                   fillStyle   : color.getColor(colorInd++)          // rgba supported
-               }
-           });
-           stage.addChild(bezierCircle);
+    circle3 = circle2.clone();
+    circle3.context.x = 200;
+    circle3.context.y = 200;
 
 
 
 
-           window.bezierAnima = function(){
-               var bezierT = new Tween.Tween( {t:0} )
-               .to( { t : 10000 }, 10000 )
-               .repeat( Infinity )
-               .onUpdate( function (  ) {
-                   var bp = bezier.getPointByTime( this.t / 10000 );
-                   bezierCircle.context.x = bp.x;
-                   bezierCircle.context.y = bp.y;
-               } ).start();
-           };
+    //折线
+    var brokenLine = new Shapes.BrokenLine({
+        id : "brokenline",
+        context : {
+            pointList : [[10, 10], [60, 100], [148, 130], [250, 40], [446, 100]],
+            strokeStyle : "red",//color.getColor(colorInd++),
+            lineWidth : 1,
+            smooth    : true ,
+            lineType  : "dashed"
+        }
+    });
 
-           function animate(){
-               
-               timer    = requestAnimationFrame( animate ); 
-               Tween.update();
-           };
+    brokenLine.on("mouseover" , function(){
+        this.context.strokeStyle = "red";
+    });
 
-        animate();
+    brokenLine.on("mouseout" , function(){
+        this.context.strokeStyle = "yellow";
 
-           bezierAnima();
+    });
+
+    var droplet = new Shapes.Droplet({
+        id : "droplet",
+        context : {
+            x : 300,
+            y : 300,
+
+            hr : 50,
+            vr : 70,
+            fillStyle:color.getColor(colorInd++),
+            strokeStyle:color.getColor(colorInd++),
+            lineWidth : 4
+        }
+    });
+    droplet.on("mouseover" , function(){
+        this.context.lineWidth = 8;
+    });
+    droplet.on("mouseout" , function(){
+        this.context.lineWidth = 4;
+    });
+
+    var ellipse  = new Shapes.Ellipse({
+        id : "ellipse",
+        context : {
+            x : 350,
+            y :120,
+
+            hr : 70,
+            vr : 30,
+            fillStyle:color.getColor(colorInd++),
+            strokeStyle:color.getColor(colorInd++),
+            lineWidth : 8
+
+        }
+    });
 
 
-           })
-           
+    ellipse.on("mouseover" , function(){
+        this.context.lineWidth=12
+    });
+    ellipse.on("mouseout" , function(){
+        this.context.lineWidth=8
+    });
+
+
+
+
+    window.sector =new Shapes.Sector({
+        id : "sector",
+        context : {
+            x :700,
+            y : 110,
+
+            //clockwise : true,//逆时针
+            r : 100,
+            r0: 70, 
+            startAngle : 110 ,
+
+            endAngle : 60,
+            fillStyle:color.getColor(colorInd++),
+            strokeStyle:color.getColor(colorInd++),
+            lineWidth : 0
+            //lineJoin : "round"
+        }
+    });
+
+    sector.on("mousemove" , function( e ){
+
+    });
+
+    var srect = sector.getRect();
+    var sector_rect = new Shapes.Rect({
+        context : {
+            x           : 700 + srect.x,
+            y           : 110 + srect.y,
+            width       : srect.width,
+            height      : srect.height,
+            strokeStyle : "red",
+            lineWidth   : 1
+        }
+    })
+
+    sector.on("mouseover" , function(){
+        this.context.lineWidth = 10;
+    })
+
+    sector.on("mouseout" , function(){
+        this.context.lineWidth = 5;
+    })
+
+
+
+    //不规则多变形
+    var polygon = new Shapes.Polygon({
+        id : "polygon",
+        dragEnabled : true,
+        context : {
+            x:400,
+            y:150,
+
+            lineType  : "dashed",
+            pointList : [[310, 120], [360, 120], [348, 230], [250, 340], [146, 200]],
+            fillStyle:color.getColor(colorInd++),
+            strokeStyle:color.getColor(colorInd++),
+            lineWidth : 2
+
+        }
+
+    });
+
+
+    polygon.on("mouseover",function(){
+        this.context.lineWidth=2
+    });
+
+    polygon.on("mouseout",function(){
+        this.context.lineWidth = 8
+    });
+
+
+
+
+
+    map1Path = "M423.637,253.208l2.024-0.597l6.312,2.621c0,0,1.768,2.299,2.861,2.856c1.092,0.557,5.118,1.43,5.118,1.43l2.021,1.667l2.858-0.479l0.599,1.072l-0.957,6.074l2.858,1.666l1.189,2.263l4.287,0.831l1.666-2.854l2.621,0.356l1.666,2.265l-0.24,2.021l-5.121,0.596v2.264v1.665l-2.021,2.265l1.43,2.618l4.287,2.856l0.237,3.454l8.572,0.832v4.525l-1.666,2.381l1.191,2.263l-0.951,1.43l-3.338,0.594l-1.428,1.906l0.235,4.882l-4.285,6.072l-0.715,0.683l-2.381-2.111H446.5l-2.498-2.855l-4.884,4.761l-1.786-0.834l2.026-3.69l-0.24-1.188l-1.786-0.479l-5.718,3.099l-5.356-10.241l1.666-3.214l-0.595-1.071l-2.858-0.952l-4.76-2.858l1.903-3.928l2.855-1.43l0.598-3.214l-1.07-5.716l-0.596-0.479l-2.856,2.86c0,0-5.978-4.647-4.287-3.453c1.69,1.192-3.217-4.049-3.217-4.049l3.217-2.261l0.834-4.05l2.021-1.431l-0.354-5.359l1.43-1.188l2.619,1.787l1.664,2.26l3.453-2.26l1.192-1.434l-0.598-2.617l-4.049-2.263L423.637,253.208z"
+    var map1 = new Shapes.Path({
+        id:"map1",
+        context : {
+            x:0,
+            y:0,
+            path : map1Path,
+            lineWidth : 1,
+            fillStyle:color.getColor(colorInd++),
+            strokeStyle:color.getColor(colorInd++)
+        }
+    });
+    map1.on("mouseover" , function(){
+        this.context.lineWidth = 5;
+    })
+
+    map1.on("mouseout" , function(){
+        this.context.lineWidth = 1;
+    })
+
+
+    //规则多边形
+    var isogon = new Shapes.Isogon({
+        id : "isogon",
+        context : {
+            x : 150,
+            y : 420,
+            r : 70,
+            n : 9,
+            lineWidth : 6,
+
+            fillStyle:color.getColor(colorInd++),
+            strokeStyle:color.getColor(colorInd++)
+        }
+    });
+    isogon.on("mouseover" , function(){
+        this.context.lineWidth = 3;
+    });
+    isogon.on("mouseout"  , function(){
+        this.context.lineWidth = 3
+    })
+
+
+
+
+    var rect = new Shapes.Rect({
+        id : "rect",
+        context : {
+
+            x  : 100,
+            y  :100,
+            width : 100,
+            height:100,
+            rotation : 45,
+            scaleX : 2,
+            scaleOrigin:{
+                x:50,
+                y:50
+            },
+            rotateOrigin : {x : 50,y:50},
+            //scaleY : 0.5,
+            cursor:"pointer",
+
+
+            radius: [10, 20,0],
+            //lineWidth : 6,
+            fillStyle:color.getColor(colorInd++)
+            //strokeStyle:color.getColor(colorInd++),
+            //shadowColor :"blue",
+
+            //shadowOffsetX : 3,
+
+            //shadowOffsetY : 3,
+
+            //shadowBlur : 0
+
+        }
+    });
+    rect.on("mouseover" , function(e){
+        this.context.rotation = 50;
+    })
+    rect.on("mouseout" , function(){
+        this.context.rotation = 45;
+    })
+
+
+
+    var line = new Shapes.Line({
+        id : "line1",
+        context : {
+            xStart : 0,
+            yStart : 0,
+            xEnd : width,
+            yEnd : height,
+            lineType : "dashed",
+            lineWidth : 2,
+            dashLength : 2, //虚线的长度
+            strokeStyle:color.getColor(colorInd++)
+        }
+    });
+    line.once("mouseover" , function(){
+        this.context.lineWidth = 8;
+    });
+
+    line.once("mouseout" , function(){
+        this.context.lineWidth = 2;
+    });
+
+    window.text = new Canvax.Display.Text("世<span>间</span>安得双全法\n不负如来不负卿" , {
+        context : {
+            x :500,
+            y :500,
+            fillStyle : "red",
+            fontSize  : 20,
+            textBackgroundColor : "blue",
+            textAlign    : "center",
+            textBaseline : "top"
+
+
+        }
+    })
+
+
+    //stage.addChild(rect);
+    sprite.addChild(sector);
+
+    sprite.addChild(sector_rect);
+    sprite.addChild(rect);
+
+
+
+
+    stage.addChild(circle2);
+
+    stage.addChild(circle3);
+
+    stage.addChild(brokenLine);
+    stage.addChild(ellipse);
+
+
+
+
+    stage.addChild(map1);
+
+    stage.addChild(isogon);
+    stage.addChild(polygon);
+
+
+
+
+
+    stage.addChild(droplet);
+
+
+
+    stage.addChild(line);
+    setTimeout(function(){
+
+        line.toBack(6);
+    },1000)
+
+
+
+
+    window.stage1 = new Canvax.Display.Stage({
+        id : "chart1"               
+    });
+
+    stage1.addChild( text );
+    canvax.addChild( stage1 );
+
+    canvax.addChild(stage); 
+
+    //stage1.toFront();
+
+
+
+
+
+})
+
            })
    };
 
-   
-
-
-       
-
-   </script>
 
 
 
-   <div id="canvasTest" style='background:#f3f5f4;width:1200px;height:800px;'></div>
-   <input type="button" value="平滑贝塞尔曲线运动" />
+
+
+</script>
+
+
+
+<div id="canvasTest" style='background:#f3f5f4;width:1200px;height:800px;'></div>
+<input type="button" value="平滑贝塞尔曲线运动" />
 </body>
 </html>
 
