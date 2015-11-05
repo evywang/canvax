@@ -135,6 +135,7 @@ define(
                 for (var i=0,l=this.children.length ; i<l ; i++){
                     this.getChildAt(i).destroy();
                     i--;
+                    l--;
                 };
             },
             /*
