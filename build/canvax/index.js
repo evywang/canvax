@@ -2288,13 +2288,14 @@ define(
             //从树中删除
             remove : function(){
                 if( this.parent ){
+                    this.parent = null;
                     this.parent.removeChild(this);
                 }
             },
             //元素的自我销毁
-            destroy : function(){ 
-                this.fire("destroy");
+            destroy : function(){
                 this.remove();
+                this.fire("destroy");
                 //把自己从父节点中删除了后做自我清除，释放内存
                 this.context = null;
                 delete this.context;
@@ -2423,10 +2424,11 @@ define(
             },
             //集合类的自我销毁
             destroy : function(){
-                this.fire("destroy");
                 if( this.parent ){
+                    this.parent = null;
                     this.parent.removeChild(this);
                 };
+                this.fire("destroy");
                 //依次销毁所有子元素
                 //TODO：这个到底有没有必要。还有待商榷
                 _.each( this.children , function( child ){
