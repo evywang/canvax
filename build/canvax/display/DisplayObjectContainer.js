@@ -128,8 +128,8 @@ define(
             //集合类的自我销毁
             destroy : function(){
                 if( this.parent ){
-                    this.parent = null;
                     this.parent.removeChild(this);
+                    this.parent = null;
                 };
                 this.fire("destroy");
                 //依次销毁所有子元素

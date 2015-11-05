@@ -500,8 +500,8 @@ define(
             //从树中删除
             remove : function(){
                 if( this.parent ){
-                    this.parent = null;
                     this.parent.removeChild(this);
+                    this.parent = null;
                 }
             },
             //元素的自我销毁
