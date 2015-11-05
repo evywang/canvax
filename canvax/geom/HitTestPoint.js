@@ -97,9 +97,6 @@ define(
             }
 
             var _s = (_a * x - y + _b) * (_a * x - y + _b) / (_a * _a + 1);
-            //if( _s <= _l / 2 * _l / 2 ){
-                //debugger
-            //}
             return _s <= _l / 2 * _l / 2;
         };
 
@@ -271,7 +268,6 @@ define(
             poly.push(poly[0]); //记得要闭合
             var wn = 0;
             for (var shiftP, shift = poly[0][1] > y, i = 1; i < poly.length; i++) {
-                
                 //先做线的检测，如果是在两点的线上，就肯定是在认为在图形上
                 var inLine = _isInsideLine({
                     xStart : poly[i-1][0],
@@ -280,11 +276,9 @@ define(
                     yEnd   : poly[i][1],
                     lineWidth : (context.lineWidth || 1)
                 } , x , y);
-                
                 if ( inLine ){
                     return true;
-                }
-
+                };
                 //如果有fillStyle ， 那么肯定需要做面的检测
                 if (context.fillStyle) {
                     shiftP = shift;
