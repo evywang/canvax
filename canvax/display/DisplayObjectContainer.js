@@ -88,10 +88,9 @@ define(
                 return this.removeChildAt(_.indexOf( this.children , child ));
             },
             removeChildAt : function(index) {
-    
                 if (index < 0 || index > this.children.length - 1) {
                     return false;
-                }
+                };
                 var child = this.children[index];
                 if (child != null) {
                     child.parent = null;
@@ -133,10 +132,10 @@ define(
                 };
                 this.fire("destroy");
                 //依次销毁所有子元素
-                //TODO：这个到底有没有必要。还有待商榷
-                _.each( this.children , function( child ){
-                    child.destroy();
-                } );
+                for (var i=0,l=this.children.length ; i<l ; i++){
+                    this.getChildAt(i).destroy();
+                    i--;
+                };
             },
             /*
              *@id 元素的id
