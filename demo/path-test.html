@@ -200,6 +200,7 @@ var pageload = function() {
                 var ps1 ="M 100 100 L 200 200 A 50 50 0 1 1 200 250 z";
                 var ps2 ="M10 10 H 100 H 150 M10 315 L 110 215 A 30 50 0 0 1 162.55 162.45 L 172.55 152.45 A 30 50 -45 0 1 215.1 109.9 L 315 10 v 60 Q 350 100 350 130 C 350 230 450 130 450 230 z";
                 var ps3 ="M366,310, L323,427, L422,350, L310,349, L409,427 z";
+                var ps4 = "M 0 50 C 50 50 75 -16.666666666666668 0 -70";
 
                 window.path1 = new Shapes.Path( {
                     id:"path3", context: {
@@ -221,7 +222,7 @@ var pageload = function() {
                 }
                 )
                 stage.addChild(path1);
-                canvax.addChild(stage);
+            
 
                 setTimeout(function() {
                     _.each(path1.context.pointList, function(p) {
@@ -320,7 +321,45 @@ var pageload = function() {
                     }
                     );
                 }
-                , 1000)
+                , 1000);
+
+
+                window.path4 = new Shapes.Path( {
+                    id:"path3", context: {
+                        x: 480, y:300, path:ps4, lineWidth:1, fillStyle:color.getColor(colorInd++), strokeStyle:color.getColor(colorInd++)
+                    }
+                }
+                );
+
+                path4.on("mouseover", function() {
+                    this.context.lineWidth = 5;
+                }
+                )
+                path4.on("mouseout", function() {
+                    this.context.lineWidth = 1;
+                }
+                )
+                stage.addChild(path4);
+
+                setTimeout(function() {
+                    _.each(path4.context.pointList, function(p) {
+                        //debugger
+                        _.each(p, function(point) {
+                            console.log(point[0]+"|"+point[1])
+                            stage.addChild(new Shapes.Circle( {
+                                context: {
+                                    r: 1, x:point[0]+480, y:point[1]+300, fillStyle:"blue"
+                                }
+                            }
+                            ));
+                        }
+                        );
+                    }
+                    );
+                }
+                , 1000);
+
+                canvax.addChild(stage);
 
             }
             )

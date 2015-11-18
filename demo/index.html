@@ -297,8 +297,8 @@ KISSY.use("node" , function(S){
     var droplet = new Shapes.Droplet({
         id : "droplet",
         context : {
-            x : 300,
-            y : 300,
+            x : 380,
+            y : 380,
 
             hr : 50,
             vr : 70,
@@ -313,6 +313,28 @@ KISSY.use("node" , function(S){
     droplet.on("mouseout" , function(){
         this.context.lineWidth = 4;
     });
+
+    setTimeout(function() {
+        debugger
+        _.each(droplet.context.pointList, function(p) {
+            //debugger
+            _.each(p, function(point) {
+                console.log(point[0]+"|"+point[1])
+                stage.addChild(new Shapes.Circle( {
+                    context: {
+                        r: 1, x:point[0]+380, y:point[1]+380, fillStyle:"blue"
+                    }
+                }
+                ));
+            }
+            );
+        }
+        );
+    }
+    , 1000)
+
+
+
 
     var ellipse  = new Shapes.Ellipse({
         id : "ellipse",
