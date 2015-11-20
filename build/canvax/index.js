@@ -1,6 +1,9 @@
 define(
-    "canvax/animation/AnimationFrame", [],
-    function() {
+    "canvax/animation/AnimationFrame", 
+    [
+        "canvax/animation/Tween"
+    ],
+    function(Tween) {
         /**
          * 设置 AnimationFrame begin
          */
@@ -32,11 +35,11 @@ define(
         var _taskList = [];
         var _requestAid = null;
 
-        function registTask(task) {
+        function registFrame(task) {
             if (!_requestAid && task) {
                 _requestAid = requestAnimationFrame(function() {
                     _requestAid = null;
-                    for( var i=0,l=_taskList.length ; i<l ; i++){
+                    for (var i = 0, l = _taskList.length; i < l; i++) {
                         var task = _taskList.shift();
                         task();
                         i--;
@@ -48,22 +51,68 @@ define(
             return _requestAid;
         };
 
-        function destroyTask(task) {
-            for(var i=0,l=_taskList.length ; i<l ; i++){
-                if(_taskList[i] === task){
-                    _taskList.splice( i , 1 );
+        function destroyFrame(task) {
+            for (var i = 0, l = _taskList.length; i < l; i++) {
+                if (_taskList[i] === task) {
+                    _taskList.splice(i, 1);
                 }
             };
-            if( _taskList.length == 0 ){
-                cancelAnimationFrame( _requestAid );
+            if (_taskList.length == 0) {
+                cancelAnimationFrame(_requestAid);
                 _requestAid = null;
             };
             return _requestAid;
         };
 
+        /* 
+         * @param opt {from , to , onUpdate , onComplete}
+         * @result tween
+         */
+        function registTween(options) {
+            var opt = _.extend({
+                from: null,
+                to: null,
+                duration : 500,
+                onUpdate: function() {},
+                onComplete: function() {}
+            }, options);
+            var tween = {};
+            if (opt.from && opt.to) {
+                tween = new Tween.Tween(opt.from).to(opt.to , opt.duration).onUpdate(opt.onUpdate);
+                tween.onComplete(function() {
+                    destroyFrame( animate );
+                    tween.stop();
+                    Tween.remove( tween );
+                    tween = null;
+                });
+                tween.onComplete(opt.onComplete);
+                function animate(){
+                    registFrame( animate );
+                    Tween.update();
+                };
+                tween.start();
+                animate();
+                tween._animate = animate;
+            };
+            return tween;
+        };
+
+        /*
+         * @param tween
+         * @result void(0)
+         */
+        function destroyTween(tween) {
+            tween.stop();
+            Tween.remove( tween );
+            destroyFrame( tween._animate );
+            tween = null;
+        };
+
         return {
-            registTask: registTask,
-            destroyTask: destroyTask
+            registFrame: registFrame,
+            destroyFrame: destroyFrame,
+            registTween: registTween,
+            destroyTween: destroyTween
         };
     }
 );;window.FlashCanvasOptions = {
@@ -4437,9 +4486,8 @@ define(
         setFrameRate : function(frameRate) {
            if(Base.mainFrameRate == frameRate) {
                return;
-           }
+           };
            Base.mainFrameRate = frameRate;
- 
            //根据最新的帧率，来计算最新的间隔刷新时间
            this._speedTime = parseInt(1000/Base.mainFrameRate);
         },
@@ -4451,12 +4499,10 @@ define(
         __startEnter : function(){
            var self = this;
            if( !self.requestAid ){
-               self.requestAid = AnimationFrame.registTask( _.bind( self.__enterFrame , self) );
-               //self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
+               self.requestAid = AnimationFrame.registFrame( _.bind( self.__enterFrame , self) );
            }
         },
         __enterFrame : function(){
-            
             var self = this;
             //不管怎么样，__enterFrame执行了就要把
             //requestAid null 掉

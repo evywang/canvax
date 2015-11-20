@@ -204,9 +204,8 @@ define(
         setFrameRate : function(frameRate) {
            if(Base.mainFrameRate == frameRate) {
                return;
-           }
+           };
            Base.mainFrameRate = frameRate;
- 
            //根据最新的帧率，来计算最新的间隔刷新时间
            this._speedTime = parseInt(1000/Base.mainFrameRate);
         },
@@ -218,12 +217,10 @@ define(
         __startEnter : function(){
            var self = this;
            if( !self.requestAid ){
-               self.requestAid = AnimationFrame.registTask( _.bind( self.__enterFrame , self) );
-               //self.requestAid = requestAnimationFrame( _.bind( self.__enterFrame , self) );
+               self.requestAid = AnimationFrame.registFrame( _.bind( self.__enterFrame , self) );
            }
         },
         __enterFrame : function(){
-            
             var self = this;
             //不管怎么样，__enterFrame执行了就要把
             //requestAid null 掉
