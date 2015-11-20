@@ -35,6 +35,10 @@ define(
         var _taskList = [];
         var _requestAid = null;
 
+        /*
+        * @param task 要加入到渲染帧队列中的任务
+        * @result frameid
+        */
         function registFrame(task) {
             if (!_requestAid && task) {
                 _requestAid = requestAnimationFrame(function() {
@@ -51,6 +55,9 @@ define(
             return _requestAid;
         };
 
+        /*
+        *  @param task 要从渲染帧队列中删除的任务
+        */
         function destroyFrame(task) {
             for (var i = 0, l = _taskList.length; i < l; i++) {
                 if (_taskList[i] === task) {
@@ -74,7 +81,9 @@ define(
                 to: null,
                 duration : 500,
                 onUpdate: function() {},
-                onComplete: function() {}
+                onComplete: function() {},
+                repeat : 0,
+                delay : 0
             }, options);
             var tween = {};
             if (opt.from && opt.to) {
@@ -86,6 +95,8 @@ define(
                     tween = null;
                 });
                 tween.onComplete(opt.onComplete);
+                !opt.repeat && tween.repeat( opt.repeat );
+                !opt.delay && tween.delay( opt.delay );
                 function animate(){
                     registFrame( animate );
                     Tween.update();

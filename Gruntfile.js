@@ -11,6 +11,7 @@ module.exports = function(grunt) {
              src: [
                  //animationframe
                  buildPath + "/canvax/animation/AnimationFrame.js",
+                 buildPath + "/canvax/animation/Tween.js",
                  
                  //core
                  buildPath + "/canvax/core/*.js",
@@ -29,6 +30,7 @@ module.exports = function(grunt) {
                  buildPath + "/canvax/geom/Matrix.js",
                  buildPath + "/canvax/geom/Vector.js",
                  buildPath + "/canvax/geom/SmoothSpline.js",
+                 buildPath + "canvax/geom/bezier",
 
                  //display
                  buildPath + "/canvax/display/DisplayObject.js",
