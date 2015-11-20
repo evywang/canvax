@@ -33,15 +33,15 @@ define(
         var _requestAid = null;
 
         function registTask(task) {
-            if (!_requestAid && _taskList.length == 0 && task) {
+            if (!_requestAid && task) {
                 _requestAid = requestAnimationFrame(function() {
+                    _requestAid = null;
                     for( var i=0,l=_taskList.length ; i<l ; i++){
                         var task = _taskList.shift();
                         task();
                         i--;
                         l--;
                     };
-                    _requestAid = null;
                 });
             };
             _taskList.push(task);
