@@ -28,25 +28,42 @@ define(
             };
         };
 
-
+        //管理所有图表的渲染任务
         var _taskList = [];
         var _requestAid = null;
 
         function registTask(task) {
+            if (!_requestAid && _taskList.length == 0 && task) {
+                _requestAid = requestAnimationFrame(function() {
+                    for( var i=0,l=_taskList.length ; i<l ; i++){
+                        var task = _taskList.shift();
+                        task();
+                        i--;
+                        l--;
+                    };
+                    _requestAid = null;
+                });
+            };
             _taskList.push(task);
-            _requestAid = requestAnimationFrame(function() {
-            
-            });
             return _requestAid;
         };
 
         function destroyTask(task) {
-
+            for(var i=0,l=_taskList.length ; i<l ; i++){
+                if(_taskList[i] === task){
+                    _taskList.splice( i , 1 );
+                }
+            };
+            if( _taskList.length == 0 ){
+                cancelAnimationFrame( _requestAid );
+                _requestAid = null;
+            };
+            return _requestAid;
         };
 
         return {
             registTask: registTask,
             destroyTask: destroyTask
-        }
+        };
     }
 );

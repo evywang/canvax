@@ -178,6 +178,22 @@ var pageload = function() {
                 }
                 );
 
+
+                var box1 = S.one("#canvasTest1");
+                var width1 = box1.width();
+                var height1 = box1.height();
+
+                canvax1 = new Canvax( {
+                    id: "canvax", el:box1
+                }
+                );
+                stage1 = new Canvax.Display.Stage( {
+                    id:"chart0", context: {
+                        width: width1, height:height1,
+                    }
+                }
+                );
+
                 window.sprite = new Canvax.Display.Sprite( {
                     context: {
                         x:10, y:10, width:300, height:300, rotation:15, scaleX:1.2, scaleOrigin: {
@@ -326,7 +342,7 @@ var pageload = function() {
 
                 window.path4 = new Shapes.Path( {
                     id:"path3", context: {
-                        x: 480, y:300, path:ps4, lineWidth:1, fillStyle:color.getColor(colorInd++), strokeStyle:color.getColor(colorInd++)
+                        x: 480, y:90, path:ps4, lineWidth:1, fillStyle:color.getColor(colorInd++), strokeStyle:color.getColor(colorInd++)
                     }
                 }
                 );
@@ -339,16 +355,16 @@ var pageload = function() {
                     this.context.lineWidth = 1;
                 }
                 )
-                stage.addChild(path4);
+                stage1.addChild(path4);
 
                 setTimeout(function() {
                     _.each(path4.context.pointList, function(p) {
                         //debugger
                         _.each(p, function(point) {
                             console.log(point[0]+"|"+point[1])
-                            stage.addChild(new Shapes.Circle( {
+                            stage1.addChild(new Shapes.Circle( {
                                 context: {
-                                    r: 1, x:point[0]+480, y:point[1]+300, fillStyle:"blue"
+                                    r: 1, x:point[0]+480, y:point[1]+90, fillStyle:"blue"
                                 }
                             }
                             ));
@@ -360,6 +376,7 @@ var pageload = function() {
                 , 1000);
 
                 canvax.addChild(stage);
+                canvax1.addChild(stage1);
 
             }
             )
@@ -371,6 +388,7 @@ var pageload = function() {
 
 
 
-    <div id="canvasTest"style='background:#f3f5f4;width:1200px;height:1200px;'></div>
+    <div id="canvasTest"style='background:#f3f5f4;width:1200px;height:500px;'></div>
+    <div id="canvasTest1"style='background:#f3f5f4;width:1200px;height:500px;'></div>
     </body>
     </html>
