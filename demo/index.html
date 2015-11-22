@@ -315,7 +315,7 @@ KISSY.use("node" , function(S){
     });
 
     setTimeout(function() {
-        debugger
+        
         _.each(droplet.context.pointList, function(p) {
             //debugger
             _.each(p, function(point) {
@@ -398,11 +398,11 @@ KISSY.use("node" , function(S){
     })
 
     sector.on("mouseover" , function(){
-        this.context.lineWidth = 10;
+        this.context.lineWidth = 2;
     })
 
     sector.on("mouseout" , function(){
-        this.context.lineWidth = 5;
+        this.context.lineWidth = 1;
     })
 
 
@@ -414,7 +414,7 @@ KISSY.use("node" , function(S){
         context : {
             x:400,
             y:150,
-
+            smooth : true,
             lineType  : "dashed",
             pointList : [[310, 120], [360, 120], [348, 230], [250, 340], [146, 200]],
             fillStyle:color.getColor(colorInd++),
@@ -427,11 +427,11 @@ KISSY.use("node" , function(S){
 
 
     polygon.on("mouseover",function(){
-        this.context.lineWidth=2
+        this.context.lineWidth=3
     });
 
     polygon.on("mouseout",function(){
-        this.context.lineWidth = 8
+        this.context.lineWidth = 2
     });
 
 
@@ -463,12 +463,13 @@ KISSY.use("node" , function(S){
     var isogon = new Shapes.Isogon({
         id : "isogon",
         context : {
+            //smooth:true,
+            //lineType:"dashed",
             x : 150,
             y : 420,
             r : 70,
             n : 9,
-            lineWidth : 6,
-
+            lineWidth : 2,
             fillStyle:color.getColor(colorInd++),
             strokeStyle:color.getColor(colorInd++)
         }
@@ -477,7 +478,7 @@ KISSY.use("node" , function(S){
         this.context.lineWidth = 3;
     });
     isogon.on("mouseout"  , function(){
-        this.context.lineWidth = 3
+        this.context.lineWidth = 2
     })
 
 
@@ -546,7 +547,7 @@ KISSY.use("node" , function(S){
         this.context.lineWidth = 2;
     });
 
-    window.text = new Canvax.Display.Text("世<span>间</span>安得双全法\n不负如来不负卿" , {
+    window.text = new Canvax.Display.Text("每一个真实的现在，\n都是我们曾经幻想的未来" , {
         context : {
             x :500,
             y :500,
