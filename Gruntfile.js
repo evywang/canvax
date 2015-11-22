@@ -30,7 +30,7 @@ module.exports = function(grunt) {
                  buildPath + "/canvax/geom/Matrix.js",
                  buildPath + "/canvax/geom/Vector.js",
                  buildPath + "/canvax/geom/SmoothSpline.js",
-                 buildPath + "canvax/geom/bezier",
+                 buildPath + "canvax/geom/bezier.js",
 
                  //display
                  buildPath + "/canvax/display/DisplayObject.js",

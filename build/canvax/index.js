@@ -1466,18 +1466,6 @@ define(
                     if( preHeartBeat != this._heartBeatNum ){
                         this._hoverClass = true;
 
-                        /*
-                        //如果前后心跳不一致，说明有mouseover 属性的修改，也就是有hover态
-                        //那么该该心跳包肯定已经 巴shape添加到了canvax引擎的convertStages队列中
-                        //把该shape从convertStages中干掉，重新添加到专门渲染hover态shape的_hoverStage中
-                        if(_.values(canvax.convertStages[this.getStage().id].convertShapes).length > 1){
-                            //如果还有其他元素也上报的心跳，那么该画的还是得画，不管了
-                        } else {
-                            delete canvax.convertStages[ this.getStage().id ];
-                            this._heart = false;
-                        }
-                        */
-
                         if( this.hoverClone ){
                             var canvax = this.getStage().parent;
                             //然后clone一份obj，添加到_hoverStage 中
@@ -1551,18 +1539,12 @@ define(
             //当前激活的点对应的obj，在touch下可以是个数组,和上面的curPoints对应
             this.curPointsTarget = [];
             
-            /**
-             *交互相关属性
-             * */
-            //接触canvas
             this._touching = false;
             //正在拖动，前提是_touching=true
             this._draging =false;
  
             //当前的鼠标状态
             this._cursor  = "default";
-
-            //this.initEvent = function(){};
         };
         Base.creatClass( EventHandler , Handler , {
             /*
