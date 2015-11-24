@@ -78,6 +78,11 @@ define(
         //设置帧率
         this._speedTime = parseInt(1000/Base.mainFrameRate);
         this._preRenderTime = 0;
+
+        //任务列表, 如果_taskList 不为空，那么主引擎就一直跑
+        //为 含有__enterFrame 方法 DisplayObject 的对象列表
+        //比如Movieclip的__enterFrame方法。
+        this._taskList = [];
         
         this._hoverStage = null;
         
@@ -226,32 +231,41 @@ define(
             //requestAid null 掉
             self.requestAid = null;
             Base.now = new Date().getTime();
- 
             if( self._heartBeat ){
- 
                 if(( Base.now - self._preRenderTime ) < self._speedTime ){
                     //事件speed不够，下一帧再来
                     self.__startEnter();
                     return;
-                }
- 
+                };
                 //开始渲染的事件
                 self.fire("beginRender");
- 
                 _.each(_.values( self.convertStages ) , function(convertStage){
                    convertStage.stage._render( convertStage.stage.context2D );
                 });
- 
                 self._heartBeat = false;
-                
                 self.convertStages = {};
- 
                 //渲染完了，打上最新时间挫
                 self._preRenderTime = new Date().getTime();
- 
                 //渲染结束
                 self.fire("afterRender");
-            }
+            };
+
+            //先跑任务队列,因为有可能再具体的hander中会把自己清除掉
+            //所以跑任务和下面的length检测分开来
+            if(self._taskList.length > 0){
+               for(var i=0,l = self._taskList.length ; i < l ; i++ ){
+                  var obj = self._taskList[i];
+                  if(obj.__enterFrame){
+                     obj.__enterFrame();
+                  } else {
+                     self.__taskList.splice(i-- , 1);
+                  }
+               }  
+            };
+            //如果依然还有任务。 就继续enterFrame.
+            if(self._taskList.length > 0){
+               self.__startEnter();
+            };
         },
         _afterAddChild : function( stage , index ){
             var canvas;
