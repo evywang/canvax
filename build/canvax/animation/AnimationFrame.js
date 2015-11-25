@@ -40,18 +40,21 @@ define(
         * @result frameid
         */
         function registFrame(task) {
-            if (!_requestAid && task) {
+            if( !task ){
+                return;
+            };
+            _taskList.push(task);
+            if (!_requestAid) {
                 _requestAid = requestAnimationFrame(function() {
+                    //console.log("frame__"+_taskList.length);
+                    var currTaskList = _taskList;
+                    _taskList = [];
                     _requestAid = null;
-                    for (var i = 0, l = _taskList.length; i < l; i++) {
-                        var task = _taskList.shift();
-                        task();
-                        i--;
-                        l--;
+                    while( currTaskList.length>0 ){
+                        currTaskList.shift()();
                     };
                 });
             };
-            _taskList.push(task);
             return _requestAid;
         };
 
@@ -72,7 +75,7 @@ define(
         };
 
         /* 
-         * @param opt {from , to , onUpdate , onComplete}
+         * @param opt {from , to , onUpdate , onComplete , ......}
          * @result tween
          */
         function registTween(options) {
@@ -88,19 +91,27 @@ define(
             var tween = {};
             if (opt.from && opt.to) {
                 tween = new Tween.Tween(opt.from).to(opt.to , opt.duration).onUpdate(opt.onUpdate);
+
+                !opt.repeat && tween.repeat( opt.repeat );
+                !opt.delay && tween.delay( opt.delay );
+
+                function animate(){
+                    if( !tween ){
+                        return;
+                    };
+                    Tween.update();
+                    registFrame( animate );
+                };
+
                 tween.onComplete(function() {
                     destroyFrame( animate );
                     tween.stop();
                     Tween.remove( tween );
                     tween = null;
+                    //执行用户的conComplete
+                    opt.onComplete();
                 });
-                tween.onComplete(opt.onComplete);
-                !opt.repeat && tween.repeat( opt.repeat );
-                !opt.delay && tween.delay( opt.delay );
-                function animate(){
-                    registFrame( animate );
-                    Tween.update();
-                };
+
                 tween.start();
                 animate();
                 tween._animate = animate;

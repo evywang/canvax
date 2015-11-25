@@ -40,18 +40,21 @@ define(
         * @result frameid
         */
         function registFrame(task) {
-            if (!_requestAid && task) {
+            if( !task ){
+                return;
+            };
+            _taskList.push(task);
+            if (!_requestAid) {
                 _requestAid = requestAnimationFrame(function() {
+                    //console.log("frame__"+_taskList.length);
+                    var currTaskList = _taskList;
+                    _taskList = [];
                     _requestAid = null;
-                    for (var i = 0, l = _taskList.length; i < l; i++) {
-                        var task = _taskList.shift();
-                        task();
-                        i--;
-                        l--;
+                    while( currTaskList.length>0 ){
+                        currTaskList.shift()();
                     };
                 });
             };
-            _taskList.push(task);
             return _requestAid;
         };
 
@@ -72,7 +75,7 @@ define(
         };
 
         /* 
-         * @param opt {from , to , onUpdate , onComplete}
+         * @param opt {from , to , onUpdate , onComplete , ......}
          * @result tween
          */
         function registTween(options) {
@@ -88,19 +91,27 @@ define(
             var tween = {};
             if (opt.from && opt.to) {
                 tween = new Tween.Tween(opt.from).to(opt.to , opt.duration).onUpdate(opt.onUpdate);
+
+                !opt.repeat && tween.repeat( opt.repeat );
+                !opt.delay && tween.delay( opt.delay );
+
+                function animate(){
+                    if( !tween ){
+                        return;
+                    };
+                    Tween.update();
+                    registFrame( animate );
+                };
+
                 tween.onComplete(function() {
                     destroyFrame( animate );
                     tween.stop();
                     Tween.remove( tween );
                     tween = null;
+                    //执行用户的conComplete
+                    opt.onComplete();
                 });
-                tween.onComplete(opt.onComplete);
-                !opt.repeat && tween.repeat( opt.repeat );
-                !opt.delay && tween.delay( opt.delay );
-                function animate(){
-                    registFrame( animate );
-                    Tween.update();
-                };
+
                 tween.start();
                 animate();
                 tween._animate = animate;
@@ -2225,11 +2236,10 @@ define(
         "canvax/display/Point",
         "canvax/core/Base",
         "canvax/geom/HitTestPoint",
-        !window.PropertyFactory ? "canvax/core/PropertyFactory" : ""
+        "canvax/animation/AnimationFrame",
+        "canvax/core/PropertyFactory"
     ],
-    function(EventDispatcher , Matrix , Point , Base , HitTestPoint , PropertyFactory){
-
-        PropertyFactory || (PropertyFactory = window.PropertyFactory);
+    function(EventDispatcher , Matrix , Point , Base , HitTestPoint , AnimationFrame , PropertyFactory){
 
         var DisplayObject = function(opt){
             arguments.callee.superclass.constructor.apply(this, arguments);
@@ -2259,7 +2269,6 @@ define(
 
             self.xyToInt         = "xyToInt" in opt ? opt.xyToInt : true;    //是否对xy坐标统一int处理，默认为true，但是有的时候可以由外界用户手动指定是否需要计算为int，因为有的时候不计算比较好，比如，进度图表中，再sector的两端添加两个圆来做圆角的进度条的时候，圆circle不做int计算，才能和sector更好的衔接
 
-    
             //创建好context
             self._createContext( opt );
     
@@ -2268,7 +2277,7 @@ define(
             //如果没有id 则 沿用uid
             if(self.id == null){
                 self.id = UID ;
-            }
+            };
     
             self.init.apply(self , arguments);
     
@@ -2655,6 +2664,29 @@ define(
                 }
                 this._notWatch = false;
                 return result;
+            },
+            /*
+            * animate
+            * @param toContent 要动画变形到的属性集合
+            * @param options tween 动画参数
+            */
+            animate : function( toContent , options ){
+                var to = toContent;
+                var from = {};
+                for( var p in to ){
+                    from[ p ] = this.context[p];
+                };
+                !options && (options = {});
+                options.from = from;
+                options.to = to;
+
+                var self = this;
+                options.onUpdate = function(){
+                    for( var p in this ){
+                        self.context[p] = this[p];
+                    };
+                };
+                AnimationFrame.registTween( options );
             },
             _render : function( ctx ){	
                 if( !this.context.visible || this.context.globalAlpha <= 0 ){
@@ -4548,7 +4580,7 @@ define(
         this.preventDefault = true;
         if( opt.preventDefault === false ){
             this.preventDefault = false
-        }
+        };
  
         //如果这个时候el里面已经有东西了。嗯，也许曾经这个el被canvax干过一次了。
         //那么要先清除这个el的所有内容。
@@ -4571,15 +4603,12 @@ define(
         this.rootOffset      = Base.getOffset(this.el); //this.el.offset();
         this.lastGetRO       = 0;//最后一次获取rootOffset的时间
  
-        
- 
         //每帧 由 心跳 上报的 需要重绘的stages 列表
         this.convertStages = {};
  
         this._heartBeat = false;//心跳，默认为false，即false的时候引擎处于静默状态 true则启动渲染
         
         //设置帧率
-        this._speedTime = parseInt(1000/Base.mainFrameRate);
         this._preRenderTime = 0;
 
         //任务列表, 如果_taskList 不为空，那么主引擎就一直跑
@@ -4708,19 +4737,7 @@ define(
                 this.rootOffset      = Base.getOffset(this.el);
                 this.lastGetRO       = now;
             }
-        },    
-        setFrameRate : function(frameRate) {
-           if(Base.mainFrameRate == frameRate) {
-               return;
-           };
-           Base.mainFrameRate = frameRate;
-           //根据最新的帧率，来计算最新的间隔刷新时间
-           this._speedTime = parseInt(1000/Base.mainFrameRate);
         },
-        getFrameRate : function(){
-           return  Base.mainFrameRate;
-        },
- 
         //如果引擎处于静默状态的话，就会启动
         __startEnter : function(){
            var self = this;
@@ -4735,13 +4752,6 @@ define(
             self.requestAid = null;
             Base.now = new Date().getTime();
             if( self._heartBeat ){
-                if(( Base.now - self._preRenderTime ) < self._speedTime ){
-                    //事件speed不够，下一帧再来
-                    self.__startEnter();
-                    return;
-                };
-                //开始渲染的事件
-                self.fire("beginRender");
                 _.each(_.values( self.convertStages ) , function(convertStage){
                    convertStage.stage._render( convertStage.stage.context2D );
                 });
@@ -4749,10 +4759,7 @@ define(
                 self.convertStages = {};
                 //渲染完了，打上最新时间挫
                 self._preRenderTime = new Date().getTime();
-                //渲染结束
-                self.fire("afterRender");
             };
-
             //先跑任务队列,因为有可能再具体的hander中会把自己清除掉
             //所以跑任务和下面的length检测分开来
             if(self._taskList.length > 0){
@@ -4826,7 +4833,7 @@ define(
                     if (!self._isReady) {
                         //在还没初始化完毕的情况下，无需做任何处理
                         return;
-                    }
+                    };
  
                     if( shape.type == "canvax" ){
                         self._convertCanvax(opt)
@@ -4837,7 +4844,6 @@ define(
                                 convertShapes : {}
                             }
                         };
- 
                         if(shape){
                             if (!self.convertStages[ stage.id ].convertShapes[ shape.id ]){
                                 self.convertStages[ stage.id ].convertShapes[ shape.id ]={
@@ -4849,8 +4855,8 @@ define(
                                 return;
                             }
                         }
-                    }
-                }
+                    };
+                };
  
                 if (opt.convertType == "children"){
                     //元素结构变化，比如addchild removeChild等
@@ -4886,7 +4892,8 @@ define(
                         convertShapes : {}
                     }
                 } );
-            } 
+            };
+            
             
             if (!self._heartBeat){
                //如果发现引擎在静默状态，那么就唤醒引擎

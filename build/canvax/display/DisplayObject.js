@@ -15,11 +15,10 @@ define(
         "canvax/display/Point",
         "canvax/core/Base",
         "canvax/geom/HitTestPoint",
-        !window.PropertyFactory ? "canvax/core/PropertyFactory" : ""
+        "canvax/animation/AnimationFrame",
+        "canvax/core/PropertyFactory"
     ],
-    function(EventDispatcher , Matrix , Point , Base , HitTestPoint , PropertyFactory){
-
-        PropertyFactory || (PropertyFactory = window.PropertyFactory);
+    function(EventDispatcher , Matrix , Point , Base , HitTestPoint , AnimationFrame , PropertyFactory){
 
         var DisplayObject = function(opt){
             arguments.callee.superclass.constructor.apply(this, arguments);
@@ -49,7 +48,6 @@ define(
 
             self.xyToInt         = "xyToInt" in opt ? opt.xyToInt : true;    //是否对xy坐标统一int处理，默认为true，但是有的时候可以由外界用户手动指定是否需要计算为int，因为有的时候不计算比较好，比如，进度图表中，再sector的两端添加两个圆来做圆角的进度条的时候，圆circle不做int计算，才能和sector更好的衔接
 
-    
             //创建好context
             self._createContext( opt );
     
@@ -58,7 +56,7 @@ define(
             //如果没有id 则 沿用uid
             if(self.id == null){
                 self.id = UID ;
-            }
+            };
     
             self.init.apply(self , arguments);
     
@@ -445,6 +443,29 @@ define(
                 }
                 this._notWatch = false;
                 return result;
+            },
+            /*
+            * animate
+            * @param toContent 要动画变形到的属性集合
+            * @param options tween 动画参数
+            */
+            animate : function( toContent , options ){
+                var to = toContent;
+                var from = {};
+                for( var p in to ){
+                    from[ p ] = this.context[p];
+                };
+                !options && (options = {});
+                options.from = from;
+                options.to = to;
+
+                var self = this;
+                options.onUpdate = function(){
+                    for( var p in this ){
+                        self.context[p] = this[p];
+                    };
+                };
+                AnimationFrame.registTween( options );
             },
             _render : function( ctx ){	
                 if( !this.context.visible || this.context.globalAlpha <= 0 ){
