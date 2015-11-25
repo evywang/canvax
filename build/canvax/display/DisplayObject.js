@@ -321,21 +321,14 @@ define(
                 if( !transForm ) {
                     transForm = this._updateTransform();
                 };
-    
                 //运用矩阵开始变形
                 ctx.transform.apply( ctx , transForm.toArray() );
-     
-                //设置透明度
                 //ctx.globalAlpha *= this.context.globalAlpha;
             },
             _updateTransform : function() {
-            
                 var _transform = new Matrix();
-    
                 _transform.identity();
-    
                 var ctx = this.context;
-    
                 //是否需要Transform
                 if(ctx.scaleX !== 1 || ctx.scaleY !==1 ){
                     //如果有缩放

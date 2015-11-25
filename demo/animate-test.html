@@ -199,11 +199,13 @@ var pageload = function() {
 
 
                 canvax1.addChild(stage1);
+            
                 setTimeout(function(){
                     path4.animate({
                         x : 700
                     } , {
-                        duration : 300
+                        duration : 600,
+                        easing : 'Back.Out'//Tween.Easing.Elastic.InOut
                     });
                 } , 1000)
                 

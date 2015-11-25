@@ -86,14 +86,16 @@ define(
                 onUpdate: function() {},
                 onComplete: function() {},
                 repeat : 0,
-                delay : 0
+                delay : 0,
+                easing : null
             }, options);
             var tween = {};
             if (opt.from && opt.to) {
                 tween = new Tween.Tween(opt.from).to(opt.to , opt.duration).onUpdate(opt.onUpdate);
 
-                !opt.repeat && tween.repeat( opt.repeat );
-                !opt.delay && tween.delay( opt.delay );
+                opt.repeat && tween.repeat( opt.repeat );
+                opt.delay && tween.delay( opt.delay );
+                opt.easing && tween.easing( Tween.Easing[ opt.easing.split(".")[0] ][opt.easing.split(".")[1]] );
 
                 function animate(){
                     if( !tween ){
@@ -108,6 +110,7 @@ define(
                     tween.stop();
                     Tween.remove( tween );
                     tween = null;
+                    animate = null;
                     //执行用户的conComplete
                     opt.onComplete();
                 });
