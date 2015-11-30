@@ -2677,11 +2677,15 @@ define(
                 options.to = to;
 
                 var self = this;
+                var upFun = function(){};
+                if( options.onUpdate ){
+                    upFun = options.onUpdate;
+                };
                 options.onUpdate = function(){
                     for( var p in this ){
                         self.context[p] = this[p];
                     };
-                    options.onUpdate && options.onUpdate( this );
+                    upFun(this);
                 };
                 AnimationFrame.registTween( options );
             },
