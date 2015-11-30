@@ -2384,12 +2384,12 @@ define(
             clone : function( myself ){
                 var conf   = {
                     id      : this.id,
-                    context : this.context.$model
+                    context : _.clone(this.context.$model)
                 }
                 if( this.img ){
                     conf.img = this.img;
                 }
-                var newObj = new this.constructor( conf );
+                var newObj = new this.constructor( conf , "clone");
                 if (!myself){
                     newObj.id       = Base.createId(newObj.type);
                 }
@@ -2681,6 +2681,7 @@ define(
                     for( var p in this ){
                         self.context[p] = this[p];
                     };
+                    options.onUpdate && options.onUpdate( this );
                 };
                 AnimationFrame.registTween( options );
             },
@@ -3437,12 +3438,14 @@ define(
         "canvax/geom/SmoothSpline"
     ],
     function(Shape, Base, SmoothSpline) {
-        var BrokenLine = function(opt) {
+        var BrokenLine = function(opt , atype) {
             var self = this;
             self.type = "brokenline";
             self._drawTypeOnly = "stroke";
             opt = Base.checkOpt(opt);
-            self._initPointList(opt.context);
+            if( atype !== "clone" ){
+                self._initPointList(opt.context);
+            };
             self._context = _.deepExtend({
                 lineType: null,
                 smooth: false,
@@ -4251,11 +4254,19 @@ define(
         "canvax/shape/BrokenLine"
     ],
     function(Base, BrokenLine) {
-        var Polygon = function(opt) {
+        var Polygon = function(opt , atype) {
             var self = this;
             opt = Base.checkOpt(opt);
-            var start = opt.context.pointList[0];
-            opt.context.pointList.push([start[0], start[1]]);
+debugger
+            if(atype !== "clone"){
+                var start = opt.context.pointList[0];
+                var end   = opt.context.pointList[ opt.context.pointList.length - 1 ];
+                opt.context.pointList.push( start );
+                if( opt.context.smooth ){
+                    opt.context.pointList.unshift( end );
+                };
+            };
+            
             arguments.callee.superclass.constructor.apply(this, arguments);
             self._drawTypeOnly = null;
             self.type = "polygon";
@@ -4278,7 +4289,6 @@ define(
                         this._drawTypeOnly = "stroke";
                     };
                 };
-
                 //如果下面不加save restore，canvas会把下面的path和上面的path一起算作一条path。就会绘制了一条实现边框和一虚线边框。
                 ctx.save();
                 ctx.beginPath();
