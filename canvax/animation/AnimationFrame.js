@@ -106,8 +106,6 @@ define(
                 };
 
                 tween.onComplete(function() {
-                    //destroyFrame( animate );
-                    //tween.stop();
                     Tween.remove( tween );
                     tween = null;
                     animate = null;
