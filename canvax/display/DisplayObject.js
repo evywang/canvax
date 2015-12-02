@@ -460,6 +460,7 @@ define(
                 if( options.onUpdate ){
                     upFun = options.onUpdate;
                 };
+                var tween;
                 options.onUpdate = function(){
                     //如果context不存在说明该obj已经被destroy了，那么要把他的tween给destroy
                     if (!self.context && tween) {
@@ -472,7 +473,7 @@ define(
                     };
                     upFun(this);
                 };
-                AnimationFrame.registTween( options );
+                tween = AnimationFrame.registTween( options );
             },
             _render : function( ctx ){	
                 if( !this.context.visible || this.context.globalAlpha <= 0 ){
