@@ -161,14 +161,17 @@ define(
                 var conf   = {
                     id      : this.id,
                     context : _.clone(this.context.$model)
-                }
+                };
                 if( this.img ){
                     conf.img = this.img;
-                }
+                };
                 var newObj = new this.constructor( conf , "clone");
+                if( this.children ){
+                    newObj.children = this.children;
+                }
                 if (!myself){
                     newObj.id       = Base.createId(newObj.type);
-                }
+                };
                 return newObj;
             },
             heartBeat : function(opt){
@@ -458,6 +461,12 @@ define(
                     upFun = options.onUpdate;
                 };
                 options.onUpdate = function(){
+                    //如果context不存在说明该obj已经被destroy了，那么要把他的tween给destroy
+                    if (!self.context && tween) {
+                        AnimationFrame.destroyTween(tween);
+                        tween = null;
+                        return
+                    };
                     for( var p in this ){
                         self.context[p] = this[p];
                     };
