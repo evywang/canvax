@@ -415,16 +415,14 @@ KISSY.use("node" , function(S){
             x:400,
             y:150,
             smooth : true,
-            //lineType  : "dashed",
+            lineType  : "dashed",
             //pointList : [[310, 120], [360, 120], [348, 230], [250, 340], [146, 200]],
             pointList : [[120,42],[175,75],[225,144],[162,207],[90,180],[55,134],[82,90]],
             fillStyle:color.getColor(colorInd++),
             strokeStyle:color.getColor(colorInd++),
             lineWidth : 1
         }
-
     });
-
 
     polygon.on("mouseover",function(){
         this.context.lineWidth=3
@@ -433,6 +431,20 @@ KISSY.use("node" , function(S){
     polygon.on("mouseout",function(){
         this.context.lineWidth = 2
     });
+
+    _.each( polygon.context.pointList , function(point , i){
+        
+        setTimeout(function(){
+            stage.addChild(
+                new Shapes.Circle( {
+                    context: {
+                        r: 1, x:point[0]+400, y:point[1]+150, fillStyle:"blue"
+                    }
+                }) 
+            )
+        }, i*100);
+        
+    } );
 
 
 
