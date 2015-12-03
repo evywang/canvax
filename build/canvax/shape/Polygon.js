@@ -25,7 +25,7 @@ define(
                 var end   = opt.context.pointList[ opt.context.pointList.length - 1 ];
                 if( opt.context.smooth ){
                     opt.context.pointList.unshift( end );
-                } else if( opt.context.lineType == 'dashed' || opt.context.lineType == 'dotted' ){
+                } else {
                     opt.context.pointList.push( start );
                 }
             };
