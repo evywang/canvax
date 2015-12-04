@@ -113,13 +113,20 @@ define(
                             });
                         } else {
                             //drag ing
+                            me._dragHander( e , curMouseTarget , 0 );
+
                             curMouseTarget._notWatch = true;
                             curMouseTarget.fire("draging" , {
                                 point : curMousePoint
                             });
                             curMouseTarget._notWatch = false;
 
-                            me._dragHander( e , curMouseTarget , 0 );
+                            //拖动中可能会限定其x,y轨迹。必须拖动的时候，x或者y轴恒定
+                            //比如在kanga中的rect调整框的上下左右改变大小的时候x或者y有一个会是恒定的
+                            var _dragDuplicate = root._hoverStage.getChildById( curMouseTarget.id );
+                            var _dmt = curMouseTarget.getConcatenatedMatrix();
+                            _dragDuplicate.context.x = _dmt.tx;
+                            _dragDuplicate.context.y = _dmt.ty;
                         }
                         me._draging = true;
                     } else {
