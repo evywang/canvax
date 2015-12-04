@@ -1016,7 +1016,7 @@ define(
                         target.dispatchEvent( event );
                     }
                     return;
-                }
+                };
                 
                 if(this.context && event.type == "mouseover"){
                     //记录dispatchEvent之前的心跳
@@ -1025,7 +1025,6 @@ define(
                     this._dispatchEvent( event );
                     if( preHeartBeat != this._heartBeatNum ){
                         this._hoverClass = true;
-
                         if( this.hoverClone ){
                             var canvax = this.getStage().parent;
                             //然后clone一份obj，添加到_hoverStage 中
@@ -1036,10 +1035,9 @@ define(
                             this._globalAlpha = pregAlpha;
                             this.context.globalAlpha = 0;
                         }
-
                     }
                     return;
-                }
+                };
       
                 this._dispatchEvent( event );
       
@@ -1146,7 +1144,7 @@ define(
                     
                     root._hoverStage.addChildAt( _dragDuplicate , 0 );
                 }
-                _dragDuplicate.context.visible = true;
+                _dragDuplicate.context.globalAlpha = target._globalAlpha;
                 _dragDuplicate._dragPoint = target.globalToLocal( me.curPoints[ i ] );
                 return _dragDuplicate;
             },
@@ -1175,13 +1173,12 @@ define(
             _dragEnd  : function( e , target , i ){
                 var me   = this;
                 var root = me.canvax;
+                
                 //_dragDuplicate 复制在_hoverStage 中的副本
-                var _dragDuplicate     = root._hoverStage.getChildById( target.id );
- 
-                target.context.visible = true;
-                //if( e.type == "mouseout" || e.type == "dragend"){
-                    _dragDuplicate.destroy();
-                //}
+                var _dragDuplicate = root._hoverStage.getChildById( target.id );
+                _dragDuplicate.destroy();
+
+                target.context.globalAlpha = target._globalAlpha;
             }
         } );
         return EventHandler;

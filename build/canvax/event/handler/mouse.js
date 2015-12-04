@@ -44,9 +44,9 @@ define(
                 var root = me.canvax;
             
                 me.curPoints = [ new Point( 
-                        CanvaxEvent.pageX( e ) - root.rootOffset.left , 
-                        CanvaxEvent.pageY( e ) - root.rootOffset.top
-                        )];
+                    CanvaxEvent.pageX( e ) - root.rootOffset.left , 
+                    CanvaxEvent.pageY( e ) - root.rootOffset.top
+                    )];
  
                 var curMousePoint  = me.curPoints[0]; 
                 var curMouseTarget = me.curPointsTarget[0];
@@ -82,14 +82,13 @@ define(
                     if(me._draging == true){
                         //说明刚刚在拖动
                         me._dragEnd( e , curMouseTarget , 0 );
-
-                        curMouseTarget.fire("dragEnd" , {
+                        curMouseTarget.fire("dragend" , {
                             point : curMousePoint
                         });
-                    }
+                    };
                     me._draging  = false;
                     me._touching = false;
-                }
+                };
  
                 if( e.type == "mouseout" ){
                     if( !contains(root.el , (e.toElement || e.relatedTarget) ) ){
@@ -104,12 +103,12 @@ define(
                             curMouseTarget.dragBegin && curMouseTarget.dragBegin(e);
                             
                             //先把本尊给隐藏了
-                            curMouseTarget.context.visible = false;
+                            curMouseTarget.context.globalAlpha = 0;
                                                  
                             //然后克隆一个副本到activeStage
                             me._clone2hoverStage( curMouseTarget , 0 );
 
-                            curMouseTarget.fire("dragBegin" , {
+                            curMouseTarget.fire("dragbegin" , {
                                 point : curMousePoint
                             });
                         } else {
@@ -117,7 +116,7 @@ define(
                             me._dragHander( e , curMouseTarget , 0 );
 
                             curMouseTarget._notWatch = true;
-                            curMouseTarget.fire("dragIng" , {
+                            curMouseTarget.fire("draging" , {
                                 point : curMousePoint
                             });
                             curMouseTarget._notWatch = false;
@@ -183,13 +182,6 @@ define(
                         e.toTarget = obj; 
                         e.target   = e.currentTarget = oldObj;
                         e.point    = oldObj.globalToLocal( point );
-
-                        //之所以放在dispatchEvent(e)之前，是因为有可能用户的mouseout处理函数
-                        //会有修改visible的意愿
-                        if(!oldObj.context.visible){
-                           oldObj.context.visible = true;
-                        };
-                   
                         oldObj.dispatchEvent( e );
                     }
                 };

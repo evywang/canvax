@@ -433,7 +433,7 @@ KISSY.use("node" , function(S){
     });
 
     _.each( polygon.context.pointList , function(point , i){
-        
+        return
         setTimeout(function(){
             stage.addChild(
                 new Shapes.Circle( {
@@ -574,7 +574,7 @@ KISSY.use("node" , function(S){
         }
     })
 
-
+/*
     //stage.addChild(rect);
     sprite.addChild(sector);
 
@@ -597,12 +597,14 @@ KISSY.use("node" , function(S){
     stage.addChild(map1);
 
     stage.addChild(isogon);
+    */
+
     stage.addChild(polygon);
 
 
 
 
-
+/*
     stage.addChild(droplet);
 
 
@@ -621,8 +623,9 @@ KISSY.use("node" , function(S){
     });
 
     stage1.addChild( text );
-    canvax.addChild( stage1 );
 
+    canvax.addChild( stage1 );
+*/
     canvax.addChild(stage); 
 
     //stage1.toFront();
