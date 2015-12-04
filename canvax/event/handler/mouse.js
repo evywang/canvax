@@ -127,8 +127,8 @@ define(
                             var _dmt = curMouseTarget.getConcatenatedMatrix();
  
                             //TODO:目前还没查明_dmt.tx，_dmt.ty 和 实际的content.x,content.y会相差一px
-                            _dragDuplicate.context.x = _dmt.tx-1;//curMouseTarget.context.x;
-                            _dragDuplicate.context.y = _dmt.ty-1;//curMouseTarget.context.y;
+                            _dragDuplicate.context.x = _dmt.tx+1;//curMouseTarget.context.x;
+                            _dragDuplicate.context.y = _dmt.ty+1;//curMouseTarget.context.y;
                         }
                         me._draging = true;
                     } else {
