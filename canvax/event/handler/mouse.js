@@ -125,8 +125,10 @@ define(
                             //比如在kanga中的rect调整框的上下左右改变大小的时候x或者y有一个会是恒定的
                             var _dragDuplicate = root._hoverStage.getChildById( curMouseTarget.id );
                             var _dmt = curMouseTarget.getConcatenatedMatrix();
-                            _dragDuplicate.context.x = _dmt.tx;
-                            _dragDuplicate.context.y = _dmt.ty;
+ 
+                            //TODO:目前还没查明_dmt.tx，_dmt.ty 和 实际的content.x,content.y会相差一px
+                            _dragDuplicate.context.x = _dmt.tx-1;//curMouseTarget.context.x;
+                            _dragDuplicate.context.y = _dmt.ty-1;//curMouseTarget.context.y;
                         }
                         me._draging = true;
                     } else {
