@@ -379,8 +379,7 @@ define(
                     _transform.translate( x , y );
                 };
                 this._transform = _transform;
-
-                console.log(this.id+":tx_"+_transform.tx+":cx_"+this.context.x);
+                //console.log(this.id+":tx_"+_transform.tx+":cx_"+this.context.x);
     
                 return _transform;
             },
