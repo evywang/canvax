@@ -112,6 +112,7 @@ define(
                                 point : curMousePoint
                             });
                         } else {
+                            
                             //drag ing
                             me._dragHander( e , curMouseTarget , 0 );
 
@@ -126,7 +127,6 @@ define(
                             var _dragDuplicate = root._hoverStage.getChildById( curMouseTarget.id );
                             var _dmt = curMouseTarget.getConcatenatedMatrix();
  
-                            //TODO:目前还没查明_dmt.tx，_dmt.ty 和 实际的content.x,content.y会相差一px
                             _dragDuplicate.context.x = _dmt.tx;//curMouseTarget.context.x;
                             _dragDuplicate.context.y = _dmt.ty;//curMouseTarget.context.y;
                         }

@@ -2130,8 +2130,8 @@ define(
                 //如果有位移
                 var x,y;
                 if( this.xyToInt ){
-                    var x = Math.round(ctx.x);
-                    var y = Math.round(ctx.y);
+                    var x = parseInt( ctx.x );//Math.round(ctx.x);
+                    var y = parseInt( ctx.y );//Math.round(ctx.y);
     
                     if( parseInt(ctx.lineWidth , 10) % 2 == 1 && ctx.strokeStyle ){
                         x += 0.5;
@@ -2140,12 +2140,14 @@ define(
                 } else {
                     x = ctx.x;
                     y = ctx.y;
-                }
+                };
     
                 if( x != 0 || y != 0 ){
                     _transform.translate( x , y );
-                }
+                };
                 this._transform = _transform;
+
+                console.log(this.id+":tx_"+_transform.tx+":cx_"+this.context.x);
     
                 return _transform;
             },
