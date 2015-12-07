@@ -420,16 +420,18 @@ KISSY.use("node" , function(S){
             pointList : [[120,42],[175,75],[225,144],[162,207],[90,180],[55,134],[82,90]],
             fillStyle:color.getColor(colorInd++),
             strokeStyle:color.getColor(colorInd++),
-            lineWidth : 1
+            lineWidth : 1,
+            globalAlpha : 0.5,
+            cursor : "move"
         }
     });
 
     polygon.on("mouseover",function(){
-        this.context.lineWidth=3
+        //this.context.lineWidth=3
     });
 
     polygon.on("mouseout",function(){
-        this.context.lineWidth = 2
+        //this.context.lineWidth = 2
     });
 
     _.each( polygon.context.pointList , function(point , i){

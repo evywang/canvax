@@ -99,18 +99,24 @@ define(
                     if(me._touching && e.type == "mousemove" && curMouseTarget){
                         //说明正在拖动啊
                         if(!me._draging){
-                            //begin drag
-                            curMouseTarget.dragBegin && curMouseTarget.dragBegin(e);
                             
-                            //先把本尊给隐藏了
-                            curMouseTarget.context.globalAlpha = 0;
-                                                 
-                            //然后克隆一个副本到activeStage
-                            me._clone2hoverStage( curMouseTarget , 0 );
+                            //begin drag
+                            //curMouseTarget.dragBegin && curMouseTarget.dragBegin(e);
 
                             curMouseTarget.fire("dragbegin" , {
                                 point : curMousePoint
                             });
+                            
+                            curMouseTarget._globalAlpha = curMouseTarget.context.globalAlpha;
+
+                            //先把本尊给隐藏了
+                            curMouseTarget.context.globalAlpha = 0;
+                                                 
+                            //然后克隆一个副本到activeStage
+                            var cloneObject = me._clone2hoverStage( curMouseTarget , 0 );
+
+                            cloneObject.context.globalAlpha = curMouseTarget._globalAlpha;
+                            
                         } else {
                             
                             //drag ing
