@@ -408,7 +408,7 @@ KISSY.use("node" , function(S){
 
 
     //不规则多变形
-    window.polygon = new Shapes.Polygon({
+    var polygon = new Shapes.Polygon({
         id : "polygon",
         dragEnabled : true,
         context : {
@@ -420,22 +420,20 @@ KISSY.use("node" , function(S){
             pointList : [[120,42],[175,75],[225,144],[162,207],[90,180],[55,134],[82,90]],
             fillStyle:color.getColor(colorInd++),
             strokeStyle:color.getColor(colorInd++),
-            lineWidth : 1,
-            globalAlpha : 0.5,
-            cursor : "move"
+            lineWidth : 1
         }
     });
 
     polygon.on("mouseover",function(){
-        //this.context.lineWidth=3
+        this.context.lineWidth=3
     });
 
     polygon.on("mouseout",function(){
-        //this.context.lineWidth = 2
+        this.context.lineWidth = 2
     });
 
     _.each( polygon.context.pointList , function(point , i){
-        return
+        
         setTimeout(function(){
             stage.addChild(
                 new Shapes.Circle( {
@@ -576,7 +574,7 @@ KISSY.use("node" , function(S){
         }
     })
 
-/*
+
     //stage.addChild(rect);
     sprite.addChild(sector);
 
@@ -599,13 +597,12 @@ KISSY.use("node" , function(S){
     stage.addChild(map1);
 
     stage.addChild(isogon);
-    */
     stage.addChild(polygon);
 
 
 
 
-/*
+
     stage.addChild(droplet);
 
 
@@ -625,7 +622,7 @@ KISSY.use("node" , function(S){
 
     stage1.addChild( text );
     canvax.addChild( stage1 );
-*/
+
     canvax.addChild(stage); 
 
     //stage1.toFront();

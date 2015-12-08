@@ -475,6 +475,7 @@ define(
                     upFun(this);
                 };
                 tween = AnimationFrame.registTween( options );
+                return tween;
             },
             _render : function( ctx ){	
                 if( !this.context.visible || this.context.globalAlpha <= 0 ){
