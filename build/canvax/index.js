@@ -1,9 +1,10 @@
 define(
     "canvax/animation/AnimationFrame", 
     [
-        "canvax/animation/Tween"
+        "canvax/animation/Tween",
+        "canvax/core/Base"
     ],
-    function(Tween) {
+    function(Tween,Base) {
         /**
          * 设置 AnimationFrame begin
          */
@@ -32,7 +33,7 @@ define(
         };
 
         //管理所有图表的渲染任务
-        var _taskList = [];
+        var _taskList = []; //[{ id : task: }...]
         var _requestAid = null;
 
         /*
@@ -51,7 +52,7 @@ define(
                     _taskList = [];
                     _requestAid = null;
                     while( currTaskList.length>0 ){
-                        currTaskList.shift()();
+                        currTaskList.shift().task();
                     };
                 });
             };
@@ -63,8 +64,10 @@ define(
         */
         function destroyFrame(task) {
             for (var i = 0, l = _taskList.length; i < l; i++) {
-                if (_taskList[i] === task) {
+                if ( _taskList[i].id === task.id ) {
                     _taskList.splice(i, 1);
+                    i--;
+                    l--;
                 }
             };
             if (_taskList.length == 0) {
@@ -97,11 +100,16 @@ define(
                 opt.delay && tween.delay( opt.delay );
                 opt.easing && tween.easing( Tween.Easing[ opt.easing.split(".")[0] ][opt.easing.split(".")[1]] );
 
+                var tid = "tween_"+Base.getUID();
+
                 function animate(){
-                    if( !tween || !tween._animate ){
+                    if( !tween || !tween.animate ){
                         return;
                     };
-                    registFrame( animate );
+                    registFrame( {
+                        id : tid,
+                        task : animate
+                    } );
                     Tween.update();
                 };
 
@@ -112,7 +120,8 @@ define(
                 });
                 Tween.add(tween);
                 tween.start();
-                tween._animate = animate;
+                tween.animate = animate;
+                tween.id = tid;
                 animate();
             };
             return tween;
@@ -125,8 +134,11 @@ define(
         function destroyTween(tween) {
             tween.stop();
             Tween.remove( tween );
-            destroyFrame( tween._animate );
-            tween._animate = null;
+            destroyFrame( {
+                task : tween.animate,
+                id   : tween.id
+            } );
+            tween.animate = null;
             tween = null;
         };
 
@@ -4312,7 +4324,10 @@ define(
         __startEnter : function(){
            var self = this;
            if( !self.requestAid ){
-               self.requestAid = AnimationFrame.registFrame( _.bind( self.__enterFrame , self) );
+               self.requestAid = AnimationFrame.registFrame( {
+                   id : "enterFrame", //同时肯定只有一个enterFrame的task
+                   task : _.bind( self.__enterFrame , self)
+               } );
            }
         },
         __enterFrame : function(){

@@ -210,7 +210,10 @@ define(
         __startEnter : function(){
            var self = this;
            if( !self.requestAid ){
-               self.requestAid = AnimationFrame.registFrame( _.bind( self.__enterFrame , self) );
+               self.requestAid = AnimationFrame.registFrame( {
+                   id : "enterFrame", //同时肯定只有一个enterFrame的task
+                   task : _.bind( self.__enterFrame , self)
+               } );
            }
         },
         __enterFrame : function(){
