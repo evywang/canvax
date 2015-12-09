@@ -24,13 +24,16 @@ define(
         "canvax/display/Sprite",
         "canvax/display/Shape",
         "canvax/display/Point",
-        "canvax/display/Text"
+        "canvax/display/Text",
+
+        "canvax/animation/AnimationFrame"
     ]
     , 
     function( 
         Base , AnimationFrame , EventHandler ,  EventDispatcher , EventManager , 
         DisplayObjectContainer , 
-        Stage , Sprite , Shape , Point , Text   
+        Stage , Sprite , Shape , Point , Text,
+        AnimationFrame   
     ) {
 
     var Canvax = function( opt ){

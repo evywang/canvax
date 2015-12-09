@@ -157,7 +157,7 @@ var pageload = function() {
     var S = KISSY;
 
     KISSY.use("node", function(S) {
-        seajs.use(["canvax/index", "canvax/shape/Shapes", "canvax/animation/Tween", "canvax/library/color"], function(Canvax, Shapes, Tween, color) {
+        seajs.use(["canvax/index", "canvax/shape/Shapes", "canvax/animation/Tween", "canvax/library/color","canvax/animation/AnimationFrame"], function(Canvax, Shapes, Tween, color, AnimationFrame) {
             //KISSY.use("canvax/index, canvax/shape/Shapes, canvax/animation/Tween, canvax/library/color, node", function(S, Canvax, Shapes, Tween, color) {
                 S.all("#ready").html("ready")
 
@@ -201,12 +201,23 @@ var pageload = function() {
                 canvax1.addChild(stage1);
             
                 setTimeout(function(){
-                    path4.animate({
+                    var t = path4.animate({
                         x : 700
                     } , {
                         duration : 600,
-                        easing : 'Back.Out'//Tween.Easing.Elastic.InOut
+                        easing : 'Back.Out',//Tween.Easing.Elastic.InOut
+                        onComplete : function(){
+                            debugger
+                            AnimationFrame.registTween({
+                                from : {x:0},
+                                to : {y:1}
+                            })
+                        }
                     });
+
+                    //setTimeout(function(){
+                    //    AnimationFrame.destroyTween( t );
+                    //} , 200);
                 } , 1000)
                 
 
