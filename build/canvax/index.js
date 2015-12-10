@@ -5,6 +5,7 @@ define(
         "canvax/core/Base"
     ],
     function(Tween,Base) {
+        window.Tween = Tween;
         /**
          * 设置 AnimationFrame begin
          */
@@ -48,6 +49,10 @@ define(
             if (!_requestAid) {
                 _requestAid = requestAnimationFrame(function() {
                     //console.log("frame__"+_taskList.length);
+                    //console.log("tweenlen:"+_tweenLen);
+                    if( _tweenLen ){
+                        Tween.update();
+                    };
                     var currTaskList = _taskList;
                     _taskList = [];
                     _requestAid = null;
@@ -59,6 +64,8 @@ define(
             return _requestAid;
         };
 
+
+
         /*
         *  @param task 要从渲染帧队列中删除的任务
         */
@@ -68,7 +75,7 @@ define(
                     _taskList.splice(i, 1);
                     i--;
                     l--;
-                }
+                };
             };
             if (_taskList.length == 0) {
                 cancelAnimationFrame(_requestAid);
@@ -76,6 +83,8 @@ define(
             };
             return _requestAid;
         };
+
+        var _tweenLen = 0;
 
         /* 
          * @param opt {from , to , onUpdate , onComplete , ......}
@@ -110,16 +119,26 @@ define(
                         id : tid,
                         task : animate
                     } );
-                    Tween.update();
+                };
+                
+                tween.onComplete(function() {
+                    _tweenLen--;
+                    destroyTween( tween );
+                    var t = this;
+                    var args = arguments;
+                    setTimeout( function(){
+                        opt.onComplete.apply(t , args);//执行用户的conComplete
+                    } , 10);
+                });
+
+                if( !_tweenLen ){
+                    tween.start();
+                } else {
+                    Tween.add(tween);
                 };
 
-                tween.onComplete(function() {
-                    destroyTween( tween );
-                    //执行用户的conComplete
-                    opt.onComplete( this );
-                });
-                Tween.add(tween);
-                tween.start();
+                _tweenLen ++;
+                
                 tween.animate = animate;
                 tween.id = tid;
                 animate();
@@ -133,7 +152,7 @@ define(
          */
         function destroyTween(tween) {
             tween.stop();
-            Tween.remove( tween );
+            //Tween.remove( tween );
             destroyFrame( {
                 task : tween.animate,
                 id   : tween.id
