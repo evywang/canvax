@@ -200,25 +200,27 @@ var pageload = function() {
 
                 canvax1.addChild(stage1);
             
-                setTimeout(function(){
+                //setTimeout(function(){
                     var t = path4.animate({
                         x : 700
                     } , {
                         duration : 600,
                         easing : 'Back.Out',//Tween.Easing.Elastic.InOut
                         onComplete : function(){
-debugger
-                            AnimationFrame.registTween({
+
+                           
+                        }
+                    });
+                    
+                     AnimationFrame.registTween({
                                 from : {x:0},
                                 to : {x:1}
                             })
-                        }
-                    });
 
                     //setTimeout(function(){
                     //    AnimationFrame.destroyTween( t );
                     //} , 200);
-                } , 1000)
+                //} , 1000)
                 
 
             }
