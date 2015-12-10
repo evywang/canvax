@@ -131,9 +131,8 @@ define(
                     tween = null;
 
                     var t = this;
-                    var args = arguments;
                     setTimeout(function() {
-                        opt.onComplete.apply(t, args); //执行用户的conComplete
+                        opt.onComplete(t); //执行用户的conComplete
                     }, 10);
                 });
 
@@ -163,7 +162,7 @@ define(
             });
             tween.animate = null;
             tween = null;
-            
+
         };
 
         return {
