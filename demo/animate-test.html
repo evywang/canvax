@@ -199,7 +199,11 @@ var pageload = function() {
 
 
                 canvax1.addChild(stage1);
-            
+
+                    AnimationFrame.registTween({
+                                from : {x:0},
+                                to : {x:10}
+                    });
                 //setTimeout(function(){
                     var t = path4.animate({
                         x : 700
@@ -208,14 +212,15 @@ var pageload = function() {
                         easing : 'Back.Out',//Tween.Easing.Elastic.InOut
                         onComplete : function(){
 
+                            AnimationFrame.registTween({
+                                from : {x:0},
+                                to : {x:20}
+                            });
                            
                         }
                     });
-                    
-                     AnimationFrame.registTween({
-                                from : {x:0},
-                                to : {x:1}
-                            })
+
+                 
 
                     //setTimeout(function(){
                     //    AnimationFrame.destroyTween( t );
