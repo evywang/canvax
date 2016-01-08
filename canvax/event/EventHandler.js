@@ -109,7 +109,7 @@ define(
                 else
                 //否则，我们需要使用IE的方式来取消事件冒泡
                     window.event.cancelBubble = true;
-            }
+            },
             //阻止浏览器的默认行为
             _stopDefault: function(e) {
                 //阻止默认浏览器动作(W3C)
