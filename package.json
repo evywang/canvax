@@ -8,6 +8,7 @@
     "grunt-contrib-uglify": "~0.9.1",
     "grunt-contrib-copy": "~0.5.0",
     "grunt-auto-kissy-module-name" : "~0.1.6",
-    "grunt-contrib-clean": "^0.5.0"
+    "grunt-contrib-clean": "^0.5.0",
+    "require2commonjs" : "^1.0.0"
   }
 }
