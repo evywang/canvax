@@ -78,27 +78,11 @@ module.exports = function(grunt) {
           src: "**/*",
           dest: buildPath + "/canvax/"
         }]
-      },
-      common : {
-        files: [{
-          expand: true,
-          cwd: "canvax/",
-          src: "**/*",
-          dest: "common/"
-        }]
       }
     },
     clean: {
       build: {
         src: buildPath
-      }
-    },
-    r2common: {
-      options: {
-        convertDir : "common",
-        root: "",
-        baseUrl: "",
-        paths: []
       }
     }
   });
@@ -109,8 +93,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
 
-  grunt.loadTasks('tasks');
   //注册任务
   grunt.registerTask('default', ['clean', 'copy', 'concat', 'uglify']);
-  grunt.registerTask('r2c', ['copy:common' , 'r2common']);
 }
