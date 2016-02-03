@@ -92,8 +92,8 @@ define(
             },
             _renderText: function(ctx, textLines) {
                 ctx.save();
-                this._renderTextFill(ctx, textLines);
                 this._renderTextStroke(ctx, textLines);
+                this._renderTextFill(ctx, textLines);
                 ctx.restore();
             },
             _getFontDeclaration: function() {
