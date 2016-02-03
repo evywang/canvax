@@ -1484,7 +1484,8 @@ define(
                             //那么就临时defineProperty一次
                             if ( value && (valueType === "object") 
                                && !(value instanceof Array) 
-                               && !value.$model) {
+                               && !value.$model
+                               && !value.addColorStop) {
                                 //建立和父数据节点的关系
                                 value.$parent = pmodel;
                                 value = PropertyFactory(value , value);
@@ -3675,6 +3676,8 @@ define(
                 fontFamily          : "微软雅黑",
                 textDecoration      : null,  
                 fillStyle           : 'blank',
+                strokeStyle         : null,
+                lineWidth           : 0,
                 lineHeight          : 1.3,
                 backgroundColor     : null ,
                 textBackgroundColor : null
@@ -3777,7 +3780,7 @@ define(
                 }
             },
             _renderTextStroke: function(ctx, textLines) {
-                if ( (!this.context.strokeStyle || !this.context.lineWidth ) && !this._skipFillStrokeCheck) return;
+                if ( !this.context.strokeStyle || !this.context.lineWidth ) return;
 
                 var lineHeights = 0;
 

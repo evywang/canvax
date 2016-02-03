@@ -103,7 +103,8 @@ define(
                             //那么就临时defineProperty一次
                             if ( value && (valueType === "object") 
                                && !(value instanceof Array) 
-                               && !value.$model) {
+                               && !value.$model
+                               && !value.addColorStop) {
                                 //建立和父数据节点的关系
                                 value.$parent = pmodel;
                                 value = PropertyFactory(value , value);
