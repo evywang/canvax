@@ -154,21 +154,28 @@
                         });
                         stage.addChild(sp);
 
-                        window.text = new Canvax.Display.Text("世间安得双全法\n不负如来不负卿" , {
+                         sp.addChild(new Rect({
+                            context : {
+                                width:100,
+                                height:100,
+                                fillStyle:"red"
+                            }
+                        }));
+
+
+                        window.text = new Canvax.Display.Text("国国国\n果果\n果" , {
                             context : {
                                 x :100,
                                 y :100,
-                                fillStyle : "red",
-                                fontSize  : 20,
+                                fillStyle : "blue",
+                                fontSize  : 70,
                                 textBackgroundColor : "blue",
                                 textAlign    : "center",
                                 textBaseline : "middle"
-
                             }
                         });
 
                         text.hover(function(){
-                            debugger;
                             this.context.fillStyle = "#999999"
                         } , function(){
                             this.context.fillStyle = "red"
@@ -176,6 +183,24 @@
                         
 
                         sp.addChild(text);
+
+
+
+                        var tR = text.getRect();
+                        
+                        sp.addChild(new Rect({
+                            context : {
+                                width: tR.width,
+                                height:tR.height ,
+                                x : tR.x + 100,
+                                y : tR.y + 100,
+                                strokeStyle:"green",
+                                lineWidth:1
+                            }
+                        }));
+
+
+                       
 
 
                         stage.addChild(sp);
@@ -197,4 +222,5 @@
         <input type="button" value="平滑贝塞尔曲线运动" />
     </body>
 </html>
+
 
