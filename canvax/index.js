@@ -299,7 +299,7 @@ define(
                     var shape   = opt.shape;
                     var name    = opt.name;
                     var value   = opt.value;
-                    var preValue=opt.preValue;
+                    var preValue= opt.preValue;
  
                     if (!self._isReady) {
                         //在还没初始化完毕的情况下，无需做任何处理
@@ -338,7 +338,7 @@ define(
                         stage = stage || target;
                         if(!self.convertStages[stage.id]) {
                             self.convertStages[stage.id]={
-                                stage : stage ,
+                                stage : stage,
                                 convertShapes : {}
                             }
                         }
