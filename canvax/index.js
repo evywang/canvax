@@ -23,12 +23,13 @@ define(
     "canvax/display/Sprite",
     "canvax/display/Shape",
     "canvax/display/Point",
-    "canvax/display/Text"
+    "canvax/display/Text",
+    "canvax/shape/Shapes"
   ],
   function(
     Base, AnimationFrame, EventHandler, EventDispatcher, EventManager,
     DisplayObjectContainer,
-    Stage, Sprite, Shape, Point, Text
+    Stage, Sprite, Shape, Point, Text, Shapes
   ) {
 
     var Canvax = function(opt) {
@@ -385,6 +386,8 @@ define(
       EventDispatcher: EventDispatcher,
       EventManager: EventManager
     }
+
+    Canvax.Shapes = Shapes
 
     return Canvax;
   });
