@@ -24,12 +24,13 @@ define(
     "canvax/display/Shape",
     "canvax/display/Point",
     "canvax/display/Text",
-    "canvax/shape/Shapes"
+    "canvax/shape/Shapes",
+    "canvax/library/underscore"
   ],
   function(
     Base, AnimationFrame, EventHandler, EventDispatcher, EventManager,
     DisplayObjectContainer,
-    Stage, Sprite, Shape, Point, Text, Shapes
+    Stage, Sprite, Shape, Point, Text, Shapes, _
   ) {
 
     var Canvax = function(opt) {

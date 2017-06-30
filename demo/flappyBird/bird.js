@@ -2,8 +2,9 @@ define("demo/flappyBird/bird", [
   "canvax/",
   "canvax/animation/Tween",
   "canvax/display/Movieclip",
-  "canvax/display/Bitmap"
-], function(Canvax, Tween, Movieclip , Bitmap) {
+  "canvax/display/Bitmap",
+  "canvax/library/underscore"
+], function(Canvax, Tween, Movieclip, Bitmap, _) {
   var S = KISSY;
 
 
@@ -32,7 +33,7 @@ define("demo/flappyBird/bird", [
   Bird.prototype = {
     init: function() {
       var self = this;
-      
+
       self.sp = new Movieclip({
         id: "bird",
         autoPlay: true,
