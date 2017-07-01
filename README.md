@@ -6,5 +6,5 @@ canvax
 修改
 ======
 
-移除FlashCanvas\n
+移除FlashCanvas,
 修改以支持webpack引入
