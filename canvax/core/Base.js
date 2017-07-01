@@ -163,9 +163,9 @@ define(
         return r;
       },
       initElement: function(canvas) {
-        if (FlashCanvas && FlashCanvas.initElement) {
-          FlashCanvas.initElement(canvas);
-        }
+        // if (FlashCanvas && FlashCanvas.initElement) {
+        //   FlashCanvas.initElement(canvas);
+        // }
       },
       //做一次简单的opt参数校验，保证在用户不传opt的时候 或者传了opt但是里面没有context的时候报错
       checkOpt: function(opt) {
